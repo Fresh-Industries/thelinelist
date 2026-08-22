@@ -1,0 +1,19 @@
+# deps and build
+node_modules/
+.next/
+out/
+dist/
+.vercel/
+.env
+.env*.local
+
+# junk
+__pycache__/
+*.pyc
+.DS_Store
+shots/
+*.tar.gz
+
+# editor
+.idea/
+.vscode/
