@@ -10,9 +10,9 @@ export default function NotFound() {
           <p className="kicker">404</p>
           <h1>That page is not on this site.</h1>
           <p>
-            We do not publish thin state or category URLs yet. Start at the{" "}
-            <Link href="/copackers">directory</Link> or the{" "}
-            <Link href="/">finder</Link>.
+            We do not publish thin state or category URLs yet. Start at{" "}
+            <Link href="/">Find My Match</Link> or the{" "}
+            <Link href="/copackers">manufacturer directory</Link>.
           </p>
         </article>
       </main>

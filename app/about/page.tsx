@@ -48,7 +48,7 @@ export default function AboutPage() {
             </section>
           </div>
 
-          <h2>How a plant gets on a page</h2>
+          <h2 id="verify">How a plant gets on a page</h2>
           <p>
             The plant publishes the process on its own site. We fetch that page,
             quote what it prints, and link it. Directory cards, LinkedIn copy,
@@ -97,7 +97,7 @@ export default function AboutPage() {
             affect organic ranking.
           </p>
 
-          <h2>Request an intro</h2>
+          <h2 id="intro">Request an intro</h2>
           <p>
             If a plant in the <Link href="/copackers">directory</Link> matches
             your process, pack, and published floor, we can introduce you. That

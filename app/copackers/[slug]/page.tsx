@@ -53,15 +53,16 @@ export default async function CompanyPage({
     <>
       <SiteHeader current="/copackers" />
       <main id="main">
-        <article className="prose wrap">
+        <article className="prose wrap company-page">
           <p className="kicker">
-            <Link href="/copackers">Directory</Link>
+            <Link href="/copackers">Find Manufacturers</Link>
           </p>
           <h1>{plant.name}</h1>
           <p className="meta">
             Last verified {formatLastVerified(plant.lastVerified)} · Named plant ·
             MOQ only when the plant printed one
           </p>
+          <p className="company-place">{plant.locationDisplay}</p>
 
           <dl className="company-facts">
             <div>

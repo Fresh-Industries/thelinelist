@@ -1,80 +1,81 @@
+import { CategoryCards } from "@/components/CategoryCards";
+import { CopackerCard } from "@/components/CopackerCard";
 import { FinderForm } from "@/components/FinderForm";
+import { HowItWorks } from "@/components/HowItWorks";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SponsoredSlot } from "@/components/ads/SponsoredSlot";
 import { getVerifiedPlants, verifiedStates } from "@/lib/directory";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Find the right US co-packer for your product",
+  title: "From idea to shelf. Find the right US manufacturer",
   description:
-    "Named US co-packers, last-verified, MOQ only when the plant printed one. Find the right plant for a beverage, sauce, or refrigerated RTE SKU.",
+    "Verified U.S. manufacturers for beverages, sauces, and refrigerated foods. Describe what you’re making in plain language. Named plants only. Not CoPack Connect. Not a login.",
 };
 
 export default function HomePage() {
-  const count = getVerifiedPlants().length;
+  const plants = getVerifiedPlants();
+  const count = plants.length;
   const states = verifiedStates();
+  const featured = [...plants]
+    .sort((left, right) => left.name.localeCompare(right.name) || left.slug.localeCompare(right.slug))
+    .slice(0, 8);
 
   return (
     <>
       <SiteHeader current="/" />
-      <main id="main">
-        <div className="wrap">
-          <header className="hero">
-            <p className="kicker">Directory + CPG weekly · 21 Aug 2026</p>
-            <h1>Find the right US co-packer for your product.</h1>
-            <p className="sub">
-              {count} plant-site-verified companies. Named plants, last-verified,
-              MOQ only when the plant printed one. Not CoPack Connect. Not a login.
-            </p>
-            <p className="honest">
-              Working draft, not a census — unpublished stays unpublished; we do
-              not invent plants, phones, emails, MOQs, certs, or search volumes.
-              The 763-row public-list spreadsheet is a lead sheet, not this directory.
-            </p>
-          </header>
-
-          <FinderForm states={states} />
-
-          <SponsoredSlot position="homepage" />
-
-          <section aria-label="Process guides">
-            <p className="kicker">Guides, not the front door</p>
-            <div className="guide-links">
-              <Link className="guide-link" href="/guides/hpp">
-                <strong>HPP</strong>
-                <span>Stays cold. Juice, dip, RTE.</span>
-              </Link>
-              <Link className="guide-link" href="/guides/hot-fill">
-                <strong>Hot fill</strong>
-                <span>High-acid ambient juice, tea, sauce.</span>
-              </Link>
-              <Link className="guide-link" href="/guides/retort">
-                <strong>Retort</strong>
-                <span>Shelf-stable meals, broth, pouch.</span>
-              </Link>
-              <Link className="guide-link" href="/guides/small-moq">
-                <strong>Small MOQ</strong>
-                <span>Only plants that printed a floor.</span>
-              </Link>
-              <Link className="guide-link" href="/guides/sauce">
-                <strong>Sauces</strong>
-                <span>Hot fill, kettle, acidified.</span>
-              </Link>
+      <main id="main" className="home">
+        <section className="hero-immersive">
+          <div className="wrap hero-grid">
+            <div className="hero-copy">
+              <p className="kicker">For first-time CPG founders</p>
+              <h1>From idea to shelf. We connect you to the right makers.</h1>
+              <p className="sub">
+                Verified U.S. manufacturers for beverages, sauces, and refrigerated
+                foods. {count} plant-site-verified companies — no invented listings.
+              </p>
             </div>
-          </section>
+            <figure className="hero-visual">
+              <Image
+                src="/images/hero-produce.svg"
+                alt="Illustration of bottles and produce — decorative, not a specific plant."
+                width={640}
+                height={520}
+              />
+            </figure>
+          </div>
+          <div className="wrap">
+            <FinderForm states={states} variant="match" />
+          </div>
+        </section>
 
-          <NewsletterCta />
+        <div className="wrap">
+          <CategoryCards />
+        </div>
 
-          <p className="also">
-            Also:{" "}
-            <Link href="/glossary">
-              co-packer vs co-manufacturer vs private label vs tolling
-            </Link>{" "}
-            — a glossary, not a plant census. How a plant gets on a page is on{" "}
-            <Link href="/about">About</Link>.
+        <HowItWorks />
+
+        <section className="makers wrap" aria-labelledby="makers-heading">
+          <div className="section-head">
+            <h2 id="makers-heading">Verified manufacturers</h2>
+            <Link href="/copackers">View all →</Link>
+          </div>
+          <p className="section-note">
+            Alphabetical from the verified set — not a ranking, not ratings.
           </p>
+          <div className="maker-scroller">
+            {featured.map((plant) => (
+              <CopackerCard key={plant.slug} plant={plant} />
+            ))}
+          </div>
+        </section>
+
+        <div className="wrap">
+          <SponsoredSlot position="homepage" />
+          <NewsletterCta />
         </div>
       </main>
     </>

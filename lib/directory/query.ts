@@ -81,6 +81,10 @@ function matchesFinderProcess(plant: Plant, process: FinderProcess): boolean {
   return false;
 }
 
+export function countByFinderProduct(product: FinderProduct): number {
+  return VERIFIED_PLANTS.filter((plant) => plant.finderProducts.includes(product)).length;
+}
+
 export function verifiedStates(): string[] {
   const states = new Set<string>();
   for (const plant of VERIFIED_PLANTS) {

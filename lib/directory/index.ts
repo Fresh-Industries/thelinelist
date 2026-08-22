@@ -21,6 +21,7 @@ export {
   stateLabel,
 } from "./labels";
 export {
+  countByFinderProduct,
   countVerifiedSlice,
   filterPlants,
   getPlantBySlug,
@@ -32,6 +33,14 @@ export {
   queryToSearchParams,
   verifiedStates,
 } from "./query";
+export {
+  coverageNote,
+  interpretProductIntent,
+  unsupportedLabel,
+  type ProductCoverage,
+  type ProductIntent,
+  type UnsupportedKind,
+} from "./intent";
 export {
   formatLastVerified,
   formatMoq,

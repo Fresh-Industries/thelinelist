@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/copackers",
     "/about",
+    "/learn",
     "/glossary",
     "/guides/hpp",
     "/guides/hot-fill",

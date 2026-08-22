@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
+import { Fraunces, Source_Sans_3 } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
-const serif = Source_Serif_4({
+const serif = Fraunces({
   subsets: ["latin"],
   variable: "--font-source-serif",
   display: "swap",
@@ -17,11 +17,11 @@ const sans = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: {
-    default: "Find the right US co-packer for your product — The Line List",
+    default: "From idea to shelf. Find the right US manufacturer — The Line List",
     template: "%s — The Line List",
   },
   description:
-    "Public US co-packer directory for CPG founders. Named plants, last-verified, MOQ only when the plant printed one. Not CoPack Connect. Not a login.",
+    "Public US manufacturer directory for first-time CPG founders. Named plants, last-verified, MOQ only when the plant printed one. Not CoPack Connect. Not a login.",
   metadataBase: new URL("https://the-line-list.vercel.app"),
 };
 
