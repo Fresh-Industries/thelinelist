@@ -62,6 +62,7 @@ export interface Plant {
   packaging: string | null;
   productTypesPublished: string | null;
   moqDisplay: string | null;
+  /** True when the plant’s own site printed a numeric or stated MOQ. Not the small-MOQ guide membership. */
   publishedSmallMoq: boolean;
   certs: string[];
   lastVerified: typeof LAST_VERIFIED;

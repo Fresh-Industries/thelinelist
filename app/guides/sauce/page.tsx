@@ -44,10 +44,10 @@ export default function SauceGuidePage() {
           <p>
             Facts from the plant’s own pages fetched <strong>21 Aug 2026</strong>. Blank on their site = <Unpublished />. Not a census. Unpublished MOQ ≠ small — Chelten, Stir, and Tulkoff are not 25-gallon plants.
           </p>
+          <GuidePlantTable guide="sauce" />
           <p>
             <strong>Omitted</strong> (fetched 21 Aug 2026; one-line reason): <strong>Yoshida</strong> — hot-fill, plastic only, no dairy (still in the <Link href="/copackers/yoshida-foods">directory</Link> via the hot-fill page). <strong>Co-Packing Express</strong> — 100 gal liquid (still in the directory via small MOQ). <strong>Lanovara</strong> — hot/cold fill; acidified/LACF; average 75–250 cases, not a floor. <strong>Spicin / Flavorcraft / Carolina CoPacking</strong> — sauce claims; MOQ or fill unpublished. <strong>Sauce Crafters</strong> (Riviera Beach, FL) — 30-year sauce copack, pH test + test batch; MOQ/fill unpublished. <strong>Beaverton</strong> — brand shop; no incoming copack service page. <strong>Stello</strong> — contract packaging/private label; MOQ/fill unpublished. <strong>Woeber</strong> — mustard/horseradish/vinegar/garlic private label only. <strong>Heritage Specialty Foods</strong> — refrigerated kettle soups/sauces; not ambient hot-fill. <strong>Motherlode</strong> (Hudson, CO) — sauce/dressing/salsa copack; first trial <strong>400 gal</strong>; SQF Level II (CO already covered; table capped). Misses: <strong>Sauceology</strong> (dead domain), <strong>Vermont Bottling</strong> (500), <strong>Hinkle</strong> (500), <strong>Allegro</strong> (404), <strong>Pacific Choice</strong> (down), <strong>Golden West</strong> (no copack), <strong>Fuel Kitchens</strong> (commissary). Directories are not plant facts.
           </p>
-          <GuidePlantTable guide="sauce" />
           <h3>How to read the MOQ column</h3>
           <p>
             Published minimums are not comparable units. Parish and The Spice Guy quote <strong>gallons per flavor/run</strong>. Creative and Supreme quote <strong>1,000 gallons</strong>. Fischer <strong>2,500 units/SKU</strong>. El Pinto <strong>10,000 units/year</strong>. Onofrio <strong>100 cases</strong>. If MOQ is unpublished, assume nothing.

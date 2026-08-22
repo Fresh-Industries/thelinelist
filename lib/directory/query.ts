@@ -42,10 +42,10 @@ export function filterPlants(query: DirectoryQuery): Plant[] {
 }
 
 export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
-  if (query.product && !plant.finderProducts.includes(query.product)) {
+  if (query.product && !matchesFinderProduct(plant, query.product)) {
     return false;
   }
-  if (query.process && !plant.finderProcesses.includes(query.process)) {
+  if (query.process && !matchesFinderProcess(plant, query.process)) {
     return false;
   }
   if (query.smallMoq && !plant.publishedSmallMoq) {
@@ -55,6 +55,30 @@ export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
     return false;
   }
   return true;
+}
+
+/**
+ * Empty product tags mean unknown, not “none.” Unknown plants stay visible
+ * when the user picks “Not sure,” and they are not dropped from a product
+ * filter just because we refused to guess.
+ */
+function matchesFinderProduct(plant: Plant, product: FinderProduct): boolean {
+  if (plant.finderProducts.length === 0) return true;
+  return plant.finderProducts.includes(product);
+}
+
+/**
+ * Empty process tags: if the plant also has no published process, treat as
+ * unknown (show on “Not sure,” and do not hide from a process pick). If we
+ * know a non-finder process (pack-out, kettle), do not pretend it is HPP,
+ * hot fill, or retort.
+ */
+function matchesFinderProcess(plant: Plant, process: FinderProcess): boolean {
+  if (plant.finderProcesses.includes(process)) return true;
+  if (plant.finderProcesses.length === 0 && plant.processes.length === 0) {
+    return true;
+  }
+  return false;
 }
 
 export function verifiedStates(): string[] {

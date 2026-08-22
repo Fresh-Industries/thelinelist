@@ -50,7 +50,8 @@ Only coverage the verified set actually supports:
 
 - Product: Beverage, Sauce / condiment, Prepared / refrigerated RTE, Not sure
 - Process: HPP, Hot fill, Retort, Not sure
-- Optional: published small MOQ only; state from verified plants’ city/state
+- Optional: published small MOQ only — any verified plant whose own site printed a numeric or stated floor, not the six-row small-MOQ guide set; state from verified plants’ city/state
+- Empty product/process tags mean unknown. “Not sure” still lists those plants; we do not hide a verified plant because we refused to guess a tag.
 
 No Snacks, Frozen, Supplements, or Cold fill filters — we do not have verified coverage.
 
