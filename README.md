@@ -32,7 +32,7 @@ The public directory is the plants already named on the process pages (HPP, hot 
 
 `data/copackers.csv` is a **public-list lead sheet** (extension lists, locators, visitor rosters). It is **not** a live verified directory. Do not publish unverified CSV rows as company cards.
 
-`linelist-site/` is the archived vanilla HTML. `content/` holds earlier guide drafts.
+`content/` holds earlier guide drafts used while the pages were ported.
 
 ## Routes
 
