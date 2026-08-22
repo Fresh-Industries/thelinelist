@@ -18,6 +18,14 @@ export function formatPackaging(plant: Plant): string | null {
   return plant.packaging;
 }
 
+export function formatCardSnippet(value: string | null, max = 88): string | null {
+  if (!value) return null;
+  if (value.length <= max) return value;
+  const cut = value.slice(0, max - 1);
+  const space = cut.lastIndexOf(" ");
+  return `${cut.slice(0, space > 40 ? space : max - 1)}…`;
+}
+
 export function formatLastVerified(isoDate: string): string {
   const [year, month, day] = isoDate.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day));

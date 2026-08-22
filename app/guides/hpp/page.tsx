@@ -23,7 +23,7 @@ export default function HppGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>HPP Co-Packers in the US: Tolling vs Fill+HPP (Juice, Dips, RTE)</h1>
           <p className="meta">
-            Last verified 21 Aug 2026 · Search volume: unpublished · Named plants only · MOQ only when the plant printed one
+            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
           </p>
 
           <div className="when">
@@ -66,10 +66,11 @@ export default function HppGuidePage() {
           </ol>
           <h2 id="request-intro">Request intro</h2>
           <p>
-            Fresh Industries can <strong>request an intro</strong> to a plant in the table that matches your process, pack, and region. This is not an instant AI match and not an RFQ black box. You still send the brief. We do not broker commission on the run.
+            Fresh Industries can <strong>request an intro</strong> to a plant in the table that matches your process, pack, and region. Open the company page and use Request an intro there. This is not an instant AI match and not an RFQ black box. You still send the brief. We do not broker commission on the run.
           </p>
           <p>
-            If your SKU is hot-fill, retort, or aseptic instead, do not force it onto this list — use a <Link href="/copackers">different filter</Link>.
+            If your SKU is hot-fill, retort, or aseptic instead, do not force it onto this list. Use a{" "}
+            <Link href="/copackers">different filter</Link>.
           </p>
 
           <details className="textbook" id="textbook">

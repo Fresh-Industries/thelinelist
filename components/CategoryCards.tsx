@@ -23,7 +23,7 @@ const CATEGORIES: CategoryCard[] = [
     title: "Sauces & condiments",
     href: "/copackers?product=sauce",
     image: "/images/cat-sauce.svg",
-    blurb: "Hot sauce, salsa, dressings, and kettle work — when the plant said so.",
+    blurb: "Hot sauce, salsa, dressings, and kettle work, when the plant said so.",
   },
   {
     product: "prepared-rte",
@@ -52,7 +52,13 @@ export function CategoryCards() {
         {cards.map((card) => (
           <li key={card.product}>
             <Link className="category-card" href={card.href}>
-              <Image src={card.image} alt="" width={640} height={400} />
+              <Image
+                src={card.image}
+                alt={`Decorative illustration for ${card.title}. Not a photograph of a named plant.`}
+                width={640}
+                height={400}
+                sizes="(max-width: 860px) 100vw, 33vw"
+              />
               <span className="category-card-copy">
                 <strong>{card.title}</strong>
                 <em>

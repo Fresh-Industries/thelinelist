@@ -1,3 +1,4 @@
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
@@ -7,7 +8,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Co-packer vs co-manufacturer vs private label vs tolling",
   description:
-    "Co-packer vs co-manufacturer vs private label vs tolling — a CPG glossary, not a plant census. Named examples only as already published.",
+    "Co-packer vs co-manufacturer vs private label vs tolling. A CPG glossary, not a plant census. Named examples only as already published.",
 };
 
 export default function GlossaryPage() {
@@ -16,13 +17,19 @@ export default function GlossaryPage() {
       <SiteHeader current="/glossary" />
       <main id="main">
         <article className="prose wrap">
+          <Breadcrumbs
+            items={[
+              { name: "Home", href: "/" },
+              { name: "Glossary", href: "/glossary" },
+            ]}
+          />
           <p className="kicker">Glossary</p>
           <h1>Co-packer vs Co-manufacturer vs Private Label vs Tolling</h1>
           <p className="meta">
-            Last verified 21 Aug 2026 · Search volume: unpublished · Named plants only · MOQ only when the plant printed one
+            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
           </p>
           <p>
-            A glossary for CPG brand ops. Not a plant census. Not a legal textbook. Ignore the homepage noun — ask who owns the formula, who buys the ingredients, and which process the line actually runs.
+            A glossary for CPG brand ops. Not a plant census. Not a legal textbook. Ignore the homepage noun. Ask who owns the formula, who buys the ingredients, and which process the line actually runs.
           </p>
           <nav className="jump" aria-label="On this page">
             <a href="#the-four-terms">The four terms</a>
@@ -100,7 +107,7 @@ export default function GlossaryPage() {
               </tbody>
             </table>
           </div>
-          <p className="table-hint">On a small screen, scroll the table sideways — cells are not smashed.</p>
+          <p className="table-hint">On a small screen, scroll the table sideways. Cells are not smashed.</p>
           <p>The blogs stop at “pack vs make.” In food, the next question is the <strong>kill step</strong>. Hot-fill sauce is not a retort pouch is not HPP juice.</p>
 
           <h2 id="which-process">Which process page to use next</h2>
@@ -148,9 +155,9 @@ export default function GlossaryPage() {
               </tbody>
             </table>
           </div>
-          <p className="table-hint">On a small screen, scroll the table sideways — cells are not smashed.</p>
+          <p className="table-hint">On a small screen, scroll the table sideways. Cells are not smashed.</p>
           <p>
-            <strong>Queued, not live — do not RFQ as if we have the file:</strong> acidified / salsa / hot-sauce as its own page, stick-pack / powder / VFFS, aseptic / ESL / cold-fill, and a state / freight page. IBR and InnoMark already sit on the small-MOQ and hot-fill pages if that is the line you need.
+            <strong>Queued, not live. Do not RFQ as if we have the file:</strong> acidified / salsa / hot-sauce as its own page, stick-pack / powder / VFFS, aseptic / ESL / cold-fill, and a state / freight page. IBR and InnoMark already sit on the small-MOQ and hot-fill pages if that is the line you need.
           </p>
 
           <h2 id="what-these-are-not">What these terms are not</h2>
@@ -169,7 +176,8 @@ export default function GlossaryPage() {
 
           <h2>Request an intro</h2>
           <p>
-            If a plant on a process page matches your process, pack, and published floor, we can <strong>introduce you</strong>. We will not email a plant until you name one and ask for the intro.
+            If a plant on a process page matches your process, pack, and published floor, we can <strong>introduce you</strong>. Open a{" "}
+            <Link href="/copackers">manufacturer page</Link> and request the intro there. We will not email a plant until you name one and ask.
           </p>
           <p>If you do not know the process yet, say that in the request instead of asking us to “find a co-packer.”</p>
 

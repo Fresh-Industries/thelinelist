@@ -1,15 +1,24 @@
+import { TrackOnMount } from "@/components/analytics/TrackOnMount";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { ClaimBand } from "@/components/ClaimBand";
+import { IntroModule } from "@/components/IntroModule";
+import { JsonLd } from "@/components/JsonLd";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SourceLinks } from "@/components/SourceLinks";
 import { SponsoredSlot } from "@/components/ads/SponsoredSlot";
 import { Unpublished } from "@/components/Unpublished";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import {
+  claimPlantOptions,
   formatLastVerified,
   formatProcesses,
   formatProductTypes,
   getPlantBySlug,
   getPlantSlugs,
 } from "@/lib/directory";
+import { plantOrganizationJsonLd } from "@/lib/seo/jsonld";
+import { SITE_NAME } from "@/lib/site";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -30,9 +39,24 @@ export async function generateMetadata({
   if (!plant) {
     return { title: "Company not found" };
   }
+  const title = `${plant.name} | U.S. manufacturer`;
+  const description = `${plant.name} in ${plant.locationDisplay}. Plant-site-verified facts. Request an intro when they look like a fit.`;
+  const path = `/copackers/${plant.slug}`;
   return {
-    title: `${plant.name} — US co-packer`,
-    description: `${plant.name} in ${plant.locationDisplay}. Plant-site-verified facts only.`,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      title: `${title} | ${SITE_NAME}`,
+      description,
+      url: path,
+    },
+    twitter: {
+      card: "summary",
+      title: `${title} | ${SITE_NAME}`,
+      description,
+    },
   };
 }
 
@@ -48,21 +72,46 @@ export default async function CompanyPage({
   const processes = formatProcesses(plant);
   const products = formatProductTypes(plant);
   const links = [plant.website, ...(plant.extraLinks ?? [])];
+  const firstSite = plant.sites[0];
+  const claimPreset = {
+    slug: plant.slug,
+    name: plant.name,
+    city: firstSite?.city ?? "",
+    state: firstSite?.state ?? "",
+  };
 
   return (
     <>
       <SiteHeader current="/copackers" />
+      <TrackOnMount
+        event={ANALYTICS_EVENTS.manufacturer_profile_viewed}
+        props={{ slug: plant.slug }}
+      />
+      <JsonLd data={plantOrganizationJsonLd(plant)} />
       <main id="main">
         <article className="prose wrap company-page">
+          <Breadcrumbs
+            items={[
+              { name: "Home", href: "/" },
+              { name: "Find manufacturers", href: "/copackers" },
+              { name: plant.name, href: `/copackers/${plant.slug}` },
+            ]}
+          />
           <p className="kicker">
-            <Link href="/copackers">Find Manufacturers</Link>
+            <Link href="/copackers">Find manufacturers</Link>
           </p>
           <h1>{plant.name}</h1>
           <p className="meta">
-            Last verified {formatLastVerified(plant.lastVerified)} · Named plant ·
-            MOQ only when the plant printed one
+            Last verified {formatLastVerified(plant.lastVerified)}. Facts from the plant&apos;s own
+            site. Minimum order only when they printed one.
           </p>
           <p className="company-place">{plant.locationDisplay}</p>
+
+          <p>
+            <a className="btn btn-gold" href="#intro">
+              Request an introduction
+            </a>
+          </p>
 
           <dl className="company-facts">
             <div>
@@ -107,7 +156,7 @@ export default async function CompanyPage({
                 {plant.sites.map((site) => (
                   <li key={`${site.city ?? "city-unpublished"}-${site.state}-${site.note ?? ""}`}>
                     {site.city ? `${site.city}, ${site.state}` : `${site.state} (city unpublished)`}
-                    {site.note ? ` — ${site.note}` : null}
+                    {site.note ? ` (${site.note})` : null}
                   </li>
                 ))}
               </ul>
@@ -119,8 +168,8 @@ export default async function CompanyPage({
             <SourceLinks links={links} />
           </p>
           <p>
-            No phone or email is published here. If the plant did not print a
-            contact on the fetched pages, it stays unpublished.
+            We do not publish a phone or email here. If the plant did not print contact details on
+            the pages we fetched, the field stays unpublished.
           </p>
 
           {plant.notes && plant.notes.length > 0 ? (
@@ -142,6 +191,8 @@ export default async function CompanyPage({
             ))}
           </p>
 
+          <IntroModule slug={plant.slug} name={plant.name} />
+          <ClaimBand plants={claimPlantOptions()} preset={claimPreset} withForm />
           <SponsoredSlot position="company" />
           <NewsletterCta />
         </article>

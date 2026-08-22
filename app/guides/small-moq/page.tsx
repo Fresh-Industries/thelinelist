@@ -9,7 +9,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Food co-packers with small MOQs",
   description:
-    "“Small MOQ” is not a number. It is a process, a line, and a plant’s published floor — if they even publish one.",
+    "“Small MOQ” is not a number. It is a process, a line, and a plant’s published floor, if they even publish one.",
 };
 
 export default function SmallMoqGuidePage() {
@@ -23,7 +23,7 @@ export default function SmallMoqGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>Food Co-Packers With Small MOQs (What “Small” Actually Means)</h1>
           <p className="meta">
-            Last verified 21 Aug 2026 · Search volume: unpublished · Named plants only · MOQ only when the plant printed one
+            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
           </p>
 
           <div className="when">

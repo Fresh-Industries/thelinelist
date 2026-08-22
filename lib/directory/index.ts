@@ -20,6 +20,7 @@ export {
   productLabel,
   stateLabel,
 } from "./labels";
+export { claimPlantOptions } from "./claim";
 export {
   countByFinderProduct,
   countVerifiedSlice,
@@ -42,6 +43,7 @@ export {
   type UnsupportedKind,
 } from "./intent";
 export {
+  formatCardSnippet,
   formatLastVerified,
   formatMoq,
   formatPackaging,

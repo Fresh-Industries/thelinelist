@@ -59,6 +59,8 @@ No Snacks, Frozen, Supplements, or Cold fill filters — we do not have verified
 
 Sponsored listings render in `components/ads/SponsoredSlot.tsx`. They sit beside organic results and are **not** a sort key. Organic order is name, then slug.
 
-The Tuesday newsletter field is visual only (`hello@thelinelist.com` is a placeholder; the list is not open).
+The Tuesday newsletter signup is hidden until Beehiiv or Kit env is set. See `docs/env-newsletter.md` and `docs/env.md`.
 
-Later additions that should not require a frontend rebuild: ads, analytics, newsletter backend, saved companies, accounts, admin, programmatic SEO, a real database behind `lib/directory/query.ts`.
+Intro and claim forms live on each manufacturer page. They store a lead and notify Fresh. They never claim an intro already happened.
+
+Later additions that should not require a frontend rebuild: ads, analytics adapters, a real database behind `lib/directory/query.ts`.

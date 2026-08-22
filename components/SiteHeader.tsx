@@ -1,20 +1,23 @@
+import { FindManufacturerCta } from "@/components/FindManufacturerCta";
+import { isNewsletterEnabled } from "@/lib/newsletter/config";
 import Image from "next/image";
 import Link from "next/link";
 
-const NAV = [
-  { href: "/copackers", label: "Find Manufacturers", match: "directory" },
-  { href: "/learn", label: "Learn", match: "learn" },
-  { href: "/glossary", label: "Resources", match: "resources" },
-  { href: "/#newsletter", label: "Newsletter", match: "newsletter" },
-] as const;
+type NavMatch = "directory" | "learn" | "glossary" | "newsletter";
 
-function navCurrent(match: (typeof NAV)[number]["match"], current?: string): boolean {
+const BASE_NAV: { href: string; label: string; match: NavMatch }[] = [
+  { href: "/copackers", label: "Find manufacturers", match: "directory" },
+  { href: "/learn", label: "Learn", match: "learn" },
+  { href: "/glossary", label: "Glossary", match: "glossary" },
+];
+
+function navCurrent(match: NavMatch, current?: string): boolean {
   switch (match) {
     case "directory":
       return current === "/copackers" || Boolean(current?.startsWith("/copackers/"));
     case "learn":
       return current === "/learn" || Boolean(current?.startsWith("/guides/"));
-    case "resources":
+    case "glossary":
       return current === "/glossary";
     case "newsletter":
       return false;
@@ -26,6 +29,10 @@ function navCurrent(match: (typeof NAV)[number]["match"], current?: string): boo
 }
 
 export function SiteHeader({ current }: { current?: string }) {
+  const nav = isNewsletterEnabled()
+    ? [...BASE_NAV, { href: "/#newsletter", label: "Newsletter", match: "newsletter" as const }]
+    : BASE_NAV;
+
   return (
     <header className="site-header">
       <div className="wrap header-bar">
@@ -33,13 +40,13 @@ export function SiteHeader({ current }: { current?: string }) {
           <Image className="brand-mark" src="/brand/mark.svg" alt="" width={36} height={36} />
           <span className="brand-text">
             The Line List
-            <span>From idea to shelf</span>
+            <span>Verified U.S. food makers</span>
           </span>
         </Link>
         <details className="nav-menu">
           <summary>Menu</summary>
           <nav className="site-nav" aria-label="Primary">
-            {NAV.map((item) => (
+            {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -48,13 +55,11 @@ export function SiteHeader({ current }: { current?: string }) {
                 {item.label}
               </Link>
             ))}
-            <Link className="btn btn-gold header-cta" href="/about#intro">
-              Get Started
-            </Link>
+            <FindManufacturerCta className="btn btn-gold header-cta" />
           </nav>
         </details>
         <nav className="site-nav site-nav-desktop" aria-label="Primary">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -63,9 +68,7 @@ export function SiteHeader({ current }: { current?: string }) {
               {item.label}
             </Link>
           ))}
-          <Link className="btn btn-gold header-cta" href="/about#intro">
-            Get Started
-          </Link>
+          <FindManufacturerCta className="btn btn-gold header-cta" />
         </nav>
       </div>
     </header>

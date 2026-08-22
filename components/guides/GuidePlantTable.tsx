@@ -140,7 +140,7 @@ export function GuidePlantTable({ guide }: { guide: GuideId }) {
       <div className="table-wrap">
         {renderTable(guide, plants)}
       </div>
-      <p className="table-hint">On a small screen, scroll the table sideways — cells are not smashed.</p>
+      <p className="table-hint">On a small screen, scroll the table sideways. Cells are not smashed.</p>
     </>
   );
 }

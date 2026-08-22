@@ -1,34 +1,27 @@
+import { NewsletterForm } from "@/components/forms/NewsletterForm";
+import { EditorialImage } from "@/components/EditorialImage";
+import { isNewsletterEnabled } from "@/lib/newsletter/config";
+
 export function NewsletterCta() {
+  if (!isNewsletterEnabled()) return null;
+
   return (
     <aside className="nl" id="newsletter" aria-label="The Line List weekly">
-      <div className="nl-icon" aria-hidden="true">
-        ✉
-      </div>
+      <EditorialImage
+        src="/images/newsletter-weekly.svg"
+        alt="Decorative editorial illustration of a weekly note and bottles. Not a photograph of a named plant."
+        width={160}
+        height={160}
+        sizes="160px"
+        className="nl-visual"
+      />
       <div className="nl-copy">
-        <h2>The Line List Weekly</h2>
+        <h2>The Line List weekly</h2>
         <p>
-          A Tuesday morning note (America/Chicago) for first-time CPG founders.
-          Named plants, public facts, one process rule. The list is not open yet.
+          A short Tuesday note (America/Chicago) for CPG founders and brand ops. Named plants,
+          public facts, one process rule.
         </p>
-        <label htmlFor="nl-email">Email</label>
-        <div className="row">
-          <input
-            id="nl-email"
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            autoComplete="email"
-            disabled
-          />
-          <a className="btn btn-gold" href="mailto:hello@thelinelist.com">
-            Join Free
-          </a>
-        </div>
-        <p className="note">
-          Visual only — there is no subscribe backend. Write{" "}
-          <a href="mailto:hello@thelinelist.com">hello@thelinelist.com</a> if you
-          want the Tuesday issue when a list exists.
-        </p>
+        <NewsletterForm />
       </div>
     </aside>
   );

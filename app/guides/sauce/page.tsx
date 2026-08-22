@@ -8,7 +8,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Sauce and condiment contract manufacturers",
   description:
-    "Named US sauce and condiment contract manufacturers — hot fill, kettle, acidified. MOQ only when the plant printed one.",
+    "Named US sauce and condiment contract manufacturers: hot fill, kettle, acidified. MOQ only when the plant printed one.",
 };
 
 export default function SauceGuidePage() {
@@ -20,7 +20,7 @@ export default function SauceGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>Sauce and Condiment Contract Manufacturers (Hot Fill, Kettle, Acidified)</h1>
           <p className="meta">
-            Last verified 21 Aug 2026 · Search volume: unpublished · Named plants only · MOQ only when the plant printed one
+            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
           </p>
 
           <div className="when">

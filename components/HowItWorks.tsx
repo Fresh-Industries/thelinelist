@@ -1,20 +1,24 @@
-import Link from "next/link";
+import { EditorialImage } from "@/components/EditorialImage";
+import { FindManufacturerCta } from "@/components/FindManufacturerCta";
 
 const STEPS = [
   {
     n: "1",
-    title: "Tell us about your product",
-    body: "Hot sauce, juice, hummus — everyday words. We map them to the filters the directory already uses.",
+    title: "Describe the product",
+    body: "Describe the product in plain words. Hot sauce, cold juice, hummus. Say what you make, not jargon.",
+    image: "/images/how-step-1.svg",
   },
   {
     n: "2",
-    title: "See matching manufacturers",
-    body: "Only plant-site-verified companies. If we do not have coverage, we say so instead of inventing a match.",
+    title: "Compare manufacturers",
+    body: "Compare matching manufacturers. Filter by product, process, place, packaging, and published minimum order. Use this when you need to get out of the kitchen for marketing and distribution.",
+    image: "/images/how-step-2.svg",
   },
   {
     n: "3",
-    title: "Read the plant page and ask for an intro",
-    body: "You pick a named plant. We can introduce you — not a blind RFQ, not a login, not a commission.",
+    title: "Request an intro",
+    body: "Open a plant page and request an intro. You pick the plant. We introduce you. No commission.",
+    image: "/images/how-step-3.svg",
   },
 ] as const;
 
@@ -25,18 +29,25 @@ export function HowItWorks() {
         <p className="kicker">New to manufacturing?</p>
         <h2 id="how-heading">From idea to a real plant conversation</h2>
         <p>
-          Most first-time founders do not need a lecture on psi or LACF. Start
-          with the product. Process guides stay in Learn when you want the
-          textbook.
+          Most first-time founders do not need a lecture on psi or LACF. Start with the product.
+          Process guides stay in Learn when you want the textbook.
         </p>
-        <Link className="btn btn-gold" href="/copackers">
-          Find My Match
+        <FindManufacturerCta className="btn btn-gold">
+          Find a Manufacturer
           <span aria-hidden="true"> →</span>
-        </Link>
+        </FindManufacturerCta>
       </div>
       <ol className="how-steps">
         {STEPS.map((step) => (
           <li key={step.n}>
+            <EditorialImage
+              src={step.image}
+              alt={`Decorative illustration for step ${step.n}. Not a photograph of a named plant.`}
+              width={640}
+              height={200}
+              sizes="(max-width: 860px) 100vw, 28rem"
+              className="how-step-image"
+            />
             <span className="how-num">{step.n}</span>
             <h3>{step.title}</h3>
             <p>{step.body}</p>

@@ -20,7 +20,7 @@ export default function HotFillGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>Hot Fill Co-Packers for Sauces, Juices, Teas, and Shots</h1>
           <p className="meta">
-            Last verified 21 Aug 2026 · Search volume: unpublished · Named plants only · MOQ only when the plant printed one
+            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
           </p>
 
           <div className="when">
@@ -114,7 +114,7 @@ export default function HotFillGuidePage() {
 
           <h2 id="request-an-intro">Request an intro</h2>
           <p>
-            If a plant in the table fits pH, format, and published minimum, we can <strong>introduce you</strong>. That is a named intro to a plant you already picked — not an AI match, not a blind RFQ blast, and not a guarantee they will take the SKU.
+            If a plant in the table fits pH, format, and published minimum, we can <strong>introduce you</strong>. That is a named intro to a plant you already picked, not an AI match, not a blind RFQ blast, and not a guarantee they will take the SKU.
           </p>
           <p>
             See the <Link href="/copackers?process=hot-fill">hot-fill directory cards</Link> for the same plants.

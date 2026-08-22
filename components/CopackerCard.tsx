@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {
+  formatCardSnippet,
   formatLastVerified,
+  formatProcesses,
   formatProductTypes,
   type FinderProduct,
   type Plant,
@@ -26,6 +28,8 @@ function cardTone(plant: Plant): string {
 
 export function CopackerCard({ plant }: { plant: Plant }) {
   const products = formatProductTypes(plant);
+  const processes = formatProcesses(plant);
+  const packaging = formatCardSnippet(plant.packaging);
 
   return (
     <article className={`plant-card ${cardTone(plant)}`}>
@@ -43,6 +47,14 @@ export function CopackerCard({ plant }: { plant: Plant }) {
                 ? products.join(" · ")
                 : plant.productTypesPublished ?? <Unpublished />}
             </dd>
+          </div>
+          <div>
+            <dt>Process</dt>
+            <dd>{processes.length > 0 ? processes.join(" · ") : <Unpublished />}</dd>
+          </div>
+          <div>
+            <dt>Packaging</dt>
+            <dd>{packaging ?? <Unpublished />}</dd>
           </div>
           <div>
             <dt>Published MOQ</dt>

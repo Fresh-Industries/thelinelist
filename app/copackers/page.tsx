@@ -1,5 +1,8 @@
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CopackerCard } from "@/components/CopackerCard";
+import { EditorialImage } from "@/components/EditorialImage";
 import { FinderForm } from "@/components/FinderForm";
+import { JsonLd } from "@/components/JsonLd";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SponsoredSlot } from "@/components/ads/SponsoredSlot";
@@ -11,14 +14,17 @@ import {
   productLabel,
   verifiedStates,
 } from "@/lib/directory";
+import { itemListJsonLd } from "@/lib/seo/jsonld";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-export const metadata: Metadata = {
-  title: "US manufacturer directory",
+export const metadata: Metadata = pageMetadata({
+  title: "U.S. food and beverage manufacturer directory",
   description:
-    "Plant-site-verified US manufacturers as company cards. Filter by product, process, published small MOQ, and state.",
-};
+    "Filter plant-site-verified company cards. Unknown fields stay unpublished. Organic order is A to Z.",
+  path: "/copackers",
+});
 
 function firstParam(value: string | string[] | undefined): string {
   if (Array.isArray(value)) return value[0] ?? "";
@@ -41,17 +47,35 @@ export default async function CopackersPage({
   return (
     <>
       <SiteHeader current="/copackers" />
+      <JsonLd data={itemListJsonLd(plants)} />
       <main id="main">
         <div className="wrap">
-          <p className="kicker">Find Manufacturers</p>
-          <h1>
-            {productName ? `Matching manufacturers for ${productName}` : "US manufacturers"}
-          </h1>
-          <p className="lede">
-            Company cards from plant-site-verified listings. Unknown fields stay
-            unknown. Organic ranking is alphabetical — sponsored slots sit
-            separately.
-          </p>
+          <Breadcrumbs
+            items={[
+              { name: "Home", href: "/" },
+              { name: "Find manufacturers", href: "/copackers" },
+            ]}
+          />
+          <div className="directory-head">
+            <div>
+              <p className="kicker">Find Manufacturers</p>
+              <h1>
+                {productName ? `Manufacturers for ${productName}` : "Compare U.S. manufacturers"}
+              </h1>
+              <p className="lede">
+                Filter plant-site-verified company cards. Unknown fields stay unpublished. Organic
+                order is A to Z. Sponsored slots sit apart when we have them.
+              </p>
+            </div>
+            <EditorialImage
+              src="/images/directory-header.svg"
+              alt="Decorative illustration of a manufacturer directory. Not a photograph of a named plant."
+              width={420}
+              height={280}
+              sizes="(max-width: 860px) 100vw, 20rem"
+              className="directory-visual"
+            />
+          </div>
 
           {note ? <p className="coverage-note">{note}</p> : null}
 
@@ -75,9 +99,16 @@ export default async function CopackersPage({
 
           {plants.length === 0 ? (
             <div className="empty-results">
+              <EditorialImage
+                src="/images/directory-header.svg"
+                alt="Decorative illustration for an empty manufacturer search. Not a photograph of a named plant."
+                width={420}
+                height={280}
+                sizes="18rem"
+              />
               <p>
-                No verified plant matches those filters. Try “Not sure” on process
-                or product — we only show coverage we actually have.
+                No verified plant matches those filters. We will not invent a match. Set process or
+                product to Not sure, or widen the state. We only show coverage we have.
               </p>
             </div>
           ) : (

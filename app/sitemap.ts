@@ -1,8 +1,8 @@
-import { getPlantSlugs } from "@/lib/directory";
+import { getPlantSlugs, LAST_VERIFIED } from "@/lib/directory";
+import { SITE_URL } from "@/lib/site";
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://the-line-list.vercel.app";
   const staticRoutes = [
     "",
     "/copackers",
@@ -18,12 +18,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticRoutes.map((path) => ({
-      url: `${base}${path}`,
-      lastModified: "2026-08-21",
+      url: `${SITE_URL}${path}`,
+      lastModified: LAST_VERIFIED,
+      changeFrequency: "weekly" as const,
     })),
     ...getPlantSlugs().map((slug) => ({
-      url: `${base}/copackers/${slug}`,
-      lastModified: "2026-08-21",
+      url: `${SITE_URL}/copackers/${slug}`,
+      lastModified: LAST_VERIFIED,
+      changeFrequency: "weekly" as const,
     })),
   ];
 }

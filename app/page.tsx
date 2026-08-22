@@ -1,20 +1,22 @@
 import { CategoryCards } from "@/components/CategoryCards";
 import { CopackerCard } from "@/components/CopackerCard";
+import { EditorialImage } from "@/components/EditorialImage";
 import { FinderForm } from "@/components/FinderForm";
 import { HowItWorks } from "@/components/HowItWorks";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SponsoredSlot } from "@/components/ads/SponsoredSlot";
 import { getVerifiedPlants, verifiedStates } from "@/lib/directory";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "From idea to shelf. Find the right US manufacturer",
+export const metadata: Metadata = pageMetadata({
+  title: "Find a U.S. food and beverage manufacturer",
   description:
-    "Verified U.S. manufacturers for beverages, sauces, and refrigerated foods. Describe what you’re making in plain language. Named plants only. Not CoPack Connect. Not a login.",
-};
+    "Compare verified U.S. food and beverage manufacturers by product, process, location, packaging, and minimum order. About 36 plant-site-verified companies.",
+  path: "/",
+});
 
 export default function HomePage() {
   const plants = getVerifiedPlants();
@@ -31,19 +33,22 @@ export default function HomePage() {
         <section className="hero-immersive">
           <div className="wrap hero-grid">
             <div className="hero-copy">
-              <p className="kicker">For first-time CPG founders</p>
-              <h1>From idea to shelf. We connect you to the right makers.</h1>
+              <p className="kicker">For CPG founders ready to manufacture</p>
+              <h1>Find the right U.S. food and beverage manufacturer.</h1>
               <p className="sub">
-                Verified U.S. manufacturers for beverages, sauces, and refrigerated
-                foods. {count} plant-site-verified companies — no invented listings.
+                Compare verified U.S. food and beverage manufacturers by product, process, location,
+                packaging, and minimum order. About {count} companies, each checked against the
+                plant&apos;s own site.
               </p>
             </div>
             <figure className="hero-visual">
-              <Image
+              <EditorialImage
                 src="/images/hero-produce.svg"
-                alt="Illustration of bottles and produce — decorative, not a specific plant."
+                alt="Decorative illustration of bottles and produce. Not a photograph of a named plant."
                 width={640}
                 height={520}
+                sizes="(max-width: 860px) 100vw, 40vw"
+                priority
               />
             </figure>
           </div>
@@ -64,7 +69,7 @@ export default function HomePage() {
             <Link href="/copackers">View all →</Link>
           </div>
           <p className="section-note">
-            Alphabetical from the verified set — not a ranking, not ratings.
+            Alphabetical from the verified set, not a ranking, not ratings.
           </p>
           <div className="maker-scroller">
             {featured.map((plant) => (

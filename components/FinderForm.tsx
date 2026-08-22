@@ -1,5 +1,6 @@
 "use client";
 
+import { trackFilter, trackSearch } from "@/lib/analytics/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FormEvent, useId, useState } from "react";
@@ -53,6 +54,16 @@ function asProcess(value: string): FinderProcess | undefined {
   }
 }
 
+function analyticsProps(query: DirectoryQuery, making: string) {
+  return {
+    product: query.product ?? "unsure",
+    process: query.process ?? "unsure",
+    state: query.state ?? "any",
+    smallMoq: Boolean(query.smallMoq),
+    q: making.trim() || undefined,
+  };
+}
+
 export function FinderForm({
   states,
   initial,
@@ -76,7 +87,7 @@ export function FinderForm({
   const [smallMoq, setSmallMoq] = useState(initial?.smallMoq ?? false);
   const [state, setState] = useState(initial?.state ?? "");
   const isMatch = variant === "match";
-  const buttonLabel = submitLabel ?? (isMatch ? "Find My Match" : "Update results");
+  const buttonLabel = submitLabel ?? (isMatch ? "Find a Manufacturer" : "Update results");
 
   const selectedProcess = PROCESS_OPTIONS.find((option) => option.value === process);
 
@@ -107,28 +118,35 @@ export function FinderForm({
   }
 
   function pushQuery(query: DirectoryQuery) {
+    trackFilter(analyticsProps(query, making));
     router.replace(hrefFor(query), { scroll: false });
   }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    router.push(hrefFor(currentQuery()));
+    const query = currentQuery();
+    if (isMatch) {
+      trackSearch(analyticsProps(query, making));
+    } else {
+      trackFilter(analyticsProps(query, making));
+    }
+    router.push(hrefFor(query));
   }
 
   return (
     <form
       className={isMatch ? "finder finder-match" : "finder"}
       onSubmit={onSubmit}
-      aria-label="Find My Match"
+      aria-label={isMatch ? "Find a manufacturer" : "Filter manufacturers"}
     >
       {isMatch ? (
         <div className="finder-copy">
-          <p className="finder-kicker">Find My Match</p>
-          <h2>Tell us what you want to make</h2>
-          <p>Use everyday words. We map them to verified plants — you do not need to know HPP, retort, or hot fill.</p>
+          <p className="finder-kicker">Find a manufacturer</p>
+          <h2>Describe what you want to make</h2>
+          <p>Use plain words. Hot sauce, cold juice, hummus. You do not need process jargon yet.</p>
         </div>
       ) : (
-        <h2>Find My Match</h2>
+        <h2>Filter manufacturers</h2>
       )}
       <div className={isMatch ? "finder-grid finder-grid-match" : "finder-grid"}>
         {isMatch ? (
@@ -139,7 +157,7 @@ export function FinderForm({
               name="q"
               type="text"
               value={making}
-              placeholder="e.g. Hot sauce, cold juice, hummus…"
+              placeholder="e.g. Hot sauce, cold juice, hummus"
               autoComplete="off"
               onChange={(event) => setMaking(event.target.value)}
             />
@@ -169,7 +187,7 @@ export function FinderForm({
         )}
         {isMatch ? null : (
           <div className="field">
-            <label htmlFor={`${id}-process`}>Process if you already know it</label>
+            <label htmlFor={`${id}-process`}>Process (if you know it)</label>
             <select
               id={`${id}-process`}
               name="process"
@@ -214,7 +232,7 @@ export function FinderForm({
           </select>
         </div>
         <div className="field">
-          <label htmlFor={`${id}-moq`}>MOQ?</label>
+          <label htmlFor={`${id}-moq`}>Minimum order</label>
           <select
             id={`${id}-moq`}
             name="smallMoq"
