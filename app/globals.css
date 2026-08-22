@@ -1270,6 +1270,11 @@ summary:focus-visible {
   outline-offset: 3px;
 }
 
+.btn-gold:focus-visible {
+  outline-color: var(--paper);
+  box-shadow: 0 0 0 2px var(--forest);
+}
+
 .when {
   background: var(--raised);
   border-left: 3px solid var(--forest);

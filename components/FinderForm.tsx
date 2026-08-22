@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FormEvent, useId, useState } from "react";
 import {
   PROCESS_OPTIONS,
@@ -243,7 +244,7 @@ export function FinderForm({
           <ul>
             {POPULAR_SEARCHES.map((chip) => (
               <li key={chip.label}>
-                <a href={chip.href}>{chip.label}</a>
+                <Link href={chip.href}>{chip.label}</Link>
               </li>
             ))}
           </ul>
