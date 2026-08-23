@@ -1,4 +1,5 @@
 import { NewsletterCta } from "@/components/NewsletterCta";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
@@ -19,7 +20,8 @@ export default function HppGuidePage() {
     <>
       <SiteHeader current="/guides/hpp" />
       <main id="main">
-        <article className="prose wrap">
+        <article className="prose wrap process-guide">
+          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides" }, { name: "HPP", href: "/guides/hpp" }]} />
           <p className="kicker">Process guide</p>
           <h1>HPP Co-Packers in the US: Tolling vs Fill+HPP (Juice, Dips, RTE)</h1>
           <p className="meta">

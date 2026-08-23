@@ -1,4 +1,5 @@
 import { NewsletterCta } from "@/components/NewsletterCta";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
@@ -16,7 +17,8 @@ export default function HotFillGuidePage() {
     <>
       <SiteHeader current="/guides/hot-fill" />
       <main id="main">
-        <article className="prose wrap">
+        <article className="prose wrap process-guide">
+          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides" }, { name: "Hot fill", href: "/guides/hot-fill" }]} />
           <p className="kicker">Process guide</p>
           <h1>Hot Fill Co-Packers for Sauces, Juices, Teas, and Shots</h1>
           <p className="meta">

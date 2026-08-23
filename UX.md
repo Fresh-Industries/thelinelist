@@ -102,6 +102,7 @@ Owns plant-side corrections and submissions. It is not embedded as a large form 
 - Keep manufacturer search results, manufacturer cards and profiles, verification information, sources, reviewed dates, introduction forms, and legal pages clean and data-focused. Clay products represent the founder's idea, never an actual manufacturer or facility.
 - Keep copy universal and practical. Color and interaction may feel current, but never describe the product publicly as being for a generation or age group.
 - Accurate accessible SVG diagrams for manufacturing lessons; never use generated imagery to explain an exact process sequence.
+- Guide pages lead with a 30-second answer, a visual decision aid, a numbered game plan, and a saveable checklist before deeper reference material. The guide hub starts with product intent, then offers a storage-first process map for people who do not know the manufacturing term yet.
 - Neutral monograms or category treatments for manufacturers without rights-cleared media.
 - No match scores, fake badges, urgency, ratings, or vanity counters.
 

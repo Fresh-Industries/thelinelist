@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/guides/hpp",
     "/guides/hot-fill",
     "/guides/retort",
+    "/guides/sauce",
     "/guides/small-moq",
   ];
 

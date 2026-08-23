@@ -1,4 +1,5 @@
 import { NewsletterCta } from "@/components/NewsletterCta";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
@@ -16,7 +17,8 @@ export default function SauceGuidePage() {
     <>
       <SiteHeader current="/guides/sauce" />
       <main id="main">
-        <article className="prose wrap">
+        <article className="prose wrap process-guide">
+          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides" }, { name: "Sauce paths", href: "/guides/sauce" }]} />
           <p className="kicker">Process guide</p>
           <h1>Sauce and Condiment Contract Manufacturers (Hot Fill, Kettle, Acidified)</h1>
           <p className="meta">

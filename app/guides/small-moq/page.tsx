@@ -1,4 +1,5 @@
 import { NewsletterCta } from "@/components/NewsletterCta";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
@@ -19,7 +20,8 @@ export default function SmallMoqGuidePage() {
     <>
       <SiteHeader current="/guides/small-moq" />
       <main id="main">
-        <article className="prose wrap">
+        <article className="prose wrap process-guide">
+          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides" }, { name: "Minimum runs", href: "/guides/small-moq" }]} />
           <p className="kicker">Process guide</p>
           <h1>Food Co-Packers With Small MOQs (What “Small” Actually Means)</h1>
           <p className="meta">

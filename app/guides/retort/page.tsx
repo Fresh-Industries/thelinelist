@@ -1,4 +1,5 @@
 import { NewsletterCta } from "@/components/NewsletterCta";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
@@ -16,7 +17,8 @@ export default function RetortGuidePage() {
     <>
       <SiteHeader current="/guides/retort" />
       <main id="main">
-        <article className="prose wrap">
+        <article className="prose wrap process-guide">
+          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides" }, { name: "Retort", href: "/guides/retort" }]} />
           <p className="kicker">Process guide</p>
           <h1>Retort Co-Packers for Pouches, Cans, and Trays</h1>
           <p className="meta">
