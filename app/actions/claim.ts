@@ -12,14 +12,13 @@ import {
   readFormString,
 } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
+import { absoluteUrl } from "@/lib/site";
 
 export interface ClaimActionState {
   status: "idle" | "success" | "error" | "duplicate";
   message?: string;
   fieldErrors?: FieldErrors;
 }
-
-export const idleClaimState: ClaimActionState = { status: "idle" };
 
 export async function submitClaim(
   _prev: ClaimActionState,
@@ -137,8 +136,8 @@ export async function submitClaim(
     manufacturerName: input.manufacturerName,
     sourceUrl:
       listed && input.manufacturerSlug !== "not-listed"
-        ? `https://the-line-list.vercel.app/copackers/${input.manufacturerSlug}`
-        : "https://the-line-list.vercel.app/about#claim",
+        ? absoluteUrl(`/manufacturers/${input.manufacturerSlug}`)
+        : absoluteUrl("/claim-submit"),
     createdAt: new Date().toISOString(),
     utm: mergeRequestUtm(formData, context.utmCookie),
     payload,

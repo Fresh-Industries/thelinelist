@@ -1,0 +1,81 @@
+import type { FinderProduct, Plant } from "./types";
+
+export const PRODUCT_CATEGORIES = [
+  { slug: "soda", label: "Soda", group: "beverage", description: "Soft drinks and sparkling beverages" },
+  { slug: "energy-drink", label: "Energy drinks", group: "beverage", description: "Canned or bottled energy beverages" },
+  { slug: "sports-hydration", label: "Sports and hydration", group: "beverage", description: "Still or sparkling hydration drinks" },
+  { slug: "functional-beverages", label: "Wellness drinks & shots", group: "beverage", description: "Drinks and shots with added ingredients for a specific benefit" },
+  { slug: "cold-pressed-juice", label: "Cold-pressed juice", group: "beverage", description: "Pressed juice with a separate safety process" },
+  { slug: "juice", label: "Juice", group: "beverage", description: "Juice, lemonade, smoothies, and shots" },
+  { slug: "rtd-coffee-tea", label: "Tea and coffee drinks", group: "beverage", description: "Ready-to-drink coffee and tea" },
+  { slug: "water", label: "Water", group: "beverage", description: "Still or sparkling packaged water" },
+  { slug: "hot-sauce", label: "Hot sauce", group: "sauce", description: "Pepper sauces and small-bottle formats" },
+  { slug: "sauce", label: "Sauce", group: "sauce", description: "Sauces, condiments, and syrups" },
+  { slug: "salsa", label: "Salsa", group: "sauce", description: "Fresh or shelf-stable salsa" },
+  { slug: "dressings-marinades", label: "Dressings and marinades", group: "sauce", description: "Dressings, vinaigrettes, and marinades" },
+  { slug: "dips-hummus", label: "Dips and hummus", group: "prepared-rte", description: "Refrigerated dips and spreads" },
+  { slug: "prepared-refrigerated-foods", label: "Prepared refrigerated foods", group: "prepared-rte", description: "Prepared meals, soups, salads, and sides" },
+] as const satisfies readonly {
+  slug: string;
+  label: string;
+  group: FinderProduct;
+  description: string;
+}[];
+
+export type ProductCategorySlug = (typeof PRODUCT_CATEGORIES)[number]["slug"];
+
+export const CATEGORY_HUB_CONTENT: Record<
+  ProductCategorySlug,
+  { seoTitle: string; h1: string; description: string; questions: string[] }
+> = {
+  soda: { seoTitle: "Soda and Soft Drink Co-Packers", h1: "Find soda and soft drink co-packers", description: "Compare manufacturers whose public product descriptions name soft drinks or soda. Confirm carbonation and pack fit directly.", questions: ["Can the line carbonate my formula?", "Does the line run my can or bottle size?"] },
+  "energy-drink": { seoTitle: "Energy Drink Co-Packers", h1: "Find energy drink co-packers", description: "Compare manufacturers whose public product descriptions name energy drinks. Ask about cans, bottles, carbonation, formula path, and shelf stability.", questions: ["Do you run cans, bottles, or both?", "Can you support a private-label base or a custom formula?"] },
+  "sports-hydration": { seoTitle: "Sports Drink and Hydration Beverage Manufacturers", h1: "Find sports and hydration beverage manufacturers", description: "Compare publicly stated sports and hydration beverage capabilities. Confirm still or sparkling fit and package format.", questions: ["Do you run still and sparkling beverages?", "Do you fill RTD products, powders, or both?"] },
+  "functional-beverages": { seoTitle: "Functional Beverage Co-Packers", h1: "Find wellness drink and shot manufacturers", description: "The industry often calls these functional beverages. Compare manufacturers that publicly name wellness drinks or shots, then confirm ingredient, process, and claim fit directly.", questions: ["Has the line handled a similar ingredient system?", "How will process affect sensitive ingredients?"] },
+  "cold-pressed-juice": { seoTitle: "Cold Pressed Juice Co-Manufacturers", h1: "Find cold-pressed juice co-manufacturers", description: "Compare manufacturers that publicly name cold-pressed juice. Cold pressed describes extraction and is not automatically the same as HPP.", questions: ["How is the juice safety process validated?", "Does the package fit HPP, heat, or another control?"] },
+  juice: { seoTitle: "Juice Co-Packers and Co-Manufacturers", h1: "Find juice co-packers", description: "Compare manufacturers whose public product descriptions name juice, lemonade, smoothies, or shots.", questions: ["How do you meet Juice HACCP requirements for this product?", "Is the product refrigerated or shelf-stable?"] },
+  "rtd-coffee-tea": { seoTitle: "RTD Coffee and Tea Co-Packers", h1: "Find RTD coffee and tea co-packers", description: "Compare manufacturers that publicly name ready-to-drink coffee, tea, or cold brew. Confirm dairy, process, and pack fit.", questions: ["Do you handle dairy and non-dairy products?", "Which process works for this formula and package?"] },
+  water: { seoTitle: "Bottled Water Private Label and Co-Packing", h1: "Find bottled water private-label partners", description: "Compare manufacturers that publicly name packaged water. Confirm source, treatment, still or sparkling capability, and label claims.", questions: ["What source and treatment support the intended label?", "Which still or sparkling formats do you fill?"] },
+  "hot-sauce": { seoTitle: "Hot Sauce Co-Packers and Co-Manufacturers", h1: "Find hot sauce co-packers", description: "Compare manufacturers that publicly name hot sauce. Ask about acidified process fit, bottle size, particulate handling, and minimum runs.", questions: ["Do you run acidified hot sauce in my bottle?", "What process-authority work is needed before a trial?"] },
+  sauce: { seoTitle: "Sauce Co-Packers", h1: "Find sauce co-packers", description: "Compare manufacturers whose public descriptions name sauces or condiments. Confirm formula, process, packaging, and storage fit.", questions: ["Is this formula shelf-stable or refrigerated?", "Can the filler handle the product viscosity and package?"] },
+  salsa: { seoTitle: "Salsa Co-Packers", h1: "Find salsa co-packers", description: "Compare manufacturers that publicly name salsa. Ask about acidified process fit, fresh versus shelf-stable storage, and particulate size.", questions: ["Do you run fresh refrigerated or shelf-stable salsa?", "What particulate size can the filler handle?"] },
+  "dressings-marinades": { seoTitle: "Dressing and Marinade Co-Packers", h1: "Find dressing and marinade co-packers", description: "Compare manufacturers that publicly name dressings, vinaigrettes, or marinades. Confirm emulsion, allergen, process, and pack fit.", questions: ["Does the line run emulsions or only thinner liquids?", "What allergen controls apply to this formula?"] },
+  "dips-hummus": { seoTitle: "Dips and Hummus Co-Packers", h1: "Find dips and hummus co-packers", description: "Compare manufacturers that publicly name dips or hummus. Refrigerated capacity, allergens, packaging, and cold chain drive fit.", questions: ["Is this refrigerated capacity?", "Do you use HPP for this product, or another process?"] },
+  "prepared-refrigerated-foods": { seoTitle: "Prepared Refrigerated Foods Co-Packers", h1: "Find prepared refrigerated food co-packers", description: "Compare manufacturers that publicly name prepared or refrigerated foods. Confirm inspection scope, cold chain, pack, and audit needs.", questions: ["Is the facility scope right for the ingredients?", "Where are finished goods stored after production?"] },
+};
+
+const CATEGORY_PATTERNS: Record<ProductCategorySlug, RegExp> = {
+  soda: /\b(soda|soft drink|sparkling beverage|carbonated beverage)\b/i,
+  "energy-drink": /\benergy drink(s)?\b/i,
+  "sports-hydration": /\b(sport(s)? drink|hydration|electrolyte)\b/i,
+  "functional-beverages": /\b(functional beverage|wellness shot)\b/i,
+  "cold-pressed-juice": /\bcold[- ]pressed juice(s)?\b/i,
+  juice: /\b(juice|juices|lemonade|smoothie|smoothies|wellness shot|shots)\b/i,
+  "rtd-coffee-tea": /\b(tea|teas|coffee|cold[- ]brew|RTD coffee|RTD tea)\b/i,
+  water: /\b(bottled water|packaged water|sparkling water)\b/i,
+  "hot-sauce": /\bhot sauce\b/i,
+  sauce: /\b(sauce|sauces|condiment|condiments|syrup|syrups)\b/i,
+  salsa: /\bsalsa(s)?\b/i,
+  "dressings-marinades": /\b(dressing|dressings|marinade|marinades|vinaigrette)\b/i,
+  "dips-hummus": /\b(dip|dips|hummus)\b/i,
+  "prepared-refrigerated-foods": /\b(RTE|ready[- ]to[- ]eat|prepared|refrigerated|meal|meals|salad|salads|soup|soups|broth|broths|entree|entrees|baby food)\b/i,
+};
+
+export function getProductCategory(slug: string) {
+  return PRODUCT_CATEGORIES.find((category) => category.slug === slug);
+}
+
+export function isProductCategorySlug(value: string): value is ProductCategorySlug {
+  return PRODUCT_CATEGORIES.some((category) => category.slug === value);
+}
+
+export function plantMatchesCategory(plant: Plant, category: ProductCategorySlug): boolean {
+  const disclosedText = [
+    plant.productTypesPublished,
+    ...plant.overview,
+    plant.packaging,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join(" ");
+  return CATEGORY_PATTERNS[category].test(disclosedText);
+}

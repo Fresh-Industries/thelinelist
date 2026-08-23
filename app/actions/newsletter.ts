@@ -12,8 +12,6 @@ export interface NewsletterActionState {
   fieldErrors?: FieldErrors;
 }
 
-export const idleNewsletterState: NewsletterActionState = { status: "idle" };
-
 export async function submitNewsletter(
   _prev: NewsletterActionState,
   formData: FormData,
@@ -69,5 +67,5 @@ export async function submitNewsletter(
     };
   }
 
-  return { status: "success", message: "You are on the Tuesday list." };
+  return { status: "success", message: "You are on the list." };
 }

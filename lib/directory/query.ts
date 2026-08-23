@@ -1,12 +1,15 @@
 import "./assert";
 import { STATE_NAMES } from "./labels";
 import { VERIFIED_PLANTS } from "./plants";
+import { isProductCategorySlug, plantMatchesCategory } from "./categories";
 import type {
+  CertificationFilter,
   DirectoryQuery,
   FinderProcess,
   FinderProduct,
   FutureSliceKeys,
   GuideId,
+  PackagingFilter,
   Plant,
 } from "./types";
 
@@ -45,10 +48,19 @@ export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
   if (query.product && !matchesFinderProduct(plant, query.product)) {
     return false;
   }
+  if (query.category && !plantMatchesCategory(plant, query.category)) {
+    return false;
+  }
   if (query.process && !matchesFinderProcess(plant, query.process)) {
     return false;
   }
-  if (query.smallMoq && !plant.publishedSmallMoq) {
+  if ((query.smallMoq || query.moqDisclosed) && !plant.publishedSmallMoq) {
+    return false;
+  }
+  if (query.packaging && !matchesPackaging(plant, query.packaging)) {
+    return false;
+  }
+  if (query.certification && !matchesCertification(plant, query.certification)) {
     return false;
   }
   if (query.state && !plant.sites.some((site) => site.state === query.state)) {
@@ -58,27 +70,45 @@ export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
 }
 
 /**
- * Empty product tags mean unknown, not “none.” Unknown plants stay visible
- * when the user picks “Not sure,” and they are not dropped from a product
- * filter just because we refused to guess.
+ * Empty product tags mean unknown, not a match. They remain visible only when
+ * no product filter is active.
  */
 function matchesFinderProduct(plant: Plant, product: FinderProduct): boolean {
-  if (plant.finderProducts.length === 0) return true;
   return plant.finderProducts.includes(product);
 }
 
 /**
- * Empty process tags: if the plant also has no published process, treat as
- * unknown (show on “Not sure,” and do not hide from a process pick). If we
- * know a non-finder process (pack-out, kettle), do not pretend it is HPP,
- * hot fill, or retort.
+ * Empty process tags mean unknown, not a match. Never claim a capability from
+ * an absent tag.
  */
 function matchesFinderProcess(plant: Plant, process: FinderProcess): boolean {
   if (plant.finderProcesses.includes(process)) return true;
-  if (plant.finderProcesses.length === 0 && plant.processes.length === 0) {
-    return true;
-  }
   return false;
+}
+
+function matchesPackaging(plant: Plant, packaging: PackagingFilter): boolean {
+  if (!plant.packaging) return false;
+  const patterns: Record<PackagingFilter, RegExp> = {
+    can: /\b(can|cans|canning|aluminum)\b/i,
+    bottle: /\b(bottle|bottles|bottling|PET|HDPE)\b/i,
+    jar: /\b(jar|jars|glass)\b/i,
+    pouch: /\b(pouch|pouches|sachet|sachets|bag|bags|stick pack)\b/i,
+    other: /\b(cup|cups|tub|tubs|tray|trays|carton|cartons|drum|drums|tote|totes|pail|pails)\b/i,
+  };
+  return patterns[packaging].test(plant.packaging);
+}
+
+function matchesCertification(plant: Plant, certification: CertificationFilter): boolean {
+  const certs = plant.certs.join(" ");
+  const patterns: Record<CertificationFilter, RegExp> = {
+    organic: /\borganic\b/i,
+    kosher: /\bkosher\b|KOF-K|STAR-K/i,
+    halal: /\bhalal\b/i,
+    "gluten-free": /gluten[- ]?free|GFCO/i,
+    "non-gmo": /non[- ]?GMO/i,
+    sqf: /\bSQF\b/i,
+  };
+  return patterns[certification].test(certs);
 }
 
 export function countByFinderProduct(product: FinderProduct): number {
@@ -119,8 +149,12 @@ export function parseDirectoryQuery(
 ): DirectoryQuery {
   return {
     product: readProduct(first(searchParams.product)),
+    category: readCategory(first(searchParams.category)),
     process: readProcess(first(searchParams.process)),
     smallMoq: first(searchParams.smallMoq) === "1",
+    moqDisclosed: first(searchParams.moq) === "disclosed",
+    packaging: readPackaging(first(searchParams.packaging)),
+    certification: readCertification(first(searchParams.certification)),
     state: readState(first(searchParams.state)),
   };
 }
@@ -128,10 +162,32 @@ export function parseDirectoryQuery(
 export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   const params = new URLSearchParams();
   if (query.product) params.set("product", query.product);
+  if (query.category) params.set("category", query.category);
   if (query.process) params.set("process", query.process);
   if (query.smallMoq) params.set("smallMoq", "1");
+  if (query.moqDisclosed) params.set("moq", "disclosed");
+  if (query.packaging) params.set("packaging", query.packaging);
+  if (query.certification) params.set("certification", query.certification);
   if (query.state) params.set("state", query.state);
   return params;
+}
+
+function readCategory(value: string | undefined) {
+  return value && isProductCategorySlug(value) ? value : undefined;
+}
+
+function readPackaging(value: string | undefined): PackagingFilter | undefined {
+  switch (value) {
+    case "can": case "bottle": case "jar": case "pouch": case "other": return value;
+    default: return undefined;
+  }
+}
+
+function readCertification(value: string | undefined): CertificationFilter | undefined {
+  switch (value) {
+    case "organic": case "kosher": case "halal": case "gluten-free": case "non-gmo": case "sqf": return value;
+    default: return undefined;
+  }
 }
 
 function first(value: string | string[] | undefined): string | undefined {

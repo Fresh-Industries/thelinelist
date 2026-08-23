@@ -16,6 +16,8 @@ export type GuideId = "hpp" | "hot-fill" | "retort" | "small-moq" | "sauce";
 
 export type FinderProcess = "hpp" | "hot-fill" | "retort";
 export type FinderProduct = "beverage" | "sauce" | "prepared-rte";
+export type PackagingFilter = "can" | "bottle" | "jar" | "pouch" | "other";
+export type CertificationFilter = "organic" | "kosher" | "halal" | "gluten-free" | "non-gmo" | "sqf";
 
 export type ProcessCapability =
   | "hpp"
@@ -76,8 +78,12 @@ export interface Plant {
 
 export interface DirectoryQuery {
   product?: FinderProduct;
+  category?: import("./categories").ProductCategorySlug;
   process?: FinderProcess;
   smallMoq?: boolean;
+  moqDisclosed?: boolean;
+  packaging?: PackagingFilter;
+  certification?: CertificationFilter;
   state?: string;
 }
 

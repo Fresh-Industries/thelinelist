@@ -34,7 +34,7 @@ function HppTable({ plants }: { plants: Plant[] }) {
             <tr key={plant.slug}>
               <td>
                 <strong>
-                  <Link href={`/copackers/${plant.slug}`}>{plant.name}</Link>
+                  <Link href={`/manufacturers/${plant.slug}`}>{plant.name}</Link>
                 </strong>
               </td>
               <td>{cell(row?.location)}</td>
@@ -75,7 +75,7 @@ function ProcessTable({ plants, guide }: { plants: Plant[]; guide: "hot-fill" | 
             <tr key={plant.slug}>
               <td>
                 <strong>
-                  <Link href={`/copackers/${plant.slug}`}>{plant.name}</Link>
+                  <Link href={`/manufacturers/${plant.slug}`}>{plant.name}</Link>
                 </strong>
               </td>
               <td>{cell(row?.location)}</td>
@@ -115,7 +115,7 @@ function SmallMoqTable({ plants }: { plants: Plant[] }) {
             <tr key={plant.slug}>
               <td>
                 <strong>
-                  <Link href={`/copackers/${plant.slug}`}>{plant.name}</Link>
+                  <Link href={`/manufacturers/${plant.slug}`}>{plant.name}</Link>
                 </strong>
               </td>
               <td>{cell(row?.location)}</td>

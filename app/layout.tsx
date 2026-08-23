@@ -1,55 +1,59 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { Bricolage_Grotesque, Manrope } from "next/font/google";
 import { AnalyticsScripts } from "@/components/analytics/AnalyticsScripts";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/SiteFooter";
 import { UtmCapture } from "@/components/UtmCapture";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const serif = Fraunces({
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-source-serif",
+  weight: ["700", "800"],
+  variable: "--font-bricolage",
   display: "swap",
 });
 
-const sans = Source_Sans_3({
+const body = Manrope({
   subsets: ["latin"],
-  variable: "--font-source-sans",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(`${SITE_URL}/`),
   title: {
-    default: "Find a U.S. food and beverage manufacturer | The Line List",
+    default: "The Line List | Food and Beverage Manufacturers",
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Compare verified U.S. food and beverage manufacturers by product, process, location, packaging, and minimum order. About 36 plant-site-verified companies.",
-  alternates: { canonical: SITE_URL },
+    "Learn what your food or drink product needs, find manufacturers that may fit, and prepare for your first conversation.",
+  alternates: { canonical: absoluteUrl() },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: SITE_URL,
+    url: absoluteUrl(),
     siteName: SITE_NAME,
-    title: "Find a U.S. food and beverage manufacturer | The Line List",
+    title: "The Line List | Food and Beverage Manufacturers",
     description:
-      "Compare verified U.S. food and beverage manufacturers by product, process, location, packaging, and minimum order.",
+      "Learn what your food or drink product needs, find manufacturers that may fit, and prepare for your first conversation.",
+    images: [{ url: absoluteUrl("/opengraph-image"), width: 1200, height: 630, alt: "The Line List" }],
   },
   twitter: {
-    card: "summary",
-    title: "Find a U.S. food and beverage manufacturer | The Line List",
+    card: "summary_large_image",
+    title: "The Line List | Food and Beverage Manufacturers",
     description:
-      "Compare verified U.S. food and beverage manufacturers by product, process, location, packaging, and minimum order.",
+      "Learn what your food or drink product needs, find manufacturers that may fit, and prepare for your first conversation.",
+    images: [absoluteUrl("/opengraph-image")],
   },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`}>
       <body>
         <a className="skip" href="#main">
           Skip to content

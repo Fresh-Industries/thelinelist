@@ -1,5 +1,5 @@
 import type { Plant } from "@/lib/directory";
-import { PARENT_ORG, SITE_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
+import { absoluteUrl, PARENT_ORG, SITE_EMAIL, SITE_NAME } from "@/lib/site";
 
 export interface BreadcrumbItem {
   name: string;
@@ -11,14 +11,16 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: SITE_NAME,
-    url: SITE_URL,
+    "@id": `${absoluteUrl()}#organization`,
+    url: absoluteUrl(),
+    logo: absoluteUrl("/brand/line-list-mark.png"),
     email: SITE_EMAIL,
     parentOrganization: {
       "@type": "Organization",
       name: PARENT_ORG,
     },
     description:
-      "Public directory of verified U.S. food and beverage manufacturers. Facts come from plant sites.",
+      "Food and beverage manufacturer directory and beginner guides. Inclusion is not an endorsement.",
   };
 }
 
@@ -27,10 +29,10 @@ export function websiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
-    url: SITE_URL,
+    "@id": `${absoluteUrl()}#website`,
+    url: absoluteUrl(),
     publisher: {
-      "@type": "Organization",
-      name: SITE_NAME,
+      "@id": `${absoluteUrl()}#organization`,
     },
   };
 }
@@ -43,7 +45,7 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: item.href.startsWith("http") ? item.href : `${SITE_URL}${item.href}`,
+      item: item.href.startsWith("http") ? item.href : absoluteUrl(item.href),
     })),
   };
 }
@@ -52,14 +54,72 @@ export function itemListJsonLd(plants: Plant[]) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Verified U.S. food and beverage manufacturers",
-    numberOfItems: plants.length,
+    name: "Food and beverage manufacturers",
     itemListOrder: "https://schema.org/ItemListOrderAscending",
     itemListElement: plants.map((plant, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `${SITE_URL}/copackers/${plant.slug}`,
+      url: absoluteUrl(`/manufacturers/${plant.slug}`),
       name: plant.name,
+    })),
+  };
+}
+
+export function collectionPageJsonLd({
+  name,
+  description,
+  path,
+  plants,
+}: {
+  name: string;
+  description: string;
+  path: string;
+  plants: Plant[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name,
+    description,
+    url: absoluteUrl(path),
+    ...(plants.length > 0 ? { mainEntity: itemListJsonLd(plants) } : {}),
+  };
+}
+
+export function articleJsonLd({
+  headline,
+  description,
+  path,
+  image,
+  dateModified,
+}: {
+  headline: string;
+  description: string;
+  path: string;
+  image: string;
+  dateModified: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline,
+    description,
+    dateModified,
+    mainEntityOfPage: absoluteUrl(path),
+    image: absoluteUrl(image),
+    author: { "@id": `${absoluteUrl()}#organization` },
+    publisher: { "@id": `${absoluteUrl()}#organization` },
+  };
+}
+
+export function faqPageJsonLd(items: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
     })),
   };
 }

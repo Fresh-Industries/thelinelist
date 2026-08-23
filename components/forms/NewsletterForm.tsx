@@ -1,11 +1,13 @@
 "use client";
 
-import { idleNewsletterState, submitNewsletter } from "@/app/actions/newsletter";
+import { submitNewsletter, type NewsletterActionState } from "@/app/actions/newsletter";
 import { track } from "@/lib/analytics/client";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { useActionState, useEffect, useId } from "react";
 import { Honeypot } from "./Field";
 import { FormMetaFields } from "./UtmFields";
+
+const idleNewsletterState: NewsletterActionState = { status: "idle" };
 
 export function NewsletterForm() {
   const id = useId();
@@ -13,14 +15,14 @@ export function NewsletterForm() {
 
   useEffect(() => {
     if (state.status === "success") {
-      track(ANALYTICS_EVENTS.newsletter_signup);
+      track(ANALYTICS_EVENTS.newsletter_signup_completed);
     }
   }, [state.status]);
 
   if (state.status === "success") {
     return (
       <p className="form-success-inline" role="status">
-        {state.message ?? "You are on the Tuesday list."}
+        {state.message ?? "You are on the list."}
       </p>
     );
   }
@@ -42,7 +44,7 @@ export function NewsletterForm() {
           aria-describedby={state.fieldErrors?.email ? `${id}-error` : undefined}
         />
         <button className="btn btn-gold" type="submit" disabled={pending}>
-          {pending ? "Sending…" : "Get the Tuesday note"}
+          {pending ? "Sending…" : "Subscribe"}
         </button>
       </div>
       {state.status === "error" ? (

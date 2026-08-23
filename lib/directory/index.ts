@@ -2,6 +2,8 @@ export type {
   DirectoryQuery,
   FinderProcess,
   FinderProduct,
+  PackagingFilter,
+  CertificationFilter,
   GuideId,
   GuideRow,
   Plant,
@@ -9,6 +11,14 @@ export type {
   ProcessCapability,
   SourceLink,
 } from "./types";
+export {
+  PRODUCT_CATEGORIES,
+  CATEGORY_HUB_CONTENT,
+  getProductCategory,
+  isProductCategorySlug,
+  plantMatchesCategory,
+  type ProductCategorySlug,
+} from "./categories";
 export { LAST_VERIFIED } from "./types";
 export {
   PROCESS_HINTS,

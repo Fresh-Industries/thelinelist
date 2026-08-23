@@ -1,24 +1,23 @@
-import { FindManufacturerCta } from "@/components/FindManufacturerCta";
 import { isNewsletterEnabled } from "@/lib/newsletter/config";
 import Image from "next/image";
 import Link from "next/link";
 
-type NavMatch = "directory" | "learn" | "glossary" | "newsletter";
+type NavMatch = "directory" | "guides" | "about" | "newsletter";
 
 const BASE_NAV: { href: string; label: string; match: NavMatch }[] = [
-  { href: "/copackers", label: "Find manufacturers", match: "directory" },
-  { href: "/learn", label: "Learn", match: "learn" },
-  { href: "/glossary", label: "Glossary", match: "glossary" },
+  { href: "/find-manufacturers", label: "Find manufacturers", match: "directory" },
+  { href: "/guides", label: "Guides", match: "guides" },
+  { href: "/about", label: "About", match: "about" },
 ];
 
 function navCurrent(match: NavMatch, current?: string): boolean {
   switch (match) {
     case "directory":
-      return current === "/copackers" || Boolean(current?.startsWith("/copackers/"));
-    case "learn":
-      return current === "/learn" || Boolean(current?.startsWith("/guides/"));
-    case "glossary":
-      return current === "/glossary";
+      return current === "/find-manufacturers" || Boolean(current?.startsWith("/find-manufacturers/")) || Boolean(current?.startsWith("/manufacturers/"));
+    case "guides":
+      return current === "/guides" || Boolean(current?.startsWith("/guides/"));
+    case "about":
+      return current === "/about" || current === "/how-we-verify";
     case "newsletter":
       return false;
     default: {
@@ -30,22 +29,26 @@ function navCurrent(match: NavMatch, current?: string): boolean {
 
 export function SiteHeader({ current }: { current?: string }) {
   const nav = isNewsletterEnabled()
-    ? [...BASE_NAV, { href: "/#newsletter", label: "Newsletter", match: "newsletter" as const }]
+    ? [...BASE_NAV, { href: "/newsletter", label: "Newsletter", match: "newsletter" as const }]
     : BASE_NAV;
 
   return (
     <header className="site-header">
       <div className="wrap header-bar">
         <Link className="wordmark" href="/" aria-current={current === "/" ? "page" : undefined}>
-          <Image className="brand-mark" src="/brand/mark.svg" alt="" width={36} height={36} />
-          <span className="brand-text">
-            The Line List
-            <span>Verified U.S. food makers</span>
-          </span>
+          <Image
+            className="brand-logo"
+            src="/brand/line-list-logo.png"
+            alt="The Line List"
+            width={1345}
+            height={662}
+            priority
+            unoptimized
+          />
         </Link>
         <details className="nav-menu">
           <summary>Menu</summary>
-          <nav className="site-nav" aria-label="Primary">
+          <nav className="site-nav" aria-label="Primary mobile">
             {nav.map((item) => (
               <Link
                 key={item.href}
@@ -55,10 +58,9 @@ export function SiteHeader({ current }: { current?: string }) {
                 {item.label}
               </Link>
             ))}
-            <FindManufacturerCta className="btn btn-gold header-cta" />
           </nav>
         </details>
-        <nav className="site-nav site-nav-desktop" aria-label="Primary">
+        <nav className="site-nav site-nav-desktop" aria-label="Primary desktop">
           {nav.map((item) => (
             <Link
               key={item.href}
@@ -68,7 +70,6 @@ export function SiteHeader({ current }: { current?: string }) {
               {item.label}
             </Link>
           ))}
-          <FindManufacturerCta className="btn btn-gold header-cta" />
         </nav>
       </div>
     </header>

@@ -1,12 +1,14 @@
 "use client";
 
-import { idleClaimState, submitClaim } from "@/app/actions/claim";
+import { submitClaim, type ClaimActionState } from "@/app/actions/claim";
 import { track } from "@/lib/analytics/client";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { INTRO_CATEGORY_OPTIONS, INTRO_PROCESS_OPTIONS, US_STATE_OPTIONS } from "@/lib/forms/options";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { Field, Honeypot } from "./Field";
 import { FormMetaFields } from "./UtmFields";
+
+const idleClaimState: ClaimActionState = { status: "idle" };
 
 export interface ClaimPlantOption {
   slug: string;

@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 export function FindManufacturerCta({
   className,
-  children = "Find a Manufacturer",
+  children = "Find manufacturers",
 }: {
   className?: string;
   children?: ReactNode;
@@ -15,7 +15,7 @@ export function FindManufacturerCta({
   return (
     <Link
       className={className}
-      href="/copackers"
+      href="/find-manufacturers"
       onClick={() => track(ANALYTICS_EVENTS.cta_find_manufacturer_click)}
     >
       {children}

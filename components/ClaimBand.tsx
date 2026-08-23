@@ -21,8 +21,8 @@ export function ClaimBand({
         <ClaimForm plants={plants} preset={preset} />
       ) : (
         <p>
-          <Link className="btn btn-gold" href="/about#claim">
-            Claim your profile
+          <Link className="btn btn-gold" href="/claim-submit">
+            Claim or submit a plant
           </Link>
         </p>
       )}

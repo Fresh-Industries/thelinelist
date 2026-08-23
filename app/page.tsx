@@ -1,31 +1,73 @@
-import { CategoryCards } from "@/components/CategoryCards";
-import { CopackerCard } from "@/components/CopackerCard";
-import { EditorialImage } from "@/components/EditorialImage";
-import { FinderForm } from "@/components/FinderForm";
 import { HowItWorks } from "@/components/HowItWorks";
 import { NewsletterCta } from "@/components/NewsletterCta";
+import { ProductSelector } from "@/components/ProductSelector";
 import { SiteHeader } from "@/components/SiteHeader";
-import { SponsoredSlot } from "@/components/ads/SponsoredSlot";
-import { getVerifiedPlants, verifiedStates } from "@/lib/directory";
+import { TrustStrip } from "@/components/TrustStrip";
 import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
+const HOME_GUIDES = [
+  {
+    href: "/guides/first-production-run",
+    label: "First production run",
+    title: "Plan your first production run",
+    description: "Get clear on specs, trials, packaging, storage, and the questions to ask before production day.",
+    time: "8 min read",
+    tone: "yellow",
+    featured: true,
+  },
+  {
+    href: "/guides/start-hot-sauce",
+    label: "Hot sauce",
+    title: "Start a hot sauce brand",
+    description: "Compare private label and custom paths, then learn the acidified-food basics.",
+    time: "7 min read",
+    tone: "coral",
+    featured: false,
+  },
+  {
+    href: "/guides/energy-drink",
+    label: "Energy drinks",
+    title: "Launch an energy drink",
+    description: "Understand formula paths, carbonation, packaging, and what makes a filling line fit.",
+    time: "7 min read",
+    tone: "aqua",
+    featured: false,
+  },
+  {
+    href: "/guides/cold-pressed-juice",
+    label: "Cold-pressed juice",
+    title: "Manufacture cold-pressed juice",
+    description: "Separate extraction from food safety, then plan process, packaging, and cold storage.",
+    time: "8 min read",
+    tone: "lavender",
+    featured: false,
+  },
+] as const;
+
+function GuideGraphic({ tone }: { tone: (typeof HOME_GUIDES)[number]["tone"] }) {
+  return (
+    <svg className={`home-guide-graphic home-guide-graphic-${tone}`} viewBox="0 0 120 76" aria-hidden="true">
+      <path className="guide-graphic-page" d="M18 13h52l14 14v37H18z" />
+      <path className="guide-graphic-fold" d="M70 13v14h14" />
+      <path className="guide-graphic-line" d="M30 35h36M30 45h29M30 55h22" />
+      <path className="guide-graphic-arrow" d="M79 52h24m-9-9 9 9-9 9" />
+      <circle className="guide-graphic-dot" cx="100" cy="22" r="8" />
+    </svg>
+  );
+}
+
 export const metadata: Metadata = pageMetadata({
-  title: "Find a U.S. food and beverage manufacturer",
+  title: "The Line List | Food and Beverage Manufacturers",
   description:
-    "Compare verified U.S. food and beverage manufacturers by product, process, location, packaging, and minimum order. About 36 plant-site-verified companies.",
+    "Learn what your food or drink product needs, find manufacturers that may fit, and prepare for your first conversation.",
   path: "/",
+  absoluteTitle: true,
 });
 
 export default function HomePage() {
-  const plants = getVerifiedPlants();
-  const count = plants.length;
-  const states = verifiedStates();
-  const featured = [...plants]
-    .sort((left, right) => left.name.localeCompare(right.name) || left.slug.localeCompare(right.slug))
-    .slice(0, 8);
-
   return (
     <>
       <SiteHeader current="/" />
@@ -33,53 +75,73 @@ export default function HomePage() {
         <section className="hero-immersive">
           <div className="wrap hero-grid">
             <div className="hero-copy">
-              <p className="kicker">For CPG founders ready to manufacture</p>
-              <h1>Find the right U.S. food and beverage manufacturer.</h1>
+              <p className="kicker">From idea to first run</p>
+              <h1>Make your food or drink idea real.</h1>
               <p className="sub">
-                Compare verified U.S. food and beverage manufacturers by product, process, location,
-                packaging, and minimum order. About {count} companies, each checked against the
-                plant&apos;s own site.
+                Learn what your product needs, find manufacturers that may fit, and prepare for your first conversation.
               </p>
+              <div className="hero-actions">
+                <Link className="btn hero-primary" href="/find-manufacturers/wizard">
+                  Start with my product
+                  <span aria-hidden="true">→</span>
+                </Link>
+                <Link className="btn hero-secondary" href="#how-it-works">
+                  Show me how it works
+                </Link>
+              </div>
             </div>
-            <figure className="hero-visual">
-              <EditorialImage
-                src="/images/hero-produce.svg"
-                alt="Decorative illustration of bottles and produce. Not a photograph of a named plant."
-                width={640}
-                height={520}
-                sizes="(max-width: 860px) 100vw, 40vw"
+            <figure className="hero-visual clay-hero-journey">
+              <span className="hero-shape" aria-hidden="true" />
+              <span className="hero-dots" aria-hidden="true">•••</span>
+              <span className="hero-idea-label" aria-hidden="true">idea</span>
+              <span className="hero-product-label" aria-hidden="true">product!</span>
+              <Image
+                src="/images/clay-v2/support/idea-to-product.webp"
+                alt="A clay diorama moving from a product sketch and samples to mixing, filling, and finished unbranded products"
+                width={1600}
+                height={800}
+                sizes="(max-width: 860px) 94vw, 54vw"
                 priority
               />
             </figure>
           </div>
-          <div className="wrap">
-            <FinderForm states={states} variant="match" />
-          </div>
         </section>
 
-        <div className="wrap">
-          <CategoryCards />
-        </div>
+        <ProductSelector />
 
         <HowItWorks />
 
-        <section className="makers wrap" aria-labelledby="makers-heading">
+        <TrustStrip />
+
+        <section className="home-guides wrap" aria-labelledby="home-guides-heading">
           <div className="section-head">
-            <h2 id="makers-heading">Verified manufacturers</h2>
-            <Link href="/copackers">View all →</Link>
+            <div>
+              <p className="kicker">Learn by goal</p>
+              <h2 id="home-guides-heading">Know what to ask before you call</h2>
+            </div>
+            <Link className="text-link-arrow" href="/guides">Browse all guides <span aria-hidden="true">→</span></Link>
           </div>
-          <p className="section-note">
-            Alphabetical from the verified set, not a ranking, not ratings.
-          </p>
-          <div className="maker-scroller">
-            {featured.map((plant) => (
-              <CopackerCard key={plant.slug} plant={plant} />
+          <div className="home-guide-grid">
+            {HOME_GUIDES.map((guide) => (
+              <Link
+                key={guide.href}
+                href={guide.href}
+                className={`home-guide-card guide-tone-${guide.tone}${guide.featured ? " home-guide-featured" : ""}`}
+              >
+                <span className="home-guide-label">{guide.label}</span>
+                <GuideGraphic tone={guide.tone} />
+                <h3>{guide.title}</h3>
+                <p>{guide.description}</p>
+                <span className="home-guide-footer">
+                  <span>{guide.time}</span>
+                  <strong>Read the guide <span aria-hidden="true">→</span></strong>
+                </span>
+              </Link>
             ))}
           </div>
         </section>
 
         <div className="wrap">
-          <SponsoredSlot position="homepage" />
           <NewsletterCta />
         </div>
       </main>

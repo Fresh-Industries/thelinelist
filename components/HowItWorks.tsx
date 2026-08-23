@@ -1,59 +1,78 @@
-import { EditorialImage } from "@/components/EditorialImage";
 import { FindManufacturerCta } from "@/components/FindManufacturerCta";
 
 const STEPS = [
   {
     n: "1",
-    title: "Describe the product",
-    body: "Describe the product in plain words. Hot sauce, cold juice, hummus. Say what you make, not jargon.",
-    image: "/images/how-step-1.svg",
+    title: "Choose your product",
+    body: "Pick the closest food or beverage idea. “Not sure” works too.",
+    icon: "bottle",
   },
   {
     n: "2",
-    title: "Compare manufacturers",
-    body: "Compare matching manufacturers. Filter by product, process, place, packaging, and published minimum order. Use this when you need to get out of the kitchen for marketing and distribution.",
-    image: "/images/how-step-2.svg",
+    title: "Tell us what you know",
+    body: "Share details like formula, packaging, volume, and timing—or skip what you do not know yet.",
+    icon: "notes",
   },
   {
     n: "3",
-    title: "Request an intro",
-    body: "Open a plant page and request an intro. You pick the plant. We introduce you. No commission.",
-    image: "/images/how-step-3.svg",
+    title: "Review possible matches",
+    body: "See why each manufacturer may fit, what is sourced, and what you still need to ask.",
+    icon: "matches",
+  },
+  {
+    n: "4",
+    title: "Decide who to contact",
+    body: "Open the full profiles and ask for an introduction only when you are ready.",
+    icon: "contact",
   },
 ] as const;
 
+function JourneyIcon({ icon }: { icon: (typeof STEPS)[number]["icon"] }) {
+  if (icon === "bottle") {
+    return <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M17 8h10v6l4 5v17H13V19l4-5z" /><path d="M17 23h14" /></svg>;
+  }
+
+  if (icon === "notes") {
+    return <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M11 9h22v27H11z" /><path d="M16 17h12M16 23h12M16 29h8" /></svg>;
+  }
+
+  if (icon === "matches") {
+    return <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 13h21v21H8z" /><path d="m14 23 4 4 8-9" /><path d="M33 11h3v3M33 20h3v3M33 29h3v3" /></svg>;
+  }
+
+  return <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 13h28v20H8z" /><path d="m9 15 13 10 13-10" /></svg>;
+}
+
 export function HowItWorks() {
   return (
-    <section className="how" aria-labelledby="how-heading">
-      <div className="how-copy">
-        <p className="kicker">New to manufacturing?</p>
-        <h2 id="how-heading">From idea to a real plant conversation</h2>
+    <section id="how-it-works" className="how" aria-labelledby="how-heading">
+      <div className="how-heading">
+        <div>
+          <p className="kicker">From idea to introduction</p>
+          <h2 id="how-heading">Four clear steps. No manufacturing degree required.</h2>
+        </div>
         <p>
-          Most first-time founders do not need a lecture on psi or LACF. Start with the product.
-          Process guides stay in Learn when you want the textbook.
+          Start with the decision in front of you. We introduce process terms only when they help
+          you compare plants or prepare a useful question.
         </p>
-        <FindManufacturerCta className="btn btn-gold">
-          Find a Manufacturer
-          <span aria-hidden="true"> →</span>
-        </FindManufacturerCta>
       </div>
       <ol className="how-steps">
         {STEPS.map((step) => (
           <li key={step.n}>
-            <EditorialImage
-              src={step.image}
-              alt={`Decorative illustration for step ${step.n}. Not a photograph of a named plant.`}
-              width={640}
-              height={200}
-              sizes="(max-width: 860px) 100vw, 28rem"
-              className="how-step-image"
-            />
             <span className="how-num">{step.n}</span>
+            <span className="how-step-icon"><JourneyIcon icon={step.icon} /></span>
             <h3>{step.title}</h3>
             <p>{step.body}</p>
           </li>
         ))}
       </ol>
+      <div className="how-action">
+        <FindManufacturerCta className="btn btn-gold how-button">
+          Find my manufacturer
+          <span aria-hidden="true"> →</span>
+        </FindManufacturerCta>
+        <p>Useful results first. Contact details only when you ask for an introduction.</p>
+      </div>
     </section>
   );
 }

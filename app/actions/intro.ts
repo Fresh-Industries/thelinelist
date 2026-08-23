@@ -19,8 +19,6 @@ export interface IntroActionState {
   fieldErrors?: FieldErrors;
 }
 
-export const idleIntroState: IntroActionState = { status: "idle" };
-
 export async function submitIntro(
   _prev: IntroActionState,
   formData: FormData,
@@ -118,8 +116,7 @@ export async function submitIntro(
   if (duplicate) {
     return {
       status: "duplicate",
-      message:
-        "We already have a recent request from this email for this plant. We will review it before we make an intro.",
+      message: "We already have a recent request from this email for this manufacturer. We will follow up by email.",
     };
   }
 
@@ -148,7 +145,6 @@ export async function submitIntro(
 
   return {
     status: "success",
-    message:
-      "We got it. We will review your request before we make an intro. We only email the plant you named, and only after that review. An intro is not a yes.",
+    message: "We have your request. We will follow up by email about next steps.",
   };
 }

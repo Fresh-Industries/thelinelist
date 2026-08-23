@@ -6,20 +6,20 @@ export function NewsletterCta() {
   if (!isNewsletterEnabled()) return null;
 
   return (
-    <aside className="nl" id="newsletter" aria-label="The Line List weekly">
+    <aside className="nl" id="newsletter" aria-label="The Line List newsletter">
       <EditorialImage
-        src="/images/newsletter-weekly.svg"
-        alt="Decorative editorial illustration of a weekly note and bottles. Not a photograph of a named plant."
-        width={160}
-        height={160}
-        sizes="160px"
+        src="/images/clay-v2/support/newsletter.webp"
+        alt=""
+        width={640}
+        height={640}
+        sizes="(max-width: 760px) 100vw, 240px"
         className="nl-visual"
       />
       <div className="nl-copy">
-        <h2>The Line List weekly</h2>
+        <h2>Notes for your next plant conversation</h2>
         <p>
-          A short Tuesday note (America/Chicago) for CPG founders and brand ops. Named plants,
-          public facts, one process rule.
+          Plain-language process explainers, preparation checklists, and newly reviewed listings.
+          Food and beverage only.
         </p>
         <NewsletterForm />
       </div>

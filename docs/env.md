@@ -8,7 +8,7 @@ Intro and claim forms always render. They store a lead and notify the owner when
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | No | Defaults to `https://the-line-list.vercel.app`. Used when composing source URLs. |
+| `NEXT_PUBLIC_SITE_URL` | No | Defaults to `https://www.thelinelist.com`. Used when composing source URLs. |
 
 ## Leads store
 

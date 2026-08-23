@@ -46,7 +46,7 @@ export function trackSearch(props?: AnalyticsProps): void {
 }
 
 export function trackFilter(props?: AnalyticsProps): void {
-  track(ANALYTICS_EVENTS.filter_update, props);
+  track(ANALYTICS_EVENTS.filter_applied, props);
 }
 
 function compactProps(

@@ -58,6 +58,6 @@ export function absoluteSourceUrl(pathOrUrl: string): string {
   if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
     return pathOrUrl;
   }
-  const base = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://the-line-list.vercel.app";
+  const base = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.thelinelist.com";
   return `${base.replace(/\/$/, "")}${pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`}`;
 }

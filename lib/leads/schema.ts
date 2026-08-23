@@ -16,11 +16,10 @@ const optionalText = (max: number) => z.string().trim().max(max).optional().or(z
 
 function valuesOf<T extends string>(options: readonly { value: T }[]): [T, ...T[]] {
   const values = options.map((option) => option.value);
-  const [first, ...rest] = values;
-  if (!first) {
+  if (values.length === 0) {
     throw new Error("Option list cannot be empty.");
   }
-  return [first, ...rest];
+  return values as [T, ...T[]];
 }
 
 export const introInputSchema = z

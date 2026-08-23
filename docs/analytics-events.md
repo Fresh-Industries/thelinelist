@@ -1,23 +1,18 @@
 # Analytics events
 
-Fresh Phase 3 names, 1:1 with `lib/analytics/events.ts`.
+Canonical interaction events live in `lib/analytics/events.ts`.
 
-| Display name | snake_case |
+| Interaction | Event |
 | --- | --- |
-| Manufacturer search | `manufacturer_search` |
-| Filter update | `filter_update` |
+| Product selected | `product_selected` |
+| Wizard started | `wizard_started` |
+| Wizard completed | `wizard_completed` |
+| Filter applied | `filter_applied` |
 | Manufacturer profile viewed | `manufacturer_profile_viewed` |
-| Introduction form opened | `introduction_form_opened` |
-| Introduction form submitted | `introduction_form_submitted` |
-| Newsletter signup | `newsletter_signup` |
-| Manufacturer claim started | `manufacturer_claim_started` |
-| Manufacturer claim submitted | `manufacturer_claim_submitted` |
+| Introduction requested | `introduction_requested` |
+| Newsletter signup completed | `newsletter_signup_completed` |
+| Guide-to-directory CTA clicked | `guide_to_directory_click` |
 
-Bonus events:
+The existing search, claim, and navigation events remain available for operational measurement. The analytics layer is a no-op unless `NEXT_PUBLIC_ANALYTICS_PROVIDER` is set.
 
-| Display name | snake_case |
-| --- | --- |
-| Find a Manufacturer click | `cta_find_manufacturer_click` |
-| Featured slot CTA click | `featured_slot_cta_click` |
-
-The pluggable layer is a no-op unless `NEXT_PUBLIC_ANALYTICS_PROVIDER` is set.
+Event properties may describe the selected product, filter, route, or manufacturer slug. Do not send names, email addresses, formula text, or other form contents to analytics.

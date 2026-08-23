@@ -20,3 +20,4 @@ shots/
 # next.js
 next-env.d.ts
 *.tsbuildinfo
+.gstack/
