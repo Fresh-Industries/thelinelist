@@ -5,6 +5,7 @@ import { isProductCategorySlug, plantMatchesCategory } from "./categories";
 import type {
   CertificationFilter,
   DirectoryQuery,
+  DirectorySort,
   FinderProcess,
   FinderProduct,
   FutureSliceKeys,
@@ -39,9 +40,10 @@ export function plantsForGuide(guide: GuideId): Plant[] {
 }
 
 export function filterPlants(query: DirectoryQuery): Plant[] {
-  return VERIFIED_PLANTS.filter((plant) => matchesQuery(plant, query)).sort(
-    (left, right) => left.name.localeCompare(right.name) || left.slug.localeCompare(right.slug),
-  );
+  const direction = query.sort === "za" ? -1 : 1;
+  return VERIFIED_PLANTS.filter((plant) => matchesQuery(plant, query)).sort((left, right) => (
+    left.name.localeCompare(right.name) * direction || left.slug.localeCompare(right.slug) * direction
+  ));
 }
 
 export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
@@ -146,6 +148,7 @@ export function countVerifiedSlice(keys: FutureSliceKeys): number {
 
 export function parseDirectoryQuery(
   searchParams: Record<string, string | string[] | undefined>,
+  options: { allowSort?: boolean } = {},
 ): DirectoryQuery {
   return {
     product: readProduct(first(searchParams.product)),
@@ -156,6 +159,7 @@ export function parseDirectoryQuery(
     packaging: readPackaging(first(searchParams.packaging)),
     certification: readCertification(first(searchParams.certification)),
     state: readState(first(searchParams.state)),
+    sort: options.allowSort ? readSort(first(searchParams.sort)) : undefined,
   };
 }
 
@@ -169,7 +173,12 @@ export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   if (query.packaging) params.set("packaging", query.packaging);
   if (query.certification) params.set("certification", query.certification);
   if (query.state) params.set("state", query.state);
+  if (query.sort === "za") params.set("sort", query.sort);
   return params;
+}
+
+function readSort(value: string | undefined): DirectorySort | undefined {
+  return value === "za" ? value : undefined;
 }
 
 function readCategory(value: string | undefined) {

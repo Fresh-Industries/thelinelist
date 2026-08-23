@@ -34,13 +34,33 @@ function capabilities(plant: Plant): string[] {
   return [...new Set([...labels, ...formatProcesses(plant)])].slice(0, 5);
 }
 
+function minimumOrderLines(value: string | null): string[] {
+  if (!value) return [];
+
+  const hotFillAndRetort = value.match(
+    /^Hot fill \/ bottled: ([\d,]+) units \(depending on fill size\)\. Retort: (\d+)K units per SKU\.$/i,
+  );
+  if (hotFillAndRetort) {
+    const retortUnits = Number(hotFillAndRetort[2]) * 1_000;
+    return [
+      `Hot fill / bottled: ${hotFillAndRetort[1]} units (depending on fill size)`,
+      `Retort: ${retortUnits.toLocaleString("en-US")} units per SKU`,
+    ];
+  }
+
+  return value
+    .split(/;\s+|(?<=\.)\s+(?=[A-Z])/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 export function CopackerCard({ plant }: { plant: Plant }) {
   const products = goodFor(plant);
   const capabilityLabels = capabilities(plant);
+  const minimums = minimumOrderLines(plant.moqDisplay);
   const description =
     formatCardSnippet(plant.productTypesPublished, 155)
-    ?? formatCardSnippet(plant.overview[0] ?? null, 155)
-    ?? "Public product details are limited. Open the profile to see the available information.";
+    ?? formatCardSnippet(plant.overview[0] ?? null, 155);
 
   return (
     <article className="plant-card">
@@ -53,29 +73,27 @@ export function CopackerCard({ plant }: { plant: Plant }) {
           <span className="plant-card-mark" aria-hidden="true">{plant.name.charAt(0)}</span>
         </header>
 
-        <p className="plant-card-description">{description}</p>
+        {description ? <p className="plant-card-description">{description}</p> : null}
 
-        <dl className="plant-card-summary">
-          <div>
-            <dt>Good for</dt>
-            <dd>{products.length > 0 ? products.join(" · ") : <span className="not-listed">Not listed</span>}</dd>
-          </div>
-          <div>
-            <dt>Capabilities</dt>
-            <dd>{capabilityLabels.length > 0 ? capabilityLabels.join(" · ") : <span className="not-listed">Ask manufacturer</span>}</dd>
-          </div>
-          <div>
-            <dt>Minimum order</dt>
-            <dd>{plant.moqDisplay ?? <span className="not-listed">Not listed</span>}</dd>
-          </div>
-        </dl>
+        {products.length > 0 || capabilityLabels.length > 0 || minimums.length > 0 ? (
+          <dl className="plant-card-summary">
+            {products.length > 0 ? <div><dt>Good for</dt><dd>{products.join(" · ")}</dd></div> : null}
+            {capabilityLabels.length > 0 ? <div><dt>Capabilities</dt><dd>{capabilityLabels.join(" · ")}</dd></div> : null}
+            {minimums.length > 0 ? (
+              <div>
+                <dt>Minimum order</dt>
+                <dd className="moq-lines">{minimums.map((line) => <span key={line}>{line}</span>)}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
 
         <footer className="plant-card-footer">
           {plant.certs.length > 0 ? (
             <ul className="certification-list" aria-label="Publicly listed certifications">
               {plant.certs.slice(0, 3).map((certification) => <li key={certification}>{formatCardSnippet(certification, 26)}</li>)}
             </ul>
-          ) : <span />}
+          ) : null}
           <Link className="go" href={`/manufacturers/${plant.slug}`}>View manufacturer <span aria-hidden="true">→</span></Link>
         </footer>
       </div>

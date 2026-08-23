@@ -3586,7 +3586,6 @@ main:not(.home) .wizard-fields select {
   border-radius: 0.8rem;
   background: var(--raised);
   box-shadow: 6px 6px 0 var(--yellow);
-  overflow: hidden;
 }
 
 .directory-search-primary {
@@ -3604,10 +3603,128 @@ main:not(.home) .wizard-fields select {
   text-transform: none;
 }
 
-.directory-search-primary .field select {
+.directory-search-primary .field select,
+.directory-search-primary .field input {
   min-height: 3.25rem;
   background: #fffdf8;
   font-size: 0.95rem;
+}
+
+.product-combobox {
+  position: relative;
+}
+
+.product-combobox-input {
+  position: relative;
+}
+
+.product-combobox-input input {
+  width: 100%;
+  padding-right: 3.25rem;
+}
+
+.product-combobox-input button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  width: 3.25rem;
+  height: 100%;
+  min-height: 3.25rem;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid rgba(15, 40, 31, 0.35);
+  border-radius: 0;
+  background: transparent;
+  color: var(--forest-deep);
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.product-combobox-input button:hover,
+.product-combobox-input button:focus-visible {
+  background: var(--aqua);
+}
+
+.product-combobox-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  left: 0;
+  overflow: hidden;
+  border: 2px solid var(--forest-deep);
+  border-radius: 0.55rem;
+  background: #fffdf8;
+  box-shadow: 5px 5px 0 var(--forest-deep);
+}
+
+.product-combobox-menu [role="listbox"] {
+  max-height: min(24rem, 55vh);
+  overflow-y: auto;
+}
+
+.product-combobox-menu [role="option"] {
+  display: flex;
+  width: 100%;
+  min-height: 3.6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.8rem;
+  border: 0;
+  border-bottom: 1px solid rgba(15, 40, 31, 0.18);
+  border-radius: 0;
+  background: transparent;
+  color: var(--forest-deep);
+  cursor: pointer;
+  text-align: left;
+}
+
+.product-combobox-menu [role="option"]:last-child {
+  border-bottom: 0;
+}
+
+.product-combobox-menu [role="option"].active,
+.product-combobox-menu [role="option"]:hover,
+.product-combobox-menu [role="option"][aria-selected="true"] {
+  background: #fff1ad;
+}
+
+.product-combobox-menu [role="option"] > span:first-child {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.product-combobox-menu strong {
+  font-size: 0.86rem;
+}
+
+.product-combobox-menu small {
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.product-option-check {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--forest-deep);
+  border-radius: 0.3rem;
+  background: var(--aqua);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.product-combobox-menu > p {
+  margin: 0;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .directory-search-submit {
@@ -3626,8 +3743,7 @@ main:not(.home) .wizard-fields select {
 
 .advanced-filters summary {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
   gap: 1rem;
   padding: 0.85rem 1.25rem;
   color: var(--forest-deep);
@@ -3640,22 +3756,15 @@ main:not(.home) .wizard-fields select {
   display: none;
 }
 
-.advanced-filters summary::after {
+.advanced-filter-label::before {
   content: "+";
-  display: grid;
-  width: 1.6rem;
-  height: 1.6rem;
-  flex: none;
-  place-items: center;
-  border: 2px solid var(--forest-deep);
-  border-radius: 0.3rem;
-  background: var(--aqua);
-  line-height: 1;
+  display: inline-block;
+  width: 1em;
+  color: var(--forest-deep);
 }
 
-.advanced-filters[open] summary::after {
+.advanced-filters[open] .advanced-filter-label::before {
   content: "−";
-  background: var(--yellow);
 }
 
 .advanced-filters summary small {
@@ -3721,65 +3830,12 @@ main:not(.home) .wizard-fields select {
   font-weight: 700;
 }
 
-.directory-categories {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 1rem 1.5rem;
-  align-items: center;
-  margin: 1.5rem 0;
-  padding: 1rem 0;
-  border-block: 2px solid var(--forest-deep);
-}
-
-.directory-categories .kicker {
-  margin-bottom: 0.15rem;
-}
-
-.directory-categories h2 {
-  margin: 0;
-  font-size: 1.15rem;
-}
-
-.directory-categories ul {
-  display: flex;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0.2rem 0.15rem 0.35rem;
-  overflow-x: auto;
-  list-style: none;
-  scrollbar-width: thin;
-}
-
-.directory-categories li {
-  flex: none;
-}
-
-.directory-categories a {
-  display: inline-flex;
-  gap: 0.35rem;
-  align-items: center;
-  padding: 0.55rem 0.7rem;
-  border: 2px solid var(--forest-deep);
-  border-radius: 0.45rem;
-  background: var(--raised);
-  color: var(--forest-deep);
-  box-shadow: 2px 2px 0 var(--forest-deep);
-  text-decoration: none;
-  font-size: 0.78rem;
-  font-weight: 750;
-}
-
-.directory-categories li:nth-child(4n + 1) a { background: #ffe2dd; }
-.directory-categories li:nth-child(4n + 2) a { background: #fff1ad; }
-.directory-categories li:nth-child(4n + 3) a { background: #d9f2ef; }
-.directory-categories li:nth-child(4n + 4) a { background: #e7ddf7; }
-
 .directory-results-bar {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin: 2rem 0 0;
+  margin: 0.75rem 0 0;
   padding-bottom: 1rem;
   border-bottom: 2px solid var(--forest-deep);
 }
@@ -3790,21 +3846,30 @@ main:not(.home) .wizard-fields select {
   font-size: clamp(1.55rem, 3vw, 2.15rem);
 }
 
-.directory-results-bar p {
-  margin: 0.25rem 0 0;
-  color: var(--muted);
-  font-size: 0.84rem;
+.directory-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--forest-deep);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
-.directory-sort {
-  padding: 0.35rem 0.5rem;
-  border: 1px solid var(--forest-deep);
-  border-radius: 0.35rem;
-  background: var(--paper-2);
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  white-space: nowrap;
+.directory-sort select {
+  min-height: 2.75rem;
+  padding: 0.45rem 2rem 0.45rem 0.65rem;
+  border: 2px solid var(--forest-deep);
+  border-radius: 0.4rem;
+  background-color: var(--raised);
+  color: var(--forest-deep);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.directory-sort select:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 .active-filter-list {
@@ -3852,12 +3917,14 @@ main:not(.home) .wizard-fields select {
 
 .plant-card {
   min-height: 0;
+  height: 100%;
   border: 2px solid rgba(15, 40, 31, 0.82);
   border-radius: 0.7rem;
   background: var(--raised);
 }
 
 .plant-card-body {
+  min-height: 100%;
   padding: 1.15rem;
 }
 
@@ -3874,7 +3941,8 @@ main:not(.home) .wizard-fields select {
 
 .plant-card h2 {
   margin: 0 0 0.2rem;
-  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+  font-size: clamp(1.35rem, 2.2vw, 1.65rem);
+  line-height: 1.05;
 }
 
 .plant-card .place {
@@ -3903,7 +3971,7 @@ main:not(.home) .wizard-fields select {
   min-height: 3.2em;
   margin: 0.9rem 0;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   line-height: 1.5;
 }
 
@@ -3938,6 +4006,11 @@ main:not(.home) .wizard-fields select {
   line-height: 1.45;
 }
 
+.moq-lines {
+  display: grid;
+  gap: 0.2rem;
+}
+
 .not-listed {
   color: var(--faint);
   font-weight: 600;
@@ -3948,7 +4021,8 @@ main:not(.home) .wizard-fields select {
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 0.9rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
 }
 
 .certification-list {
@@ -3972,8 +4046,13 @@ main:not(.home) .wizard-fields select {
 }
 
 .plant-card .go {
+  display: inline-flex;
+  min-height: 2.5rem;
   flex: none;
+  align-items: center;
+  margin-left: auto;
   font-size: 0.78rem;
+  font-weight: 800;
   text-decoration: underline;
   text-underline-offset: 0.18em;
 }
@@ -3997,7 +4076,7 @@ main:not(.home) .wizard-fields select {
   .directory-discovery {
     grid-template-columns: 1fr;
     gap: 1.25rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
   }
 
   .directory-intro {
@@ -4005,11 +4084,11 @@ main:not(.home) .wizard-fields select {
   }
 
   .directory-discovery .directory-search {
-    order: 2;
+    order: 3;
   }
 
   .directory-discovery .directory-start {
-    order: 3;
+    order: 2;
   }
 
   .directory-intro h1 {
@@ -4038,8 +4117,14 @@ main:not(.home) .wizard-fields select {
     align-items: center;
   }
 
+  .advanced-filters summary {
+    flex-wrap: wrap;
+    gap: 0.2rem 0.65rem;
+  }
+
   .advanced-filters summary small {
-    display: none;
+    width: 100%;
+    margin-left: 1.2rem;
   }
 
   .advanced-filter-actions {
@@ -4050,16 +4135,6 @@ main:not(.home) .wizard-fields select {
   .advanced-filter-actions > div {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .directory-categories {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
-  }
-
-  .directory-categories ul {
-    margin-right: -1rem;
-    padding-right: 1rem;
   }
 
   .directory-results-bar {

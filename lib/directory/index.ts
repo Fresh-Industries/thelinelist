@@ -1,5 +1,6 @@
 export type {
   DirectoryQuery,
+  DirectorySort,
   FinderProcess,
   FinderProduct,
   PackagingFilter,

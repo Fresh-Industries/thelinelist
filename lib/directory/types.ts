@@ -18,6 +18,7 @@ export type FinderProcess = "hpp" | "hot-fill" | "retort";
 export type FinderProduct = "beverage" | "sauce" | "prepared-rte";
 export type PackagingFilter = "can" | "bottle" | "jar" | "pouch" | "other";
 export type CertificationFilter = "organic" | "kosher" | "halal" | "gluten-free" | "non-gmo" | "sqf";
+export type DirectorySort = "az" | "za";
 
 export type ProcessCapability =
   | "hpp"
@@ -85,6 +86,7 @@ export interface DirectoryQuery {
   packaging?: PackagingFilter;
   certification?: CertificationFilter;
   state?: string;
+  sort?: DirectorySort;
 }
 
 export interface FutureSliceKeys {
