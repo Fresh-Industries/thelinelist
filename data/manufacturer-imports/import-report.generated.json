@@ -1,0 +1,537 @@
+{
+  "generatedAt": "2026-08-23",
+  "sourceFiles": [
+    "batch-01-a.csv",
+    "batch-01-b.csv",
+    "batch-02.csv",
+    "batch-03.csv",
+    "batch-04-a.csv",
+    "batch-04-b.csv",
+    "batch-05-a.csv",
+    "batch-05-b.csv"
+  ],
+  "sourceRows": 125,
+  "safeRows": 85,
+  "imported": 50,
+  "verified": 48,
+  "listable": 2,
+  "states": [
+    "CA",
+    "CO",
+    "CT",
+    "FL",
+    "IA",
+    "IL",
+    "LA",
+    "MA",
+    "MD",
+    "MI",
+    "MN",
+    "NC",
+    "NJ",
+    "NM",
+    "NY",
+    "OH",
+    "OR",
+    "PA",
+    "SD",
+    "TX",
+    "UT",
+    "WA",
+    "WI"
+  ],
+  "categoryCounts": {
+    "soda": 1,
+    "energy-drink": 1,
+    "sports-hydration": 2,
+    "functional-beverages": 2,
+    "cold-pressed-juice": 0,
+    "juice": 3,
+    "rtd-coffee-tea": 1,
+    "water": 0,
+    "hot-sauce": 1,
+    "sauce": 25,
+    "salsa": 3,
+    "dressings-marinades": 9,
+    "dips-hummus": 4,
+    "prepared-refrigerated-foods": 10
+  },
+  "taxonomyGaps": [
+    "Bars and bites",
+    "Beef jerky",
+    "Beverages (bottles and cans)",
+    "Breads",
+    "Coffee",
+    "Dry blends",
+    "Dry meals",
+    "Food",
+    "Food co-packing for small to medium food businesses (categories not detailed on site)",
+    "Frozen muffin/cornbread/loaf batters",
+    "Hatch chile mac and grits (own brand plus co-pack)",
+    "Herbs",
+    "K-Cups",
+    "Loose leaf tea",
+    "Milk",
+    "Popcorn",
+    "Ready-to-eat popcorn",
+    "Spices",
+    "Sports nutrition",
+    "bagels",
+    "baked goods",
+    "beverage",
+    "butter",
+    "candy",
+    "capsules",
+    "caramel/gourmet popcorn",
+    "cereals",
+    "chocolate/non-chocolate panned products",
+    "coffee",
+    "cookies",
+    "cottage cheese",
+    "custom spice blends",
+    "dehydrated fruits",
+    "dry blends",
+    "dry free-flowing ingredient blends",
+    "dry goods packaging",
+    "dry mixes",
+    "fillings",
+    "flavored sugars",
+    "foodservice and bulk spice products",
+    "grains and seeds",
+    "granola",
+    "granolas",
+    "herbal blends",
+    "human-grade pet treats (shelf-stable only)",
+    "ice cream mix",
+    "icings",
+    "meal kits",
+    "meat snacks",
+    "mixes and bases",
+    "nuts",
+    "organic sugar floss",
+    "other dairy",
+    "other dry products",
+    "pasta",
+    "popcorn",
+    "portion packs",
+    "private label coffee",
+    "private label/store brand",
+    "protein/collagen supplements",
+    "roasted nuts",
+    "salts",
+    "seasoned popcorn",
+    "seasonings",
+    "small to medium brand beverage runs",
+    "sour cream",
+    "specialty and extruded snacks",
+    "specialty bakery",
+    "spice blends",
+    "spices",
+    "supplement concepts (formulation through manufacturing readiness)",
+    "tea",
+    "tea pouches",
+    "teas",
+    "thaw-and-serve cupcakes/whoopie shells/coffee cakes"
+  ],
+  "skipped": {
+    "byStatus": {
+      "NEEDS_REVIEW": 18,
+      "EXCLUDE": 22
+    },
+    "repeatedMasterKey": 17,
+    "crossIdentityDuplicate": 1,
+    "alreadyCurated": 3,
+    "safeNotSelected": 14
+  },
+  "skippedRecords": {
+    "unsafeStatus": [
+      {
+        "companyName": "Cross Roots Juice",
+        "source": "batch-01-a.csv:2",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "My Green Network",
+        "source": "batch-01-a.csv:4",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Frangiosa Farms",
+        "source": "batch-01-a.csv:9",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Hillside Orchard Farms",
+        "source": "batch-01-a.csv:12",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Lauri Jo's Southern Style Canning, LLC",
+        "source": "batch-01-a.csv:13",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "The Olive Oven",
+        "source": "batch-01-b.csv:3",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "First Commercial Kitchen LLC",
+        "source": "batch-01-b.csv:4",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Five Way Foods",
+        "source": "batch-01-b.csv:9",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Kitchen Network Bottling Co.",
+        "source": "batch-02.csv:5",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Gaffney Foods",
+        "source": "batch-02.csv:15",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "T. Ho Foods Inc.",
+        "source": "batch-02.csv:17",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Vermont Bottling Company",
+        "source": "batch-02.csv:24",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Vermont CoPack LLC",
+        "source": "batch-02.csv:25",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Bahman Fine Foods",
+        "source": "batch-02.csv:26",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Cross Roots Juice",
+        "source": "batch-03.csv:2",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "My Green Network",
+        "source": "batch-03.csv:4",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Frangiosa Farms",
+        "source": "batch-03.csv:9",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Hillside Orchard Farms",
+        "source": "batch-03.csv:12",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Lauri Jo's Southern Style Canning, LLC",
+        "source": "batch-03.csv:13",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "The Olive Oven",
+        "source": "batch-03.csv:15",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "First Commercial Kitchen LLC",
+        "source": "batch-03.csv:16",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Five Way Foods",
+        "source": "batch-03.csv:21",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Lochmead Dairy",
+        "source": "batch-04-a.csv:6",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Oregon Coffee Roaster, Inc.",
+        "source": "batch-04-a.csv:8",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "J. Wilbur Foods",
+        "source": "batch-04-a.csv:10",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Proculinary Kitchens",
+        "source": "batch-04-b.csv:6",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "Sonoma Gourmet",
+        "source": "batch-04-b.csv:7",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "CAPG Co-packing",
+        "source": "batch-04-b.csv:8",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "BGR World",
+        "source": "batch-04-b.csv:9",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Smart Baking Company",
+        "source": "batch-04-b.csv:12",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Hudson Blaise",
+        "source": "batch-04-b.csv:13",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Frontier Soups",
+        "source": "batch-04-b.csv:14",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Origami Catering",
+        "source": "batch-05-a.csv:6",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "San Gennaro Foods, Inc.",
+        "source": "batch-05-a.csv:11",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Burns and McCoy Sauce Company",
+        "source": "batch-05-a.csv:12",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Deer Trail Gold Mining Company",
+        "source": "batch-05-a.csv:13",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Paxton Packing",
+        "source": "batch-05-b.csv:2",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Cape Cod Provisions (New England Candy Company LLC)",
+        "source": "batch-05-b.csv:5",
+        "reason": "NEEDS_REVIEW"
+      },
+      {
+        "companyName": "South Atlantic Packaging",
+        "source": "batch-05-b.csv:12",
+        "reason": "EXCLUDE"
+      },
+      {
+        "companyName": "Lynch Specialty Foods, Inc.",
+        "source": "batch-05-b.csv:13",
+        "reason": "NEEDS_REVIEW"
+      }
+    ],
+    "repeatedMasterKey": [
+      {
+        "companyName": "Mad Will's Food Company",
+        "source": "batch-03.csv:3",
+        "identity": "mad wills food company|auburn|CA"
+      },
+      {
+        "companyName": "Tender Heifer Snack Co.",
+        "source": "batch-03.csv:5",
+        "identity": "tender heifer snack co.|hemet|CA"
+      },
+      {
+        "companyName": "Boulder Organic Foods (Bolder Foods)",
+        "source": "batch-03.csv:6",
+        "identity": "boulder organic foods|niwot|CO"
+      },
+      {
+        "companyName": "Colorado Copacking Company",
+        "source": "batch-03.csv:7",
+        "identity": "colorado copacking company|longmont|CO"
+      },
+      {
+        "companyName": "Foremother Foods, LLC (Picaflor)",
+        "source": "batch-03.csv:8",
+        "identity": "foremother foods, llc|boulder|CO"
+      },
+      {
+        "companyName": "Premiere Packaging Partners, LLC",
+        "source": "batch-03.csv:10",
+        "identity": "premiere packaging partners, llc|waterbury|CT"
+      },
+      {
+        "companyName": "Complete CoPack (Kcupcopack)",
+        "source": "batch-03.csv:11",
+        "identity": "complete copack|sunrise|FL"
+      },
+      {
+        "companyName": "PREP Commercial Kitchens",
+        "source": "batch-03.csv:14",
+        "identity": "prep commercial kitchens|atlanta|GA"
+      },
+      {
+        "companyName": "Todd's Foods (Todd's Premium Foods)",
+        "source": "batch-03.csv:17",
+        "identity": "todd's premium foods|des moines|IA"
+      },
+      {
+        "companyName": "Assemblers, Inc.",
+        "source": "batch-03.csv:18",
+        "identity": "assemblers inc|chicago|IL"
+      },
+      {
+        "companyName": "BEC CoPackers (BEC Beverage, LLC)",
+        "source": "batch-03.csv:19",
+        "identity": "bec copackers|slidell|LA"
+      },
+      {
+        "companyName": "FATBOY Foods",
+        "source": "batch-03.csv:20",
+        "identity": "fatboy foods|medford|MA"
+      },
+      {
+        "companyName": "Western MA Food Processing Center",
+        "source": "batch-03.csv:22",
+        "identity": "western ma food processing center|greenfield|MA"
+      },
+      {
+        "companyName": "Chesapeake Bay Snacks",
+        "source": "batch-03.csv:23",
+        "identity": "chesapeake bay snacks|baltimore|MD"
+      },
+      {
+        "companyName": "Prospectors Specialty Beverage",
+        "source": "batch-03.csv:24",
+        "identity": "prospectors llc|grand rapids|MI"
+      },
+      {
+        "companyName": "At Last! Gourmet Foods",
+        "source": "batch-03.csv:25",
+        "identity": "at last! gourmet foods|minneapolis|MN"
+      },
+      {
+        "companyName": "The Organic Food Incubator",
+        "source": "batch-03.csv:26",
+        "identity": "the organic food incubator|bloomfield|NJ"
+      }
+    ],
+    "crossIdentityDuplicate": [
+      {
+        "companyName": "Complete CoPack LLC (Buy K-Cups)",
+        "source": "batch-04-b.csv:10",
+        "kept": "Complete CoPack (Kcupcopack)",
+        "reason": "secondary identity match"
+      }
+    ],
+    "alreadyCurated": [
+      {
+        "companyName": "Paradigm Foodworks",
+        "source": "batch-05-a.csv:7",
+        "kept": "Paradigm Foodworks",
+        "reason": "already present in curated catalog"
+      },
+      {
+        "companyName": "Sonoma Farm Co-Packing",
+        "source": "batch-05-b.csv:3",
+        "kept": "Sonoma Farm Co Packing",
+        "reason": "already present in curated catalog"
+      },
+      {
+        "companyName": "The Spice Guy",
+        "source": "batch-04-a.csv:5",
+        "kept": "The Spice Guy — Sauce Pack",
+        "reason": "already present in curated catalog"
+      }
+    ],
+    "safeNotSelected": [
+      {
+        "companyName": "America's Foods, Inc. (American Noodle Inc.)",
+        "source": "batch-02.csv:11",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Barhyte Specialty Foods (Suzie's Organics)",
+        "source": "batch-02.csv:12",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Beaverton Foods, Inc.",
+        "source": "batch-02.csv:13",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Dolce Amore",
+        "source": "batch-02.csv:7",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "EPD, Inc.",
+        "source": "batch-02.csv:21",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Freshies Food Corporation",
+        "source": "batch-02.csv:2",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Hemp Acres",
+        "source": "batch-05-b.csv:10",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Lupo's Bottling LLC",
+        "source": "batch-02.csv:8",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "PREP Commercial Kitchens",
+        "source": "batch-01-b.csv:2",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Silver State Foods, Inc.",
+        "source": "batch-04-a.csv:4",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Summit Beverage Group",
+        "source": "batch-02.csv:23",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "The Petite Chef",
+        "source": "batch-04-b.csv:3",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Western Innovations, Inc.",
+        "source": "batch-05-a.csv:3",
+        "reason": "outside initial 50-record cohort"
+      },
+      {
+        "companyName": "Worcester Regional Food Hub",
+        "source": "batch-05-b.csv:6",
+        "reason": "outside initial 50-record cohort"
+      }
+    ]
+  }
+}

@@ -7,10 +7,17 @@ import { SourceLinks } from "@/components/SourceLinks";
 import { Unpublished } from "@/components/Unpublished";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import {
+  OPERATION_TYPE_LABELS,
+  PRODUCT_CATEGORIES,
   formatLastVerified,
   formatProcesses,
+  formatVerifiedMonth,
   getPlantBySlug,
   getPlantSlugs,
+  plantMatchesCategory,
+  processLabel,
+  queryToSearchParams,
+  stateLabel,
 } from "@/lib/directory";
 import { plantOrganizationJsonLd } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -49,6 +56,9 @@ export default async function ManufacturerPage({
 
   const processes = formatProcesses(plant);
   const links = [plant.website, ...(plant.extraLinks ?? [])];
+  const listingStatus = plant.listingStatus ?? "VERIFIED";
+  const categories = PRODUCT_CATEGORIES.filter((category) => plantMatchesCategory(plant, category.slug));
+  const states = [...new Set(plant.sites.map((site) => site.state))];
   const fitReasons = [
     plant.productTypesPublished ? `Products: ${plant.productTypesPublished}` : null,
     processes.length > 0 ? `Processes: ${processes.join(", ")}` : null,
@@ -83,11 +93,18 @@ export default async function ManufacturerPage({
               <p className="kicker">Food and beverage manufacturer</p>
               <h1>{plant.name}</h1>
               <p className="company-place">{plant.locationDisplay}</p>
+              <p className={`listing-evidence listing-evidence-${listingStatus.toLowerCase()}`}>
+                {listingStatus === "VERIFIED"
+                  ? `Verified ${formatVerifiedMonth(plant.lastVerified)}`
+                  : "Public source listing"}
+              </p>
             </div>
           </div>
           <p className="meta">
-            Public details reviewed {formatLastVerified(plant.lastVerified)}. Check current fit,
-            availability, and requirements directly with the manufacturer.
+            {listingStatus === "VERIFIED"
+              ? `The Line List checked this manufacturer against current public information on ${formatLastVerified(plant.lastVerified)}.`
+              : `This listing is based on public source material checked ${formatLastVerified(plant.lastVerified)} and has not received the same verification treatment as a Verified profile.`}{" "}
+            Check current fit, availability, and requirements directly with the manufacturer.
           </p>
           <p>
             <Link className="btn btn-gold" href={`/find-manufacturers/request-intro?manufacturer=${plant.slug}`}>
@@ -108,9 +125,14 @@ export default async function ManufacturerPage({
             <div><dt>Location</dt><dd>{plant.locationDisplay}</dd></div>
             <div><dt>Processes</dt><dd>{processes.length > 0 ? processes.join(" · ") : <Unpublished />}</dd></div>
             <div><dt>Product types</dt><dd>{plant.productTypesPublished ?? <Unpublished />}</dd></div>
+            <div><dt>Manufacturing capabilities</dt><dd>{plant.manufacturingCapabilitiesPublished ?? <Unpublished />}</dd></div>
             <div><dt>Packaging</dt><dd>{plant.packaging ?? <Unpublished />}</dd></div>
             <div><dt>Published minimum</dt><dd>{plant.moqDisplay ?? <Unpublished />}</dd></div>
             <div><dt>Certifications</dt><dd>{plant.certs.length > 0 ? plant.certs.join(" · ") : <Unpublished />}</dd></div>
+            <div><dt>Operating model</dt><dd>{plant.operationType ? OPERATION_TYPE_LABELS[plant.operationType] : (plant.operationTypePublished ?? <Unpublished />)}</dd></div>
+            <div><dt>Website</dt><dd><a href={plant.website.href} rel="noreferrer">Visit official website</a></dd></div>
+            <div><dt>Phone</dt><dd>{plant.phone ? <a href={`tel:${plant.phone}`}>{plant.phone}</a> : <Unpublished />}</dd></div>
+            <div><dt>Public email</dt><dd>{plant.publicEmail ? <a href={`mailto:${plant.publicEmail}`}>{plant.publicEmail}</a> : <Unpublished />}</dd></div>
           </dl>
 
           <h2>What the manufacturer says</h2>
@@ -128,6 +150,23 @@ export default async function ManufacturerPage({
                 ))}
               </ul>
             </>
+          ) : null}
+
+          {categories.length > 0 || states.length > 0 || plant.finderProcesses.length > 0 ? (
+            <section aria-labelledby="related-discovery-heading">
+              <h2 id="related-discovery-heading">Explore related manufacturers</h2>
+              <ul className="profile-related-links">
+                {categories.map((category) => (
+                  <li key={category.slug}><Link href={`/find-manufacturers/${category.slug}`}>{category.label}</Link></li>
+                ))}
+                {states.map((state) => (
+                  <li key={state}><Link href={`/find-manufacturers?${queryToSearchParams({ state })}`}>{stateLabel(state)} manufacturers</Link></li>
+                ))}
+                {plant.finderProcesses.map((process) => (
+                  <li key={process}><Link href={`/find-manufacturers?${queryToSearchParams({ process })}`}>{processLabel(process)} manufacturers</Link></li>
+                ))}
+              </ul>
+            </section>
           ) : null}
 
           <h2>What to ask next</h2>

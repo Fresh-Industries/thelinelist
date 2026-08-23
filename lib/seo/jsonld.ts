@@ -130,6 +130,9 @@ export function plantOrganizationJsonLd(plant: Plant) {
     "@type": "Organization",
     name: plant.name,
     url: plant.website.href,
+    ...(plant.phone ? { telephone: plant.phone } : {}),
+    ...(plant.publicEmail ? { email: plant.publicEmail } : {}),
+    ...(plant.productTypesPublished ? { description: plant.productTypesPublished } : {}),
     address: plant.sites.map((site) => ({
       "@type": "PostalAddress",
       addressLocality: site.city ?? undefined,

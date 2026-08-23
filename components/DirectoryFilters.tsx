@@ -4,6 +4,7 @@ import { trackFilter } from "@/lib/analytics/client";
 import {
   PROCESS_OPTIONS,
   PRODUCT_CATEGORIES,
+  OPERATION_TYPE_LABELS,
   getProductCategory,
   productLabel,
   queryToSearchParams,
@@ -12,6 +13,7 @@ import {
   type DirectoryQuery,
   type DirectorySort,
   type FinderProcess,
+  type OperationType,
   type PackagingFilter,
   type ProductCategorySlug,
 } from "@/lib/directory";
@@ -119,6 +121,13 @@ function getActiveFilters(initial: DirectoryQuery): ActiveFilter[] {
           key: "certification",
           label: CERTIFICATION_LABELS[initial.certification],
           href: directoryHref({ ...initial, certification: undefined }),
+        }
+      : null,
+    initial.operationType
+      ? {
+          key: "operationType",
+          label: OPERATION_TYPE_LABELS[initial.operationType],
+          href: directoryHref({ ...initial, operationType: undefined }),
         }
       : null,
     initial.moqDisclosed || initial.smallMoq
@@ -320,13 +329,14 @@ export function DirectoryFilters({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const hasAdvancedFilters = Boolean(
-    initial.process || initial.packaging || initial.certification || initial.moqDisclosed || initial.smallMoq,
+    initial.process || initial.packaging || initial.certification || initial.operationType || initial.moqDisclosed || initial.smallMoq,
   );
   const [advancedOpen, setAdvancedOpen] = useState(hasAdvancedFilters);
   const [category, setCategory] = useState(initial.category ?? "");
   const [process, setProcess] = useState(initial.process ?? "");
   const [packaging, setPackaging] = useState(initial.packaging ?? "");
   const [certification, setCertification] = useState(initial.certification ?? "");
+  const [operationType, setOperationType] = useState(initial.operationType ?? "");
   const [state, setState] = useState(initial.state ?? "");
   const [moqDisclosed, setMoqDisclosed] = useState(Boolean(initial.moqDisclosed || initial.smallMoq));
 
@@ -340,6 +350,7 @@ export function DirectoryFilters({
       process: (process as FinderProcess) || undefined,
       packaging: (packaging as PackagingFilter) || undefined,
       certification: (certification as CertificationFilter) || undefined,
+      operationType: (operationType as OperationType) || undefined,
       state: state || undefined,
       moqDisclosed,
       sort: initial.sort,
@@ -349,6 +360,7 @@ export function DirectoryFilters({
       process: process || "any",
       packaging: packaging || "any",
       certification: certification || "any",
+      operationType: operationType || "any",
       state: state || "any",
       moqDisclosed,
     });
@@ -377,7 +389,7 @@ export function DirectoryFilters({
       <details className="advanced-filters" open={advancedOpen} onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}>
         <summary>
           <span className="advanced-filter-label">More filters</span>
-          <small>Process, packaging, minimums, and certifications</small>
+          <small>Process, packaging, minimums, certifications, and operating model</small>
         </summary>
         <div className="advanced-filter-panel">
           <div className="advanced-filter-grid">
@@ -409,6 +421,14 @@ export function DirectoryFilters({
                 <option value="">Any minimum</option>
                 <option value="disclosed">Show publicly listed minimums only</option>
               </select>
+            </div>
+            <div className="field">
+              <label htmlFor={`${id}-operation-type`}>Operating model</label>
+              <select id={`${id}-operation-type`} value={operationType} onChange={(event) => setOperationType(event.target.value as OperationType | "")}>
+                <option value="">Any operating model</option>
+                {Object.entries(OPERATION_TYPE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+              <small>Uses the operating model stated in the public source record.</small>
             </div>
           </div>
           <div className="advanced-filter-actions">

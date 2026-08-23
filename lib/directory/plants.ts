@@ -1,5 +1,6 @@
 import type { Plant } from "./types";
 import { LAST_VERIFIED } from "./types";
+import { IMPORTED_PLANTS } from "./imported-plants.generated";
 
 /**
  * Plant-site-verified directory.
@@ -10,7 +11,7 @@ import { LAST_VERIFIED } from "./types";
  *
  * Do not add rows from `data/copackers.csv`. Blank means unpublished.
  */
-export const VERIFIED_PLANTS: Plant[] = [
+const CURATED_PLANTS: Plant[] = [
   {
     slug: "universal-pure",
     name: "Universal Pure",
@@ -1413,3 +1414,5 @@ export const VERIFIED_PLANTS: Plant[] = [
     },
   },
 ];
+
+export const DIRECTORY_PLANTS: Plant[] = [...CURATED_PLANTS, ...IMPORTED_PLANTS];

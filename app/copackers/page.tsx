@@ -22,7 +22,7 @@ import { Suspense } from "react";
 export const metadata: Metadata = pageMetadata({
   title: "U.S. food and beverage manufacturer directory",
   description:
-    "Filter plant-site-verified company cards. Unknown fields stay unpublished. Organic order is A to Z.",
+    "Filter sourced food and beverage manufacturer cards. Unknown fields stay unpublished. Organic order is A to Z.",
   path: "/copackers",
 });
 
@@ -63,7 +63,7 @@ export default async function CopackersPage({
                 {productName ? `Manufacturers for ${productName}` : "Compare U.S. manufacturers"}
               </h1>
               <p className="lede">
-                Filter plant-site-verified company cards. Unknown fields stay unpublished. Organic
+                Filter sourced company cards. Unknown fields stay unpublished. Organic
                 order is A to Z. Sponsored slots sit apart when we have them.
               </p>
             </div>
@@ -107,7 +107,7 @@ export default async function CopackersPage({
                 sizes="18rem"
               />
               <p>
-                No verified plant matches those filters. We will not invent a match. Set process or
+                No listed manufacturer matches those filters. We will not invent a match. Set process or
                 product to Not sure, or widen the state. We only show coverage we have.
               </p>
             </div>

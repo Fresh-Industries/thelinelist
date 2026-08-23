@@ -1,4 +1,4 @@
-import { getPlantSlugs, LAST_VERIFIED, PRODUCT_CATEGORIES } from "@/lib/directory";
+import { getDirectoryPlants, LAST_VERIFIED, PRODUCT_CATEGORIES } from "@/lib/directory";
 import { CORNERSTONE_GUIDES } from "@/lib/guides/cornerstones";
 import { absoluteUrl } from "@/lib/site";
 import type { MetadataRoute } from "next";
@@ -38,9 +38,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: LAST_VERIFIED,
       changeFrequency: "monthly" as const,
     })),
-    ...getPlantSlugs().map((slug) => ({
-      url: absoluteUrl(`/manufacturers/${slug}`),
-      lastModified: LAST_VERIFIED,
+    ...getDirectoryPlants().map((plant) => ({
+      url: absoluteUrl(`/manufacturers/${plant.slug}`),
+      lastModified: plant.lastVerified,
       changeFrequency: "weekly" as const,
     })),
   ];

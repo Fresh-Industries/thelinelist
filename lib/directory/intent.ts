@@ -90,13 +90,13 @@ export function coverageNote(intent: ProductIntent): string | null {
   switch (intent.coverage) {
     case "unsupported":
       return intent.unsupportedKind
-        ? `We do not have verified plants tagged for ${unsupportedLabel(intent.unsupportedKind)} yet. Showing every verified plant instead.`
-        : "We do not have verified coverage for that product yet. Showing every verified plant instead.";
+        ? `We do not have listed manufacturers tagged for ${unsupportedLabel(intent.unsupportedKind)} yet. Showing every listed manufacturer instead.`
+        : "We do not have sourced coverage for that product yet. Showing every listed manufacturer instead.";
     case "mapped":
       return null;
     case "unknown":
       return intent.query
-        ? `We could not map “${intent.query}” onto a verified product type. Showing every verified plant. Try beverage, sauce, or prepared / refrigerated.`
+        ? `We could not map “${intent.query}” onto a supported product type. Showing every listed manufacturer. Try beverage, sauce, or prepared / refrigerated.`
         : null;
     default: {
       const _exhaustive: never = intent.coverage;

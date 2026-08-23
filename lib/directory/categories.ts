@@ -70,6 +70,8 @@ export function isProductCategorySlug(value: string): value is ProductCategorySl
 }
 
 export function plantMatchesCategory(plant: Plant, category: ProductCategorySlug): boolean {
+  if (plant.categories) return plant.categories.includes(category);
+
   const disclosedText = [
     plant.productTypesPublished,
     ...plant.overview,

@@ -1,6 +1,6 @@
 import "./assert";
 import { STATE_NAMES } from "./labels";
-import { VERIFIED_PLANTS } from "./plants";
+import { DIRECTORY_PLANTS } from "./plants";
 import { isProductCategorySlug, plantMatchesCategory } from "./categories";
 import type {
   CertificationFilter,
@@ -12,6 +12,7 @@ import type {
   GuideId,
   PackagingFilter,
   Plant,
+  OperationType,
 } from "./types";
 
 /**
@@ -24,24 +25,28 @@ import type {
  * inserted into this list or used as a sort key.
  */
 export function getVerifiedPlants(): Plant[] {
-  return VERIFIED_PLANTS;
+  return DIRECTORY_PLANTS;
+}
+
+export function getDirectoryPlants(): Plant[] {
+  return DIRECTORY_PLANTS;
 }
 
 export function getPlantBySlug(slug: string): Plant | undefined {
-  return VERIFIED_PLANTS.find((plant) => plant.slug === slug);
+  return DIRECTORY_PLANTS.find((plant) => plant.slug === slug);
 }
 
 export function getPlantSlugs(): string[] {
-  return VERIFIED_PLANTS.map((plant) => plant.slug);
+  return DIRECTORY_PLANTS.map((plant) => plant.slug);
 }
 
 export function plantsForGuide(guide: GuideId): Plant[] {
-  return VERIFIED_PLANTS.filter((plant) => plant.appearedOn.includes(guide));
+  return DIRECTORY_PLANTS.filter((plant) => plant.appearedOn.includes(guide));
 }
 
 export function filterPlants(query: DirectoryQuery): Plant[] {
   const direction = query.sort === "za" ? -1 : 1;
-  return VERIFIED_PLANTS.filter((plant) => matchesQuery(plant, query)).sort((left, right) => (
+  return DIRECTORY_PLANTS.filter((plant) => matchesQuery(plant, query)).sort((left, right) => (
     left.name.localeCompare(right.name) * direction || left.slug.localeCompare(right.slug) * direction
   ));
 }
@@ -63,6 +68,9 @@ export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
     return false;
   }
   if (query.certification && !matchesCertification(plant, query.certification)) {
+    return false;
+  }
+  if (query.operationType && plant.operationType !== query.operationType) {
     return false;
   }
   if (query.state && !plant.sites.some((site) => site.state === query.state)) {
@@ -114,12 +122,12 @@ function matchesCertification(plant: Plant, certification: CertificationFilter):
 }
 
 export function countByFinderProduct(product: FinderProduct): number {
-  return VERIFIED_PLANTS.filter((plant) => plant.finderProducts.includes(product)).length;
+  return DIRECTORY_PLANTS.filter((plant) => plant.finderProducts.includes(product)).length;
 }
 
 export function verifiedStates(): string[] {
   const states = new Set<string>();
-  for (const plant of VERIFIED_PLANTS) {
+  for (const plant of DIRECTORY_PLANTS) {
     for (const site of plant.sites) {
       if (site.state in STATE_NAMES) {
         states.add(site.state);
@@ -134,7 +142,7 @@ export function verifiedStates(): string[] {
 }
 
 /**
- * Count verified plants for a future programmatic slice.
+ * Count listed manufacturers for a future programmatic slice.
  * Routes like `/copackers/texas` are not generated in this pass.
  */
 export function countVerifiedSlice(keys: FutureSliceKeys): number {
@@ -158,6 +166,7 @@ export function parseDirectoryQuery(
     moqDisclosed: first(searchParams.moq) === "disclosed",
     packaging: readPackaging(first(searchParams.packaging)),
     certification: readCertification(first(searchParams.certification)),
+    operationType: readOperationType(first(searchParams.operationType)),
     state: readState(first(searchParams.state)),
     sort: options.allowSort ? readSort(first(searchParams.sort)) : undefined,
   };
@@ -172,6 +181,7 @@ export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   if (query.moqDisclosed) params.set("moq", "disclosed");
   if (query.packaging) params.set("packaging", query.packaging);
   if (query.certification) params.set("certification", query.certification);
+  if (query.operationType) params.set("operationType", query.operationType);
   if (query.state) params.set("state", query.state);
   if (query.sort === "za") params.set("sort", query.sort);
   return params;
@@ -195,6 +205,15 @@ function readPackaging(value: string | undefined): PackagingFilter | undefined {
 function readCertification(value: string | undefined): CertificationFilter | undefined {
   switch (value) {
     case "organic": case "kosher": case "halal": case "gluten-free": case "non-gmo": case "sqf": return value;
+    default: return undefined;
+  }
+}
+
+function readOperationType(value: string | undefined): OperationType | undefined {
+  switch (value) {
+    case "co-packer": case "co-manufacturer": case "contract-manufacturer":
+    case "private-label-producer": case "shared-kitchen-incubator":
+    case "brand-with-co-pack": case "other": return value;
     default: return undefined;
   }
 }
@@ -225,6 +244,8 @@ function readProcess(value: string | undefined): FinderProcess | undefined {
     case "hpp":
     case "hot-fill":
     case "retort":
+    case "cold-fill":
+    case "acidified":
       return value;
     case undefined:
     case "":

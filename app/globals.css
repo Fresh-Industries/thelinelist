@@ -2068,6 +2068,47 @@ details.textbook .textbook-mark {
 .profile-heading h1 { margin: 0.1rem 0 0.55rem; }
 .profile-heading .company-place { margin: 0; }
 
+.listing-evidence {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0.6rem 0 0;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--forest);
+  border-radius: 999px;
+  color: var(--forest-deep);
+  background: color-mix(in srgb, var(--aqua) 34%, var(--paper));
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+}
+
+.listing-evidence-listable {
+  border-color: var(--rule);
+  background: var(--paper-2);
+  color: var(--muted);
+}
+
+.profile-related-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.profile-related-links a {
+  display: block;
+  padding: 0.42rem 0.62rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--raised);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .profile-monogram {
   width: clamp(4.5rem, 10vw, 6.5rem);
   aspect-ratio: 1;

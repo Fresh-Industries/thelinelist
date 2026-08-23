@@ -16,7 +16,7 @@ const CATEGORIES: CategoryCard[] = [
     title: "Beverages",
     href: "/copackers?product=beverage",
     image: "/images/cat-beverage.svg",
-    blurb: "Juice, tea, and other drinks that verified plants actually name.",
+    blurb: "Juice, tea, and other drinks that public manufacturer listings actually name.",
   },
   {
     product: "sauce",

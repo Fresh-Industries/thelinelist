@@ -1,12 +1,12 @@
 /**
- * Verified-directory types.
+ * Sourced-directory types.
  *
  * This is the public product surface. A later database can implement the same
  * shapes without changing pages. Do not load `data/copackers.csv` into these
  * types — that file is a public-list lead sheet, not plant-site-verified.
  *
  * Programmatic SEO (`/copackers/texas`, `/copackers/texas/beverages`) should
- * only be added when a slice has enough verified plants. The fields below
+ * only be added when a slice has enough sourced listings. The fields below
  * (`sites.state`, `finderProducts`) are the slice keys.
  */
 
@@ -14,11 +14,20 @@ export const LAST_VERIFIED = "2026-08-21" as const;
 
 export type GuideId = "hpp" | "hot-fill" | "retort" | "small-moq" | "sauce";
 
-export type FinderProcess = "hpp" | "hot-fill" | "retort";
+export type FinderProcess = "hpp" | "hot-fill" | "retort" | "cold-fill" | "acidified";
 export type FinderProduct = "beverage" | "sauce" | "prepared-rte";
 export type PackagingFilter = "can" | "bottle" | "jar" | "pouch" | "other";
 export type CertificationFilter = "organic" | "kosher" | "halal" | "gluten-free" | "non-gmo" | "sqf";
 export type DirectorySort = "az" | "za";
+export type ListingStatus = "VERIFIED" | "LISTABLE";
+export type OperationType =
+  | "co-packer"
+  | "co-manufacturer"
+  | "contract-manufacturer"
+  | "private-label-producer"
+  | "shared-kitchen-incubator"
+  | "brand-with-co-pack"
+  | "other";
 
 export type ProcessCapability =
   | "hpp"
@@ -62,15 +71,30 @@ export interface Plant {
   processes: ProcessCapability[];
   finderProcesses: FinderProcess[];
   finderProducts: FinderProduct[];
+  /** Explicit taxonomy mappings from the ingestion layer. Undefined on legacy curated records. */
+  categories?: import("./categories").ProductCategorySlug[];
   packaging: string | null;
   productTypesPublished: string | null;
+  manufacturingCapabilitiesPublished?: string | null;
+  rawProductTags?: string[];
+  rawCapabilityTags?: string[];
   moqDisplay: string | null;
   /** True when the plant’s own site printed a numeric or stated MOQ. Not the small-MOQ guide membership. */
   publishedSmallMoq: boolean;
   certs: string[];
-  lastVerified: typeof LAST_VERIFIED;
+  lastVerified: string;
+  /** Legacy curated records default to VERIFIED when this is absent. */
+  listingStatus?: ListingStatus;
+  confidence?: number;
   website: SourceLink;
   extraLinks?: SourceLink[];
+  phone?: string | null;
+  publicEmail?: string | null;
+  operationType?: OperationType;
+  operationTypePublished?: string | null;
+  flags?: string[];
+  qualityNotes?: string | null;
+  masterDedupeKey?: string;
   overview: string[];
   notes?: string[];
   appearedOn: GuideId[];
@@ -85,6 +109,7 @@ export interface DirectoryQuery {
   moqDisclosed?: boolean;
   packaging?: PackagingFilter;
   certification?: CertificationFilter;
+  operationType?: OperationType;
   state?: string;
   sort?: DirectorySort;
 }

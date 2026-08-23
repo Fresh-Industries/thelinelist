@@ -10,6 +10,8 @@ const PROCESS_CHOICES: { value: FinderProcess; label: string; help: string }[] =
   { value: "hot-fill", label: "Hot fill", help: "Often discussed for acidified sauces and some shelf-stable beverages." },
   { value: "hpp", label: "HPP", help: "A high-pressure process used for some refrigerated products. Cold pressed is not the same as HPP." },
   { value: "retort", label: "Retort", help: "A pressure heat process used for some low-acid shelf-stable foods." },
+  { value: "cold-fill", label: "Cold fill", help: "Filled without a hot-fill step. The safety process and storage plan still need to be confirmed." },
+  { value: "acidified", label: "Acidified", help: "A low-acid food adjusted to a controlled finished pH, common for some sauces and condiments." },
 ];
 
 function isBeverage(category: string) {

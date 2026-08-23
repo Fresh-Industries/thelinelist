@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "manufacturers:import": "node scripts/import-manufacturers.mjs",
+    "manufacturers:check": "node scripts/import-manufacturers.mjs --check"
   },
   "dependencies": {
     "next": "16.3.2",
