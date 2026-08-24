@@ -18,7 +18,6 @@ import {
   type ProductCategorySlug,
 } from "@/lib/directory";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   type FormEvent,
   type KeyboardEvent,
@@ -326,7 +325,6 @@ export function DirectoryFilters({
   initial: DirectoryQuery;
 }) {
   const id = useId();
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const hasAdvancedFilters = Boolean(
     initial.process || initial.packaging || initial.certification || initial.operationType || initial.moqDisclosed || initial.smallMoq,
@@ -364,7 +362,7 @@ export function DirectoryFilters({
       state: state || "any",
       moqDisclosed,
     });
-    startTransition(() => router.push(directoryHref(query)));
+    startTransition(() => window.location.assign(directoryHref(query)));
   }
 
   return (
@@ -451,12 +449,11 @@ export function DirectoryResultsBar({ initial, resultCount, currentPage, pageSiz
   pageSize: number;
   startIndex: number;
 }) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const activeFilters = getActiveFilters(initial);
 
   function changeSort(sort: DirectorySort) {
-    startTransition(() => router.push(directoryHref({ ...initial, sort: sort === "za" ? sort : undefined, page: undefined })));
+    startTransition(() => window.location.assign(directoryHref({ ...initial, sort: sort === "za" ? sort : undefined, page: undefined })));
   }
 
   return (

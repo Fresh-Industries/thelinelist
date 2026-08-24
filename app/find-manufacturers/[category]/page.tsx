@@ -41,7 +41,10 @@ export default async function ProductHubPage({ params }: { params: Promise<{ cat
         <div className="cta-band"><Link className="btn btn-gold" href={`/find-manufacturers/wizard?product=${entry.slug}`}>Match this product</Link><Link className="btn btn-ghost" href="/find-manufacturers">Use all filters</Link></div>
         <p className="honest">These results use disclosed product language only. Not listed does not mean incapable. It means you should ask. <Link href="/how-we-verify">How we verify</Link></p>
         <section className="category-snapshot" aria-labelledby="category-snapshot-heading">
-          <div><p className="kicker">Directory snapshot</p><h2 id="category-snapshot-heading">What the current listings show</h2></div>
+          <div className="category-snapshot-heading">
+            <div><p className="kicker">Directory snapshot</p><h2 id="category-snapshot-heading">What the current listings show</h2></div>
+            <p><strong>Public sources reviewed</strong> {snapshot.lastReviewed}</p>
+          </div>
           <dl>
             <div><dt>Matching manufacturers</dt><dd>{snapshot.matchingManufacturers}</dd></div>
             <div><dt>Comparable published minimums</dt><dd>{snapshot.publishingMinimums}</dd></div>
@@ -49,7 +52,6 @@ export default async function ProductHubPage({ params }: { params: Promise<{ cat
             <div><dt>Common processes</dt><dd>{snapshot.commonProcesses.length > 0 ? snapshot.commonProcesses.join(" · ") : "Not publicly listed"}</dd></div>
             <div><dt>Common packaging</dt><dd>{snapshot.commonPackaging.length > 0 ? snapshot.commonPackaging.join(" · ") : "Not publicly listed"}</dd></div>
             <div><dt>States represented</dt><dd>{snapshot.states.length > 0 ? `${snapshot.states.length}: ${snapshot.states.join(", ")}` : "None yet"}</dd></div>
-            <div><dt>Public sources reviewed</dt><dd>{snapshot.lastReviewed}</dd></div>
           </dl>
           <p>MOQ figures are compared only when the published units match. Other minimums remain visible on individual profiles.</p>
         </section>

@@ -39,10 +39,38 @@ describe("directory trust and pagination", () => {
 
   it("compares MOQ values only when one compatible unit is explicit", () => {
     expect(comparableMoq("MOQs start as low as 250 units.")).toEqual({ amount: 250, unit: "units" });
-    expect(comparableMoq("50 gallons per flavor (~1,200 × 5 oz woozy).")).toBeNull();
+    expect(comparableMoq("50 gallons per flavor (~1,200 × 5 oz woozy).")).toEqual({ amount: 50, unit: "gallons" });
     expect(comparableMoq("Exact MOQ unpublished.")).toBeNull();
     expect(comparableMoq("No per-SKU unit MOQ. Inquiry screens for 11,000 gallons/day.")).toBeNull();
     expect(comparableMoq("15,000-500,000 packets.")).toBeNull();
+  });
+
+  it("reports the complete Hot Sauce snapshot without mixing MOQ units", () => {
+    const plants = filterPlants({ category: "hot-sauce" });
+
+    expect(plants).toHaveLength(7);
+    expect(plants.map((plant) => plant.slug)).toContain("creative-foodworks");
+    expect(plants.map((plant) => plant.slug)).not.toContain("acecopack");
+    expect(categorySnapshot(plants)).toMatchObject({
+      matchingManufacturers: 7,
+      publishingMinimums: 2,
+      comparableMoqRange: "50–1,000 gallons across 2 published minimums",
+      commonProcesses: ["Hot fill", "Acidified", "Pack-out"],
+      commonPackaging: ["bottles", "pouches", "jars"],
+      states: ["CO", "DE", "IN", "NJ", "TX"],
+    });
+  });
+
+  it("keeps process and equipment statements out of packaging fields", () => {
+    const spiceGuy = getPlantBySlug("the-spice-guy");
+    const fischerWieser = getPlantBySlug("fischer-wieser");
+
+    expect(spiceGuy?.packaging).toBeNull();
+    expect(spiceGuy?.manufacturingCapabilitiesPublished).toBe("100-gal kettles; hot-fill all products.");
+    expect(fischerWieser?.packaging).toBeNull();
+    expect(fischerWieser?.manufacturingCapabilitiesPublished).toBe(
+      "Hot-fill shelf-stable. No ambient-fill salad dressings, pouch liquids, refrigerated, or powders.",
+    );
   });
 
   it("does not count missing or throughput-only minimums in category snapshots", () => {

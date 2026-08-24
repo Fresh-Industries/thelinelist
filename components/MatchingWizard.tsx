@@ -3,7 +3,6 @@
 import { track } from "@/lib/analytics/client";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { PRODUCT_CATEGORIES, queryToSearchParams, stateLabel, type CertificationFilter, type DirectoryQuery, type FinderProcess, type PackagingFilter, type ProductCategorySlug } from "@/lib/directory";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 const PROCESS_CHOICES: { value: FinderProcess; label: string; help: string }[] = [
@@ -26,7 +25,6 @@ function isBeverage(category: string) {
 }
 
 export function MatchingWizard({ states, initialProduct = "" }: { states: string[]; initialProduct?: string }) {
-  const router = useRouter();
   const validInitialProduct = PRODUCT_CATEGORIES.some((item) => item.slug === initialProduct);
   const [step, setStep] = useState(1);
   const [product, setProduct] = useState<ProductCategorySlug | "">(validInitialProduct ? initialProduct as ProductCategorySlug : "");
@@ -45,7 +43,6 @@ export function MatchingWizard({ states, initialProduct = "" }: { states: string
   const [isPending, startTransition] = useTransition();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const priorStep = useRef(step);
-  const fallbackTimer = useRef<number | null>(null);
 
   useEffect(() => {
     track(ANALYTICS_EVENTS.wizard_started, { initialProduct: initialProduct || "none" });
@@ -60,10 +57,6 @@ export function MatchingWizard({ states, initialProduct = "" }: { states: string
     });
     return () => window.cancelAnimationFrame(frame);
   }, [step]);
-
-  useEffect(() => () => {
-    if (fallbackTimer.current) window.clearTimeout(fallbackTimer.current);
-  }, []);
 
   function chooseProduct(value: ProductCategorySlug | "") {
     setProduct(value);
@@ -108,10 +101,7 @@ export function MatchingWizard({ states, initialProduct = "" }: { states: string
     setNavigationError("");
     track(ANALYTICS_EVENTS.wizard_completed, { product: product || "unsure", formula: formula || "unsure", packaging: packaging || "unsure", storage: storage || "unsure", carbonation: carbonation || "unsure", process: process || "unsure", volume: volume || "unsure", state: state || "any", certification: certification || "unsure", timeline: timeline || "unsure" });
     try {
-      startTransition(() => router.push(destination));
-      fallbackTimer.current = window.setTimeout(() => {
-        if (window.location.pathname.endsWith("/find-manufacturers/wizard")) window.location.assign(destination);
-      }, 2500);
+      startTransition(() => window.location.assign(destination));
     } catch {
       setNavigationError("We couldn’t open the results automatically. Use the results link below.");
     }
