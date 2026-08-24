@@ -3,15 +3,18 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
+import { GuideByline } from "@/components/guides/GuideByline";
 import { plantsForGuide } from "@/lib/directory";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Food co-packers with small MOQs",
   description:
     "“Small MOQ” is not a number. It is a process, a line, and a plant’s published floor, if they even publish one.",
-};
+  path: "/guides/small-moq",
+});
 
 export default function SmallMoqGuidePage() {
   const count = plantsForGuide("small-moq").length;
@@ -25,8 +28,9 @@ export default function SmallMoqGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>Food Co-Packers With Small MOQs (What “Small” Actually Means)</h1>
           <p className="meta">
-            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
+            Named plants only. Minimum order only when the plant printed one.
           </p>
+          <GuideByline reviewed="21 Aug 2026" />
 
           <div className="when">
             <p>
@@ -50,7 +54,7 @@ export default function SmallMoqGuidePage() {
           </p>
           <GuidePlantTable guide="small-moq" />
           <p>
-            <strong>Plant count in this table: {count}.</strong> That is every US food co-packer we re-verified on 21 Aug 2026 that printed a numeric or dollar MOQ and pitched small/startup runs. It is not a census of US plants. Most plants hide the number.
+            <strong>Plant count in this table: {count}.</strong> That is every US food co-packer whose public sources we reviewed on 21 Aug 2026 that printed a numeric or dollar MOQ and pitched small/startup runs. It is not a census of US plants. Most plants hide the number.
           </p>
 
           <h2 id="how-to-show-up-ready">How to show up ready (we are not brokering this draft)</h2>
@@ -70,7 +74,7 @@ export default function SmallMoqGuidePage() {
           <h2 id="request-an-intro">Request an intro</h2>
           <p>
             If a plant in the table matches your process <strong>and</strong> you can fund the published floor, request an intro. We will not email the plant for you from this page. See the{" "}
-            <Link href="/copackers?smallMoq=1">small-MOQ directory cards</Link>.
+            <Link href="/find-manufacturers?smallMoq=1">small-MOQ directory cards</Link>.
           </p>
 
           <details className="textbook" id="textbook">

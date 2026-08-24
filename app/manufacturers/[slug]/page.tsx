@@ -88,14 +88,13 @@ export default async function ManufacturerPage({
           />
 
           <div className="profile-heading">
-            <div className="profile-monogram" aria-hidden="true">{plant.name.charAt(0)}</div>
             <div>
               <p className="kicker">Food and beverage manufacturer</p>
               <h1>{plant.name}</h1>
               <p className="company-place">{plant.locationDisplay}</p>
               <p className={`listing-evidence listing-evidence-${listingStatus.toLowerCase()}`}>
                 {listingStatus === "VERIFIED"
-                  ? `Verified ${formatVerifiedMonth(plant.lastVerified)}`
+                  ? `Public sources reviewed ${formatVerifiedMonth(plant.lastVerified)}`
                   : "Public source listing"}
               </p>
             </div>

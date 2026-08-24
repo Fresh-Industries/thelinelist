@@ -2,14 +2,16 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Co-packer vs co-manufacturer vs private label vs tolling",
   description:
     "Co-packer vs co-manufacturer vs private label vs tolling. A CPG glossary, not a plant census. Named examples only as already published.",
-};
+  path: "/glossary",
+});
 
 export default function GlossaryPage() {
   return (
@@ -26,7 +28,7 @@ export default function GlossaryPage() {
           <p className="kicker">Glossary</p>
           <h1>Co-packer vs Co-manufacturer vs Private Label vs Tolling</h1>
           <p className="meta">
-            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
+            Public sources reviewed 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
           </p>
           <p>
             A glossary for CPG brand ops. Not a plant census. Not a legal textbook. Ignore the homepage noun. Ask who owns the formula, who buys the ingredients, and which process the line actually runs.
@@ -59,8 +61,8 @@ export default function GlossaryPage() {
                   <td>Brand</td>
                   <td>You ship bulk + often pack</td>
                   <td>
-                    <Link href="/copackers/minimus-products">Minimus</Link> (Newbury Park, CA) pack-out from <strong>$2,500/project</strong> — they <strong>do not</strong> hot-fill, pasteurize, or run aseptic.{" "}
-                    <Link href="/copackers/ibr-packaging">IBR</Link> (Carrollton, TX) fills hot sauce and powders into sachets, pouches, and stick packs; published floor <strong>5,000 units</strong>.
+                    <Link href="/manufacturers/minimus-products">Minimus</Link> (Newbury Park, CA) pack-out from <strong>$2,500/project</strong> — they <strong>do not</strong> hot-fill, pasteurize, or run aseptic.{" "}
+                    <Link href="/manufacturers/ibr-packaging">IBR</Link> (Carrollton, TX) fills hot sauce and powders into sachets, pouches, and stick packs; published floor <strong>5,000 units</strong>.
                   </td>
                 </tr>
                 <tr>
@@ -69,10 +71,10 @@ export default function GlossaryPage() {
                   <td>Brand</td>
                   <td>Plant (turnkey) or you (toll commercial)</td>
                   <td>
-                    Sauce: <Link href="/copackers/chelten-house">Chelten House</Link>, <Link href="/copackers/stir-foods">Stir Foods</Link>,{" "}
-                    <Link href="/copackers/creative-foodworks">Creative Foodworks</Link> (San Antonio; hot-filled / acidified; <strong>1,000 gallon</strong> floor, quarterly). Hot-fill beverage:{" "}
-                    <Link href="/copackers/innomark">InnoMark</Link> (St. George, UT; <strong>7,500 L</strong>). Retort pouch:{" "}
-                    <Link href="/copackers/thermal-kitchen">Thermal Kitchen</Link> (Daytona Beach; spouted 2–16 oz). MOQ unpublished at Chelten and Stir — unpublished ≠ small.
+                    Sauce: <Link href="/manufacturers/chelten-house">Chelten House</Link>, <Link href="/manufacturers/stir-foods">Stir Foods</Link>,{" "}
+                    <Link href="/manufacturers/creative-foodworks">Creative Foodworks</Link> (San Antonio; hot-filled / acidified; <strong>1,000 gallon</strong> floor, quarterly). Hot-fill beverage:{" "}
+                    <Link href="/manufacturers/innomark">InnoMark</Link> (St. George, UT; <strong>7,500 L</strong>). Retort pouch:{" "}
+                    <Link href="/manufacturers/thermal-kitchen">Thermal Kitchen</Link> (Daytona Beach; spouted 2–16 oz). MOQ unpublished at Chelten and Stir — unpublished ≠ small.
                   </td>
                 </tr>
                 <tr>
@@ -82,7 +84,7 @@ export default function GlossaryPage() {
                   <td>Plant</td>
                   <td>
                     Same ketchup, new label — Fresh Factory’s example. On our pages: Berner and AmeriQual publish private-label programs next to co-man;{" "}
-                    <Link href="/copackers/el-pinto">El Pinto</Link> lists private label / co-pack for salsa and sauces (floor <strong>10,000 units/year</strong>). You do not own a proprietary formula.
+                    <Link href="/manufacturers/el-pinto">El Pinto</Link> lists private label / co-pack for salsa and sauces (floor <strong>10,000 units/year</strong>). You do not own a proprietary formula.
                   </td>
                 </tr>
                 <tr>
@@ -91,8 +93,8 @@ export default function GlossaryPage() {
                   <td>Brand</td>
                   <td>You</td>
                   <td>
-                    HPP juice / dip: <Link href="/copackers/american-pasteurization-company">APC</Link> (Milwaukee, WI; West Sacramento, CA) and{" "}
-                    <Link href="/copackers/hpp-food-services">HPP Food Services</Link> (Buena Park / Wilmington, CA) take sealed cases, run the cycle, return product. Numeric HPP-toll MOQ: <Unpublished />.
+                    HPP juice / dip: <Link href="/manufacturers/american-pasteurization-company">APC</Link> (Milwaukee, WI; West Sacramento, CA) and{" "}
+                    <Link href="/manufacturers/hpp-food-services">HPP Food Services</Link> (Buena Park / Wilmington, CA) take sealed cases, run the cycle, return product. Numeric HPP-toll MOQ: <Unpublished />.
                   </td>
                 </tr>
                 <tr>
@@ -101,7 +103,7 @@ export default function GlossaryPage() {
                   <td>Brand</td>
                   <td>Plant or you</td>
                   <td>
-                    HPP: <Link href="/copackers/universal-pure">Universal Pure</Link> <strong>Meriden, CT</strong> and <strong>Mira Loma, CA</strong> — rotary fill + HPP. Beverage copack floor <strong>20,000 bottles/run</strong>. Their other sites (Lincoln, Villa Rica, Arlington, Malvern, Delphos) are HPP + cold chain, no beverage rotary fill — that is tolling. Same company, two models.
+                    HPP: <Link href="/manufacturers/universal-pure">Universal Pure</Link> <strong>Meriden, CT</strong> and <strong>Mira Loma, CA</strong> — rotary fill + HPP. Beverage copack floor <strong>20,000 bottles/run</strong>. Their other sites (Lincoln, Villa Rica, Arlington, Malvern, Delphos) are HPP + cold chain, no beverage rotary fill — that is tolling. Same company, two models.
                   </td>
                 </tr>
               </tbody>
@@ -136,15 +138,15 @@ export default function GlossaryPage() {
                   <td>Low-acid ambient meal, broth, plant milk, pouch / can / tray — pH &gt; 4.6, commercially sterile</td>
                   <td><Link href="/guides/retort">Retort co-packers</Link></td>
                   <td>
-                    HPP. Juice hot-fill lines. <Link href="/copackers/big-brands">Big Brands</Link> retort floor is <strong>100k units/SKU</strong>, not a startup pack-out.
+                    HPP. Juice hot-fill lines. <Link href="/manufacturers/big-brands">Big Brands</Link> retort floor is <strong>100k units/SKU</strong>, not a startup pack-out.
                   </td>
                 </tr>
                 <tr>
                   <td>Sauce or condiment (hot fill, kettle, acidified; retort if cheese / cream / broth)</td>
                   <td><Link href="/guides/sauce">Sauce / condiment contract manufacturers</Link></td>
                   <td>
-                    A 25-gallon launch at Chelten House. <Link href="/copackers/parish-foods">Parish</Link> <strong>25/50 gal</strong> and{" "}
-                    <Link href="/copackers/the-spice-guy">The Spice Guy</Link> <strong>50 gal/flavor</strong> are the published small sauce floors.
+                    A 25-gallon launch at Chelten House. <Link href="/manufacturers/parish-foods">Parish</Link> <strong>25/50 gal</strong> and{" "}
+                    <Link href="/manufacturers/the-spice-guy">The Spice Guy</Link> <strong>50 gal/flavor</strong> are the published small sauce floors.
                   </td>
                 </tr>
                 <tr>
@@ -177,7 +179,7 @@ export default function GlossaryPage() {
           <h2>Request an intro</h2>
           <p>
             If a plant on a process page matches your process, pack, and published floor, we can <strong>introduce you</strong>. Open a{" "}
-            <Link href="/copackers">manufacturer page</Link> and request the intro there. We will not email a plant until you name one and ask.
+            <Link href="/find-manufacturers">manufacturer page</Link> and request the intro there. We will not email a plant until you name one and ask.
           </p>
           <p>If you do not know the process yet, say that in the request instead of asking us to “find a co-packer.”</p>
 

@@ -3,14 +3,17 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
+import { GuideByline } from "@/components/guides/GuideByline";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Sauce and condiment contract manufacturers",
   description:
     "Named US sauce and condiment contract manufacturers: hot fill, kettle, acidified. MOQ only when the plant printed one.",
-};
+  path: "/guides/sauce",
+});
 
 export default function SauceGuidePage() {
   return (
@@ -22,8 +25,9 @@ export default function SauceGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>Sauce and Condiment Contract Manufacturers (Hot Fill, Kettle, Acidified)</h1>
           <p className="meta">
-            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
+            Named plants only. Minimum order only when the plant printed one.
           </p>
+          <GuideByline reviewed="21 Aug 2026" />
 
           <div className="when">
             <p>
@@ -48,7 +52,7 @@ export default function SauceGuidePage() {
           </p>
           <GuidePlantTable guide="sauce" />
           <p>
-            <strong>Omitted</strong> (fetched 21 Aug 2026; one-line reason): <strong>Yoshida</strong> — hot-fill, plastic only, no dairy (still in the <Link href="/copackers/yoshida-foods">directory</Link> via the hot-fill page). <strong>Co-Packing Express</strong> — 100 gal liquid (still in the directory via small MOQ). <strong>Lanovara</strong> — hot/cold fill; acidified/LACF; average 75–250 cases, not a floor. <strong>Spicin / Flavorcraft / Carolina CoPacking</strong> — sauce claims; MOQ or fill unpublished. <strong>Sauce Crafters</strong> (Riviera Beach, FL) — 30-year sauce copack, pH test + test batch; MOQ/fill unpublished. <strong>Beaverton</strong> — brand shop; no incoming copack service page. <strong>Stello</strong> — contract packaging/private label; MOQ/fill unpublished. <strong>Woeber</strong> — mustard/horseradish/vinegar/garlic private label only. <strong>Heritage Specialty Foods</strong> — refrigerated kettle soups/sauces; not ambient hot-fill. <strong>Motherlode</strong> (Hudson, CO) — sauce/dressing/salsa copack; first trial <strong>400 gal</strong>; SQF Level II (CO already covered; table capped). Misses: <strong>Sauceology</strong> (dead domain), <strong>Vermont Bottling</strong> (500), <strong>Hinkle</strong> (500), <strong>Allegro</strong> (404), <strong>Pacific Choice</strong> (down), <strong>Golden West</strong> (no copack), <strong>Fuel Kitchens</strong> (commissary). Directories are not plant facts.
+            <strong>Omitted</strong> (fetched 21 Aug 2026; one-line reason): <strong>Yoshida</strong> — hot-fill, plastic only, no dairy (still in the <Link href="/manufacturers/yoshida-foods">directory</Link> via the hot-fill page). <strong>Co-Packing Express</strong> — 100 gal liquid (still in the directory via small MOQ). <strong>Lanovara</strong> — hot/cold fill; acidified/LACF; average 75–250 cases, not a floor. <strong>Spicin / Flavorcraft / Carolina CoPacking</strong> — sauce claims; MOQ or fill unpublished. <strong>Sauce Crafters</strong> (Riviera Beach, FL) — 30-year sauce copack, pH test + test batch; MOQ/fill unpublished. <strong>Beaverton</strong> — brand shop; no incoming copack service page. <strong>Stello</strong> — contract packaging/private label; MOQ/fill unpublished. <strong>Woeber</strong> — mustard/horseradish/vinegar/garlic private label only. <strong>Heritage Specialty Foods</strong> — refrigerated kettle soups/sauces; not ambient hot-fill. <strong>Motherlode</strong> (Hudson, CO) — sauce/dressing/salsa copack; first trial <strong>400 gal</strong>; SQF Level II (CO already covered; table capped). Misses: <strong>Sauceology</strong> (dead domain), <strong>Vermont Bottling</strong> (500), <strong>Hinkle</strong> (500), <strong>Allegro</strong> (404), <strong>Pacific Choice</strong> (down), <strong>Golden West</strong> (no copack), <strong>Fuel Kitchens</strong> (commissary). Directories are not plant facts.
           </p>
           <h3>How to read the MOQ column</h3>
           <p>
@@ -105,7 +109,7 @@ export default function SauceGuidePage() {
           <h2 id="request-an-intro">Request an intro</h2>
           <p>
             If a plant in the table fits pH, format, and published minimum, we can introduce you. See the{" "}
-            <Link href="/copackers?product=sauce">sauce directory cards</Link>.
+            <Link href="/find-manufacturers?product=sauce">sauce directory cards</Link>.
           </p>
 
           <details className="textbook" id="textbook">

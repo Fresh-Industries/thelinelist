@@ -112,6 +112,7 @@ export interface DirectoryQuery {
   operationType?: OperationType;
   state?: string;
   sort?: DirectorySort;
+  page?: number;
 }
 
 export interface FutureSliceKeys {

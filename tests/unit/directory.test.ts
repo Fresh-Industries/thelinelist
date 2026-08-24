@@ -1,0 +1,80 @@
+import { capabilityContradictions } from "@/lib/directory/assert";
+import { categoryFaqs, filterPlants, getPlantBySlug, paginatePlants } from "@/lib/directory";
+import { comparableMoq, categorySnapshot } from "@/lib/directory/snapshot";
+import type { Plant } from "@/lib/directory/types";
+import { describe, expect, it } from "vitest";
+
+describe("directory trust and pagination", () => {
+  it("keeps the dry-only California Spice Basket out of prepared refrigerated foods", () => {
+    expect(filterPlants({ category: "prepared-refrigerated-foods" }).map((plant) => plant.slug))
+      .not.toContain("california-spice-basket-inc");
+  });
+
+  it("does not publish a selected capability that its description negates", () => {
+    const thermalKitchen = getPlantBySlug("thermal-kitchen");
+    expect(thermalKitchen).toBeDefined();
+    expect(capabilityContradictions(thermalKitchen!)).toEqual([]);
+
+    const contradictory = {
+      ...thermalKitchen,
+      productTypesPublished: "This is not retort.",
+    } as Plant;
+    expect(capabilityContradictions(contradictory)).toContain("retort");
+
+    const scopedQualifier = {
+      ...thermalKitchen,
+      overview: [...thermalKitchen!.overview, "High-acid products are not retort processed; another suitable line uses retort."],
+    } as Plant;
+    expect(capabilityContradictions(scopedQualifier)).toEqual([]);
+  });
+
+  it("paginates between 24 and 36 records and retains a global start index", () => {
+    const all = filterPlants({});
+    const first = paginatePlants(all, 1);
+    const second = paginatePlants(all, 2);
+    expect(first.plants).toHaveLength(30);
+    expect(second.startIndex).toBe(30);
+    expect(second.totalCount).toBe(all.length);
+  });
+
+  it("compares MOQ values only when one compatible unit is explicit", () => {
+    expect(comparableMoq("MOQs start as low as 250 units.")).toEqual({ amount: 250, unit: "units" });
+    expect(comparableMoq("50 gallons per flavor (~1,200 × 5 oz woozy).")).toBeNull();
+    expect(comparableMoq("Exact MOQ unpublished.")).toBeNull();
+    expect(comparableMoq("No per-SKU unit MOQ. Inquiry screens for 11,000 gallons/day.")).toBeNull();
+    expect(comparableMoq("15,000-500,000 packets.")).toBeNull();
+  });
+
+  it("does not count missing or throughput-only minimums in category snapshots", () => {
+    const yoshida = getPlantBySlug("yoshida-foods");
+    const craftCannery = getPlantBySlug("craft-cannery");
+    expect(yoshida?.publishedSmallMoq).toBe(false);
+    expect(categorySnapshot([yoshida!, craftCannery!]).publishingMinimums).toBe(0);
+  });
+
+  it("keeps disclosed dollar project floors in the minimum filter", () => {
+    const disclosed = filterPlants({ moqDisclosed: true }).map((plant) => plant.slug);
+    expect(disclosed).toContain("minimus-products");
+    expect(disclosed).toContain("scale-food-labs");
+    expect(disclosed).not.toContain("craft-cannery");
+  });
+
+  it("keeps hyphenated physical-unit minimums in the disclosed filter", () => {
+    const disclosed = filterPlants({ moqDisclosed: true });
+    expect(disclosed.some((plant) => plant.moqDisplay?.includes("2,000-gallon"))).toBe(true);
+  });
+
+  it("does not infer jars from glass material or a negated glass format", () => {
+    const trisco = getPlantBySlug("trisco-foods");
+    expect(trisco).toBeDefined();
+    expect(categorySnapshot([trisco!]).commonPackaging).not.toContain("jars");
+    expect(filterPlants({ packaging: "jar" }).map((plant) => plant.slug)).not.toContain("trisco-foods");
+  });
+
+  it("answers the hot-sauce process-authority question directly", () => {
+    const faq = categoryFaqs("hot-sauce")[1];
+    expect(faq.question).toMatch(/process-authority/i);
+    expect(faq.answer).toMatch(/qualified process authority/i);
+    expect(faq.answer).toMatch(/scheduled process/i);
+  });
+});

@@ -3,14 +3,17 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
+import { GuideByline } from "@/components/guides/GuideByline";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Retort co-packers",
   description:
-    "Named US retort co-packers for pouches, cans, and trays. Low-acid ambient, last-verified. MOQ only when the plant printed one.",
-};
+    "Named US retort co-packers for pouches, cans, and trays. Low-acid ambient, publicly sourced, with MOQ only when the plant printed one.",
+  path: "/guides/retort",
+});
 
 export default function RetortGuidePage() {
   return (
@@ -22,8 +25,9 @@ export default function RetortGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>Retort Co-Packers for Pouches, Cans, and Trays</h1>
           <p className="meta">
-            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
+            Named plants only. Minimum order only when the plant printed one.
           </p>
+          <GuideByline reviewed="21 Aug 2026" />
 
           <div className="when">
             <p>
@@ -105,7 +109,7 @@ export default function RetortGuidePage() {
           <h2 id="request-an-intro">Request an intro</h2>
           <p>
             If a plant in the table fits pH, format, and published minimum, we can <strong>introduce you</strong>. A named intro, not an AI match. See the{" "}
-            <Link href="/copackers?process=retort">retort directory cards</Link>.
+            <Link href="/find-manufacturers?process=retort">retort directory cards</Link>.
           </p>
 
           <details className="textbook" id="textbook">
@@ -139,7 +143,7 @@ export default function RetortGuidePage() {
               <li><strong>Continuous hydrostatic</strong> at any plant here.</li>
             </ul>
             <p>
-              Sources fetched 21 Aug 2026 are on each <Link href="/copackers">company page</Link>. Truitt Bros is omitted as a separate row (now Baxters); MACRO Brands is omitted as a table row (city unpublished).
+              Sources fetched 21 Aug 2026 are on each <Link href="/find-manufacturers">company page</Link>. Truitt Bros is omitted as a separate row (now Baxters); MACRO Brands is omitted as a table row (city unpublished).
             </p>
           </details>
           <NewsletterCta />

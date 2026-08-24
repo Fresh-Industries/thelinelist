@@ -21,7 +21,7 @@ const HOME_GUIDES = [
   {
     href: "/guides/start-hot-sauce",
     label: "Hot sauce",
-    title: "Start a hot sauce brand",
+    title: "Manufacture your first hot sauce product",
     description: "Compare private label and custom paths, then learn the acidified-food basics.",
     time: "7 min read",
     tone: "coral",
@@ -76,13 +76,13 @@ export default function HomePage() {
           <div className="wrap hero-grid">
             <div className="hero-copy">
               <p className="kicker">From idea to first run</p>
-              <h1>Make your food or drink idea real.</h1>
+              <h1>Find the right food or beverage manufacturer.</h1>
               <p className="sub">
                 Learn what your product needs, find manufacturers that may fit, and prepare for your first conversation.
               </p>
               <div className="hero-actions">
                 <Link className="btn hero-primary" href="/find-manufacturers/wizard">
-                  Start with my product
+                  Find manufacturers for my product
                   <span aria-hidden="true">→</span>
                 </Link>
                 <Link className="btn hero-secondary" href="#how-it-works">
@@ -100,8 +100,8 @@ export default function HomePage() {
                 alt="A clay diorama moving from a product sketch and samples to mixing, filling, and finished unbranded products"
                 width={1600}
                 height={800}
-                sizes="(max-width: 860px) 94vw, 54vw"
-                priority
+                sizes="(max-width: 960px) 100vw, (max-width: 1280px) 56vw, 40rem"
+                preload
               />
             </figure>
           </div>

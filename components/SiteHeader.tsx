@@ -1,4 +1,3 @@
-import { isNewsletterEnabled } from "@/lib/newsletter/config";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -7,6 +6,7 @@ type NavMatch = "directory" | "guides" | "about" | "newsletter";
 const BASE_NAV: { href: string; label: string; match: NavMatch }[] = [
   { href: "/find-manufacturers", label: "Find manufacturers", match: "directory" },
   { href: "/guides", label: "Guides", match: "guides" },
+  { href: "/newsletter", label: "Newsletter", match: "newsletter" },
   { href: "/about", label: "About", match: "about" },
 ];
 
@@ -19,7 +19,7 @@ function navCurrent(match: NavMatch, current?: string): boolean {
     case "about":
       return current === "/about" || current === "/how-we-verify";
     case "newsletter":
-      return false;
+      return current === "/newsletter";
     default: {
       const _exhaustive: never = match;
       return _exhaustive;
@@ -28,10 +28,6 @@ function navCurrent(match: NavMatch, current?: string): boolean {
 }
 
 export function SiteHeader({ current }: { current?: string }) {
-  const nav = isNewsletterEnabled()
-    ? [...BASE_NAV, { href: "/newsletter", label: "Newsletter", match: "newsletter" as const }]
-    : BASE_NAV;
-
   return (
     <header className="site-header">
       <div className="wrap header-bar">
@@ -49,7 +45,7 @@ export function SiteHeader({ current }: { current?: string }) {
         <details className="nav-menu">
           <summary>Menu</summary>
           <nav className="site-nav" aria-label="Primary mobile">
-            {nav.map((item) => (
+            {BASE_NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -61,7 +57,7 @@ export function SiteHeader({ current }: { current?: string }) {
           </nav>
         </details>
         <nav className="site-nav site-nav-desktop" aria-label="Primary desktop">
-          {nav.map((item) => (
+          {BASE_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}

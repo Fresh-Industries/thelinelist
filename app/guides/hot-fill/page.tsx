@@ -3,14 +3,17 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
+import { GuideByline } from "@/components/guides/GuideByline";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Hot fill co-packers",
   description:
-    "Named US hot fill co-packers for high-acid sauces, juices, teas, and shots. Plants, last-verified, MOQ only when the plant printed one.",
-};
+    "Named US hot fill co-packers for high-acid sauces, juices, teas, and shots. Publicly sourced plants and MOQ only when the plant printed one.",
+  path: "/guides/hot-fill",
+});
 
 export default function HotFillGuidePage() {
   return (
@@ -22,8 +25,9 @@ export default function HotFillGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>Hot Fill Co-Packers for Sauces, Juices, Teas, and Shots</h1>
           <p className="meta">
-            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
+            Named plants only. Minimum order only when the plant printed one.
           </p>
+          <GuideByline reviewed="21 Aug 2026" />
 
           <div className="when">
             <p>
@@ -119,7 +123,7 @@ export default function HotFillGuidePage() {
             If a plant in the table fits pH, format, and published minimum, we can <strong>introduce you</strong>. That is a named intro to a plant you already picked, not an AI match, not a blind RFQ blast, and not a guarantee they will take the SKU.
           </p>
           <p>
-            See the <Link href="/copackers?process=hot-fill">hot-fill directory cards</Link> for the same plants.
+            See the <Link href="/find-manufacturers?process=hot-fill">hot-fill directory cards</Link> for the same plants.
           </p>
 
           <details className="textbook" id="textbook">
@@ -153,7 +157,7 @@ export default function HotFillGuidePage() {
             </ul>
             <p>
               Sources fetched 21 Aug 2026 are linked in the table and on each{" "}
-              <Link href="/copackers">company page</Link>. CoPack Connect, LinkedIn, and extension lists were not used as plant facts.
+              <Link href="/find-manufacturers">company page</Link>. CoPack Connect, LinkedIn, and extension lists were not used as plant facts.
             </p>
           </details>
           <NewsletterCta />

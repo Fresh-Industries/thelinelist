@@ -28,7 +28,7 @@ export function IntroModule({
         sourceUrl={`/copackers/${slug}`}
       />
       <p>
-        <Link href="/copackers">Compare more manufacturers</Link>
+        <Link href="/find-manufacturers">Compare more manufacturers</Link>
       </p>
     </section>
   );

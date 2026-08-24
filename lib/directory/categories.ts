@@ -81,3 +81,26 @@ export function plantMatchesCategory(plant: Plant, category: ProductCategorySlug
     .join(" ");
   return CATEGORY_PATTERNS[category].test(disclosedText);
 }
+
+const CATEGORY_FAQ_ANSWERS: Record<ProductCategorySlug, readonly [string, string]> = {
+  soda: ["Ask whether the exact line supports your target carbonation level and formula, then confirm how carbonation is measured during the run.", "Confirm the exact container material, volume, closure, and case format. A plant that runs cans or bottles may not run every size."],
+  "energy-drink": ["The public listing shows whether cans, bottles, or both are named. Confirm your exact size, closure, and carbonation level directly with the manufacturer.", "Ask whether the plant offers an existing private-label base, custom formulation, or both. The directory does not treat one model as the other."],
+  "sports-hydration": ["Ask the manufacturer whether the specific line supports still products, carbonated products, or both; broad beverage experience is not enough.", "These results cover ready-to-drink products only when they are publicly named. Powder blending and RTD filling require different equipment, so confirm which one you need."],
+  "functional-beverages": ["Use the public product list to find similar products, then disclose the ingredient system under appropriate confidentiality and ask about solubility, heat, pressure, and line-cleaning constraints.", "Ask how the proposed heat, pressure, or other validated process affects each sensitive ingredient and claim. The manufacturer and qualified technical experts should confirm the final fit."],
+  "cold-pressed-juice": ["Cold pressed describes extraction, not the safety step. Ask how the plant validates the required pathogen reduction for your exact juice and whether Juice HACCP applies.", "Confirm the safety process first, then verify that the bottle, closure, and label can tolerate HPP, heat, or the other selected control."],
+  juice: ["Ask for the plant’s Juice HACCP scope and how it validates the required 5-log reduction for your specific juice, process, and package.", "Tell the manufacturer your intended storage condition. Refrigerated and shelf-stable juice use different process, package, storage, and distribution plans."],
+  "rtd-coffee-tea": ["Do not infer dairy capability from a general coffee or tea listing. Ask whether the facility and exact line handle dairy, non-dairy allergens, or both.", "Formula acidity, ingredients, storage goal, and package determine the process. Ask the manufacturer and qualified process expert to confirm the path for your SKU."],
+  water: ["Ask the manufacturer to document the water source, treatment steps, and which label claims those records support.", "Confirm whether the exact line runs still, carbonated, or both and verify your bottle or can size, closure, and case format."],
+  "hot-sauce": ["Confirm the line runs your sauce viscosity and particulates in the exact bottle, cap, and fill size; a general sauce claim is not enough.", "For shelf-stable acidified hot sauce, a qualified process authority reviews the formula and process and establishes the scheduled process before commercial production. Ask the manufacturer when it needs that process letter and what the trial must confirm."],
+  sauce: ["Have a qualified expert classify the formula and intended storage condition. Shelf-stable acidified, refrigerated, hot-filled, and retorted sauces follow different paths.", "Give the plant viscosity, particulate size, fill temperature, and exact container details, then ask it to confirm pump, filler, and closure compatibility."],
+  salsa: ["State the intended storage condition first. Fresh refrigerated and shelf-stable acidified salsa require different process controls, packaging, and distribution.", "Measure and disclose the largest particulate size, then confirm the pump, filler opening, container neck, and scheduled process can handle it."],
+  "dressings-marinades": ["Share viscosity and emulsion details under appropriate confidentiality. Ask whether the line can mix and fill that product without separation.", "List every allergen in the formula and ask about storage, scheduling, changeover, sanitation validation, and the facility’s applicable allergen controls."],
+  "dips-hummus": ["Confirm that the listing names refrigerated dips or hummus and ask about cold storage and shipping; a general prepared-food listing is not proof of refrigerated capacity.", "HPP is one possible process, not an assumption. Ask which validated process the plant proposes for your formula, package, and intended shelf life."],
+  "prepared-refrigerated-foods": ["Share the ingredient and product type so the manufacturer can confirm whether the relevant FDA or USDA scope, allergen controls, and line fit apply.", "Ask where product is cooled and held, how temperature is monitored, how long it can remain on site, and who arranges refrigerated freight."],
+};
+
+export function categoryFaqs(slug: ProductCategorySlug) {
+  const questions = CATEGORY_HUB_CONTENT[slug].questions;
+  const answers = CATEGORY_FAQ_ANSWERS[slug];
+  return questions.map((question, index) => ({ question, answer: answers[index] }));
+}

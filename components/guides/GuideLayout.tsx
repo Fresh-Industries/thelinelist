@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { GuideDiagram } from "./GuideDiagram";
 import { GuideDirectoryLink } from "./GuideDirectoryLink";
+import { GuideByline } from "./GuideByline";
 
 export function GuideLayout({ guide }: { guide: CornerstoneGuide }) {
   const path = `/guides/${guide.slug}`;
@@ -30,6 +31,7 @@ export function GuideLayout({ guide }: { guide: CornerstoneGuide }) {
                 <li>Beginner friendly</li>
                 <li>Last reviewed {LAST_CHECKED_LABEL}</li>
               </ul>
+              <GuideByline />
             </div>
             <Image src={guide.image} alt={guide.imageAlt} width={1200} height={800} sizes="(max-width: 760px) 100vw, 46vw" priority />
           </header>

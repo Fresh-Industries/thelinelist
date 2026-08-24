@@ -24,7 +24,7 @@ function HppTable({ plants }: { plants: Plant[] }) {
           <th>Certs (published)</th>
           <th>MOQ</th>
           <th>Site</th>
-          <th>Verified</th>
+          <th>Sources reviewed</th>
         </tr>
       </thead>
       <tbody>
@@ -65,7 +65,7 @@ function ProcessTable({ plants, guide }: { plants: Plant[]; guide: "hot-fill" | 
           <th>USDA vs FDA</th>
           <th>Organic</th>
           <th>Site</th>
-          <th>Last verified</th>
+          <th>Sources reviewed</th>
         </tr>
       </thead>
       <tbody>
@@ -105,7 +105,7 @@ function SmallMoqTable({ plants }: { plants: Plant[] }) {
           <th>Published MOQ</th>
           <th>Certs if published</th>
           <th>Link</th>
-          <th>Last verified</th>
+          <th>Sources reviewed</th>
         </tr>
       </thead>
       <tbody>

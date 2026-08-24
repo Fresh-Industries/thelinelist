@@ -1,8 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1"],
+  trailingSlash: false,
   async redirects() {
     return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "thelinelist.com" }],
+        destination: "https://www.thelinelist.com/:path*",
+        permanent: true,
+      },
       {
         source: "/:path*",
         has: [{ type: "host", value: "the-line-list.vercel.app" }],
@@ -21,6 +29,30 @@ const nextConfig: NextConfig = {
       { source: "/small-moq.html", destination: "/guides/small-moq", permanent: true },
       { source: "/sauce.html", destination: "/guides/sauce", permanent: true },
     ];
+  },
+  async rewrites() {
+    const filterKeys = [
+      "product",
+      "category",
+      "process",
+      "smallMoq",
+      "moq",
+      "packaging",
+      "certification",
+      "operationType",
+      "state",
+      "sort",
+    ];
+
+    return {
+      beforeFiles: filterKeys.map((key) => ({
+        source: "/find-manufacturers",
+        has: [{ type: "query" as const, key }],
+        destination: "/find-manufacturers/results",
+      })),
+      afterFiles: [],
+      fallback: [],
+    };
   },
 };
 

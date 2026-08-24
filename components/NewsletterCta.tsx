@@ -16,10 +16,9 @@ export function NewsletterCta() {
         className="nl-visual"
       />
       <div className="nl-copy">
-        <h2>Notes for your next plant conversation</h2>
+        <h2>New manufacturers and practical sourcing notes</h2>
         <p>
-          Plain-language process explainers, preparation checklists, and newly reviewed listings.
-          Food and beverage only.
+          Get newly reviewed manufacturers, practical launch guides, and sourcing tips for food and beverage products.
         </p>
         <NewsletterForm />
       </div>

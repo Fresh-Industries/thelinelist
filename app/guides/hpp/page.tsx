@@ -3,15 +3,18 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Unpublished } from "@/components/Unpublished";
 import { GuidePlantTable } from "@/components/guides/GuidePlantTable";
+import { GuideByline } from "@/components/guides/GuideByline";
 import { plantsForGuide } from "@/lib/directory";
+import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "HPP co-packers in the US",
   description:
-    "Named US HPP plants for refrigerated juice, dip, guacamole, baby-food pouch, and RTE. Tolling vs fill+HPP. Verified 21 Aug 2026.",
-};
+    "Named US HPP plants for refrigerated juice, dip, guacamole, baby-food pouch, and RTE. Tolling vs fill+HPP. Public sources reviewed 21 Aug 2026.",
+  path: "/guides/hpp",
+});
 
 export default function HppGuidePage() {
   const count = plantsForGuide("hpp").length;
@@ -25,8 +28,9 @@ export default function HppGuidePage() {
           <p className="kicker">Process guide</p>
           <h1>HPP Co-Packers in the US: Tolling vs Fill+HPP (Juice, Dips, RTE)</h1>
           <p className="meta">
-            Last verified 21 Aug 2026. Named plants only. Minimum order only when the plant printed one.
+            Named plants only. Minimum order only when the plant printed one.
           </p>
+          <GuideByline reviewed="21 Aug 2026" />
 
           <div className="when">
             <p>
@@ -52,7 +56,7 @@ export default function HppGuidePage() {
           </p>
           <GuidePlantTable guide="hpp" />
           <p>
-            These rows are the same records as the <Link href="/copackers?process=hpp">directory HPP filter</Link>. Company cards do not invent fields the table left blank.
+            These rows are the same records as the <Link href="/find-manufacturers?process=hpp">directory HPP filter</Link>. Company cards do not invent fields the table left blank.
           </p>
 
           <h2 id="how-to-rfq-without-wasting-a-month">How to RFQ without wasting a month</h2>
@@ -72,7 +76,7 @@ export default function HppGuidePage() {
           </p>
           <p>
             If your SKU is hot-fill, retort, or aseptic instead, do not force it onto this list. Use a{" "}
-            <Link href="/copackers">different filter</Link>.
+            <Link href="/find-manufacturers">different filter</Link>.
           </p>
 
           <details className="textbook" id="textbook">
@@ -168,7 +172,7 @@ export default function HppGuidePage() {
             <h2>Sources</h2>
             <p>
               Fetched or searched 21 Aug 2026. Primary URLs are in the plant table and on each{" "}
-              <Link href="/copackers">company page</Link>. Not used as a plant list: Penn State Extension copacker list; CoPack Connect parking-spaces.
+              <Link href="/find-manufacturers">company page</Link>. Not used as a plant list: Penn State Extension copacker list; CoPack Connect parking-spaces.
             </p>
           </details>
           <NewsletterCta />

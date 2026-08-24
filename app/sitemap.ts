@@ -1,9 +1,10 @@
-import { getDirectoryPlants, LAST_VERIFIED, PRODUCT_CATEGORIES } from "@/lib/directory";
+import { DIRECTORY_PAGE_SIZE, getDirectoryPlants, LAST_VERIFIED, PRODUCT_CATEGORIES } from "@/lib/directory";
 import { CORNERSTONE_GUIDES } from "@/lib/guides/cornerstones";
 import { absoluteUrl } from "@/lib/site";
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const directoryPageCount = Math.ceil(getDirectoryPlants().length / DIRECTORY_PAGE_SIZE);
   const staticRoutes = [
     "",
     "/find-manufacturers",
@@ -30,6 +31,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...PRODUCT_CATEGORIES.map((category) => ({
       url: absoluteUrl(`/find-manufacturers/${category.slug}`),
+      lastModified: LAST_VERIFIED,
+      changeFrequency: "weekly" as const,
+    })),
+    ...Array.from({ length: Math.max(0, directoryPageCount - 1) }, (_, index) => ({
+      url: absoluteUrl(`/find-manufacturers/page/${index + 2}`),
       lastModified: LAST_VERIFIED,
       changeFrequency: "weekly" as const,
     })),

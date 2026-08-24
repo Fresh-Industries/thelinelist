@@ -85,56 +85,56 @@ function getActiveFilters(initial: DirectoryQuery): ActiveFilter[] {
       ? {
           key: "category",
           label: getProductCategory(initial.category)?.label ?? initial.category,
-          href: directoryHref({ ...initial, category: undefined }),
+          href: directoryHref({ ...initial, category: undefined, page: undefined }),
         }
       : null,
     initial.product
       ? {
           key: "product",
           label: productLabel(initial.product),
-          href: directoryHref({ ...initial, product: undefined }),
+          href: directoryHref({ ...initial, product: undefined, page: undefined }),
         }
       : null,
     initial.state
       ? {
           key: "state",
           label: stateLabel(initial.state),
-          href: directoryHref({ ...initial, state: undefined }),
+          href: directoryHref({ ...initial, state: undefined, page: undefined }),
         }
       : null,
     initial.process
       ? {
           key: "process",
           label: PROCESS_OPTIONS.find((option) => option.value === initial.process)?.label ?? initial.process,
-          href: directoryHref({ ...initial, process: undefined }),
+          href: directoryHref({ ...initial, process: undefined, page: undefined }),
         }
       : null,
     initial.packaging
       ? {
           key: "packaging",
           label: PACKAGING_LABELS[initial.packaging],
-          href: directoryHref({ ...initial, packaging: undefined }),
+          href: directoryHref({ ...initial, packaging: undefined, page: undefined }),
         }
       : null,
     initial.certification
       ? {
           key: "certification",
           label: CERTIFICATION_LABELS[initial.certification],
-          href: directoryHref({ ...initial, certification: undefined }),
+          href: directoryHref({ ...initial, certification: undefined, page: undefined }),
         }
       : null,
     initial.operationType
       ? {
           key: "operationType",
           label: OPERATION_TYPE_LABELS[initial.operationType],
-          href: directoryHref({ ...initial, operationType: undefined }),
+          href: directoryHref({ ...initial, operationType: undefined, page: undefined }),
         }
       : null,
     initial.moqDisclosed || initial.smallMoq
       ? {
           key: "moq",
           label: "Minimum listed",
-          href: directoryHref({ ...initial, moqDisclosed: false, smallMoq: false }),
+          href: directoryHref({ ...initial, moqDisclosed: false, smallMoq: false, page: undefined }),
         }
       : null,
   ].filter((filter): filter is ActiveFilter => filter !== null);
@@ -444,19 +444,32 @@ export function DirectoryFilters({
   );
 }
 
-export function DirectoryResultsBar({ initial, resultCount }: { initial: DirectoryQuery; resultCount: number }) {
+export function DirectoryResultsBar({ initial, resultCount, currentPage, pageSize, startIndex }: {
+  initial: DirectoryQuery;
+  resultCount: number;
+  currentPage: number;
+  pageSize: number;
+  startIndex: number;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const activeFilters = getActiveFilters(initial);
 
   function changeSort(sort: DirectorySort) {
-    startTransition(() => router.push(directoryHref({ ...initial, sort: sort === "za" ? sort : undefined })));
+    startTransition(() => router.push(directoryHref({ ...initial, sort: sort === "za" ? sort : undefined, page: undefined })));
   }
 
   return (
     <section className="directory-results-bar" aria-labelledby="directory-results-heading">
       <div>
-        <h2 id="directory-results-heading">{resultCount} {resultCount === 1 ? "manufacturer" : "manufacturers"}</h2>
+        <h2 id="directory-results-heading">
+          {resultCount === 0
+            ? "No manufacturers"
+            : resultCount === 1
+              ? "1 manufacturer"
+              : `${startIndex + 1}–${startIndex + pageSize} of ${resultCount} manufacturers`}
+        </h2>
+        {currentPage > 1 ? <p className="directory-page-label">Page {currentPage}</p> : null}
         {activeFilters.length > 0 ? (
           <ul className="active-filter-list" aria-label="Active filters">
             {activeFilters.map((filter) => (

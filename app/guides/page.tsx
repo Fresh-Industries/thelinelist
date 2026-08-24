@@ -182,7 +182,7 @@ export default function GuidesPage() {
             <Link href="/guides/sauce"><span>Sauce paths</span><small>Hot fill, kettle, acidified, or retort?</small></Link>
             <Link href="/guides/small-moq"><span>Minimum runs</span><small>What “small MOQ” actually means</small></Link>
             <Link href="/glossary"><span>Plain-English glossary</span><small>Decode co-packer, tolling, MOQ, and more</small></Link>
-            <Link href="/how-we-verify"><span>How facts are checked</span><small>See what verified and unpublished mean</small></Link>
+            <Link href="/how-we-verify"><span>How facts are checked</span><small>See what source-reviewed and unpublished mean</small></Link>
           </div>
         </section>
 

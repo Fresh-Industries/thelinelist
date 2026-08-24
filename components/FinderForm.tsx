@@ -16,10 +16,10 @@ import {
 } from "@/lib/directory";
 
 const POPULAR_SEARCHES: { label: string; href: string }[] = [
-  { label: "Hot sauce", href: "/copackers?product=sauce&q=hot+sauce" },
-  { label: "Beverages", href: "/copackers?product=beverage" },
-  { label: "Sauces", href: "/copackers?product=sauce" },
-  { label: "Prepared / RTE", href: "/copackers?product=prepared-rte" },
+  { label: "Hot sauce", href: "/find-manufacturers/hot-sauce" },
+  { label: "Beverages", href: "/find-manufacturers?product=beverage" },
+  { label: "Sauces", href: "/find-manufacturers?product=sauce" },
+  { label: "Prepared / RTE", href: "/find-manufacturers?product=prepared-rte" },
 ];
 
 function asProduct(value: string): FinderProduct | undefined {

@@ -5,15 +5,8 @@ import {
   plantMatchesCategory,
   type Plant,
 } from "@/lib/directory";
+import { packagingSummaryLabels } from "@/lib/directory/packaging";
 import Link from "next/link";
-
-const PACKAGE_CAPABILITIES = [
-  { label: "Cans", pattern: /\b(can|cans|canning|aluminum)\b/i },
-  { label: "Bottles", pattern: /\b(bottle|bottles|bottling|PET|HDPE)\b/i },
-  { label: "Jars", pattern: /\b(jar|jars|glass)\b/i },
-  { label: "Pouches", pattern: /\b(pouch|pouches|sachet|sachets|stick pack)\b/i },
-  { label: "Cups or tubs", pattern: /\b(cup|cups|tub|tubs)\b/i },
-] as const;
 
 function primaryLocation(plant: Plant): string {
   const site = plant.sites[0];
@@ -28,10 +21,8 @@ function goodFor(plant: Plant): string[] {
     .map((category) => category.label);
 }
 
-function capabilities(plant: Plant): string[] {
-  const packaging = plant.packaging ?? "";
-  const labels = PACKAGE_CAPABILITIES.filter(({ pattern }) => pattern.test(packaging)).map(({ label }) => label);
-  return [...new Set([...labels, ...formatProcesses(plant)])].slice(0, 5);
+function packagingCapabilities(plant: Plant): string[] {
+  return packagingSummaryLabels(plant.packaging).map((label) => label.charAt(0).toUpperCase() + label.slice(1));
 }
 
 function minimumOrderLines(value: string | null): string[] {
@@ -56,11 +47,12 @@ function minimumOrderLines(value: string | null): string[] {
 
 export function CopackerCard({ plant }: { plant: Plant }) {
   const products = goodFor(plant);
-  const capabilityLabels = capabilities(plant);
+  const processLabels = formatProcesses(plant);
+  const packageLabels = packagingCapabilities(plant);
   const minimums = minimumOrderLines(plant.moqDisplay);
-  const description =
-    formatCardSnippet(plant.productTypesPublished, 155)
-    ?? formatCardSnippet(plant.overview[0] ?? null, 155);
+  const productFit = products.length > 0
+    ? products.join(" · ")
+    : formatCardSnippet(plant.productTypesPublished, 120);
 
   return (
     <article className="plant-card">
@@ -68,30 +60,21 @@ export function CopackerCard({ plant }: { plant: Plant }) {
         <header className="plant-card-heading">
           <div>
             <h2><Link href={`/manufacturers/${plant.slug}`}>{plant.name}</Link></h2>
-            <p className="place">{primaryLocation(plant)}</p>
           </div>
-          <span className="plant-card-mark" aria-hidden="true">{plant.name.charAt(0)}</span>
         </header>
-
-        {description ? <p className="plant-card-description">{description}</p> : null}
-
-        {products.length > 0 || capabilityLabels.length > 0 || minimums.length > 0 ? (
-          <dl className="plant-card-summary">
-            {products.length > 0 ? <div><dt>Good for</dt><dd>{products.join(" · ")}</dd></div> : null}
-            {capabilityLabels.length > 0 ? <div><dt>Capabilities</dt><dd>{capabilityLabels.join(" · ")}</dd></div> : null}
-            {minimums.length > 0 ? (
-              <div>
-                <dt>Minimum order</dt>
-                <dd className="moq-lines">{minimums.map((line) => <span key={line}>{line}</span>)}</dd>
-              </div>
-            ) : null}
-          </dl>
-        ) : null}
+        <dl className="plant-card-summary">
+          <div><dt>Product fit</dt><dd>{productFit ?? "Not publicly listed"}</dd></div>
+          <div><dt>Location</dt><dd>{primaryLocation(plant)}</dd></div>
+          <div><dt>Process</dt><dd>{processLabels.length > 0 ? processLabels.join(" · ") : "Not publicly listed"}</dd></div>
+          <div><dt>Packaging</dt><dd>{packageLabels.length > 0 ? packageLabels.join(" · ") : formatCardSnippet(plant.packaging, 90) ?? "Not publicly listed"}</dd></div>
+          <div><dt>Minimum order</dt><dd className="moq-lines">{minimums.length > 0 ? minimums.map((line) => <span key={line}>{line}</span>) : "Not publicly listed"}</dd></div>
+        </dl>
 
         <footer className="plant-card-footer">
           {plant.certs.length > 0 ? (
             <ul className="certification-list" aria-label="Publicly listed certifications">
-              {plant.certs.slice(0, 3).map((certification) => <li key={certification}>{formatCardSnippet(certification, 26)}</li>)}
+              {plant.certs.slice(0, 2).map((certification) => <li key={certification}>{formatCardSnippet(certification, 26)}</li>)}
+              {plant.certs.length > 2 ? <li>+{plant.certs.length - 2} more</li> : null}
             </ul>
           ) : null}
           <Link className="go" href={`/manufacturers/${plant.slug}`}>View manufacturer <span aria-hidden="true">→</span></Link>

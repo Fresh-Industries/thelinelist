@@ -20,8 +20,10 @@ export {
   getProductCategory,
   isProductCategorySlug,
   plantMatchesCategory,
+  categoryFaqs,
   type ProductCategorySlug,
 } from "./categories";
+export { categorySnapshot, comparableMoq, type CategorySnapshot } from "./snapshot";
 export { LAST_VERIFIED } from "./types";
 export {
   PROCESS_HINTS,
@@ -36,6 +38,7 @@ export {
 } from "./labels";
 export { claimPlantOptions } from "./claim";
 export {
+  DIRECTORY_PAGE_SIZE,
   countByFinderProduct,
   countVerifiedSlice,
   filterPlants,
@@ -45,6 +48,7 @@ export {
   getVerifiedPlants,
   matchesQuery,
   parseDirectoryQuery,
+  paginatePlants,
   plantsForGuide,
   queryToSearchParams,
   verifiedStates,

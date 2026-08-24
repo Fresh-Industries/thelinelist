@@ -1,11 +1,8 @@
-import { isNewsletterEnabled } from "@/lib/newsletter/config";
 import { LAST_CHECKED_LABEL } from "@/lib/site";
 import Image from "next/image";
 import Link from "next/link";
 
 export function SiteFooter() {
-  const newsletterOn = isNewsletterEnabled();
-
   return (
     <footer className="site-footer">
       <div className="wrap footer-grid">
@@ -32,12 +29,12 @@ export function SiteFooter() {
           <Link href="/about">About</Link>
           <Link href="/how-we-verify">How we verify</Link>
           <Link href="/guides">Guides</Link>
+          <Link href="/newsletter">Newsletter</Link>
           <Link href="/find-manufacturers">Find manufacturers</Link>
           <a href="mailto:hello@thelinelist.com">Contact</a>
           <Link href="/claim-submit">Claim or submit a plant</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
-          {newsletterOn ? <Link href="/newsletter">Newsletter</Link> : null}
         </nav>
       </div>
       <div className="wrap footer-meta">

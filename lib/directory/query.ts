@@ -14,6 +14,9 @@ import type {
   Plant,
   OperationType,
 } from "./types";
+import { hasPackagingFormat } from "./packaging";
+
+export const DIRECTORY_PAGE_SIZE = 30;
 
 /**
  * Access layer for the public directory.
@@ -49,6 +52,19 @@ export function filterPlants(query: DirectoryQuery): Plant[] {
   return DIRECTORY_PLANTS.filter((plant) => matchesQuery(plant, query)).sort((left, right) => (
     left.name.localeCompare(right.name) * direction || left.slug.localeCompare(right.slug) * direction
   ));
+}
+
+export function paginatePlants(plants: Plant[], page: number, pageSize = DIRECTORY_PAGE_SIZE) {
+  const pageCount = Math.max(1, Math.ceil(plants.length / pageSize));
+  const currentPage = Math.min(Math.max(1, page), pageCount);
+  const startIndex = (currentPage - 1) * pageSize;
+  return {
+    plants: plants.slice(startIndex, startIndex + pageSize),
+    currentPage,
+    pageCount,
+    startIndex,
+    totalCount: plants.length,
+  };
 }
 
 export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
@@ -97,15 +113,7 @@ function matchesFinderProcess(plant: Plant, process: FinderProcess): boolean {
 }
 
 function matchesPackaging(plant: Plant, packaging: PackagingFilter): boolean {
-  if (!plant.packaging) return false;
-  const patterns: Record<PackagingFilter, RegExp> = {
-    can: /\b(can|cans|canning|aluminum)\b/i,
-    bottle: /\b(bottle|bottles|bottling|PET|HDPE)\b/i,
-    jar: /\b(jar|jars|glass)\b/i,
-    pouch: /\b(pouch|pouches|sachet|sachets|bag|bags|stick pack)\b/i,
-    other: /\b(cup|cups|tub|tubs|tray|trays|carton|cartons|drum|drums|tote|totes|pail|pails)\b/i,
-  };
-  return patterns[packaging].test(plant.packaging);
+  return hasPackagingFormat(plant.packaging, packaging);
 }
 
 function matchesCertification(plant: Plant, certification: CertificationFilter): boolean {
@@ -169,6 +177,7 @@ export function parseDirectoryQuery(
     operationType: readOperationType(first(searchParams.operationType)),
     state: readState(first(searchParams.state)),
     sort: options.allowSort ? readSort(first(searchParams.sort)) : undefined,
+    page: readPage(first(searchParams.page)),
   };
 }
 
@@ -184,7 +193,14 @@ export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   if (query.operationType) params.set("operationType", query.operationType);
   if (query.state) params.set("state", query.state);
   if (query.sort === "za") params.set("sort", query.sort);
+  if (query.page && query.page > 1) params.set("page", String(query.page));
   return params;
+}
+
+function readPage(value: string | undefined): number | undefined {
+  if (!value || !/^\d+$/.test(value)) return undefined;
+  const page = Number(value);
+  return Number.isSafeInteger(page) && page > 1 ? page : undefined;
 }
 
 function readSort(value: string | undefined): DirectorySort | undefined {

@@ -13,6 +13,8 @@ __pycache__/
 .DS_Store
 shots/
 *.tar.gz
+test-results/
+playwright-report/
 
 # editor
 .idea/

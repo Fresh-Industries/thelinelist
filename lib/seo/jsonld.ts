@@ -50,15 +50,15 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
   };
 }
 
-export function itemListJsonLd(plants: Plant[]) {
+export function itemListJsonLd(plants: Plant[], startPosition = 1) {
   return {
-    "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Food and beverage manufacturers",
     itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: plants.length,
     itemListElement: plants.map((plant, index) => ({
       "@type": "ListItem",
-      position: index + 1,
+      position: startPosition + index,
       url: absoluteUrl(`/manufacturers/${plant.slug}`),
       name: plant.name,
     })),
@@ -70,11 +70,13 @@ export function collectionPageJsonLd({
   description,
   path,
   plants,
+  startPosition = 1,
 }: {
   name: string;
   description: string;
   path: string;
   plants: Plant[];
+  startPosition?: number;
 }) {
   return {
     "@context": "https://schema.org",
@@ -82,7 +84,7 @@ export function collectionPageJsonLd({
     name,
     description,
     url: absoluteUrl(path),
-    ...(plants.length > 0 ? { mainEntity: itemListJsonLd(plants) } : {}),
+    ...(plants.length > 0 ? { mainEntity: itemListJsonLd(plants, startPosition) } : {}),
   };
 }
 

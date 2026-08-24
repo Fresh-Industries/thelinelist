@@ -7,7 +7,5 @@ export const LAST_REVIEWED = "2026-08-22";
 
 export function absoluteUrl(path = "/"): string {
   const normalized = path.replace(/^\/+|\/+$/g, "");
-  const isFile = /\/[^/]+\.[a-z0-9]+$/i.test(`/${normalized}`);
-  const cleanPath = !normalized ? "/" : `/${normalized}${isFile ? "" : "/"}`;
-  return new URL(cleanPath, `${SITE_URL}/`).toString();
+  return normalized ? `${SITE_URL}/${normalized}` : SITE_URL;
 }

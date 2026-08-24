@@ -170,7 +170,10 @@ function sourceLabel(url, index) {
 function mapCategories(row) {
   const disclosedProducts = splitList(row.product_types);
   return categoryRules
-    .filter(([, pattern]) => disclosedProducts.some((product) => pattern.test(product)))
+    .filter(([category, pattern]) => disclosedProducts.some((product) => {
+      if (category === "prepared-refrigerated-foods" && /\b(dry|powder(?:ed)?)\b/i.test(product)) return false;
+      return pattern.test(product);
+    }))
     .map(([category]) => category);
 }
 
@@ -190,6 +193,7 @@ function validateTaxonomyMappings() {
   assert.deepEqual(categoriesFor("cold pressed juice"), ["cold-pressed-juice", "juice"]);
   assert.deepEqual(categoriesFor("tea pods"), []);
   assert.deepEqual(categoriesFor("bakery products"), []);
+  assert.deepEqual(categoriesFor("dry mixes (cake/brownie/soup); powdered drink mixes"), []);
 
   const processesFor = (manufacturing_capabilities) => mapProcesses({ manufacturing_capabilities });
   assert.deepEqual(processesFor("Acidified; hot fill; HPP; retort; cold fill"), ["hpp", "hot-fill", "retort", "cold-fill", "acidified"]);
@@ -338,8 +342,8 @@ function toPlant(row, usedSlugs) {
     .map((url, index) => ({ label: sourceLabel(url, index), href: url }));
   const rawCapabilities = splitList(row.manufacturing_capabilities);
   const overview = [
-    row.product_types ? `Public product information: ${row.product_types}.` : null,
-    row.manufacturing_capabilities ? `Public capabilities: ${row.manufacturing_capabilities}.` : null,
+    row.product_types ? `Public sources list these products: ${row.product_types}.` : null,
+    row.manufacturing_capabilities ? `Public sources describe these capabilities: ${row.manufacturing_capabilities}.` : null,
   ].filter(Boolean);
 
   return {
@@ -357,7 +361,7 @@ function toPlant(row, usedSlugs) {
     rawProductTags: splitList(row.product_types),
     rawCapabilityTags: rawCapabilities,
     moqDisplay: row.moq || null,
-    publishedSmallMoq: Boolean(row.moq),
+    publishedSmallMoq: hasPublishedSmallMoq(row.moq),
     certs: splitList(row.certifications),
     lastVerified: row.last_checked_date.slice(0, 10),
     listingStatus: row.status,
@@ -377,9 +381,22 @@ function toPlant(row, usedSlugs) {
   };
 }
 
+function hasPublishedSmallMoq(value) {
+  if (!value) return false;
+  if (/\bunpublished\b|\bnot (?:published|stated)\b|\bno (?:per-SKU unit MOQ|minimums?|numeric)\b|exact (?:units?|MOQ)|minimums? vary/i.test(value)) return false;
+  if (/\$\s*\d/i.test(value) && /\b(?:projects?|runs?|MOQ|minimum|start|starting|from)\b/i.test(value)) return true;
+  return /\d[\d,.]*\s*(?:K\s*)?[-–]?\s*(?:units?|bottles?|gallons?|gal|lit(?:er|re)s?|pounds?|lbs?|pallets?|cases?|pouches?|packets?|pods?)\b/i.test(value);
+}
+
 function generate() {
   validateTaxonomyMappings();
   const rows = loadRows();
+  for (const row of rows.filter((candidate) => SAFE_STATUSES.has(candidate.status))) {
+    const claims = [row.product_types, row.manufacturing_capabilities, row.packaging_formats, row.certifications, row.moq];
+    if (claims.some(Boolean) && splitList(row.source_urls).length === 0 && !row.website) {
+      throw new Error(`${row.__source}: published claims require at least one source URL.`);
+    }
+  }
   const curatedIdentities = loadCuratedIdentities();
   const unsafeRows = rows.filter((row) => !SAFE_STATUSES.has(row.status));
   const { consolidated, repeatedMasterKeys, crossIdentityDuplicates } = consolidateSafeRows(rows);

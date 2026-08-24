@@ -40,7 +40,7 @@ export async function generateMetadata({
     return { title: "Company not found" };
   }
   const title = `${plant.name} | U.S. manufacturer`;
-  const description = `${plant.name} in ${plant.locationDisplay}. Plant-site-verified facts. Request an intro when they look like a fit.`;
+  const description = `${plant.name} in ${plant.locationDisplay}. Publicly sourced facts and questions to confirm before outreach.`;
   const path = `/copackers/${plant.slug}`;
   return {
     title,
@@ -98,11 +98,11 @@ export default async function CompanyPage({
             ]}
           />
           <p className="kicker">
-            <Link href="/copackers">Find manufacturers</Link>
+            <Link href="/find-manufacturers">Find manufacturers</Link>
           </p>
           <h1>{plant.name}</h1>
           <p className="meta">
-            Last verified {formatLastVerified(plant.lastVerified)}. Facts from the plant&apos;s own
+            Public sources reviewed {formatLastVerified(plant.lastVerified)}. Facts from the plant&apos;s own
             site. Minimum order only when they printed one.
           </p>
           <p className="company-place">{plant.locationDisplay}</p>

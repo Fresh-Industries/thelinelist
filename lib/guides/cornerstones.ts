@@ -38,9 +38,9 @@ const commonSources = {
 export const CORNERSTONE_GUIDES: CornerstoneGuide[] = [
   {
     slug: "start-hot-sauce",
-    title: "How to start a hot sauce business",
-    seoTitle: "How to Start a Hot Sauce Business",
-    description: "Learn how private label and custom hot sauce manufacturing work, what acidified processing means, and what to ask before a first run.",
+    title: "How to manufacture your first hot sauce product",
+    seoTitle: "How to Manufacture Your First Hot Sauce Product",
+    description: "Learn how private label and custom hot sauce manufacturing work, what acidified processing means, and what to ask before your first run.",
     eyebrow: "Hot sauce guide",
     image: "/images/clay-v2/products/hot-sauce.webp",
     imageAlt: "Face-free clay hot sauce bottle with a flame emblem and chili prop",

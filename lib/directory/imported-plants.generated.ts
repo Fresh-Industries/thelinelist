@@ -57,8 +57,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Site clearly markets RTE popcorn co-packing and private label with bag formats listed. Address 376 Loranne Ave Pomona. Seed MOQ range not confirmed as a published number on homepage; left blank. kelly@acecopack.com also listed in footer.",
     "masterDedupeKey": "acecopack|pomona|CA",
     "overview": [
-      "Public product information: Ready-to-eat popcorn; seasoned popcorn; caramel/gourmet popcorn.",
-      "Public capabilities: Popcorn co-packing; private label; product development/test batching; storage and fulfillment (linked)."
+      "Public sources list these products: Ready-to-eat popcorn; seasoned popcorn; caramel/gourmet popcorn.",
+      "Public sources describe these capabilities: Popcorn co-packing; private label; product development/test batching; storage and fulfillment (linked)."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -124,8 +124,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Dedicated co-packaging page confirms private label/store brand dairy production for retailers/distributors/foodservice. Seed Organic/SQF and juice claims not confirmed on co-pack page; left blank.",
     "masterDedupeKey": "alpenrose/smith brothers farm|clackamas|OR",
     "overview": [
-      "Public product information: Milk; butter; sour cream; cottage cheese; ice cream mix; other dairy; private label/store brand.",
-      "Public capabilities: Private label and store-brand dairy co-packaging."
+      "Public sources list these products: Milk; butter; sour cream; cottage cheese; ice cream mix; other dairy; private label/store brand.",
+      "Public sources describe these capabilities: Private label and store-brand dairy co-packaging."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -159,7 +159,7 @@ export const IMPORTED_PLANTS = [
       "Steady State inventory/production management"
     ],
     "moqDisplay": "On The Money Minimums claimed (no numeric MOQ published)",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "GMP food-grade facilities (claimed on solutions page)"
     ],
@@ -196,8 +196,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "drinkartys.com markets FLOOID beverage co-packing for growing brands with flexible minimums. Address 18 6th St Clintonville. Public email customerservice@drinkartys.com on site.",
     "masterDedupeKey": "arty's premium beverages|clintonville|WI",
     "overview": [
-      "Public product information: Beverages (bottles and cans); small to medium brand beverage runs.",
-      "Public capabilities: Beverage co-packing; recipe scaling; brand development; Co-Source dedicated lines; Steady State inventory/production management."
+      "Public sources list these products: Beverages (bottles and cans); small to medium brand beverage runs.",
+      "Public sources describe these capabilities: Beverage co-packing; recipe scaling; brand development; Co-Source dedicated lines; Steady State inventory/production management."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -275,8 +275,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms primary manufacturing and co-pack/co-manufacture across bars, snacks, liquids, and more, plus secondary ops. Not secondary-only. Directory $5,000 MOQ not confirmed on site; left blank.",
     "masterDedupeKey": "assemblers inc|chicago|IL",
     "overview": [
-      "Public product information: Energy and protein bars; popcorn and snacks; baked goods; liquids; confections; shelf-stable meat packing; spices/condiments.",
-      "Public capabilities: Primary food manufacturing; co-pack and co-manufacture; liquid filling; secondary packaging and POP assembly."
+      "Public sources list these products: Energy and protein bars; popcorn and snacks; baked goods; liquids; confections; shelf-stable meat packing; spices/condiments.",
+      "Public sources describe these capabilities: Primary food manufacturing; co-pack and co-manufacture; liquid filling; secondary packaging and POP assembly."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -367,8 +367,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms private label / co-manufactured soups and sauces with USDA inspected, USDA organic, and SQF Level II claims. MOQ figure published on MDA co-packer directory, not as a numeric MOQ on company pages (site says flexible/low minimums).",
     "masterDedupeKey": "at last! gourmet foods|minneapolis|MN",
     "overview": [
-      "Public product information: Soups; sauces; marinades; dips; spreads; bone broths; stocks; hummus; braised meats; pies.",
-      "Public capabilities: Private label production; co-manufacturing; custom formulation; product development; ingredient sourcing; flexible batch sizes."
+      "Public sources list these products: Soups; sauces; marinades; dips; spreads; bone broths; stocks; hummus; braised meats; pies.",
+      "Public sources describe these capabilities: Private label production; co-manufacturing; custom formulation; product development; ingredient sourcing; flexible batch sizes."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -434,8 +434,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Large bakery manufacturer with published private label capabilities and SQF/HACCP claims. Seed email gfregone@ not shown; using productinfo@. Seed frozen MOQ not confirmed on manufacturing page; left blank. Better fit for established private-label bakery programs than tiny first runs.",
     "masterDedupeKey": "bake & joy foods, inc.|north andover|MA",
     "overview": [
-      "Public product information: Frozen muffin/cornbread/loaf batters; mixes and bases; thaw-and-serve cupcakes/whoopie shells/coffee cakes; fillings; icings; cookies.",
-      "Public capabilities: Bakery manufacturing; private label product development; exclusive formula development for retail/QSR/foodservice; R&D and QC labs."
+      "Public sources list these products: Frozen muffin/cornbread/loaf batters; mixes and bases; thaw-and-serve cupcakes/whoopie shells/coffee cakes; fillings; icings; cookies.",
+      "Public sources describe these capabilities: Bakery manufacturing; private label product development; exclusive formula development for retail/QSR/foodservice; R&D and QC labs."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -511,8 +511,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "ballyplus.com confirms sauce/meal manufacturing and professional co-packing; About page states co-packing for national clients. www.ballyplus.com was Cloudflare-blocked from this host; apex works. Seed MOQ 5-10 pallets not confirmed on site pages checked.",
     "masterDedupeKey": "bally plus|garland|TX",
     "overview": [
-      "Public product information: Sauces; soups; grab-and-go meals; meal kits.",
-      "Public capabilities: Sauce and food manufacturing; co-packing; recipe development; ingredient sourcing."
+      "Public sources list these products: Sauces; soups; grab-and-go meals; meal kits.",
+      "Public sources describe these capabilities: Sauce and food manufacturing; co-packing; recipe development; ingredient sourcing."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -581,8 +581,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms beverage co-packing and formulation with PET filling and BRCGS AA+ audit claim. Seed organic/kosher not confirmed on pages reviewed; left off certifications.",
     "masterDedupeKey": "bec copackers|slidell|LA",
     "overview": [
-      "Public product information: Hydration and sports drinks; specialty teas and juices; flavored waters; beverages.",
-      "Public capabilities: Beverage formulation; co-packing; PET bottle filling; R&D and test kitchen; QA."
+      "Public sources list these products: Hydration and sports drinks; specialty teas and juices; flavored waters; beverages.",
+      "Public sources describe these capabilities: Beverage formulation; co-packing; PET bottle filling; R&D and test kitchen; QA."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -657,8 +657,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "beerdudescanning.com returns near-empty page. Successor site bevprosolutions.com (Facebook: formerly Beer Dudes Canning) confirms beverage co-packing in Denton with 2,000-gal standard batches. Audience note: alcohol/THC/hemp heavy.",
     "masterDedupeKey": "beer dudes canning|denton|TX",
     "overview": [
-      "Public product information: Alcohol; wine-based; spirit-based; THC and hemp-derived beverages; RTD; functional beverages.",
-      "Public capabilities: Beverage co-packing; batching and blending; filling and canning; testing/compliance; packaging and shipping."
+      "Public sources list these products: Alcohol; wine-based; spirit-based; THC and hemp-derived beverages; RTD; functional beverages.",
+      "Public sources describe these capabilities: Beverage co-packing; batching and blending; filling and canning; testing/compliance; packaging and shipping."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -737,8 +737,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Bolder Foods about page states they manufacture for other brands as a certified organic, gluten-free, GFSI-audited partner; boulderorganicfoods.com is the consumer brand. Directory MOQ of 250,000 lbs annually treated as capacity, not published order minimum; left blank.",
     "masterDedupeKey": "boulder organic foods|niwot|CO",
     "overview": [
-      "Public product information: Fresh soups; sauces; dips; gravies; kettle-cooked refrigerated foods.",
-      "Public capabilities: Open-kettle cooking; co-manufacturing / manufacturing partner for other brands; product development."
+      "Public sources list these products: Fresh soups; sauces; dips; gravies; kettle-cooked refrigerated foods.",
+      "Public sources describe these capabilities: Open-kettle cooking; co-manufacturing / manufacturing partner for other brands; product development."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -755,12 +755,8 @@ export const IMPORTED_PLANTS = [
     "locationDisplay": "Burlingame, CA",
     "processes": [],
     "finderProcesses": [],
-    "finderProducts": [
-      "prepared-rte"
-    ],
-    "categories": [
-      "prepared-refrigerated-foods"
-    ],
+    "finderProducts": [],
+    "categories": [],
     "packaging": "Dry food packaging (formats not itemized beyond dry packaging services)",
     "productTypesPublished": "Custom spice blends; herbs and spices; dry mixes (cake/brownie/soup); powdered drink mixes; salt blends; coffee/chocolate/tea blends; cereals and rice mixes; dietary supplements (dry)",
     "manufacturingCapabilitiesPublished": "Spice blending; dry-food co-packing; product scale-up for small local producers",
@@ -825,8 +821,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Dedicated co-packing page for dry foods targeting small producers. Address 1423 Rollins Road Burlingame. Seed nut-free claim not confirmed on certification page; not listed in certifications.",
     "masterDedupeKey": "california spice basket, inc.|burlingame|CA",
     "overview": [
-      "Public product information: Custom spice blends; herbs and spices; dry mixes (cake/brownie/soup); powdered drink mixes; salt blends; coffee/chocolate/tea blends; cereals and rice mixes; dietary supplements (dry).",
-      "Public capabilities: Spice blending; dry-food co-packing; product scale-up for small local producers."
+      "Public sources list these products: Custom spice blends; herbs and spices; dry mixes (cake/brownie/soup); powdered drink mixes; salt blends; coffee/chocolate/tea blends; cereals and rice mixes; dietary supplements (dry).",
+      "Public sources describe these capabilities: Spice blending; dry-food co-packing; product scale-up for small local producers."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -898,8 +894,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Koldkiss co-packing page (same company) confirms CBS co-pack for shelf-stable liquids with 50-500 gallon batches and bottle formats; excludes acidified/low-acid and kosher/organic programs. Main domain intermittently unavailable during check.",
     "masterDedupeKey": "chesapeake bay snacks|baltimore|MD",
     "overview": [
-      "Public product information: Syrups; sauces; ice cream toppings; similar shelf-stable liquids; popcorn/snacks via related brands.",
-      "Public capabilities: Co-packing and private label for liquid products; tolling; cost-plus purchasing; dropshipping."
+      "Public sources list these products: Syrups; sauces; ice cream toppings; similar shelf-stable liquids; popcorn/snacks via related brands.",
+      "Public sources describe these capabilities: Co-packing and private label for liquid products; tolling; cost-plus purchasing; dropshipping."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -971,8 +967,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site states FDA-approved co-packing for sauces, condiments, drinks and more, with equipment list and consulting services. Directory MOQ of 50 gallons not confirmed on site; left blank.",
     "masterDedupeKey": "colorado copacking company|longmont|CO",
     "overview": [
-      "Public product information: Sauces; condiments; drinks; beverage mixes.",
-      "Public capabilities: Co-packing; FDA facility; recipe development; test batches; ingredient sourcing; consulting; kettle cooking; emulsion/shear mixing; filling and labeling."
+      "Public sources list these products: Sauces; condiments; drinks; beverage mixes.",
+      "Public sources describe these capabilities: Co-packing; FDA facility; recipe development; test batches; ingredient sourcing; consulting; kettle cooking; emulsion/shear mixing; filling and labeling."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1041,8 +1037,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site for Complete CoPack LLC confirms USDA organic K-Cup co-packing in Sunrise FL with published MOQs from about 5,000 pods per SKU.",
     "masterDedupeKey": "complete copack|sunrise|FL",
     "overview": [
-      "Public product information: Coffee; tea; functional beverages; mushroom and fortified pods; dry ingredients.",
-      "Public capabilities: K-Cup / single-serve co-packing; private label; nitrogen-flushed filling; pouch and related dry packing (per site)."
+      "Public sources list these products: Coffee; tea; functional beverages; mushroom and fortified pods; dry ingredients.",
+      "Public sources describe these capabilities: K-Cup / single-serve co-packing; private label; nitrogen-flushed filling; pouch and related dry packing (per site)."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1119,8 +1115,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Dedicated food-co-packing-services page details nationwide co-packing/private label for 15+ years with specific kettle/fill capabilities. Also runs consumer brand storefront.",
     "masterDedupeKey": "cornaby's specialty foods & co-packing|payson|UT",
     "overview": [
-      "Public product information: Jams; jellies; syrups; nut butters; bakery fillings; BBQ/hot/steak/oriental sauces; soups; dry mixes.",
-      "Public capabilities: Food co-packing; private labeling; kettle cook; jar fill/cap; quick-cool soups; dry mix blending."
+      "Public sources list these products: Jams; jellies; syrups; nut butters; bakery fillings; BBQ/hot/steak/oriental sauces; soups; dry mixes.",
+      "Public sources describe these capabilities: Food co-packing; private labeling; kettle cook; jar fill/cap; quick-cool soups; dry mix blending."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1164,7 +1160,7 @@ export const IMPORTED_PLANTS = [
       "small to mid-size batches"
     ],
     "moqDisplay": "No minimums stated on site (40-gallon kettles for small/trial batches)",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "FDA",
       "NY Ag & Markets",
@@ -1200,8 +1196,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms contract manufacturing for sauces/dressings/marinades with no-minimums claim and listed inspection/cert bodies.",
     "masterDedupeKey": "craft cannery|bergen|NY",
     "overview": [
-      "Public product information: Sauces; dressings; marinades; formulated acid and acidified foods.",
-      "Public capabilities: Contract manufacturing; private labeling; co-packing; pilot/prototype; R&D; thermal processing; pH testing; small to mid-size batches."
+      "Public sources list these products: Sauces; dressings; marinades; formulated acid and acidified foods.",
+      "Public sources describe these capabilities: Contract manufacturing; private labeling; co-packing; pilot/prototype; R&D; thermal processing; pH testing; small to mid-size batches."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1289,8 +1285,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site describes full co-pack partnership for jarred/bottled foods from amateur recipes to established brands; emphasizes smaller batches. Exact numeric MOQ not published.",
     "masterDedupeKey": "crave copacking|verona|PA",
     "overview": [
-      "Public product information: Pickles; sauces; dressings; beverage mixes; salsas; jams; fillings; jarred foods.",
-      "Public capabilities: Co-packing; recipe development; ingredient sourcing; acidified; cold fill; hot fill; shelf stable; sales/fulfillment support."
+      "Public sources list these products: Pickles; sauces; dressings; beverage mixes; salsas; jams; fillings; jarred foods.",
+      "Public sources describe these capabilities: Co-packing; recipe development; ingredient sourcing; acidified; cold fill; hot fill; shelf stable; sales/fulfillment support."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1358,8 +1354,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site clearly offers R&D plus small-batch commercial manufacturing for ambient shelf-stable categories; not refrigerated/frozen/beverage. Strong fit for first-run founders in bars/baked goods.",
     "masterDedupeKey": "curio sweets|houston|TX",
     "overview": [
-      "Public product information: Bars and bites; baked goods; granolas; dry mixes; human-grade pet treats (shelf-stable only).",
-      "Public capabilities: Product formulation; commercialization; small-batch commercial production; scale-up partner introductions."
+      "Public sources list these products: Bars and bites; baked goods; granolas; dry mixes; human-grade pet treats (shelf-stable only).",
+      "Public sources describe these capabilities: Product formulation; commercialization; small-batch commercial production; scale-up partner introductions."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1397,7 +1393,7 @@ export const IMPORTED_PLANTS = [
       "distribution"
     ],
     "moqDisplay": "Lower minimum quantities claimed (exact units not published)",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "SQF",
       "Halal",
@@ -1430,8 +1426,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms nutritional/sports product development, blending, encapsulation, packaging with SQF/Halal/Kosher claims. Phone on site (605) 574-1715 differs from seed. Seed carbonated canning claim not confirmed on homepage.",
     "masterDedupeKey": "dakpak solutions llc|woonsocket|SD",
     "overview": [
-      "Public product information: Sports nutrition; protein/collagen supplements; dry blends; capsules.",
-      "Public capabilities: Blending; encapsulation; filling; packaging; labeling; product development; distribution."
+      "Public sources list these products: Sports nutrition; protein/collagen supplements; dry blends; capsules.",
+      "Public sources describe these capabilities: Blending; encapsulation; filling; packaging; labeling; product development; distribution."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1513,8 +1509,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Dedicated bakery co-packing page for specialty baked goods in 42,000+ sq ft facility. Seed kosher claim not explicitly confirmed as a current cert badge beyond Pareve/organic/GF language; certifications limited to what About clearly claims.",
     "masterDedupeKey": "deland bakery, inc|deland|FL",
     "overview": [
-      "Public product information: Breads; bagels; cookies; granola; grains and seeds; dehydrated fruits; nuts; specialty bakery.",
-      "Public capabilities: Bakery co-packing; wholesale production; organic/gluten-free/vegan/pareve specialty baking."
+      "Public sources list these products: Breads; bagels; cookies; granola; grains and seeds; dehydrated fruits; nuts; specialty bakery.",
+      "Public sources describe these capabilities: Bakery co-packing; wholesale production; organic/gluten-free/vegan/pareve specialty baking."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1583,8 +1579,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site (and mirror jaryoursauce.com) states USDA facility co-packing sauces for retail and foodservice without offering competing own products.",
     "masterDedupeKey": "fatboy foods|medford|MA",
     "overview": [
-      "Public product information: Sauces for retail and foodservice.",
-      "Public capabilities: Small to large batch co-packing; private label bottling; labeling and packaging support; no competing own-brand products (per site)."
+      "Public sources list these products: Sauces for retail and foodservice.",
+      "Public sources describe these capabilities: Small to large batch co-packing; private label bottling; labeling and packaging support; no competing own-brand products (per site)."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1659,8 +1655,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Dedicated co-packing page with published 400 units+ MOQ and facility in Rio Arriba County NM. Phone on co-pack page is 720-442-0814 (seed had 0824). Strong Gen Z first-run fit.",
     "masterDedupeKey": "fish ski provisions|alcalde|NM",
     "overview": [
-      "Public product information: Dry meals; spices; pasta; meal kits; cereals; nuts; coffee; tea; Hatch chile mac and grits (own brand plus co-pack).",
-      "Public capabilities: Dry ingredient co-packing; co-branding; private label; ingredient/packaging sourcing; recipe development and cost analysis; blending; branding/package design."
+      "Public sources list these products: Dry meals; spices; pasta; meal kits; cereals; nuts; coffee; tea; Hatch chile mac and grits (own brand plus co-pack).",
+      "Public sources describe these capabilities: Dry ingredient co-packing; co-branding; private label; ingredient/packaging sourcing; recipe development and cost analysis; blending; branding/package design."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1730,8 +1726,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "picaflor.co returned errors on check; Colorado co-pack directory details fermentation co-pack and MOQs. Own brand Picaflor live-culture sauces confirmed in press; treat as brand that also co-packs fermented foods pending site recovery.",
     "masterDedupeKey": "foremother foods, llc|boulder|CO",
     "overview": [
-      "Public product information: Lacto-fermented sauces; fermented vegetables; dehydrated herbs and spices.",
-      "Public capabilities: Small-batch fermentation co-packing; raw processing; dehydration; high-touch small batch (per directory)."
+      "Public sources list these products: Lacto-fermented sauces; fermented vegetables; dehydrated herbs and spices.",
+      "Public sources describe these capabilities: Small-batch fermentation co-packing; raw processing; dehydration; high-touch small batch (per directory)."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1810,8 +1806,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site has membership shared kitchen plus dedicated Co-Manufacturing page listing sauces/condiments and tolling model; homepage still describes facility renovation/tour language.",
     "masterDedupeKey": "fuel kitchens|pueblo|CO",
     "overview": [
-      "Public product information: Sauces and condiments; dairy dips; jarred acidified soups; dry spice blends; syrups; jams; honey repack.",
-      "Public capabilities: Co-manufacturing (tolling); test batching; shared commissary kitchen membership; packaging/labeling using client-supplied materials."
+      "Public sources list these products: Sauces and condiments; dairy dips; jarred acidified soups; dry spice blends; syrups; jams; honey repack.",
+      "Public sources describe these capabilities: Co-manufacturing (tolling); test batching; shared commissary kitchen membership; packaging/labeling using client-supplied materials."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1882,8 +1878,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Homepage clearly positions as PNW snack co-manufacturer/co-packer with listed certifications. Seed Low MOQ not published as a number on pages checked; left blank. Seed contact retained.",
     "masterDedupeKey": "jaspen's inc.|monroe|WA",
     "overview": [
-      "Public product information: Popcorn; roasted nuts; chocolate/non-chocolate panned products; specialty and extruded snacks.",
-      "Public capabilities: Contract manufacturing; co-packing; packaging and custom pack-out; labeling; case packing; palletizing."
+      "Public sources list these products: Popcorn; roasted nuts; chocolate/non-chocolate panned products; specialty and extruded snacks.",
+      "Public sources describe these capabilities: Contract manufacturing; co-packing; packaging and custom pack-out; labeling; case packing; palletizing."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1955,8 +1951,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site clearly markets co-packing/co-manufacturing with client testimonials; footer address Castle Rock (seed Hotchkiss). Public email on site is info@kimsgourmet.com.",
     "masterDedupeKey": "kim's gourmet sauces|hotchkiss|CO",
     "overview": [
-      "Public product information: Sauces; dressings; pickles; condiments; BBQ and hot sauces; mixes.",
-      "Public capabilities: Co-packing; co-manufacturing; R&D; recipe scale-up; warehousing and fulfillment; flexible batch sizes."
+      "Public sources list these products: Sauces; dressings; pickles; condiments; BBQ and hot sauces; mixes.",
+      "Public sources describe these capabilities: Co-packing; co-manufacturing; R&D; recipe scale-up; warehousing and fulfillment; flexible batch sizes."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2033,8 +2029,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site clearly states co-packing and private label with documented evaluation, test-batch, and production process for acidified jarred foods.",
     "masterDedupeKey": "mad wills food company|auburn|CA",
     "overview": [
-      "Public product information: Sauces; condiments; marinades; dressings; fruit toppings.",
-      "Public capabilities: Co-packing; private label; recipe scale-up; test batches; acidified foods (pH under 4.6); product development."
+      "Public sources list these products: Sauces; condiments; marinades; dressings; fruit toppings.",
+      "Public sources describe these capabilities: Co-packing; private label; recipe scale-up; test batches; acidified foods (pH under 4.6); product development."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2103,8 +2099,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Site confirms private label and copacking customers plus own sauce brands. Address 9631 Liberty Rd STE N Randallstown. Seed info@ not shown; using Bessy@. www.mamavida.com timed out; apex mamavida.com works.",
     "masterDedupeKey": "mama vida inc.|randallstown|MD",
     "overview": [
-      "Public product information: Gourmet marinara and sauces; salsas (incl. blue crab salsa); private label sauces; own brands Mama Vida / Toto's Authentic / Don Vito.",
-      "Public capabilities: Private label and co-packing (40+ years claimed); culturally accurate recipe production without preservatives/chemical additives."
+      "Public sources list these products: Gourmet marinara and sauces; salsas (incl. blue crab salsa); private label sauces; own brands Mama Vida / Toto's Authentic / Don Vito.",
+      "Public sources describe these capabilities: Private label and co-packing (40+ years claimed); culturally accurate recipe production without preservatives/chemical additives."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2175,8 +2171,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Site is built around co-pack and private-label tea. Address 12756 Quantum Lane Anacortes. Seed MOQ 5,000 tea bags per SKU not confirmed on pages checked; left blank.",
     "masterDedupeKey": "motovotano llc|anacortes|WA",
     "overview": [
-      "Public product information: Loose leaf tea; herbal blends; dry goods packaging.",
-      "Public capabilities: Custom co-packing; blending; product development; pyramid tea bags; individually wrapped tea bags; bulk filling; labeling and coding; casing; metal detection."
+      "Public sources list these products: Loose leaf tea; herbal blends; dry goods packaging.",
+      "Public sources describe these capabilities: Custom co-packing; blending; product development; pyramid tea bags; individually wrapped tea bags; bulk filling; labeling and coding; casing; metal detection."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2248,8 +2244,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Wholesale page confirms custom canning of stone fruits/applesauce/preserves for growers and freeze-drying offering starting 2026. Also sells own Hood-Crest retail products. Seed organic cert not confirmed on pages checked; left blank.",
     "masterDedupeKey": "muirhead canning company|the dalles|OR",
     "overview": [
-      "Public product information: Canned fruit; applesauce; fruit butter; jams/preserves; freeze-dried fruit; maple syrup.",
-      "Public capabilities: Custom canning for orchards/fruit stands/farmers; custom jam and preserves; wholesale freeze-drying (from 2026); recipe customization; label design referral."
+      "Public sources list these products: Canned fruit; applesauce; fruit butter; jams/preserves; freeze-dried fruit; maple syrup.",
+      "Public sources describe these capabilities: Custom canning for orchards/fruit stands/farmers; custom jam and preserves; wholesale freeze-drying (from 2026); recipe customization; label design referral."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2324,8 +2320,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Site confirms custom spice blend manufacturing for chefs/restaurants/food manufacturers. Address 4571 US Hwy 264 Washington NC. Branding alternates NueSpice/NeuSpice.",
     "masterDedupeKey": "neu spice and seasoning llc|washington|NC",
     "overview": [
-      "Public product information: Custom spice blends; dry soup bases; seasonings; BBQ rubs; gravy and salad mixes; dressings/dips/sauces mixes for retail and foodservice.",
-      "Public capabilities: Small-batch custom spice blending; recipe development from scratch or existing formulas; packaging for retail/foodservice/manufacturers."
+      "Public sources list these products: Custom spice blends; dry soup bases; seasonings; BBQ rubs; gravy and salad mixes; dressings/dips/sauces mixes for retail and foodservice.",
+      "Public sources describe these capabilities: Small-batch custom spice blending; recipe development from scratch or existing formulas; packaging for retail/foodservice/manufacturers."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2405,8 +2401,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Seed www.noelcanning.com redirects to noelcopack.com. Clear West Coast beverage co-pack positioning. Public email updated to sales@noelcorp.com. Seed 4,000 case MOQ not confirmed on pages checked; left blank. Facility claims 20M cases annual capacity.",
     "masterDedupeKey": "noel canning and bottling|yakima|WA",
     "overview": [
-      "Public product information: Soft drinks; alcoholic beverages; energy drinks; water; carbonated and non-carbonated beverages.",
-      "Public capabilities: Beverage co-packing; canning; PET bottling; alcohol blending/packaging (TTB and WA LCB licensed); QA lab testing."
+      "Public sources list these products: Soft drinks; alcoholic beverages; energy drinks; water; carbonated and non-carbonated beverages.",
+      "Public sources describe these capabilities: Beverage co-packing; canning; PET bottling; alcohol blending/packaging (TTB and WA LCB licensed); QA lab testing."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2465,8 +2461,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Site confirms Seattle coffee co-packing with low minimums messaging (no numeric MOQ published). Seed phone retained; nick@ matches site footer.",
     "masterDedupeKey": "northwest co-packing|seattle|WA",
     "overview": [
-      "Public product information: Coffee; K-Cups; portion packs; private label coffee.",
-      "Public capabilities: Coffee co-packing; K-Cup filling; portion packs; private label; toll roasting partner options; flexible runs."
+      "Public sources list these products: Coffee; K-Cups; portion packs; private label coffee.",
+      "Public sources describe these capabilities: Coffee co-packing; K-Cup filling; portion packs; private label; toll roasting partner options; flexible runs."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2544,8 +2540,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Services page explicitly lists Co-pack, Private Label, packaging chart, and processing options. No public email on contact page (form only). Seed SQF/Organic/Kosher not confirmed on live pages checked; left blank.",
     "masterDedupeKey": "northwest gourmet foods|renton|WA",
     "overview": [
-      "Public product information: Mayonnaise; salad dressings; sauces; marinades; soups.",
-      "Public capabilities: R&D/custom formulation; manufacturing; private label; co-pack; fresh refrigerated; shelf-stable; cooked hot-filled; label/nutrition support."
+      "Public sources list these products: Mayonnaise; salad dressings; sauces; marinades; soups.",
+      "Public sources describe these capabilities: R&D/custom formulation; manufacturing; private label; co-pack; fresh refrigerated; shelf-stable; cooked hot-filled; label/nutrition support."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2618,8 +2614,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Private Label page invites custom fruit collaborations. Industrial page positions aseptic purees/concentrates for beverage and CPG manufacturers. Seed 20,000 lb MOQ and SQF not confirmed on pages checked; left blank. Seed email retained.",
     "masterDedupeKey": "oregon fruit products llc|salem|OR",
     "overview": [
-      "Public product information: Fruit purees; juices; concentrates; aseptic fruit ingredients; canned fruit.",
-      "Public capabilities: Private label custom fruit collaborations; industrial fruit processing; recipe ideation."
+      "Public sources list these products: Fruit purees; juices; concentrates; aseptic fruit ingredients; canned fruit.",
+      "Public sources describe these capabilities: Private label custom fruit collaborations; industrial fruit processing; recipe ideation."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2689,8 +2685,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Homepage confirms co-packing for entrepreneurs plus white label. Seed email dan@ not shown; using published info@. Directory certs (Kosher/HACCP/etc.) not confirmed on site pages checked; left blank.",
     "masterDedupeKey": "oregon hill farm|st. helens|OR",
     "overview": [
-      "Public product information: Fruit jams and syrups; apple butters; barbecue sauces; bar mixers; honey; foodservice sizes.",
-      "Public capabilities: Co-packing; white labeling / private labeling; wholesale; foodservice; in-house product development; small-batch to bulk."
+      "Public sources list these products: Fruit jams and syrups; apple butters; barbecue sauces; bar mixers; honey; foodservice sizes.",
+      "Public sources describe these capabilities: Co-packing; white labeling / private labeling; wholesale; foodservice; in-house product development; small-batch to bulk."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2752,8 +2748,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Services page confirms blending, co-packing opportunities, and private label. Seed email zoe@ not shown; using customerservice@. Seed MOQ 500 lbs and Non-GMO/Organic/GF certs not published on pages checked; left blank. Food Safety nav URL returned 404.",
     "masterDedupeKey": "oregon spice company|portland|OR",
     "overview": [
-      "Public product information: Herbs; spices; custom spice blends; foodservice and bulk spice products.",
-      "Public capabilities: Custom blending; flavor duplication / R&D; batch pack and co-packing opportunities; automated packaging; private label."
+      "Public sources list these products: Herbs; spices; custom spice blends; foodservice and bulk spice products.",
+      "Public sources describe these capabilities: Custom blending; flavor duplication / R&D; batch pack and co-packing opportunities; automated packaging; private label."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2843,8 +2839,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms custom manufacturing, private label, hot/ambient/fermented/bake/dry pack, and lists organic and Star-K kosher manufacturing.",
     "masterDedupeKey": "premiere packaging partners, llc|waterbury|CT",
     "overview": [
-      "Public product information: Gourmet specialty foods; cocktail products; sauces and specialty fills; fermented foods; baked and dry goods.",
-      "Public capabilities: Custom manufacturing; recipe development; hot pack; ambient fill; fermented foods; baking; dry pack; private label; warehousing and fulfillment."
+      "Public sources list these products: Gourmet specialty foods; cocktail products; sauces and specialty fills; fermented foods; baked and dry goods.",
+      "Public sources describe these capabilities: Custom manufacturing; recipe development; hot pack; ambient fill; fermented foods; baking; dry pack; private label; warehousing and fulfillment."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2932,8 +2928,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms private label / co-pack / co-manufacture for hot-fill, cold-fill, and retort beverages with SQF and detailed packaging capabilities. Seed city Grand Rapids; verified address Caledonia, MI.",
     "masterDedupeKey": "prospectors llc|grand rapids|MI",
     "overview": [
-      "Public product information: Cold brew coffee; RTD juices; teas; coffee; sports drinks; specialty beverages.",
-      "Public capabilities: Private label; co-manufacturing; co-packing; hot fill; cold fill; low-acid retort; carbonation; nitro-dosing."
+      "Public sources list these products: Cold brew coffee; RTD juices; teas; coffee; sports drinks; specialty beverages.",
+      "Public sources describe these capabilities: Private label; co-manufacturing; co-packing; hot fill; cold fill; low-acid retort; carbonation; nitro-dosing."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3003,8 +2999,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Site and About confirm dry blending co-packer/private label in Madison Heights (655 E 10 Mile Rd). Seed email jared@ not shown; using hello@. Seed nut-free claim not confirmed on pages checked; left blank.",
     "masterDedupeKey": "qualia specialty provisions|madison heights|MI",
     "overview": [
-      "Public product information: Spices; seasonings; teas; dry free-flowing ingredient blends.",
-      "Public capabilities: Dry ingredient blending; co-packing; recipe formulation; private-label packaging."
+      "Public sources list these products: Spices; seasonings; teas; dry free-flowing ingredient blends.",
+      "Public sources describe these capabilities: Dry ingredient blending; co-packing; recipe formulation; private-label packaging."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3057,8 +3053,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Thin Wix site confirms food co-packer at 1225 S Angelo St Seattle with info@. Seed email chris.coburn@ not shown. Directory claims for cold/hot fill and no minimum not verified on site; left blank.",
     "masterDedupeKey": "rainier foodworks|seattle|WA",
     "overview": [
-      "Public product information: Food co-packing for small to medium food businesses (categories not detailed on site).",
-      "Public capabilities: Food co-packing; manufacturing; packaging; consulting."
+      "Public sources list these products: Food co-packing for small to medium food businesses (categories not detailed on site).",
+      "Public sources describe these capabilities: Food co-packing; manufacturing; packaging; consulting."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3133,8 +3129,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Official Wix site confirms co-packing for restaurants/schools/grocery plus recipe development. SQF and top 5% USDA plant safety claim on About. Seed email retained (not shown on homepage). Owner Mercedes Huang named on site.",
     "masterDedupeKey": "rocky mountain food factory, inc.|englewood|CO",
     "overview": [
-      "Public product information: Salad dressings; baked goods (empanadas); meatloaf; ethnic and American ready-to-eat foods; sauces; meat fillings.",
-      "Public capabilities: Recipe development; food manufacturing; co-packing; product scale-up; label/nutrition support."
+      "Public sources list these products: Salad dressings; baked goods (empanadas); meatloaf; ethnic and American ready-to-eat foods; sauces; meat fillings.",
+      "Public sources describe these capabilities: Recipe development; food manufacturing; co-packing; product scale-up; label/nutrition support."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3202,8 +3198,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Site confirms strategy/development/manufacturing under one roof with FDA-certified pilot runs. Address 15874 W 6th Ave Golden CO on contact. Seed phone not shown on contact page; public email matches site.",
     "masterDedupeKey": "scale food labs|golden|CO",
     "overview": [
-      "Public product information: Food; beverage; supplement concepts (formulation through manufacturing readiness).",
-      "Public capabilities: Strategy; product development/formulation; pilot and small-scale manufacturing; commercial ingredient sourcing; manufacturing readiness."
+      "Public sources list these products: Food; beverage; supplement concepts (formulation through manufacturing readiness).",
+      "Public sources describe these capabilities: Strategy; product development/formulation; pilot and small-scale manufacturing; commercial ingredient sourcing; manufacturing readiness."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3236,7 +3232,7 @@ export const IMPORTED_PLANTS = [
       "product development support"
     ],
     "moqDisplay": "Low minimums stated for jerky only (exact units not published)",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
@@ -3267,8 +3263,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site confirms private/white label gourmet snacks and jerky with low minimums for jerky; public email uses smokehousejerkyco.com domain.",
     "masterDedupeKey": "tender heifer snack co.|hemet|CA",
     "overview": [
-      "Public product information: Beef jerky; meat snacks; popcorn; candy.",
-      "Public capabilities: Private label / white label snack program; product development support."
+      "Public sources list these products: Beef jerky; meat snacks; popcorn; candy.",
+      "Public sources describe these capabilities: Private label / white label snack program; product development support."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3349,8 +3345,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site positions OFI as a food and beverage manufacturing partner with contract manufacturing and co-packing; homepage states SQF and USDA Organic certified. Seed 25-gallon MOQ not confirmed as an explicit published number on own pages reviewed; left blank.",
     "masterDedupeKey": "the organic food incubator|bloomfield|NJ",
     "overview": [
-      "Public product information: Beverages; sauces; soups; powders and related CPG products.",
-      "Public capabilities: Contract manufacturing; co-packing; product development; consulting; cooking, filling, and labeling."
+      "Public sources list these products: Beverages; sauces; soups; powders and related CPG products.",
+      "Public sources describe these capabilities: Contract manufacturing; co-packing; product development; consulting; cooking, filling, and labeling."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3414,8 +3410,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site clearly offers sauce production and packaging for startups through larger runs; packet MOQ range published. Seed also listed canning; own site emphasizes packets/pouches/bottles.",
     "masterDedupeKey": "to-go packs|rockbridge|OH",
     "overview": [
-      "Public product information: Sauces and condiments (portion packs and retail packs).",
-      "Public capabilities: Small-batch sauce production; recipe support; FDA compliance guidance; custom packaging; private labeling."
+      "Public sources list these products: Sauces and condiments (portion packs and retail packs).",
+      "Public sources describe these capabilities: Small-batch sauce production; recipe support; FDA compliance guidance; custom packaging; private labeling."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3502,8 +3498,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "todds.co confirms contract manufacturing, co-packing, hot fill, and acidified processes with SQF. Seed URL pointed at incomplete/brand retail site; seed phone/email differed from current co-pack contacts.",
     "masterDedupeKey": "todd's premium foods|des moines|IA",
     "overview": [
-      "Public product information: Acidified liquids; dry blends; seasonings; salsas and related grocery products.",
-      "Public capabilities: Contract manufacturing; co-packing; private labeling; hot fill; acidified processes; bulk blending; dry packing; liquid packaging."
+      "Public sources list these products: Acidified liquids; dry blends; seasonings; salsas and related grocery products.",
+      "Public sources describe these capabilities: Contract manufacturing; co-packing; private labeling; hot fill; acidified processes; bulk blending; dry packing; liquid packaging."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3573,8 +3569,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Clear allergen-free dry co-packer positioning with published certs and sales@. Strong first-run signal (small runs + drop ship).",
     "masterDedupeKey": "total food package|spring lake|MI",
     "overview": [
-      "Public product information: Dry blends; flavored sugars; salts; spice blends; tea pouches; organic sugar floss; other dry products.",
-      "Public capabilities: Allergen-free dry blending and co-packing; packaging; labeling; distribution; inventory/storage; Amazon and direct drop-ship; small and large runs."
+      "Public sources list these products: Dry blends; flavored sugars; salts; spice blends; tea pouches; organic sugar floss; other dry products.",
+      "Public sources describe these capabilities: Allergen-free dry blending and co-packing; packaging; labeling; distribution; inventory/storage; Amazon and direct drop-ship; small and large runs."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3660,8 +3656,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Official site confirms Colorado Springs 40k sq ft USA campus and contract manufacturing. Seed email peter@ not shown; using published salessupport@. Seed phone retained (not shown on USA capabilities page).",
     "masterDedupeKey": "trisco foods|colorado springs|CO",
     "overview": [
-      "Public product information: Shelf-stable sweet and savory liquids; sauces; syrups; condiments; toppings; beverage bases; coffee and bar syrups; marinades; bakery fillings.",
-      "Public capabilities: Contract manufacturing; product innovation and development; steam-jacketed kettle processing; powder induction; CIP; scalable USA production."
+      "Public sources list these products: Shelf-stable sweet and savory liquids; sauces; syrups; condiments; toppings; beverage bases; coffee and bar syrups; marinades; bakery fillings.",
+      "Public sources describe these capabilities: Contract manufacturing; product innovation and development; steam-jacketed kettle processing; powder induction; CIP; scalable USA production."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3741,8 +3737,8 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "FCCDC site confirms co-packing for hot-pack shelf-stable acidified foods plus shared kitchen rental and farm value-add. Seed wmfpc.org timed out; use fccdc.org page.",
     "masterDedupeKey": "western ma food processing center|greenfield|MA",
     "overview": [
-      "Public product information: Shelf-stable acidified foods; jams; sauces; pickles; farm value-added products.",
-      "Public capabilities: Co-packing (hot pack and hold); kitchen rental; prototyping and product development; value-add for farms; blast freezing planned spring 2026."
+      "Public sources list these products: Shelf-stable acidified foods; jams; sauces; pickles; farm value-added products.",
+      "Public sources describe these capabilities: Co-packing (hot pack and hold); kitchen rental; prototyping and product development; value-add for farms; blast freezing planned spring 2026."
     ],
     "appearedOn": [],
     "guideRows": {}

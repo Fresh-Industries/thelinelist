@@ -64,7 +64,7 @@ export default function LearnPage() {
               <p className="kicker">Learn</p>
               <h1>Manufacturing, explained after you have a product idea</h1>
               <p className="lede">
-                Start at <Link href="/copackers">Find manufacturers</Link> if you only know the SKU.
+                Start at <Link href="/find-manufacturers">Find manufacturers</Link> if you only know the SKU.
                 These guides are the textbook. Psi, LACF, and process rules live here, not on the
                 homepage.
               </p>
@@ -73,7 +73,7 @@ export default function LearnPage() {
                 volume, and NDA posture before you outreach.
               </p>
               <p>
-                <Link className="btn btn-gold" href="/copackers">
+                <Link className="btn btn-gold" href="/find-manufacturers">
                   Find manufacturers
                 </Link>
               </p>
@@ -95,7 +95,7 @@ export default function LearnPage() {
                     <strong>{guide.title}</strong>
                     <span>{guide.plain}</span>
                     <em>
-                      {count} {count === 1 ? "verified plant" : "verified plants"} in
+                      {count} {count === 1 ? "reviewed plant" : "reviewed plants"} in
                       the table
                     </em>
                   </Link>
