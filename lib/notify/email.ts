@@ -1,5 +1,8 @@
 import { SITE_EMAIL, SITE_NAME } from "@/lib/site";
 
+const DEFAULT_NOTIFY_FROM_ADDRESS = `${SITE_NAME} <${SITE_EMAIL}>`;
+const DEFAULT_RESEND_FROM_ADDRESS = `${SITE_NAME} <notifications@mail.thelinelist.com>`;
+
 export type EmailProvider = "resend" | "postmark";
 
 export interface EmailMessage {
@@ -22,7 +25,11 @@ function read(name: string): string {
 }
 
 export function getNotifyFromAddress(): string {
-  return read("NOTIFY_FROM_EMAIL") || `${SITE_NAME} <${SITE_EMAIL}>`;
+  const configured = read("NOTIFY_FROM_EMAIL");
+  if (configured) return configured;
+
+  const provider = getEmailProvider();
+  return provider === "resend" ? DEFAULT_RESEND_FROM_ADDRESS : DEFAULT_NOTIFY_FROM_ADDRESS;
 }
 
 export function getOwnerNotifyAddress(): string {
@@ -47,6 +54,19 @@ export function getEmailProvider(): EmailProvider | null {
 
 export function isNotifyConfigured(): boolean {
   return getEmailProvider() !== null;
+}
+
+export function leadSaveFailureMessage(error?: string): string {
+  if (error?.includes("No email provider configured")) {
+    return "Email notifications are not configured on this deployment. Please write hello@thelinelist.com and mention LL-EMAIL-01.";
+  }
+  if (error?.includes("notification failed")) {
+    return "Your answers could not be delivered by our email service. Try again, or write hello@thelinelist.com and mention LL-EMAIL-02.";
+  }
+  if (error?.includes("not configured")) {
+    return "Email notifications are not configured on this deployment. Please write hello@thelinelist.com and mention LL-EMAIL-01.";
+  }
+  return "We could not save your request. Try again, or write hello@thelinelist.com and mention LL-STORE-01.";
 }
 
 export async function sendEmail(message: EmailMessage): Promise<NotifyResult> {

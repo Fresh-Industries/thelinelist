@@ -4,6 +4,7 @@ import { getPlantBySlug } from "@/lib/directory";
 import { leadFingerprint, newLeadId } from "@/lib/leads/fingerprint";
 import { claimInputSchema, zodFieldErrors, type FieldErrors } from "@/lib/leads/schema";
 import { createLeadStore } from "@/lib/leads/store";
+import { leadSaveFailureMessage } from "@/lib/notify/email";
 import {
   botRejected,
   getRequestContext,
@@ -145,9 +146,15 @@ export async function submitClaim(
   });
 
   if (!saved.ok) {
+    console.error("[lead-store] save failed", {
+      kind: "claim",
+      manufacturerSlug: input.manufacturerSlug,
+      adapter: saved.adapter,
+      error: saved.error ?? "Unknown lead storage error.",
+    });
     return {
       status: "error",
-      message: "We could not send that. Try again or write hello@thelinelist.com.",
+      message: leadSaveFailureMessage(saved.error),
     };
   }
 

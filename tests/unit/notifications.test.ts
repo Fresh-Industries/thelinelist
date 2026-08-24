@@ -1,5 +1,9 @@
 import { createLeadStore } from "@/lib/leads/store";
-import { sendEmail } from "@/lib/notify/email";
+import {
+  getNotifyFromAddress,
+  leadSaveFailureMessage,
+  sendEmail,
+} from "@/lib/notify/email";
 import { subscribeNewsletter } from "@/lib/newsletter/subscribe";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -12,7 +16,7 @@ afterEach(() => {
 function configureResend() {
   vi.stubEnv("EMAIL_PROVIDER", "resend");
   vi.stubEnv("RESEND_API_KEY", "re_test");
-  vi.stubEnv("NOTIFY_FROM_EMAIL", "The Line List <hello@thelinelist.com>");
+  vi.stubEnv("NOTIFY_FROM_EMAIL", "The Line List <notifications@mail.thelinelist.com>");
   vi.stubEnv("NOTIFY_TO_EMAIL", "owner@example.com");
 }
 
@@ -36,10 +40,48 @@ describe("owner email notifications", () => {
     expect(url).toBe("https://api.resend.com/emails");
     expect(request.headers).toMatchObject({ "User-Agent": "TheLineList/1.0" });
     expect(JSON.parse(String(request.body))).toMatchObject({
-      from: "The Line List <hello@thelinelist.com>",
+      from: "The Line List <notifications@mail.thelinelist.com>",
       to: ["owner@example.com"],
       subject: "Test notification",
     });
+  });
+
+  it("uses the verified Resend sender when the deployment has no sender override", () => {
+    configureResend();
+    vi.stubEnv("NOTIFY_FROM_EMAIL", "");
+
+    expect(getNotifyFromAddress()).toBe(
+      "The Line List <notifications@mail.thelinelist.com>",
+    );
+  });
+
+  it("preserves an explicit Resend sender", () => {
+    configureResend();
+    vi.stubEnv("NOTIFY_FROM_EMAIL", "The Line List <hello@thelinelist.com>");
+
+    expect(getNotifyFromAddress()).toBe(
+      "The Line List <hello@thelinelist.com>",
+    );
+  });
+
+  it("preserves an explicit Postmark sender", () => {
+    vi.stubEnv("EMAIL_PROVIDER", "postmark");
+    vi.stubEnv("POSTMARK_SERVER_TOKEN", "postmark_test");
+    vi.stubEnv("NOTIFY_FROM_EMAIL", "The Line List <hello@thelinelist.com>");
+
+    expect(getNotifyFromAddress()).toBe(
+      "The Line List <hello@thelinelist.com>",
+    );
+  });
+
+  it("preserves the existing Postmark default when no sender is configured", () => {
+    vi.stubEnv("EMAIL_PROVIDER", "postmark");
+    vi.stubEnv("POSTMARK_SERVER_TOKEN", "postmark_test");
+    vi.stubEnv("NOTIFY_FROM_EMAIL", "");
+
+    expect(getNotifyFromAddress()).toBe(
+      "The Line List <hello@thelinelist.com>",
+    );
   });
 
   it("turns Resend network failures into an actionable result", async () => {
@@ -136,6 +178,23 @@ describe("owner email notifications", () => {
       id: "lead_123",
     });
     expect(result.error).toContain("Owner notification failed via resend");
+    expect(leadSaveFailureMessage(result.error)).toContain("LL-EMAIL-02");
+  });
+
+  it("classifies provider configuration errors as delivery failures", () => {
+    expect(
+      leadSaveFailureMessage(
+        "Owner notification failed via resend: sender domain is not configured.",
+      ),
+    ).toContain("LL-EMAIL-02");
+  });
+
+  it("classifies a missing provider after blob storage as a configuration error", () => {
+    expect(
+      leadSaveFailureMessage(
+        "Owner notification failed via none: No email provider configured.",
+      ),
+    ).toContain("LL-EMAIL-01");
   });
 
   it("does not fall back to a false success when email is the only lead store", async () => {
@@ -195,6 +254,7 @@ describe("owner email notifications", () => {
       error: "Owner email notifications are not configured.",
     });
     expect(fetchMock).not.toHaveBeenCalled();
+    expect(leadSaveFailureMessage(result.error)).toContain("LL-EMAIL-01");
   });
 
   it("uses the claim work email as the owner notification reply-to address", async () => {

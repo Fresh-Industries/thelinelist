@@ -26,7 +26,7 @@ If Blob is missing and email is configured, the notification email is the archiv
 | `RESEND_API_KEY` | One of Resend/Postmark | Resend REST adapter. |
 | `POSTMARK_SERVER_TOKEN` | One of Resend/Postmark | Postmark REST adapter. |
 | `POSTMARK_MESSAGE_STREAM` | No | Defaults to `outbound`. |
-| `NOTIFY_FROM_EMAIL` | Recommended | Verified from address. Defaults to `The Line List <hello@thelinelist.com>`. |
+| `NOTIFY_FROM_EMAIL` | Recommended | Verified from address. Defaults to `The Line List <notifications@mail.thelinelist.com>` for Resend and `The Line List <hello@thelinelist.com>` for Postmark. |
 | `NOTIFY_TO_EMAIL` | Recommended | Owner inbox. Defaults to `hello@thelinelist.com`. |
 
 ## Rate limit
