@@ -156,7 +156,11 @@ export function zodFieldErrors(error: z.ZodError): FieldErrors {
   const fields: FieldErrors = {};
   for (const issue of error.issues) {
     const key = issue.path.map(String).join(".") || "form";
-    if (!fields[key]) fields[key] = issue.message;
+    let message = issue.message;
+    if (issue.code === "too_big" && issue.origin === "string") {
+      message = `Keep this answer to ${issue.maximum} characters or fewer.`;
+    }
+    if (!fields[key]) fields[key] = message;
   }
   return fields;
 }

@@ -11,7 +11,15 @@ export const metadata: Metadata = pageMetadata({
   path: "/claim-submit",
 });
 
-export default function ClaimSubmitPage() {
+export default async function ClaimSubmitPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ manufacturer?: string }>;
+}) {
+  const plants = claimPlantOptions();
+  const { manufacturer } = await searchParams;
+  const preset = plants.find((plant) => plant.slug === manufacturer);
+
   return (
     <>
       <SiteHeader />
@@ -22,7 +30,7 @@ export default function ClaimSubmitPage() {
           <h1>Claim or submit a plant</h1>
           <p className="lede">Help us correct an existing profile or review a food and beverage manufacturer we have missed. Submissions are reviewed before publication.</p>
           <p className="honest">A submission is not an endorsement or a paid ranking. Link the public pages that support each capability.</p>
-          <ClaimForm plants={claimPlantOptions()} />
+          <ClaimForm plants={plants} preset={preset} />
         </article>
       </main>
     </>

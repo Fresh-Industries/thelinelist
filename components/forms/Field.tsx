@@ -1,4 +1,45 @@
-import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+  type RefObject,
+} from "react";
+
+export function FormErrorSummary({
+  errors,
+  message,
+  summaryRef,
+}: {
+  errors?: Record<string, string>;
+  message?: string;
+  summaryRef?: RefObject<HTMLDivElement | null>;
+}) {
+  const messages = Object.values(errors ?? {});
+
+  if (messages.length === 0) {
+    return message ? (
+      <div className="form-banner" role="alert" tabIndex={-1} ref={summaryRef}>
+        {message}
+      </div>
+    ) : null;
+  }
+
+  return (
+    <div className="form-banner" role="alert" tabIndex={-1} ref={summaryRef}>
+      <strong>
+        {messages.length === 1
+          ? "Please fix this field before sending:"
+          : `Please fix these ${messages.length} fields before sending:`}
+      </strong>
+      <ul>
+        {messages.map((error, index) => (
+          <li key={`${error}-${index}`}>{error}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function Field({
   id,
@@ -32,7 +73,7 @@ export function Field({
       ) : null}
       {bindControl(children, { describedBy, invalid: Boolean(error) })}
       {error ? (
-        <p className="field-error" id={errorId} role="alert">
+        <p className="field-error" id={errorId}>
           {error}
         </p>
       ) : null}

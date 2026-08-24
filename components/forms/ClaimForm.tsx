@@ -4,8 +4,8 @@ import { submitClaim, type ClaimActionState } from "@/app/actions/claim";
 import { track } from "@/lib/analytics/client";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { INTRO_CATEGORY_OPTIONS, INTRO_PROCESS_OPTIONS, US_STATE_OPTIONS } from "@/lib/forms/options";
-import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { Field, Honeypot } from "./Field";
+import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { Field, FormErrorSummary, Honeypot } from "./Field";
 import { FormMetaFields } from "./UtmFields";
 
 const idleClaimState: ClaimActionState = { status: "idle" };
@@ -29,6 +29,8 @@ export function ClaimForm({
   const [state, action, pending] = useActionState(submitClaim, idleClaimState);
   const [notListed, setNotListed] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(preset?.slug ?? "");
+  const formRef = useRef<HTMLFormElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
   const selected = plants.find((plant) => plant.slug === selectedSlug);
   const cityDefault = preset?.city ?? selected?.city ?? "";
   const stateDefault = preset?.state ?? selected?.state ?? "";
@@ -42,12 +44,39 @@ export function ClaimForm({
     }
   }, [selectedSlug, state.status]);
 
+  useEffect(() => {
+    if (state.status !== "error") return;
+    const firstField = Object.keys(state.fieldErrors ?? {})[0];
+    const control = firstField ? formRef.current?.elements.namedItem(firstField) : null;
+    const target = control instanceof HTMLElement ? control : summaryRef.current;
+    if (!target) return;
+    const details = target.closest("details");
+    if (details instanceof HTMLDetailsElement) details.open = true;
+    const frame = window.requestAnimationFrame(() => {
+      target.scrollIntoView({
+        block: "center",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
+      target.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [state]);
+
   function markStarted() {
     if (started.current) return;
     started.current = true;
     track(ANALYTICS_EVENTS.manufacturer_claim_started, {
       slug: selectedSlug || preset?.slug || "about",
     });
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    ensureStartedAt(form);
+    if (!form.reportValidity()) return;
+    const formData = new FormData(form);
+    startTransition(() => action(formData));
   }
 
   if (state.status === "success" || state.status === "duplicate") {
@@ -63,20 +92,26 @@ export function ClaimForm({
   }
 
   const errors = state.fieldErrors ?? {};
-  const manufacturerName = notListed ? "" : (preset?.name ?? selected?.name ?? "");
+  const manufacturerName = preset?.name ?? selected?.name ?? "";
   const manufacturerSlug = notListed ? "not-listed" : (preset?.slug ?? selectedSlug);
 
   return (
-    <form className="lead-form" action={action} noValidate onFocus={markStarted}>
+    <form
+      ref={formRef}
+      className="lead-form"
+      onSubmit={handleSubmit}
+      onFocus={(event) => {
+        ensureStartedAt(event.currentTarget);
+        markStarted();
+      }}
+    >
       <input type="hidden" name="manufacturerSlug" value={manufacturerSlug} />
-      {preset ? <input type="hidden" name="manufacturerName" value={preset.name} /> : null}
+      {!notListed ? <input type="hidden" name="manufacturerName" value={manufacturerName} /> : null}
       <FormMetaFields />
       <Honeypot id={`${id}-hp`} />
 
-      {state.status === "error" && state.message ? (
-        <p className="form-banner" role="alert">
-          {state.message}
-        </p>
+      {state.status === "error" ? (
+        <FormErrorSummary errors={state.fieldErrors} message={state.message} summaryRef={summaryRef} />
       ) : null}
 
       <fieldset>
@@ -113,22 +148,21 @@ export function ClaimForm({
               </select>
             </Field>
           )}
-          {preset ? null : (
+          {!preset && notListed ? (
             <Field
               id={`${id}-mfr-name`}
-              label="Name if different or not listed"
-              required={notListed}
+              label="Company / plant name"
+              required
               error={errors.manufacturerName}
             >
               <input
                 id={`${id}-mfr-name`}
                 name="manufacturerName"
                 type="text"
-                defaultValue={manufacturerName}
-                required={notListed}
+                required
               />
             </Field>
-          )}
+          ) : null}
           <Field id={`${id}-city`} label="City" required error={errors.city}>
             <input
               id={`${id}-city`}
@@ -322,4 +356,11 @@ export function ClaimForm({
       </button>
     </form>
   );
+}
+
+function ensureStartedAt(form: HTMLFormElement) {
+  const input = form.elements.namedItem("startedAt");
+  if (input instanceof HTMLInputElement && !input.value) {
+    input.value = String(Date.now());
+  }
 }
