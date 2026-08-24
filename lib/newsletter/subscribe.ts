@@ -1,4 +1,6 @@
 import { getNewsletterProvider } from "./config";
+import { getOwnerNotifyAddress, sendEmail } from "@/lib/notify/email";
+import { SITE_NAME } from "@/lib/site";
 
 export interface NewsletterSubscribeResult {
   ok: boolean;
@@ -16,16 +18,45 @@ export async function subscribeNewsletter(email: string): Promise<NewsletterSubs
     return { ok: false, provider: "none", error: "Newsletter is not configured." };
   }
 
+  let subscribed: NewsletterSubscribeResult;
   switch (provider) {
     case "beehiiv":
-      return subscribeBeehiiv(email);
+      subscribed = await subscribeBeehiiv(email);
+      break;
     case "kit":
-      return subscribeKit(email);
+      subscribed = await subscribeKit(email);
+      break;
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;
     }
   }
+
+  if (!subscribed.ok) return subscribed;
+
+  const notified = await sendEmail({
+    to: getOwnerNotifyAddress(),
+    subject: `${SITE_NAME}: New newsletter subscriber`,
+    replyTo: email,
+    text: [
+      "A new reader subscribed to The Line List newsletter.",
+      "",
+      `Email: ${email}`,
+      `Newsletter provider: ${subscribed.provider}`,
+      `Submitted: ${new Date().toISOString()}`,
+    ].join("\n"),
+    tags: { kind: "newsletter" },
+  });
+
+  if (!notified.ok) {
+    return {
+      ok: false,
+      provider: subscribed.provider,
+      error: `Subscriber saved, but owner notification failed: ${notified.error ?? "Unknown email error."}`,
+    };
+  }
+
+  return subscribed;
 }
 
 async function subscribeBeehiiv(email: string): Promise<NewsletterSubscribeResult> {

@@ -1,4 +1,9 @@
-import { getOwnerNotifyAddress, isNotifyConfigured, sendEmail } from "@/lib/notify/email";
+import {
+  getOwnerNotifyAddress,
+  isNotifyConfigured,
+  sendEmail,
+  type NotifyResult,
+} from "@/lib/notify/email";
 import { SITE_NAME } from "@/lib/site";
 import type { LeadRecord, LeadStore, StoreResult } from "./types";
 
@@ -24,17 +29,28 @@ export function createLeadStore(): LeadStore {
       if (blobReady()) {
         const blob = await saveToBlob(record);
         if (blob.ok) {
-          await notifyOwner(record, "blob");
+          const notified = await notifyOwner(record, "blob");
+          if (!notified.ok) {
+            return {
+              ...blob,
+              ok: false,
+              error: notifyError(notified),
+            };
+          }
           return blob;
         }
       }
 
       if (isNotifyConfigured()) {
-        const archived = await saveToEmailArchive(record);
-        if (archived.ok) return archived;
+        return saveToEmailArchive(record);
       }
 
-      return saveToMemory(record);
+      const memory = saveToMemory(record);
+      return {
+        ...memory,
+        ok: false,
+        error: "Owner email notifications are not configured.",
+      };
     },
     async findRecentDuplicate(fingerprint, withinMs) {
       const local = findMemoryDuplicate(fingerprint, withinMs);
@@ -81,12 +97,12 @@ async function findBlobDuplicate(
 
 async function saveToEmailArchive(record: LeadRecord): Promise<StoreResult> {
   const notified = await notifyOwner(record, "email-archive");
-  if (!notified) {
+  if (!notified.ok) {
     return {
       ok: false,
       adapter: "email-archive",
       id: record.id,
-      error: "Email archive failed.",
+      error: notifyError(notified),
     };
   }
   remember(record);
@@ -112,17 +128,22 @@ function findMemoryDuplicate(fingerprint: string, withinMs: number): LeadRecord 
   );
 }
 
-async function notifyOwner(record: LeadRecord, via: string): Promise<boolean> {
-  if (!isNotifyConfigured()) return false;
+async function notifyOwner(record: LeadRecord, via: string): Promise<NotifyResult> {
   const kindLabel = record.kind === "intro" ? "Introduction request" : "Profile claim";
-  const result = await sendEmail({
+  const replyTo = [record.payload.email, record.payload.workEmail].find(
+    (value): value is string => typeof value === "string" && value.length > 0,
+  );
+  return sendEmail({
     to: getOwnerNotifyAddress(),
     subject: `${SITE_NAME}: ${kindLabel} for ${record.manufacturerName}`,
-    replyTo: typeof record.payload.email === "string" ? record.payload.email : undefined,
+    replyTo,
     text: formatLeadText(record, via),
     tags: { kind: record.kind, slug: record.manufacturerSlug },
   });
-  return result.ok;
+}
+
+function notifyError(result: NotifyResult): string {
+  return `Owner notification failed via ${result.provider}: ${result.error ?? "Unknown email error."}`;
 }
 
 function formatLeadText(record: LeadRecord, via: string): string {

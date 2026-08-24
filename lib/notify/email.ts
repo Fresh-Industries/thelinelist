@@ -55,15 +55,23 @@ export async function sendEmail(message: EmailMessage): Promise<NotifyResult> {
     return { ok: false, provider: "none", error: "No email provider configured." };
   }
 
-  switch (provider) {
-    case "resend":
-      return sendWithResend(message);
-    case "postmark":
-      return sendWithPostmark(message);
-    default: {
-      const _exhaustive: never = provider;
-      return _exhaustive;
+  try {
+    switch (provider) {
+      case "resend":
+        return await sendWithResend(message);
+      case "postmark":
+        return await sendWithPostmark(message);
+      default: {
+        const _exhaustive: never = provider;
+        return _exhaustive;
+      }
     }
+  } catch (error) {
+    return {
+      ok: false,
+      provider,
+      error: error instanceof Error ? error.message.slice(0, 400) : "Email request failed.",
+    };
   }
 }
 
@@ -73,6 +81,7 @@ async function sendWithResend(message: EmailMessage): Promise<NotifyResult> {
     headers: {
       Authorization: `Bearer ${read("RESEND_API_KEY")}`,
       "Content-Type": "application/json",
+      "User-Agent": "TheLineList/1.0",
     },
     body: JSON.stringify({
       from: getNotifyFromAddress(),
