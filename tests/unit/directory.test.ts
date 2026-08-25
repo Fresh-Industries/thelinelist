@@ -38,11 +38,25 @@ describe("directory trust and pagination", () => {
   });
 
   it("compares MOQ values only when one compatible unit is explicit", () => {
-    expect(comparableMoq("MOQs start as low as 250 units.")).toEqual({ amount: 250, unit: "units" });
-    expect(comparableMoq("50 gallons per flavor (~1,200 × 5 oz woozy).")).toEqual({ amount: 50, unit: "gallons" });
-    expect(comparableMoq("Exact MOQ unpublished.")).toBeNull();
-    expect(comparableMoq("No per-SKU unit MOQ. Inquiry screens for 11,000 gallons/day.")).toBeNull();
-    expect(comparableMoq("15,000-500,000 packets.")).toBeNull();
+    expect(comparableMoq("Minimums start as low as 250 units.")).toEqual({ amount: 250, unit: "units" });
+    expect(comparableMoq("Minimum: 50 gallons per flavor, approximately 1,200 five-ounce woozy bottles.")).toEqual({ amount: 50, unit: "gallons" });
+    expect(comparableMoq("Exact minimum not published.")).toBeNull();
+    expect(comparableMoq("No per-SKU minimum is published. The inquiry form asks about production of 11,000 gallons per day.")).toBeNull();
+    expect(comparableMoq("The company states that small-batch packet runs range from 15,000 to 500,000 packets.")).toBeNull();
+  });
+
+  it("presents manufacturer minimums as readable, qualified copy", () => {
+    expect(getPlantBySlug("paradise-food-beverage")?.moqDisplay).toBe(
+      "Exact minimum not published. The company says typical projects may start at 100 units.",
+    );
+    expect(getPlantBySlug("craft-cannery")?.moqDisplay).toBe(
+      "No minimum is published. The company lists 40-gallon kettles for small or trial batches.",
+    );
+
+    const publicMinimumCopy = filterPlants({}).flatMap((plant) => plant.moqDisplay ? [plant.moqDisplay] : []);
+    expect(publicMinimumCopy.join("\n")).not.toMatch(
+      /\b(?:Page|FAQ):|\((?:site|stated|directory-published)[^)]*\)|claimed \(/i,
+    );
   });
 
   it("reports the complete Hot Sauce snapshot without mixing MOQ units", () => {
@@ -87,9 +101,9 @@ describe("directory trust and pagination", () => {
     expect(disclosed).not.toContain("craft-cannery");
   });
 
-  it("keeps hyphenated physical-unit minimums in the disclosed filter", () => {
-    const disclosed = filterPlants({ moqDisclosed: true });
-    expect(disclosed.some((plant) => plant.moqDisplay?.includes("2,000-gallon"))).toBe(true);
+  it("keeps standard batch disclosures in the minimum filter after copy normalization", () => {
+    const disclosed = filterPlants({ moqDisclosed: true }).map((plant) => plant.slug);
+    expect(disclosed).toContain("bevpro-solutions-formerly-beer-dudes-canning");
   });
 
   it("does not infer jars from glass material or a negated glass format", () => {

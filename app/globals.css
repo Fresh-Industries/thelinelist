@@ -909,8 +909,24 @@ h1 {
 .category-snapshot dt { color: var(--muted); font-size: 0.67rem; font-weight: 750; letter-spacing: 0.05em; text-transform: uppercase; }
 .category-snapshot dd { margin: 0.2rem 0 0; font-size: 0.9rem; font-weight: 700; }
 .category-snapshot > p { margin: 0; color: var(--muted); font-size: 0.76rem; }
+.category-jump-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding-inline: 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
 .category-results-heading { margin: 2rem 0 1rem; }
-.category-results-heading h2 { margin: 0; font-size: clamp(1.35rem, 2.5vw, 1.8rem); }
+.category-results-heading h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+  scroll-margin-top: 6rem;
+}
+.category-results-heading h2:focus {
+  outline: 3px solid var(--gold);
+  outline-offset: 0.3rem;
+}
 
 .plant-card-heading { padding-bottom: 0.85rem; }
 .plant-card .plant-card-summary { margin-top: 0; }
@@ -2499,7 +2515,7 @@ details.textbook .textbook-mark {
   max-width: 100%;
   margin-bottom: 1rem;
   color: var(--forest-deep);
-  font-size: clamp(3.65rem, 4.4vw, 4.5rem);
+  font-size: clamp(3.4rem, 4.15vw, 4.2rem);
   font-weight: 800;
   line-height: 0.94;
   letter-spacing: -0.055em;
@@ -3081,7 +3097,7 @@ details.textbook .textbook-mark {
   }
 
   .home .hero-copy h1 {
-    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-size: clamp(2.85rem, 5.65vw, 4.2rem);
   }
 
   .home .product-choice-grid {

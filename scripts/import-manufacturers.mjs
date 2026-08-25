@@ -341,6 +341,7 @@ function toPlant(row, usedSlugs) {
     .filter((url) => normalizedDomain(url) !== websiteDomain || url !== row.website)
     .map((url, index) => ({ label: sourceLabel(url, index), href: url }));
   const rawCapabilities = splitList(row.manufacturing_capabilities);
+  const moqDisplay = polishMoqDisplay(row.moq);
   const overview = [
     row.product_types ? `Public sources list these products: ${row.product_types}.` : null,
     row.manufacturing_capabilities ? `Public sources describe these capabilities: ${row.manufacturing_capabilities}.` : null,
@@ -360,7 +361,7 @@ function toPlant(row, usedSlugs) {
     manufacturingCapabilitiesPublished: row.manufacturing_capabilities || null,
     rawProductTags: splitList(row.product_types),
     rawCapabilityTags: rawCapabilities,
-    moqDisplay: row.moq || null,
+    moqDisplay: moqDisplay || null,
     publishedSmallMoq: hasPublishedSmallMoq(row.moq),
     certs: splitList(row.certifications),
     lastVerified: row.last_checked_date.slice(0, 10),
@@ -379,6 +380,26 @@ function toPlant(row, usedSlugs) {
     appearedOn: [],
     guideRows: {},
   };
+}
+
+const MOQ_DISPLAY_COPY = new Map([
+  ["On The Money Minimums claimed (no numeric MOQ published)", "The company promotes ‘On The Money Minimums’ but does not publish a numeric minimum."],
+  ["1 pallet (1,200 pounds) per Minnesota Dept. of Agriculture co-packer directory", "The Minnesota Department of Agriculture co-packer directory lists a one-pallet minimum (1,200 pounds)."],
+  ["2,000-gallon standard batch runs (stated)", "The company states that its standard batch size is 2,000 gallons."],
+  ["50 to 500 gallon batch sizes (Koldkiss co-packing page)", "Exact minimum not published. The company’s co-packing page states batch sizes from 50 to 500 gallons."],
+  ["About 5,000 pods per SKU (site)", "The company says minimums start at about 5,000 pods per SKU."],
+  ["No minimums stated on site (40-gallon kettles for small/trial batches)", "No minimum is published. The company lists 40-gallon kettles for small or trial batches."],
+  ["Small-batch runs roughly 45-540 lbs finished product per flavor (stated)", "Exact minimum not published. The company states small-batch runs of roughly 45–540 pounds of finished product per flavor."],
+  ["Lower minimum quantities claimed (exact units not published)", "The company states that it offers lower minimum quantities but does not publish an exact number."],
+  ["400 units+ (published on Co-Packing and Private Label page)", "The company lists 400 units or more on its co-packing and private-label page."],
+  ["500 lb raw processing batch; 300 lb bulk fermentation batch; 50 lb dehydration batch (directory-published)", "A Colorado co-packer directory lists batch sizes of 500 pounds for raw processing, 300 pounds for bulk fermentation, and 50 pounds for dehydration."],
+  ["Pilot/small-scale runs from $3.5k (published as Low MOQs Starting @ $3.5k)", "The company says pilot and small-scale runs start at $3,500."],
+  ["Low minimums stated for jerky only (exact units not published)", "The company states that jerky has low minimums but does not publish exact units."],
+  ["15,000-500,000 packets (stated for small-batch packet production)", "The company states that small-batch packet runs range from 15,000 to 500,000 packets."],
+]);
+
+function polishMoqDisplay(value) {
+  return MOQ_DISPLAY_COPY.get(value) ?? value;
 }
 
 function hasPublishedSmallMoq(value) {

@@ -158,7 +158,7 @@ export const IMPORTED_PLANTS = [
       "Co-Source dedicated lines",
       "Steady State inventory/production management"
     ],
-    "moqDisplay": "On The Money Minimums claimed (no numeric MOQ published)",
+    "moqDisplay": "The company promotes ‘On The Money Minimums’ but does not publish a numeric minimum.",
     "publishedSmallMoq": false,
     "certs": [
       "GMP food-grade facilities (claimed on solutions page)"
@@ -326,7 +326,7 @@ export const IMPORTED_PLANTS = [
       "ingredient sourcing",
       "flexible batch sizes"
     ],
-    "moqDisplay": "1 pallet (1,200 pounds) per Minnesota Dept. of Agriculture co-packer directory",
+    "moqDisplay": "The Minnesota Department of Agriculture co-packer directory lists a one-pallet minimum (1,200 pounds).",
     "publishedSmallMoq": true,
     "certs": [
       "USDA inspected",
@@ -623,7 +623,7 @@ export const IMPORTED_PLANTS = [
       "testing/compliance",
       "packaging and shipping"
     ],
-    "moqDisplay": "2,000-gallon standard batch runs (stated)",
+    "moqDisplay": "The company states that its standard batch size is 2,000 gallons.",
     "publishedSmallMoq": true,
     "certs": [],
     "lastVerified": "2026-08-22",
@@ -861,7 +861,7 @@ export const IMPORTED_PLANTS = [
       "cost-plus purchasing",
       "dropshipping"
     ],
-    "moqDisplay": "50 to 500 gallon batch sizes (Koldkiss co-packing page)",
+    "moqDisplay": "Exact minimum not published. The company’s co-packing page states batch sizes from 50 to 500 gallons.",
     "publishedSmallMoq": true,
     "certs": [],
     "lastVerified": "2026-08-22",
@@ -1007,7 +1007,7 @@ export const IMPORTED_PLANTS = [
       "nitrogen-flushed filling",
       "pouch and related dry packing (per site)"
     ],
-    "moqDisplay": "About 5,000 pods per SKU (site)",
+    "moqDisplay": "The company says minimums start at about 5,000 pods per SKU.",
     "publishedSmallMoq": true,
     "certs": [
       "USDA certified organic facility"
@@ -1159,7 +1159,7 @@ export const IMPORTED_PLANTS = [
       "pH testing",
       "small to mid-size batches"
     ],
-    "moqDisplay": "No minimums stated on site (40-gallon kettles for small/trial batches)",
+    "moqDisplay": "No minimum is published. The company lists 40-gallon kettles for small or trial batches.",
     "publishedSmallMoq": false,
     "certs": [
       "FDA",
@@ -1321,7 +1321,7 @@ export const IMPORTED_PLANTS = [
       "small-batch commercial production",
       "scale-up partner introductions"
     ],
-    "moqDisplay": "Small-batch runs roughly 45-540 lbs finished product per flavor (stated)",
+    "moqDisplay": "Exact minimum not published. The company states small-batch runs of roughly 45–540 pounds of finished product per flavor.",
     "publishedSmallMoq": true,
     "certs": [
       "FDA registered",
@@ -1392,7 +1392,7 @@ export const IMPORTED_PLANTS = [
       "product development",
       "distribution"
     ],
-    "moqDisplay": "Lower minimum quantities claimed (exact units not published)",
+    "moqDisplay": "The company states that it offers lower minimum quantities but does not publish an exact number.",
     "publishedSmallMoq": false,
     "certs": [
       "SQF",
@@ -1622,7 +1622,7 @@ export const IMPORTED_PLANTS = [
       "blending",
       "branding/package design"
     ],
-    "moqDisplay": "400 units+ (published on Co-Packing and Private Label page)",
+    "moqDisplay": "The company lists 400 units or more on its co-packing and private-label page.",
     "publishedSmallMoq": true,
     "certs": [],
     "lastVerified": "2026-08-22",
@@ -1693,7 +1693,7 @@ export const IMPORTED_PLANTS = [
       "dehydration",
       "high-touch small batch (per directory)"
     ],
-    "moqDisplay": "500 lb raw processing batch; 300 lb bulk fermentation batch; 50 lb dehydration batch (directory-published)",
+    "moqDisplay": "A Colorado co-packer directory lists batch sizes of 500 pounds for raw processing, 300 pounds for bulk fermentation, and 50 pounds for dehydration.",
     "publishedSmallMoq": true,
     "certs": [],
     "lastVerified": "2026-08-22",
@@ -3164,7 +3164,7 @@ export const IMPORTED_PLANTS = [
       "commercial ingredient sourcing",
       "manufacturing readiness"
     ],
-    "moqDisplay": "Pilot/small-scale runs from $3.5k (published as Low MOQs Starting @ $3.5k)",
+    "moqDisplay": "The company says pilot and small-scale runs start at $3,500.",
     "publishedSmallMoq": true,
     "certs": [
       "FDA-certified facility (claimed on site)"
@@ -3231,7 +3231,7 @@ export const IMPORTED_PLANTS = [
       "Private label / white label snack program",
       "product development support"
     ],
-    "moqDisplay": "Low minimums stated for jerky only (exact units not published)",
+    "moqDisplay": "The company states that jerky has low minimums but does not publish exact units.",
     "publishedSmallMoq": false,
     "certs": [],
     "lastVerified": "2026-08-22",
@@ -3382,7 +3382,7 @@ export const IMPORTED_PLANTS = [
       "custom packaging",
       "private labeling"
     ],
-    "moqDisplay": "15,000-500,000 packets (stated for small-batch packet production)",
+    "moqDisplay": "The company states that small-batch packet runs range from 15,000 to 500,000 packets.",
     "publishedSmallMoq": true,
     "certs": [],
     "lastVerified": "2026-08-22",
