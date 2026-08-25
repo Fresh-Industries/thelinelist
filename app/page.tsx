@@ -18,6 +18,7 @@ const HOME_GUIDES = [
     time: "8 min read",
     tone: "yellow",
     featured: true,
+    image: "/images/clay-v2/support/first-production-run.webp",
   },
   {
     href: "/guides/start-hot-sauce",
@@ -27,6 +28,7 @@ const HOME_GUIDES = [
     time: "7 min read",
     tone: "coral",
     featured: false,
+    image: "/images/clay-v2/products/hot-sauce.webp",
   },
   {
     href: "/guides/energy-drink",
@@ -36,6 +38,7 @@ const HOME_GUIDES = [
     time: "7 min read",
     tone: "aqua",
     featured: false,
+    image: "/images/clay-v2/products/energy-drink.webp",
   },
   {
     href: "/guides/cold-pressed-juice",
@@ -45,20 +48,9 @@ const HOME_GUIDES = [
     time: "8 min read",
     tone: "lavender",
     featured: false,
+    image: "/images/clay-v2/products/cold-pressed-juice.webp",
   },
 ] as const;
-
-function GuideGraphic({ tone }: { tone: (typeof HOME_GUIDES)[number]["tone"] }) {
-  return (
-    <svg className={`home-guide-graphic home-guide-graphic-${tone}`} viewBox="0 0 120 76" aria-hidden="true">
-      <path className="guide-graphic-page" d="M18 13h52l14 14v37H18z" />
-      <path className="guide-graphic-fold" d="M70 13v14h14" />
-      <path className="guide-graphic-line" d="M30 35h36M30 45h29M30 55h22" />
-      <path className="guide-graphic-arrow" d="M79 52h24m-9-9 9 9-9 9" />
-      <circle className="guide-graphic-dot" cx="100" cy="22" r="8" />
-    </svg>
-  );
-}
 
 export const metadata: Metadata = pageMetadata({
   title: "The Line List | Food and Beverage Manufacturers",
@@ -131,7 +123,9 @@ export default function HomePage() {
                 className={`home-guide-card guide-tone-${guide.tone}${guide.featured ? " home-guide-featured" : ""}`}
               >
                 <span className="home-guide-label">{guide.label}</span>
-                <GuideGraphic tone={guide.tone} />
+                <span className="home-guide-image" aria-hidden="true">
+                  <Image src={guide.image} alt="" width={640} height={640} sizes="(max-width: 680px) 34vw, 8rem" />
+                </span>
                 <h3>{guide.title}</h3>
                 <p>{guide.description}</p>
                 <span className="home-guide-footer">
