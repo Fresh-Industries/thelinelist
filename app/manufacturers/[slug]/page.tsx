@@ -19,13 +19,32 @@ import {
   queryToSearchParams,
   stateLabel,
 } from "@/lib/directory";
-import { plantOrganizationJsonLd } from "@/lib/seo/jsonld";
+import { plantProfileJsonLd } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const dynamicParams = false;
+
+function normalizedSourceUrl(url: string): string {
+  return url.replace(/\/$/, "");
+}
+
+function FieldCitations({ urls, sourceNumbers }: { urls?: string[]; sourceNumbers: Map<string, number> }) {
+  const numbers = [...new Set((urls ?? [])
+    .map((url) => sourceNumbers.get(normalizedSourceUrl(url)))
+    .filter((number): number is number => Boolean(number)))];
+  if (numbers.length === 0) return null;
+  return (
+    <small className="field-citations">
+      {numbers.length === 1 ? "Source" : "Sources"}{" "}
+      {numbers.map((number, index) => (
+        <span key={number}>{index > 0 ? ", " : null}<a href={`#source-${number}`} aria-label={`See source ${number}`}>{number}</a></span>
+      ))}
+    </small>
+  );
+}
 
 export function generateStaticParams() {
   return getPlantSlugs().map((slug) => ({ slug }));
@@ -42,7 +61,10 @@ export async function generateMetadata({
   const title = `${plant.name} | Food and beverage manufacturer`;
   const description = `Public manufacturing details for ${plant.name} in ${plant.locationDisplay}, with source links and questions to ask.`;
   const path = `/manufacturers/${plant.slug}`;
-  return pageMetadata({ title, description, path });
+  return {
+    ...pageMetadata({ title, description, path }),
+    ...(plant.needsCurrentOwnershipVerification ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function ManufacturerPage({
@@ -55,7 +77,10 @@ export default async function ManufacturerPage({
   if (!plant) notFound();
 
   const processes = formatProcesses(plant);
-  const links = [plant.website, ...(plant.extraLinks ?? [])];
+  const links = [plant.website, ...(plant.extraLinks ?? [])].filter((link, index, all) => (
+    all.findIndex((candidate) => normalizedSourceUrl(candidate.href) === normalizedSourceUrl(link.href)) === index
+  ));
+  const sourceNumbers = new Map(links.map((link, index) => [normalizedSourceUrl(link.href), index + 1]));
   const listingStatus = plant.listingStatus ?? "VERIFIED";
   const categories = PRODUCT_CATEGORIES.filter((category) => plantMatchesCategory(plant, category.slug));
   const states = [...new Set(plant.sites.map((site) => site.state))];
@@ -76,7 +101,7 @@ export default async function ManufacturerPage({
     <>
       <SiteHeader current="/find-manufacturers" />
       <TrackOnMount event={ANALYTICS_EVENTS.manufacturer_profile_viewed} props={{ slug: plant.slug }} />
-      <JsonLd data={plantOrganizationJsonLd(plant)} />
+      <JsonLd data={plantProfileJsonLd(plant)} />
       <main id="main">
         <article className="prose wrap company-page profile-page">
           <Breadcrumbs
@@ -92,24 +117,30 @@ export default async function ManufacturerPage({
               <p className="kicker">Food and beverage manufacturer</p>
               <h1>{plant.name}</h1>
               <p className="company-place">{plant.locationDisplay}</p>
-              <p className={`listing-evidence listing-evidence-${listingStatus.toLowerCase()}`}>
-                {listingStatus === "VERIFIED"
+              <p className={`listing-evidence listing-evidence-${plant.needsCurrentOwnershipVerification ? "review" : listingStatus.toLowerCase()}`}>
+                {plant.needsCurrentOwnershipVerification
+                  ? "Needs current ownership verification"
+                  : listingStatus === "VERIFIED"
                   ? `Public sources reviewed ${formatVerifiedMonth(plant.lastVerified)}`
                   : "Public source listing"}
               </p>
             </div>
           </div>
+          {plant.verificationNotice ? <aside className="ownership-review" role="note"><strong>Contact help is paused.</strong><p>{plant.verificationNotice}</p></aside> : null}
           <p className="meta">
-            {listingStatus === "VERIFIED"
+            {plant.needsCurrentOwnershipVerification
+              ? "This profile remains visible as a flagged public-source record while ownership and operating details are rechecked."
+              : listingStatus === "VERIFIED"
               ? `The Line List checked this manufacturer against current public information on ${formatLastVerified(plant.lastVerified)}.`
               : `This listing is based on public source material checked ${formatLastVerified(plant.lastVerified)} and has not received the same verification treatment as a Verified profile.`}{" "}
             Check current fit, availability, and requirements directly with the manufacturer.
           </p>
-          <p>
+          {!plant.introductionsPaused ? <div className="profile-contact-help">
             <Link className="btn btn-gold" href={`/find-manufacturers/request-intro?manufacturer=${plant.slug}`}>
-              Request an introduction
+              Request help contacting this manufacturer
             </Link>
-          </p>
+            <p>The Line List reviews your request and follows up by email about next steps. We do not promise a direct relationship or a response from the manufacturer.</p>
+          </div> : null}
 
           <section aria-labelledby="fit-heading">
             <h2 id="fit-heading">Why it may fit</h2>
@@ -122,16 +153,16 @@ export default async function ManufacturerPage({
 
           <dl className="company-facts">
             <div><dt>Location</dt><dd>{plant.locationDisplay}</dd></div>
-            <div><dt>Processes</dt><dd>{processes.length > 0 ? processes.join(" · ") : <Unpublished />}</dd></div>
-            <div><dt>Product types</dt><dd>{plant.productTypesPublished ?? <Unpublished />}</dd></div>
-            <div><dt>Manufacturing capabilities</dt><dd>{plant.manufacturingCapabilitiesPublished ?? <Unpublished />}</dd></div>
-            <div><dt>Packaging</dt><dd>{plant.packaging ?? <Unpublished />}</dd></div>
-            <div><dt>Published minimum</dt><dd>{plant.moqDisplay ?? <Unpublished />}</dd></div>
-            <div><dt>Certifications</dt><dd>{plant.certs.length > 0 ? plant.certs.join(" · ") : <Unpublished />}</dd></div>
+            <div><dt>Processes</dt><dd>{processes.length > 0 ? processes.join(" · ") : <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.processes} sourceNumbers={sourceNumbers} /></dd></div>
+            <div><dt>Product types</dt><dd>{plant.productTypesPublished ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.products} sourceNumbers={sourceNumbers} /></dd></div>
+            <div><dt>Manufacturing capabilities</dt><dd>{plant.manufacturingCapabilitiesPublished ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.processes} sourceNumbers={sourceNumbers} /></dd></div>
+            <div><dt>Packaging</dt><dd>{plant.packaging ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.packaging} sourceNumbers={sourceNumbers} /></dd></div>
+            <div><dt>Published minimum</dt><dd>{plant.moqDisplay ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.minimums} sourceNumbers={sourceNumbers} /></dd></div>
+            <div><dt>Certifications</dt><dd>{plant.certs.length > 0 ? plant.certs.join(" · ") : <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.certifications} sourceNumbers={sourceNumbers} /></dd></div>
             <div><dt>Operating model</dt><dd>{plant.operationType ? OPERATION_TYPE_LABELS[plant.operationType] : (plant.operationTypePublished ?? <Unpublished />)}</dd></div>
             <div><dt>Website</dt><dd><a href={plant.website.href} rel="noreferrer">Visit official website</a></dd></div>
-            <div><dt>Phone</dt><dd>{plant.phone ? <a href={`tel:${plant.phone}`}>{plant.phone}</a> : <Unpublished />}</dd></div>
-            <div><dt>Public email</dt><dd>{plant.publicEmail ? <a href={`mailto:${plant.publicEmail}`}>{plant.publicEmail}</a> : <Unpublished />}</dd></div>
+            <div><dt>Phone</dt><dd>{plant.needsCurrentOwnershipVerification ? <Unpublished>Needs current ownership verification</Unpublished> : plant.phone ? <a href={`tel:${plant.phone}`}>{plant.phone}</a> : <Unpublished />}</dd></div>
+            <div><dt>Public email</dt><dd>{plant.needsCurrentOwnershipVerification ? <Unpublished>Needs current ownership verification</Unpublished> : plant.publicEmail ? <a href={`mailto:${plant.publicEmail}`}>{plant.publicEmail}</a> : <Unpublished />}</dd></div>
           </dl>
 
           <h2>What the manufacturer says</h2>
@@ -172,13 +203,13 @@ export default async function ManufacturerPage({
           <ul>{questions.map((question) => <li key={question}>{question}</li>)}</ul>
 
           <h2>Sources</h2>
-          <p><SourceLinks links={links} /></p>
+          <p><SourceLinks links={links} numbered /></p>
           <p className="honest">A directory profile is a starting point, not an endorsement or a guarantee of fit.</p>
 
           <div className="profile-actions">
-            <Link className="btn btn-gold" href={`/find-manufacturers/request-intro?manufacturer=${plant.slug}`}>
-              Request an introduction
-            </Link>
+            {!plant.introductionsPaused ? <Link className="btn btn-gold" href={`/find-manufacturers/request-intro?manufacturer=${plant.slug}`}>
+              Request help contacting this manufacturer
+            </Link> : null}
             <Link className="btn btn-ghost" href="/find-manufacturers">Compare manufacturers</Link>
           </div>
           <p className="claim-compact">

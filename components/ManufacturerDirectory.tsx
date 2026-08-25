@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteHeader } from "@/components/SiteHeader";
 import {
   filterPlants,
+  isPlantIndexable,
   paginatePlants,
   queryToSearchParams,
   verifiedStates,
@@ -25,6 +26,9 @@ export function ManufacturerDirectory({ query, requestedPage = 1, schemaPath = "
 }) {
   const allMatches = filterPlants(query);
   const page = paginatePlants(allMatches, requestedPage);
+  const indexableStartPosition = allMatches
+    .slice(0, page.startIndex)
+    .filter(isPlantIndexable).length + 1;
   const filterKey = queryToSearchParams(query).toString() || "all";
 
   return (
@@ -34,8 +38,8 @@ export function ManufacturerDirectory({ query, requestedPage = 1, schemaPath = "
         name: DIRECTORY_TITLE,
         description: DIRECTORY_DESCRIPTION,
         path: schemaPath,
-        plants: page.plants,
-        startPosition: page.startIndex + 1,
+        plants: page.plants.filter(isPlantIndexable),
+        startPosition: indexableStartPosition,
       })} />
       <main id="main"><div className="wrap directory-page">
         <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Find manufacturers", href: "/find-manufacturers" }]} />
@@ -63,7 +67,7 @@ export function ManufacturerDirectory({ query, requestedPage = 1, schemaPath = "
         <p className="directory-trust-line">Listings are based on publicly available information. Inclusion isn’t an endorsement. <Link href="/how-we-verify">How we verify <span aria-hidden="true">→</span></Link></p>
         {page.plants.length > 0 ? <div className="card-grid">{page.plants.map((plant) => <CopackerCard key={plant.slug} plant={plant} />)}</div> : <section className="empty-results"><Image src="/images/clay-v2/support/empty-results.webp" alt="Clay sample box and magnifying glass" width={640} height={640} sizes="18rem" /><div><h2>No plants match these filters yet</h2><p>That can mean the directory has no stated capability for this mix, or the relevant fields are not public. We will not turn an unknown into a match.</p><div className="cta-band"><Link className="btn btn-gold" href="/find-manufacturers">Clear filters</Link><Link className="btn btn-ghost" href="/guides">Read a related guide</Link></div></div></section>}
         <DirectoryPagination query={query} currentPage={page.currentPage} pageCount={page.pageCount} />
-        <section className="shortlist-band"><div><p className="kicker">Ready to talk to manufacturers?</p><h2>Bring a useful inquiry</h2><p>Share product, process needs, packaging, honest volume, certifications your buyers need, and timing. Choose a profile before requesting an introduction.</p></div><Link className="btn btn-gold" href="/guides/first-production-run">Prepare for outreach</Link></section>
+        <section className="shortlist-band"><div><p className="kicker">Ready to talk to manufacturers?</p><h2>Bring a useful inquiry</h2><p>Share product, process needs, packaging, honest volume, certifications your buyers need, and timing. Choose a profile before requesting contact help.</p></div><Link className="btn btn-gold" href="/guides/first-production-run">Prepare for outreach</Link></section>
       </div></main>
     </>
   );

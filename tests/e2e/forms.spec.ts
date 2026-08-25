@@ -35,7 +35,7 @@ test.describe("lead form validation", () => {
     await page.locator("[name=name]").fill("Local test");
     await page.locator("[name=email]").fill("local-test@example.com");
     await page.locator("[name=launchDate]").fill("Flexible");
-    await page.getByRole("button", { name: "Request introduction" }).click();
+    await page.getByRole("button", { name: "Request contact help" }).click();
 
     await expect(page.locator(".form-banner")).toContainText("Tell us what you want to make.");
     await expect(page.getByRole("group", { name: "What are you making?" })).toBeVisible();

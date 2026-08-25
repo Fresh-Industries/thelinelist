@@ -4,19 +4,20 @@ import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import type { CornerstoneGuide } from "@/lib/guides/cornerstones";
 import { articleJsonLd, faqPageJsonLd } from "@/lib/seo/jsonld";
-import { LAST_CHECKED_LABEL, LAST_REVIEWED } from "@/lib/site";
 import Image from "next/image";
 import Link from "next/link";
 import { GuideDiagram } from "./GuideDiagram";
 import { GuideDirectoryLink } from "./GuideDirectoryLink";
 import { GuideByline } from "./GuideByline";
 
+const GUIDE_REVIEWED_LABEL = "24 Aug 2026";
+
 export function GuideLayout({ guide }: { guide: CornerstoneGuide }) {
   const path = `/guides/${guide.slug}`;
   return (
     <>
       <SiteHeader current="/guides" />
-      <JsonLd data={articleJsonLd({ headline: guide.title, description: guide.description, path, image: guide.image, dateModified: LAST_REVIEWED })} />
+      <JsonLd data={articleJsonLd({ headline: guide.title, description: guide.description, path, image: guide.image, datePublished: "2026-08-23", dateModified: "2026-08-24" })} />
       <JsonLd data={faqPageJsonLd(guide.faq)} />
       <main id="main">
         <article className="wrap guide-page expressive-page">
@@ -29,9 +30,9 @@ export function GuideLayout({ guide }: { guide: CornerstoneGuide }) {
               <ul className="guide-hero-facts" aria-label="Guide format">
                 <li>{guide.steps.length} clear steps</li>
                 <li>Beginner friendly</li>
-                <li>Last reviewed {LAST_CHECKED_LABEL}</li>
+                <li>Last reviewed {GUIDE_REVIEWED_LABEL}</li>
               </ul>
-              <GuideByline />
+              <GuideByline reviewed={GUIDE_REVIEWED_LABEL} />
             </div>
             <Image src={guide.image} alt={guide.imageAlt} width={1200} height={800} sizes="(max-width: 760px) 100vw, 46vw" priority />
           </header>
@@ -56,7 +57,7 @@ export function GuideLayout({ guide }: { guide: CornerstoneGuide }) {
               <section className="guide-mistakes"><h2>Avoid these first-run traps</h2><ul>{guide.mistakes.map((item) => <li key={item}>{item}</li>)}</ul></section>
               <section className="guide-faq"><h2>Quick answers</h2>{guide.faq.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</section>
               <section className="guide-directory-cta"><h2>Ready to compare manufacturers?</h2><p>Start with public product, process, package, and location details. Ask about anything that is not publicly listed.</p><GuideDirectoryLink href={guide.directoryHref} label={guide.directoryLabel} guide={guide.slug} /></section>
-              <section id="sources"><h2>Sources</h2><ul className="source-list">{guide.sources.map((source) => <li key={source.href}><a href={source.href} rel="noreferrer">{source.label}</a></li>)}</ul><p className="meta">Reviewed {LAST_CHECKED_LABEL}. Sources are provided for learning and verification.</p></section>
+              <section id="sources"><h2>Sources</h2><ul className="source-list">{guide.sources.map((source) => <li key={source.href}><a href={source.href} rel="noreferrer">{source.label}</a></li>)}</ul><p className="meta">Reviewed {GUIDE_REVIEWED_LABEL}. Sources are provided for learning and verification.</p></section>
               <p><Link href="/guides">Browse all guides</Link></p>
               <NewsletterCta />
             </div>

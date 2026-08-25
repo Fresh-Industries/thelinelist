@@ -44,7 +44,7 @@ export default function SmallMoqGuidePage() {
           <nav className="jump" aria-label="On this page">
             <a href="#food-co-packers-with-small-moqs">Food co-packers with small MOQs</a>
             <a href="#how-to-show-up-ready">Show up ready</a>
-            <a href="#request-an-intro">Request an intro</a>
+            <a href="#request-contact-help">Request contact help</a>
             <a href="#textbook">Textbook</a>
           </nav>
 
@@ -71,9 +71,9 @@ export default function SmallMoqGuidePage() {
             A founder who finishes this page should be able to say one of: <strong>25-gallon kettle sauce</strong>, <strong>5,000-unit pouch</strong>, <strong>~7,000–7,500 liter hot-fill</strong>, <strong>$2,500 pack-out</strong>, or <strong>not ready</strong>.
           </p>
 
-          <h2 id="request-an-intro">Request an intro</h2>
+          <h2 id="request-contact-help">Request contact help</h2>
           <p>
-            If a plant in the table matches your process <strong>and</strong> you can fund the published floor, request an intro. We will not email the plant for you from this page. See the{" "}
+            If a plant in the table matches your process <strong>and</strong> you can fund the published floor, open its profile and request contact help. The Line List reviews the request and follows up by email; it does not promise a direct relationship or a response. See the{" "}
             <Link href="/find-manufacturers?smallMoq=1">small-MOQ directory cards</Link>.
           </p>
 

@@ -4,6 +4,7 @@ import { ProductSelector } from "@/components/ProductSelector";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TrustStrip } from "@/components/TrustStrip";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { getIndexableProductCategories } from "@/lib/directory";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -68,6 +69,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function HomePage() {
+  const visibleCategories = getIndexableProductCategories().map((category) => category.slug);
   return (
     <>
       <SiteHeader current="/" />
@@ -107,7 +109,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <ProductSelector />
+        <ProductSelector visibleCategories={visibleCategories} />
 
         <HowItWorks />
 

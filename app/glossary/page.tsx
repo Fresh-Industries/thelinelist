@@ -176,10 +176,9 @@ export default function GlossaryPage() {
             <strong>Not interchangeable with “white label.”</strong> Fresh Factory treats white label as a CPG brand buying a catalog SKU. Same ownership problem as private label: you do not own the formula. We do not have a white-label page.
           </p>
 
-          <h2>Request an intro</h2>
+          <h2>Request contact help</h2>
           <p>
-            If a plant on a process page matches your process, pack, and published floor, we can <strong>introduce you</strong>. Open a{" "}
-            <Link href="/find-manufacturers">manufacturer page</Link> and request the intro there. We will not email a plant until you name one and ask.
+            If a plant on a process page matches your process, pack, and published floor, open its <Link href="/find-manufacturers">manufacturer profile</Link> and request contact help. The Line List reviews the request and follows up by email; it does not promise a direct relationship or a manufacturer response.
           </p>
           <p>If you do not know the process yet, say that in the request instead of asking us to “find a co-packer.”</p>
 

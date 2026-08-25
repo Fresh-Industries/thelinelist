@@ -1,5 +1,6 @@
 import {
   PRODUCT_CATEGORIES,
+  OPERATION_TYPE_LABELS,
   formatCardSnippet,
   formatProcesses,
   plantMatchesCategory,
@@ -65,12 +66,14 @@ export function CopackerCard({ plant }: { plant: Plant }) {
         <dl className="plant-card-summary">
           <div><dt>Product fit</dt><dd>{productFit ?? "Not publicly listed"}</dd></div>
           <div><dt>Location</dt><dd>{primaryLocation(plant)}</dd></div>
+          <div><dt>Operating model</dt><dd>{plant.operationType ? OPERATION_TYPE_LABELS[plant.operationType] : plant.operationTypePublished ?? "Not publicly listed"}</dd></div>
           <div><dt>Process</dt><dd>{processLabels.length > 0 ? processLabels.join(" · ") : "Not publicly listed"}</dd></div>
           <div><dt>Packaging</dt><dd>{packageLabels.length > 0 ? packageLabels.join(" · ") : formatCardSnippet(plant.packaging, 90) ?? "Not publicly listed"}</dd></div>
           <div><dt>Minimum order</dt><dd className="moq-lines">{minimums.length > 0 ? minimums.map((line) => <span key={line}>{line}</span>) : "Not publicly listed"}</dd></div>
         </dl>
 
         <footer className="plant-card-footer">
+          {plant.needsCurrentOwnershipVerification ? <span className="ownership-review-badge">Ownership review needed</span> : null}
           {plant.certs.length > 0 ? (
             <ul className="certification-list" aria-label="Publicly listed certifications">
               {plant.certs.slice(0, 2).map((certification) => <li key={certification}>{formatCardSnippet(certification, 26)}</li>)}

@@ -15,7 +15,9 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "snacks"
+    ],
     "packaging": "Pillow pouches 0.5-5 oz; stand-up pouches 2-10 oz; foodservice/bulk bags 3-7 lb",
     "productTypesPublished": "Ready-to-eat popcorn; seasoned popcorn; caramel/gourmet popcorn",
     "manufacturingCapabilitiesPublished": "Popcorn co-packing; private label; product development/test batching; storage and fulfillment (linked)",
@@ -42,7 +44,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "specialtyfoodresource.com",
+        "label": "Specialty Food Resource listing",
         "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
       }
     ],
@@ -76,7 +78,9 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "dairy"
+    ],
     "packaging": null,
     "productTypesPublished": "Milk; butter; sour cream; cottage cheese; ice cream mix; other dairy; private label/store brand",
     "manufacturingCapabilitiesPublished": "Private label and store-brand dairy co-packaging",
@@ -95,7 +99,7 @@ export const IMPORTED_PLANTS = [
     "moqDisplay": null,
     "publishedSmallMoq": false,
     "certs": [],
-    "lastVerified": "2026-08-22",
+    "lastVerified": "2026-08-24",
     "listingStatus": "VERIFIED",
     "confidence": 5,
     "website": {
@@ -104,24 +108,34 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "alpenrose.com",
+        "label": "Company overview",
         "href": "https://alpenrose.com/"
       },
       {
-        "label": "oregon.gov",
+        "label": "Oregon co-packer locator",
         "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+      },
+      {
+        "label": "Ownership change announcement",
+        "href": "https://www.businesswire.com/news/home/20260414001359/en/Harry-Davis-Company-Facilitates-Sale-of-Alpenrose-Butter-Operations-to-Plant-Based-Innovations"
       }
     ],
     "phone": "503-244-1133",
     "publicEmail": "wholesale@alpenrose.com",
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
+    "needsCurrentOwnershipVerification": true,
+    "introductionsPaused": true,
+    "verificationNotice": "Current ownership or operating details need verification. Contact help is paused until the active operating entity, capabilities, and public contact details are confirmed.",
     "flags": [
       "dairy",
       "private_label",
-      "inquire_minimums"
+      "inquire_minimums",
+      "needs_current_ownership_verification",
+      "introductions_paused",
+      "ownership_change_2026"
     ],
-    "qualityNotes": "Dedicated co-packaging page confirms private label/store brand dairy production for retailers/distributors/foodservice. Seed Organic/SQF and juice claims not confirmed on co-pack page; left blank.",
+    "qualityNotes": "The Clackamas operation was acquired by Plant Based Innovations in April 2026. The active operating entity and current capabilities and contact details require verification before introductions resume.",
     "masterDedupeKey": "alpenrose/smith brothers farm|clackamas|OR",
     "overview": [
       "Public sources list these products: Milk; butter; sour cream; cottage cheese; ice cream mix; other dairy; private label/store brand.",
@@ -172,15 +186,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "drinkartys.com",
+        "label": "Solutions",
         "href": "https://www.drinkartys.com/solutions"
       },
       {
-        "label": "drinkartys.com",
+        "label": "Services and capabilities",
         "href": "https://www.drinkartys.com/services-1"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Wisconsin.php"
       }
     ],
@@ -218,7 +232,11 @@ export const IMPORTED_PLANTS = [
       "sauce"
     ],
     "categories": [
-      "sauce"
+      "sauce",
+      "snacks",
+      "bakery",
+      "confectionery",
+      "spices-dry-mixes"
     ],
     "packaging": "Bottles; pouches; VFFS; HFFS; rigid containers; vacuum; shrink; tray seal; clamshell",
     "productTypesPublished": "Energy and protein bars; popcorn and snacks; baked goods; liquids; confections; shelf-stable meat packing; spices/condiments",
@@ -259,7 +277,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "specialtyfoodresource.com",
+        "label": "Specialty Food Resource listing",
         "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
       }
     ],
@@ -301,7 +319,7 @@ export const IMPORTED_PLANTS = [
       "sauce",
       "dressings-marinades",
       "dips-hummus",
-      "prepared-refrigerated-foods"
+      "soups-broths-entrees"
     ],
     "packaging": "Heat-and-serve pouches 8 oz to 10 lb; cups; retail pouches",
     "productTypesPublished": "Soups; sauces; marinades; dips; spreads; bone broths; stocks; hummus; braised meats; pies",
@@ -342,15 +360,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "atlastgourmetfoods.com",
+        "label": "Services and capabilities",
         "href": "https://www.atlastgourmetfoods.com/products"
       },
       {
-        "label": "atlastgourmetfoods.com",
+        "label": "Solutions",
         "href": "https://www.atlastgourmetfoods.com/solutions"
       },
       {
-        "label": "mda.state.mn.us",
+        "label": "mda.state.mn.us — Minnesota Co Packer Directory",
         "href": "https://www.mda.state.mn.us/minnesota-co-packer-directory"
       }
     ],
@@ -386,7 +404,10 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "bakery",
+      "frozen-foods"
+    ],
     "packaging": "Predeposited frozen formats; freezer-to-oven; scoop-and-bake; mixes; private label coffee cakes and retail thaw-serve",
     "productTypesPublished": "Frozen muffin/cornbread/loaf batters; mixes and bases; thaw-and-serve cupcakes/whoopie shells/coffee cakes; fillings; icings; cookies",
     "manufacturingCapabilitiesPublished": "Bakery manufacturing; private label product development; exclusive formula development for retail/QSR/foodservice; R&D and QC labs",
@@ -419,7 +440,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "bakenjoy.com",
+        "label": "Services and capabilities",
         "href": "https://www.bakenjoy.com/about/manufacturing/"
       }
     ],
@@ -458,7 +479,7 @@ export const IMPORTED_PLANTS = [
     ],
     "categories": [
       "sauce",
-      "prepared-refrigerated-foods"
+      "soups-broths-entrees"
     ],
     "packaging": null,
     "productTypesPublished": "Sauces; soups; grab-and-go meals; meal kits",
@@ -491,11 +512,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "ballyplus.com",
+        "label": "About",
         "href": "https://ballyplus.com/about/"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Texas.php"
       }
     ],
@@ -566,7 +587,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Louisiana.php"
       }
     ],
@@ -635,11 +656,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "beerdudescanning.com",
+        "label": "beerdudescanning.com company overview",
         "href": "https://www.beerdudescanning.com"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Texas.php"
       }
     ],
@@ -684,7 +705,8 @@ export const IMPORTED_PLANTS = [
     "categories": [
       "sauce",
       "dips-hummus",
-      "prepared-refrigerated-foods"
+      "prepared-refrigerated-foods",
+      "soups-broths-entrees"
     ],
     "packaging": null,
     "productTypesPublished": "Fresh soups; sauces; dips; gravies; kettle-cooked refrigerated foods",
@@ -717,11 +739,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "bolderfoods.com",
+        "label": "bolderfoods.com — About Us",
         "href": "https://www.bolderfoods.com/about-us"
       },
       {
-        "label": "docs.google.com",
+        "label": "Published co-packer directory",
         "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
       }
     ],
@@ -756,7 +778,10 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "spices-dry-mixes",
+      "supplements"
+    ],
     "packaging": "Dry food packaging (formats not itemized beyond dry packaging services)",
     "productTypesPublished": "Custom spice blends; herbs and spices; dry mixes (cake/brownie/soup); powdered drink mixes; salt blends; coffee/chocolate/tea blends; cereals and rice mixes; dietary supplements (dry)",
     "manufacturingCapabilitiesPublished": "Spice blending; dry-food co-packing; product scale-up for small local producers",
@@ -793,19 +818,19 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "caspicebasket.com",
+        "label": "Services and capabilities",
         "href": "https://www.caspicebasket.com/co-packing.html"
       },
       {
-        "label": "caspicebasket.com",
+        "label": "Certifications and quality",
         "href": "https://www.caspicebasket.com/safety-quality-certification.html"
       },
       {
-        "label": "caspicebasket.com",
+        "label": "Contact",
         "href": "https://www.caspicebasket.com/contact.html"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-California.php"
       }
     ],
@@ -843,7 +868,8 @@ export const IMPORTED_PLANTS = [
       "sauce"
     ],
     "categories": [
-      "sauce"
+      "sauce",
+      "snacks"
     ],
     "packaging": "Round glass or plastic bottles; 4 oz to 1 gallon",
     "productTypesPublished": "Syrups; sauces; ice cream toppings; similar shelf-stable liquids; popcorn/snacks via related brands",
@@ -873,11 +899,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "koldkiss.com",
+        "label": "koldkiss.com — Co Packing",
         "href": "https://koldkiss.com/pages/co-packing"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Maryland.php"
       }
     ],
@@ -952,7 +978,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "docs.google.com",
+        "label": "Published co-packer directory",
         "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
       }
     ],
@@ -985,19 +1011,17 @@ export const IMPORTED_PLANTS = [
     "locationDisplay": "Sunrise, FL",
     "processes": [],
     "finderProcesses": [],
-    "finderProducts": [
-      "beverage"
-    ],
+    "finderProducts": [],
     "categories": [
-      "functional-beverages"
+      "dry-coffee-tea"
     ],
     "packaging": "Keurig-compatible K-Cups; tea pods; bags; pouches; stick packs; custom lids and retail cartons",
-    "productTypesPublished": "Coffee; tea; functional beverages; mushroom and fortified pods; dry ingredients",
+    "productTypesPublished": "Coffee; tea; functional beverage pods; mushroom and fortified pods; dry ingredients",
     "manufacturingCapabilitiesPublished": "K-Cup / single-serve co-packing; private label; nitrogen-flushed filling; pouch and related dry packing (per site)",
     "rawProductTags": [
       "Coffee",
       "tea",
-      "functional beverages",
+      "functional beverage pods",
       "mushroom and fortified pods",
       "dry ingredients"
     ],
@@ -1021,7 +1045,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "specialtyfoodresource.com",
+        "label": "Specialty Food Resource listing",
         "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
       }
     ],
@@ -1037,7 +1061,7 @@ export const IMPORTED_PLANTS = [
     "qualityNotes": "Own site for Complete CoPack LLC confirms USDA organic K-Cup co-packing in Sunrise FL with published MOQs from about 5,000 pods per SKU.",
     "masterDedupeKey": "complete copack|sunrise|FL",
     "overview": [
-      "Public sources list these products: Coffee; tea; functional beverages; mushroom and fortified pods; dry ingredients.",
+      "Public sources list these products: Coffee; tea; functional beverage pods; mushroom and fortified pods; dry ingredients.",
       "Public sources describe these capabilities: K-Cup / single-serve co-packing; private label; nitrogen-flushed filling; pouch and related dry packing (per site)."
     ],
     "appearedOn": [],
@@ -1061,7 +1085,9 @@ export const IMPORTED_PLANTS = [
     ],
     "categories": [
       "sauce",
-      "prepared-refrigerated-foods"
+      "bakery",
+      "spices-dry-mixes",
+      "soups-broths-entrees"
     ],
     "packaging": "Glass and plastic jars/bottles; pouches; bulk; woozy bottles for hot sauce",
     "productTypesPublished": "Jams; jellies; syrups; nut butters; bakery fillings; BBQ/hot/steak/oriental sauces; soups; dry mixes",
@@ -1096,11 +1122,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "cornabys.com",
+        "label": "Services and capabilities",
         "href": "https://cornabys.com/food-co-packing-services/"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Utah.php"
       }
     ],
@@ -1179,7 +1205,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "cals.cornell.edu",
+        "label": "cals.cornell.edu university source",
         "href": "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
       }
     ],
@@ -1265,11 +1291,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "extension.psu.edu",
+        "label": "extension.psu.edu university source",
         "href": "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
       },
       {
-        "label": "cals.cornell.edu",
+        "label": "cals.cornell.edu university source",
         "href": "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
       }
     ],
@@ -1304,7 +1330,11 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "snacks",
+      "bakery",
+      "spices-dry-mixes"
+    ],
     "packaging": null,
     "productTypesPublished": "Bars and bites; baked goods; granolas; dry mixes; human-grade pet treats (shelf-stable only)",
     "manufacturingCapabilitiesPublished": "Product formulation; commercialization; small-batch commercial production; scale-up partner introductions",
@@ -1336,7 +1366,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Texas.php"
       }
     ],
@@ -1373,7 +1403,10 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "spices-dry-mixes",
+      "supplements"
+    ],
     "packaging": null,
     "productTypesPublished": "Sports nutrition; protein/collagen supplements; dry blends; capsules",
     "manufacturingCapabilitiesPublished": "Blending; encapsulation; filling; packaging; labeling; product development; distribution",
@@ -1410,7 +1443,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "specialtyfoodresource.com",
+        "label": "Specialty Food Resource listing",
         "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
       }
     ],
@@ -1445,7 +1478,10 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "snacks",
+      "bakery"
+    ],
     "packaging": null,
     "productTypesPublished": "Breads; bagels; cookies; granola; grains and seeds; dehydrated fruits; nuts; specialty bakery",
     "manufacturingCapabilitiesPublished": "Bakery co-packing; wholesale production; organic/gluten-free/vegan/pareve specialty baking",
@@ -1481,19 +1517,19 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "delandbakery.com",
+        "label": "Services and capabilities",
         "href": "https://delandbakery.com/bakery-co-packing/"
       },
       {
-        "label": "delandbakery.com",
+        "label": "About",
         "href": "https://delandbakery.com/about/"
       },
       {
-        "label": "delandbakery.com",
+        "label": "Contact",
         "href": "https://delandbakery.com/contact/"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Florida.php"
       }
     ],
@@ -1559,11 +1595,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "jaryoursauce.com",
+        "label": "jaryoursauce.com company overview",
         "href": "https://www.jaryoursauce.com/"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Massachusetts.php"
       }
     ],
@@ -1598,7 +1634,9 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "spices-dry-mixes"
+    ],
     "packaging": "Pouches via VFFS; packs from about 1 oz to 10 lb",
     "productTypesPublished": "Dry meals; spices; pasta; meal kits; cereals; nuts; coffee; tea; Hatch chile mac and grits (own brand plus co-pack)",
     "manufacturingCapabilitiesPublished": "Dry ingredient co-packing; co-branding; private label; ingredient/packaging sourcing; recipe development and cost analysis; blending; branding/package design",
@@ -1634,11 +1672,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "fishskiprovisions.com",
+        "label": "Company overview",
         "href": "https://fishskiprovisions.com/"
       },
       {
-        "label": "fishskiprovisions.com",
+        "label": "Services and capabilities",
         "href": "https://fishskiprovisions.com/pages/co-packing-and-private-label"
       }
     ],
@@ -1677,7 +1715,9 @@ export const IMPORTED_PLANTS = [
       "sauce"
     ],
     "categories": [
-      "sauce"
+      "sauce",
+      "spices-dry-mixes",
+      "fermented-foods"
     ],
     "packaging": "Glass woozy bottles; glass spice jars",
     "productTypesPublished": "Lacto-fermented sauces; fermented vegetables; dehydrated herbs and spices",
@@ -1705,11 +1745,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Colorado.php"
       },
       {
-        "label": "pickyourown.org",
+        "label": "Published co-packer directory PDF",
         "href": "https://www.pickyourown.org/cottagefood/Colorado%20Co%20Pack%20Directory_2019.pdf"
       }
     ],
@@ -1751,7 +1791,9 @@ export const IMPORTED_PLANTS = [
     "categories": [
       "sauce",
       "dips-hummus",
-      "prepared-refrigerated-foods"
+      "spices-dry-mixes",
+      "dairy",
+      "soups-broths-entrees"
     ],
     "packaging": null,
     "productTypesPublished": "Sauces and condiments; dairy dips; jarred acidified soups; dry spice blends; syrups; jams; honey repack",
@@ -1785,11 +1827,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "fuelkitchens.com",
+        "label": "Services and capabilities",
         "href": "https://www.fuelkitchens.com/co-manufacturing"
       },
       {
-        "label": "docs.google.com",
+        "label": "Published co-packer directory",
         "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
       }
     ],
@@ -1827,7 +1869,10 @@ export const IMPORTED_PLANTS = [
     ],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "snacks",
+      "confectionery"
+    ],
     "packaging": "Flexible packaging formats; pouch/pillow-style snack packs (per site capabilities)",
     "productTypesPublished": "Popcorn; roasted nuts; chocolate/non-chocolate panned products; specialty and extruded snacks",
     "manufacturingCapabilitiesPublished": "Contract manufacturing; co-packing; packaging and custom pack-out; labeling; case packing; palletizing",
@@ -1863,7 +1908,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "oregon.gov",
+        "label": "Oregon co-packer locator",
         "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
       }
     ],
@@ -1935,7 +1980,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Colorado.php"
       }
     ],
@@ -2010,11 +2055,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "madwills.com",
+        "label": "Services and capabilities",
         "href": "https://www.madwills.com/co-packing"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-California.php"
       }
     ],
@@ -2079,11 +2124,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "mamavida.com",
+        "label": "Company overview",
         "href": "https://mamavida.com/"
       },
       {
-        "label": "mamavida.com",
+        "label": "About",
         "href": "https://mamavida.com/about/"
       }
     ],
@@ -2118,7 +2163,10 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "spices-dry-mixes",
+      "dry-coffee-tea"
+    ],
     "packaging": "Pyramid tea bags; individually wrapped tea bags; bulk; cased",
     "productTypesPublished": "Loose leaf tea; herbal blends; dry goods packaging",
     "manufacturingCapabilitiesPublished": "Custom co-packing; blending; product development; pyramid tea bags; individually wrapped tea bags; bulk filling; labeling and coding; casing; metal detection",
@@ -2153,11 +2201,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "motovotano.com",
+        "label": "Contact",
         "href": "https://www.motovotano.com/contact-us"
       },
       {
-        "label": "oregon.gov",
+        "label": "Oregon co-packer locator",
         "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
       }
     ],
@@ -2225,11 +2273,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "muirheadcanning.com",
+        "label": "Customcanningandfreezedrying",
         "href": "https://www.muirheadcanning.com/customcanningandfreezedrying"
       },
       {
-        "label": "oregon.gov",
+        "label": "Oregon co-packer locator",
         "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
       }
     ],
@@ -2263,14 +2311,13 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [
-      "sauce",
-      "prepared-rte"
+      "sauce"
     ],
     "categories": [
       "sauce",
       "dressings-marinades",
       "dips-hummus",
-      "prepared-refrigerated-foods"
+      "spices-dry-mixes"
     ],
     "packaging": "Plastic and dry shelf formats (details inquire)",
     "productTypesPublished": "Custom spice blends; dry soup bases; seasonings; BBQ rubs; gravy and salad mixes; dressings/dips/sauces mixes for retail and foodservice",
@@ -2300,11 +2347,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "neuspice.com",
+        "label": "About",
         "href": "https://neuspice.com/about/"
       },
       {
-        "label": "neuspice.com",
+        "label": "Contact",
         "href": "https://neuspice.com/contact/"
       }
     ],
@@ -2343,7 +2390,8 @@ export const IMPORTED_PLANTS = [
     ],
     "categories": [
       "soda",
-      "energy-drink"
+      "energy-drink",
+      "water"
     ],
     "packaging": "Cans (7.5oz, 12oz, 12oz sleek, 16oz); PET bottles 500mL to 2L; multipacks and shrink wrap",
     "productTypesPublished": "Soft drinks; alcoholic beverages; energy drinks; water; carbonated and non-carbonated beverages",
@@ -2377,15 +2425,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "noelcopack.com",
+        "label": "Services and capabilities",
         "href": "https://noelcopack.com/services/"
       },
       {
-        "label": "noelcopack.com",
+        "label": "Facility",
         "href": "https://noelcopack.com/our-facility/"
       },
       {
-        "label": "oregon.gov",
+        "label": "Oregon co-packer locator",
         "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
       }
     ],
@@ -2420,7 +2468,9 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "dry-coffee-tea"
+    ],
     "packaging": "K-Cups; portion packs; custom coffee packaging options",
     "productTypesPublished": "Coffee; K-Cups; portion packs; private label coffee",
     "manufacturingCapabilitiesPublished": "Coffee co-packing; K-Cup filling; portion packs; private label; toll roasting partner options; flexible runs",
@@ -2486,7 +2536,7 @@ export const IMPORTED_PLANTS = [
     "categories": [
       "sauce",
       "dressings-marinades",
-      "prepared-refrigerated-foods"
+      "soups-broths-entrees"
     ],
     "packaging": "Portion cups (3/4 oz to 4 oz); pouches (2 oz to 8 lb); gallons; pails; bag-in-box; drums; totes; retail jars 8-32 oz PET or glass",
     "productTypesPublished": "Mayonnaise; salad dressings; sauces; marinades; soups",
@@ -2524,7 +2574,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "nwgourmetfoods.com",
+        "label": "Contact",
         "href": "https://www.nwgourmetfoods.com/pages/contact"
       }
     ],
@@ -2591,15 +2641,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "oregonfruit.com",
+        "label": "Private Label",
         "href": "https://oregonfruit.com/pages/private-label"
       },
       {
-        "label": "oregonfruit.com",
+        "label": "Industrial",
         "href": "https://oregonfruit.com/pages/industrial"
       },
       {
-        "label": "oregon.gov",
+        "label": "Oregon co-packer locator",
         "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
       }
     ],
@@ -2669,7 +2719,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "oregonhill.com",
+        "label": "Services and capabilities",
         "href": "https://www.oregonhill.com/co-packing"
       }
     ],
@@ -2704,7 +2754,9 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "spices-dry-mixes"
+    ],
     "packaging": "Plastic bottling; sealed bags; foodservice bottles (incl. 32 oz and 159 oz pinch grip); bulk herb/spice packs",
     "productTypesPublished": "Herbs; spices; custom spice blends; foodservice and bulk spice products",
     "manufacturingCapabilitiesPublished": "Custom blending; flavor duplication / R&D; batch pack and co-packing opportunities; automated packaging; private label",
@@ -2733,7 +2785,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "oregonspice.com",
+        "label": "Services and capabilities",
         "href": "https://www.oregonspice.com/services"
       }
     ],
@@ -2774,7 +2826,9 @@ export const IMPORTED_PLANTS = [
       "sauce"
     ],
     "categories": [
-      "sauce"
+      "sauce",
+      "spices-dry-mixes",
+      "fermented-foods"
     ],
     "packaging": "Glass bottles (7 standard bottle options stocked)",
     "productTypesPublished": "Gourmet specialty foods; cocktail products; sauces and specialty fills; fermented foods; baked and dry goods",
@@ -2819,11 +2873,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "ppp-foods.com",
+        "label": "What We Do",
         "href": "https://www.ppp-foods.com/what-we-do"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Connecticut.php"
       }
     ],
@@ -2908,11 +2962,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "drinkprospectors.com",
+        "label": "Private Label",
         "href": "https://www.drinkprospectors.com/private-label"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Michigan.php"
       }
     ],
@@ -2947,7 +3001,9 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "spices-dry-mixes"
+    ],
     "packaging": null,
     "productTypesPublished": "Spices; seasonings; teas; dry free-flowing ingredient blends",
     "manufacturingCapabilitiesPublished": "Dry ingredient blending; co-packing; recipe formulation; private-label packaging",
@@ -2975,15 +3031,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "qualiaprovisions.com",
+        "label": "Company overview",
         "href": "https://qualiaprovisions.com/"
       },
       {
-        "label": "qualiaprovisions.com",
+        "label": "About Us",
         "href": "https://www.qualiaprovisions.com/about-us"
       },
       {
-        "label": "qualiaprovisions.com",
+        "label": "Contact",
         "href": "https://qualiaprovisions.com/contact-us"
       }
     ],
@@ -3072,13 +3128,12 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [
-      "sauce",
-      "prepared-rte"
+      "sauce"
     ],
     "categories": [
       "sauce",
       "dressings-marinades",
-      "prepared-refrigerated-foods"
+      "bakery"
     ],
     "packaging": null,
     "productTypesPublished": "Salad dressings; baked goods (empanadas); meatloaf; ethnic and American ready-to-eat foods; sauces; meat fillings",
@@ -3114,7 +3169,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Colorado.php"
       }
     ],
@@ -3148,7 +3203,9 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "supplements"
+    ],
     "packaging": null,
     "productTypesPublished": "Food; beverage; supplement concepts (formulation through manufacturing readiness)",
     "manufacturingCapabilitiesPublished": "Strategy; product development/formulation; pilot and small-scale manufacturing; commercial ingredient sourcing; manufacturing readiness",
@@ -3178,11 +3235,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "scalefoodlabs.com",
+        "label": "Contact",
         "href": "https://www.scalefoodlabs.com/contact"
       },
       {
-        "label": "docs.google.com",
+        "label": "Published co-packer directory",
         "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
       }
     ],
@@ -3217,7 +3274,10 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "snacks",
+      "confectionery"
+    ],
     "packaging": "Plastic",
     "productTypesPublished": "Beef jerky; meat snacks; popcorn; candy",
     "manufacturingCapabilitiesPublished": "Private label / white label snack program; product development support",
@@ -3243,11 +3303,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "tenderheifersnackco.com",
+        "label": "Services and capabilities",
         "href": "https://tenderheifersnackco.com/services"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-California.php"
       }
     ],
@@ -3287,7 +3347,7 @@ export const IMPORTED_PLANTS = [
     ],
     "categories": [
       "sauce",
-      "prepared-refrigerated-foods"
+      "soups-broths-entrees"
     ],
     "packaging": null,
     "productTypesPublished": "Beverages; sauces; soups; powders and related CPG products",
@@ -3320,15 +3380,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "organicfoodincubator.com",
+        "label": "Services and capabilities",
         "href": "https://organicfoodincubator.com/services"
       },
       {
-        "label": "extension.psu.edu",
+        "label": "extension.psu.edu university source",
         "href": "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
       },
       {
-        "label": "cals.cornell.edu",
+        "label": "cals.cornell.edu university source",
         "href": "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
       }
     ],
@@ -3394,7 +3454,7 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Ohio.php"
       }
     ],
@@ -3438,7 +3498,8 @@ export const IMPORTED_PLANTS = [
       "sauce"
     ],
     "categories": [
-      "salsa"
+      "salsa",
+      "spices-dry-mixes"
     ],
     "packaging": "Bottles; bags; sachets and pouches (per secondary staff descriptions)",
     "productTypesPublished": "Acidified liquids; dry blends; seasonings; salsas and related grocery products",
@@ -3474,15 +3535,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "todds.co",
+        "label": "Certifications and quality",
         "href": "https://www.todds.co/certifications"
       },
       {
-        "label": "toddspremiumfoods.com",
+        "label": "toddspremiumfoods.com company overview",
         "href": "https://toddspremiumfoods.com/"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Iowa.php"
       }
     ],
@@ -3517,7 +3578,11 @@ export const IMPORTED_PLANTS = [
     "processes": [],
     "finderProcesses": [],
     "finderProducts": [],
-    "categories": [],
+    "categories": [
+      "confectionery",
+      "spices-dry-mixes",
+      "dry-coffee-tea"
+    ],
     "packaging": "Sample pouches; spice jars; tea pouches; other dry packaging",
     "productTypesPublished": "Dry blends; flavored sugars; salts; spice blends; tea pouches; organic sugar floss; other dry products",
     "manufacturingCapabilitiesPublished": "Allergen-free dry blending and co-packing; packaging; labeling; distribution; inventory/storage; Amazon and direct drop-ship; small and large runs",
@@ -3592,7 +3657,8 @@ export const IMPORTED_PLANTS = [
     ],
     "categories": [
       "sauce",
-      "dressings-marinades"
+      "dressings-marinades",
+      "bakery"
     ],
     "packaging": "Sachets (4g-350g); bottles (450mL-5L); single-serve cups (1.5oz-6oz); bulk VFFS pouches (up to 33lbs); bag-in-box (1-5 gallon); no glass",
     "productTypesPublished": "Shelf-stable sweet and savory liquids; sauces; syrups; condiments; toppings; beverage bases; coffee and bar syrups; marinades; bakery fillings",
@@ -3633,15 +3699,15 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "triscofoods.com",
+        "label": "Services and capabilities",
         "href": "https://triscofoods.com/usa-capabilities/"
       },
       {
-        "label": "triscofoods.com.au",
+        "label": "triscofoods.com.au — Contract Manufacturing",
         "href": "https://triscofoods.com.au/contract-manufacturing/"
       },
       {
-        "label": "triscofoods.com.au",
+        "label": "triscofoods.com.au company overview",
         "href": "https://triscofoods.com.au/"
       }
     ],
@@ -3716,11 +3782,11 @@ export const IMPORTED_PLANTS = [
     },
     "extraLinks": [
       {
-        "label": "mass.gov",
+        "label": "mass.gov public-agency source",
         "href": "https://www.mass.gov/info-details/co-packer-businesses"
       },
       {
-        "label": "pickyourown.org",
+        "label": "PickYourOwn state co-packer listing",
         "href": "https://www.pickyourown.org/copackers-Massachusetts.php"
       }
     ],

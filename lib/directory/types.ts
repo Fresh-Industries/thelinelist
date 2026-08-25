@@ -10,7 +10,7 @@
  * (`sites.state`, `finderProducts`) are the slice keys.
  */
 
-export const LAST_VERIFIED = "2026-08-21" as const;
+export const LAST_VERIFIED = "2026-08-24" as const;
 
 export type GuideId = "hpp" | "hot-fill" | "retort" | "small-moq" | "sauce";
 
@@ -24,10 +24,14 @@ export type OperationType =
   | "co-packer"
   | "co-manufacturer"
   | "contract-manufacturer"
+  | "contract-packager"
   | "private-label-producer"
+  | "toll-processor"
   | "shared-kitchen-incubator"
   | "brand-with-co-pack"
   | "other";
+
+export type EvidenceField = "products" | "processes" | "packaging" | "minimums" | "certifications";
 
 export type ProcessCapability =
   | "hpp"
@@ -92,6 +96,13 @@ export interface Plant {
   publicEmail?: string | null;
   operationType?: OperationType;
   operationTypePublished?: string | null;
+  /** URLs recorded as evidence for a specific published field. */
+  fieldSourceUrls?: Partial<Record<EvidenceField, string[]>>;
+  /** A current ownership or operating-entity change makes the profile unsuitable for indexing. */
+  needsCurrentOwnershipVerification?: boolean;
+  /** Contact-help submissions are blocked until the operating entity is reverified. */
+  introductionsPaused?: boolean;
+  verificationNotice?: string;
   flags?: string[];
   qualityNotes?: string | null;
   masterDedupeKey?: string;

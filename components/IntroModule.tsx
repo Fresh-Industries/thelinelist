@@ -10,9 +10,9 @@ export function IntroModule({
 }) {
   return (
     <section className="intro-module" id="intro" aria-labelledby="intro-heading">
-      <h2 id="intro-heading">Request an intro</h2>
+      <h2 id="intro-heading">Request contact help</h2>
       <p className="lede">
-        Request an intro to this plant. You pick them. We introduce you. No commission.
+        Request help contacting this manufacturer. The Line List reviews the request and follows up by email; we do not promise a direct relationship or a response.
       </p>
       <p>
         Bring written specs (ingredients by weight when you can), pack and label notes, an honest

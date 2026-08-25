@@ -129,7 +129,7 @@ function findMemoryDuplicate(fingerprint: string, withinMs: number): LeadRecord 
 }
 
 async function notifyOwner(record: LeadRecord, via: string): Promise<NotifyResult> {
-  const kindLabel = record.kind === "intro" ? "Introduction request" : "Profile claim";
+  const kindLabel = record.kind === "intro" ? "Contact-help request" : "Profile claim";
   const replyTo = [record.payload.email, record.payload.workEmail].find(
     (value): value is string => typeof value === "string" && value.length > 0,
   );
@@ -148,7 +148,7 @@ function notifyError(result: NotifyResult): string {
 
 function formatLeadText(record: LeadRecord, via: string): string {
   const lines = [
-    `${record.kind === "intro" ? "Introduction request" : "Profile claim"} submitted for review.`,
+    `${record.kind === "intro" ? "Contact-help request" : "Profile claim"} submitted for review.`,
     `Do not treat this as an intro already sent. Review first.`,
     "",
     `Manufacturer: ${record.manufacturerName} (${record.manufacturerSlug})`,

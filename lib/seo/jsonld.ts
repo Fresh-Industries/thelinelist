@@ -93,12 +93,14 @@ export function articleJsonLd({
   description,
   path,
   image,
+  datePublished,
   dateModified,
 }: {
   headline: string;
   description: string;
   path: string;
   image: string;
+  datePublished: string;
   dateModified: string;
 }) {
   return {
@@ -106,6 +108,7 @@ export function articleJsonLd({
     "@type": "Article",
     headline,
     description,
+    datePublished,
     dateModified,
     mainEntityOfPage: absoluteUrl(path),
     image: absoluteUrl(image),
@@ -126,20 +129,29 @@ export function faqPageJsonLd(items: { question: string; answer: string }[]) {
   };
 }
 
-export function plantOrganizationJsonLd(plant: Plant) {
+export function plantProfileJsonLd(plant: Plant) {
+  const profileUrl = absoluteUrl(`/manufacturers/${plant.slug}`);
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: plant.name,
-    url: plant.website.href,
-    ...(plant.phone ? { telephone: plant.phone } : {}),
-    ...(plant.publicEmail ? { email: plant.publicEmail } : {}),
-    ...(plant.productTypesPublished ? { description: plant.productTypesPublished } : {}),
-    address: plant.sites.map((site) => ({
-      "@type": "PostalAddress",
-      addressLocality: site.city ?? undefined,
-      addressRegion: site.state,
-      addressCountry: "US",
-    })),
+    "@type": "ProfilePage",
+    name: `${plant.name} manufacturer profile`,
+    url: profileUrl,
+    dateModified: plant.lastVerified,
+    mainEntity: {
+      "@type": "Organization",
+      "@id": `${profileUrl}#manufacturer`,
+      name: plant.name,
+      url: profileUrl,
+      sameAs: [plant.website.href],
+      ...(!plant.needsCurrentOwnershipVerification && plant.phone ? { telephone: plant.phone } : {}),
+      ...(!plant.needsCurrentOwnershipVerification && plant.publicEmail ? { email: plant.publicEmail } : {}),
+      ...(plant.productTypesPublished ? { description: plant.productTypesPublished } : {}),
+      address: plant.sites.map((site) => ({
+        "@type": "PostalAddress",
+        addressLocality: site.city ?? undefined,
+        addressRegion: site.state,
+        addressCountry: "US",
+      })),
+    },
   };
 }

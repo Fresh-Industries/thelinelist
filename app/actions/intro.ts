@@ -81,6 +81,12 @@ export async function submitIntro(
       message: "We could not send that. Try again or write hello@thelinelist.com.",
     };
   }
+  if (plant.introductionsPaused) {
+    return {
+      status: "error",
+      message: "Contact help is paused while this manufacturer’s current ownership and operating details are verified.",
+    };
+  }
 
   const context = await getRequestContext();
   const bot = botRejected({

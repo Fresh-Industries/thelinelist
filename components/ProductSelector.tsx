@@ -2,15 +2,16 @@
 
 import { track } from "@/lib/analytics/client";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
-import { PRODUCT_CATEGORIES } from "@/lib/directory/categories";
-import Image from "next/image";
+import { PRODUCT_CATEGORIES, PRODUCT_MACRO_GROUPS, type ProductCategorySlug } from "@/lib/directory/categories";
 import Link from "next/link";
 
-function categoryImage(slug: string): string {
-  return `/images/clay-v2/products/${slug}.webp`;
-}
+export function ProductSelector({ visibleCategories }: { visibleCategories: ProductCategorySlug[] }) {
+  const visible = new Set(visibleCategories);
+  const groups = PRODUCT_MACRO_GROUPS.flatMap((group) => {
+    const categories = PRODUCT_CATEGORIES.filter((category) => category.group === group.slug && visible.has(category.slug));
+    return categories.length > 0 ? [{ ...group, categories }] : [];
+  });
 
-export function ProductSelector() {
   return (
     <section className="product-selector wrap" aria-labelledby="product-selector-heading">
       <div className="product-selector-head">
@@ -18,51 +19,37 @@ export function ProductSelector() {
         <h2 id="product-selector-heading">What do you want to make?</h2>
         <p>Choose the closest option. You can always change it later.</p>
       </div>
-      <ul className="product-choice-grid">
-        {PRODUCT_CATEGORIES.map((category, index) => (
-          <li key={category.slug}>
-            <Link
-              href={`/find-manufacturers/${category.slug}`}
-              className={`product-choice product-choice-tone-${(index % 4) + 1}`}
-              aria-label={`Explore ${category.label} manufacturers`}
-              onClick={() => track(ANALYTICS_EVENTS.product_selected, { product: category.slug, source: "home" })}
-            >
-              <span className="product-choice-corner" aria-hidden="true">↗</span>
-              <span className="product-choice-art" aria-hidden="true">
-                <Image
-                  src={categoryImage(category.slug)}
-                  alt=""
-                  width={640}
-                  height={640}
-                  sizes="(max-width: 620px) 48vw, (max-width: 1000px) 30vw, 18vw"
-                  unoptimized
-                />
-              </span>
-              <strong>{category.label}</strong>
-              <span className="product-choice-action">Explore <span aria-hidden="true">→</span></span>
-            </Link>
+      <ul className="macro-category-grid">
+        {groups.map((group, index) => (
+          <li key={group.slug} className={`macro-category-card macro-category-tone-${(index % 4) + 1}`}>
+            <div className="macro-category-heading">
+              <span aria-hidden="true">0{index + 1}</span>
+              <div><h3>{group.label}</h3><p>{group.description}</p></div>
+            </div>
+            <ul className="macro-category-links">
+              {group.categories.map((category) => (
+                <li key={category.slug}>
+                  <Link
+                    href={`/find-manufacturers/${category.slug}`}
+                    onClick={() => track(ANALYTICS_EVENTS.product_selected, { product: category.slug, source: "home" })}
+                  >
+                    {category.label} <span aria-hidden="true">→</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </li>
         ))}
-        <li>
+        <li className="macro-category-card macro-category-unsure">
           <Link
             href="/find-manufacturers/wizard"
-            className="product-choice product-choice-unsure"
+            className="macro-unsure-link"
             aria-label="Take the 60-second product matching quiz"
             onClick={() => track(ANALYTICS_EVENTS.product_selected, { product: "unsure", source: "home" })}
           >
-            <span className="product-choice-corner" aria-hidden="true">↗</span>
-            <span className="product-choice-art product-choice-art-unsure" aria-hidden="true">
-              <Image
-                src="/images/clay-v2/support/question-mark.webp"
-                alt=""
-                width={640}
-                height={640}
-                sizes="(max-width: 620px) 45vw, 12vw"
-              />
-            </span>
-            <strong>Not sure yet?</strong>
-            <span className="product-choice-description">Answer a few quick questions and we’ll point you in the right direction.</span>
-            <span className="product-choice-action">Take the 60-second quiz <span aria-hidden="true">→</span></span>
+            <span className="macro-unsure-mark" aria-hidden="true">?</span>
+            <span><strong>Not sure yet?</strong><small>Answer a few quick questions and see possible matches.</small></span>
+            <span aria-hidden="true">→</span>
           </Link>
         </li>
       </ul>

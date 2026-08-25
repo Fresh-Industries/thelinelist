@@ -72,7 +72,7 @@ export default function HppGuidePage() {
           </ol>
           <h2 id="request-intro">Request intro</h2>
           <p>
-            Fresh Industries can <strong>request an intro</strong> to a plant in the table that matches your process, pack, and region. Open the company page and use Request an intro there. This is not an instant AI match and not an RFQ black box. You still send the brief. We do not broker commission on the run.
+            If a plant in the table matches your process, pack, and region, open its profile and request contact help. The Line List reviews the request and follows up by email; it does not promise a direct relationship or a response. This is not an instant AI match or an RFQ blast.
           </p>
           <p>
             If your SKU is hot-fill, retort, or aseptic instead, do not force it onto this list. Use a{" "}

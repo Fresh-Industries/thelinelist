@@ -22,7 +22,7 @@ const STEPS = [
   {
     n: "4",
     title: "Decide who to contact",
-    body: "Open the full profiles and ask for an introduction only when you are ready.",
+    body: "Open a profile when you are ready to view public contact details or request help reaching the manufacturer.",
     icon: "contact",
   },
 ] as const;
@@ -48,11 +48,11 @@ export function HowItWorks() {
     <section id="how-it-works" className="how" aria-labelledby="how-heading">
       <div className="how-heading">
         <div>
-          <p className="kicker">From idea to introduction</p>
+          <p className="kicker">From idea to outreach</p>
           <h2 id="how-heading">Four clear steps. No manufacturing degree required.</h2>
         </div>
         <p>
-          Start with the decision in front of you. We introduce process terms only when they help
+          Start with the decision in front of you. We explain process terms only when they help
           you compare plants or prepare a useful question.
         </p>
       </div>
@@ -71,7 +71,7 @@ export function HowItWorks() {
           Find my manufacturer
           <span aria-hidden="true"> →</span>
         </FindManufacturerCta>
-        <p>Useful results first. Contact details only when you ask for an introduction.</p>
+        <p>Preview possible matches, then open a profile when you’re ready to view public contact details.</p>
       </div>
     </section>
   );

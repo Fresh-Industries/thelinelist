@@ -42,7 +42,7 @@ export default function HotFillGuidePage() {
           </div>
           <nav className="jump" aria-label="On this page">
             <a href="#hot-fill-co-packers">Hot fill co-packers</a>
-            <a href="#request-an-intro">Request an intro</a>
+            <a href="#request-contact-help">Request contact help</a>
             <a href="#textbook">Textbook</a>
           </nav>
 
@@ -65,7 +65,7 @@ export default function HotFillGuidePage() {
             Published minimums are not comparable units. InnoMark quotes <strong>liters</strong>, Creative Foodworks <strong>gallons per batch</strong>, Big Brands <strong>units per SKU</strong>, Yoshida a <strong>gallons-per-day annual screen</strong>, Paradise a <strong>typical project start</strong>. Convert before you rank plants. If MOQ is unpublished, assume nothing.
           </p>
 
-          <h2 id="process-decision-before-you-request-an-intro">Process decision (before you request an intro)</h2>
+          <h2 id="process-decision-before-you-request-contact-help">Process decision (before you request contact help)</h2>
           <div className="table-wrap">
             <table>
               <thead>
@@ -118,9 +118,9 @@ export default function HotFillGuidePage() {
           </div>
           <p className="table-hint">On a small screen, scroll the table sideways — cells are not smashed.</p>
 
-          <h2 id="request-an-intro">Request an intro</h2>
+          <h2 id="request-contact-help">Request contact help</h2>
           <p>
-            If a plant in the table fits pH, format, and published minimum, we can <strong>introduce you</strong>. That is a named intro to a plant you already picked, not an AI match, not a blind RFQ blast, and not a guarantee they will take the SKU.
+            If a plant in the table fits pH, format, and published minimum, open its profile and request contact help. The Line List reviews the request and follows up by email; it does not promise a direct relationship, a response, or that the manufacturer will take the SKU.
           </p>
           <p>
             See the <Link href="/find-manufacturers?process=hot-fill">hot-fill directory cards</Link> for the same plants.

@@ -1,4 +1,4 @@
-import { DIRECTORY_PAGE_SIZE, getDirectoryPlants, LAST_VERIFIED, PRODUCT_CATEGORIES } from "@/lib/directory";
+import { DIRECTORY_PAGE_SIZE, getDirectoryPlants, getIndexableProductCategories, isPlantIndexable, LAST_VERIFIED } from "@/lib/directory";
 import { CORNERSTONE_GUIDES } from "@/lib/guides/cornerstones";
 import { absoluteUrl } from "@/lib/site";
 import type { MetadataRoute } from "next";
@@ -29,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: LAST_VERIFIED,
       changeFrequency: "weekly" as const,
     })),
-    ...PRODUCT_CATEGORIES.map((category) => ({
+    ...getIndexableProductCategories().map((category) => ({
       url: absoluteUrl(`/find-manufacturers/${category.slug}`),
       lastModified: LAST_VERIFIED,
       changeFrequency: "weekly" as const,
@@ -44,10 +44,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: LAST_VERIFIED,
       changeFrequency: "monthly" as const,
     })),
-    ...getDirectoryPlants().map((plant) => ({
+    ...getDirectoryPlants().flatMap((plant) => isPlantIndexable(plant) ? [{
       url: absoluteUrl(`/manufacturers/${plant.slug}`),
       lastModified: plant.lastVerified,
       changeFrequency: "weekly" as const,
-    })),
+    }] : []),
   ];
 }

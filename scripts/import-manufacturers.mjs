@@ -45,13 +45,24 @@ const categoryRules = [
   ["cold-pressed-juice", /\bcold[- ]pressed juices?\b/i],
   ["juice", /\b(juices?|lemonades?|smoothies?|juice shots?)\b/i],
   ["rtd-coffee-tea", /\b(RTD|ready[- ]to[- ]drink|cold[- ]brew)\b.*\b(coffee|tea)\b|\b(coffee|tea)\b.*\b(RTD|ready[- ]to[- ]drink|beverages?)\b/i],
-  ["water", /\b(bottled|packaged|sparkling|still) waters?\b/i],
+  ["water", /\b(?:bottled|packaged|sparkling|still|spring|mineral) waters?\b|^waters?$/i],
   ["hot-sauce", /\bhot sauces?\b/i],
   ["sauce", /\b(sauces?|condiments?|BBQ|barbecue|mustards?|ketchup|syrups?)\b/i],
   ["salsa", /\bsalsas?\b/i],
   ["dressings-marinades", /\b(dressings?|marinades?|vinaigrettes?)\b/i],
   ["dips-hummus", /\b(dips?|hummus)\b/i],
-  ["prepared-refrigerated-foods", /\b(prepared foods?|refrigerated foods?|prepared meals?|refrigerated meals?|soups?|salads?|prepared sides?|grav(?:y|ies)|baby food)\b/i],
+  ["snacks", /\b(snacks?|popcorn|bars? and bites?|jerky|meat snacks?|roasted nuts?|granolas?|extruded snacks?)\b/i],
+  ["bakery", /\b(bakery|baked goods?|breads?|bagels?|cookies?|batters?|cupcakes?|coffee cakes?|(?:bakery|pastry|pie) fillings?|icings?)\b/i],
+  ["confectionery", /\b(candy|confections?|panned products?|sugar floss)\b/i],
+  ["spices-dry-mixes", /\b(spices?|seasonings?|dry (?:mixes?|blends?|goods|(?:soup )?bases?)|powdered (?:drink )?mixes?|powdered bases?|rubs?|salts?)\b/i],
+  ["supplements", /\b(dietary supplements?|sports nutrition|protein(?:\/collagen)? supplements?|capsules?|supplement concepts?)\b/i],
+  ["dry-coffee-tea", /\b(K-Cups?|coffee pods?|tea pods?|functional beverage pods?|loose leaf tea|private label coffee|tea pouches?)\b/i],
+  ["dairy", /(?<!non[- ])\b(dairy|milk|butter|sour cream|cottage cheese|ice cream mix)\b/i],
+  ["frozen-foods", /\bfrozen\b/i],
+  ["prepared-refrigerated-foods", /\b(refrigerated foods?|refrigerated meals?|refrigerated prepared foods?|fresh refrigerated)\b/i],
+  ["shelf-stable-meals", /\b(shelf[- ]stable (?:RTE|ready[- ]to[- ]eat|meals?|foods?|sides?)|retort foods?)\b/i],
+  ["soups-broths-entrees", /\b(soups?|broths?|stews?|chilis?|entr[eé]es?)\b/i],
+  ["fermented-foods", /(?<!un)\b(?:lacto[- ])?fermented foods?\b|\blacto[- ]fermented\b/i],
 ];
 
 const processRules = [
@@ -79,8 +90,10 @@ const finderProductByCategory = {
   sauce: "sauce",
   salsa: "sauce",
   "dressings-marinades": "sauce",
-  "dips-hummus": "prepared-rte",
+  "dips-hummus": "sauce",
   "prepared-refrigerated-foods": "prepared-rte",
+  "shelf-stable-meals": "prepared-rte",
+  "soups-broths-entrees": "prepared-rte",
 };
 
 function parseCsv(value) {
@@ -121,9 +134,12 @@ function parseCsv(value) {
   }
 
   const headers = rows[0]?.map((header) => header.replace(/^\uFEFF/, "")) ?? [];
-  return rows.slice(1).filter((values) => values.some(Boolean)).map((values) => (
-    Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""]))
-  ));
+  return rows.slice(1).filter((values) => values.some(Boolean)).map((values, rowIndex) => {
+    if (values.length !== headers.length) {
+      throw new Error(`CSV row ${rowIndex + 2} has ${values.length} fields; expected ${headers.length}. Quote values that contain commas.`);
+    }
+    return Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""]));
+  });
 }
 
 function splitList(value) {
@@ -161,9 +177,33 @@ function slugify(value) {
   return normalizeWords(value).replace(/\s+/g, "-");
 }
 
-function sourceLabel(url, index) {
+function sourceLabel(url, index, websiteDomain) {
   const domain = normalizedDomain(url);
-  if (domain) return domain;
+  const pathname = (() => {
+    try { return new URL(url).pathname.toLowerCase(); } catch { return ""; }
+  })();
+  if (domain === websiteDomain) {
+    if (/cert|quality|compliance/.test(pathname)) return "Certifications and quality";
+    if (/facilit|plant|location/.test(pathname)) return "Facility";
+    if (/service|capabilit|co-pack|manufactur|product/.test(pathname)) return "Services and capabilities";
+    if (/contact/.test(pathname)) return "Contact";
+    const pageName = decodeURIComponent(pathname).split("/").filter(Boolean).at(-1);
+    if (pageName) return pageName.replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+    return "Company overview";
+  }
+  if (domain === "businesswire.com") return "Ownership change announcement";
+  if (domain === "oregon.gov") return "Oregon co-packer locator";
+  if (domain === "specialtyfoodresource.com") return "Specialty Food Resource listing";
+  if (domain === "docs.google.com") return "Published co-packer directory";
+  if (domain === "pickyourown.org" && /\.pdf$/.test(pathname)) return "Published co-packer directory PDF";
+  if (domain === "pickyourown.org" && /copackers-/.test(pathname)) return "PickYourOwn state co-packer listing";
+  if (/\.gov$/.test(domain)) return `${domain} public-agency source`;
+  if (/\.edu$/.test(domain)) return `${domain} university source`;
+  if (domain) {
+    const pageName = decodeURIComponent(pathname).split("/").filter(Boolean).at(-1);
+    if (pageName) return `${domain} — ${pageName.replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase())}`;
+    return `${domain} company overview`;
+  }
   return `Public source ${index + 1}`;
 }
 
@@ -171,7 +211,9 @@ function mapCategories(row) {
   const disclosedProducts = splitList(row.product_types);
   return categoryRules
     .filter(([category, pattern]) => disclosedProducts.some((product) => {
-      if (category === "prepared-refrigerated-foods" && /\b(dry|powder(?:ed)?)\b/i.test(product)) return false;
+      if (category === "functional-beverages" && /\b(pods?|K-Cups?|dry|powder(?:ed)?)\b/i.test(product)) return false;
+      if (category === "soups-broths-entrees" && /\b(dry|powder(?:ed)?|mix(?:es)?|bases?)\b/i.test(product)) return false;
+      if (category === "dairy" && /\b(?:fruit|nut|seed|peanut|almond|cashew|sunflower|apple|pumpkin) butters?\b/i.test(product)) return false;
       return pattern.test(product);
     }))
     .map(([category]) => category);
@@ -191,9 +233,10 @@ function validateTaxonomyMappings() {
   assert.deepEqual(categoriesFor("RTD coffee"), ["rtd-coffee-tea"]);
   assert.deepEqual(categoriesFor("energy beverages"), ["energy-drink"]);
   assert.deepEqual(categoriesFor("cold pressed juice"), ["cold-pressed-juice", "juice"]);
-  assert.deepEqual(categoriesFor("tea pods"), []);
-  assert.deepEqual(categoriesFor("bakery products"), []);
-  assert.deepEqual(categoriesFor("dry mixes (cake/brownie/soup); powdered drink mixes"), []);
+  assert.deepEqual(categoriesFor("tea pods"), ["dry-coffee-tea"]);
+  assert.deepEqual(categoriesFor("bakery products"), ["bakery"]);
+  assert.deepEqual(categoriesFor("dry mixes (cake/brownie/soup); powdered drink mixes"), ["spices-dry-mixes"]);
+  assert.deepEqual(categoriesFor("functional beverage pods"), ["dry-coffee-tea"]);
 
   const processesFor = (manufacturing_capabilities) => mapProcesses({ manufacturing_capabilities });
   assert.deepEqual(processesFor("Acidified; hot fill; HPP; retort; cold fill"), ["hpp", "hot-fill", "retort", "cold-fill", "acidified"]);
@@ -205,6 +248,8 @@ function normalizeOperationType(value) {
   if (/shared kitchen|incubator/.test(normalized)) return "shared-kitchen-incubator";
   if (/brand with co pack/.test(normalized)) return "brand-with-co-pack";
   if (/private label producer/.test(normalized)) return "private-label-producer";
+  if (/toll processor|toll processing|tolling/.test(normalized)) return "toll-processor";
+  if (/contract packager|contract packaging/.test(normalized)) return "contract-packager";
   if (/co manufacturer/.test(normalized)) return "co-manufacturer";
   if (/contract manufacturer/.test(normalized)) return "contract-manufacturer";
   if (/co packer/.test(normalized)) return "co-packer";
@@ -334,12 +379,14 @@ function toPlant(row, usedSlugs) {
 
   const categories = mapCategories(row);
   const processes = mapProcesses(row);
-  const finderProducts = [...new Set(categories.map((category) => finderProductByCategory[category]))];
+  const finderProducts = [...new Set(categories.flatMap((category) => (
+    finderProductByCategory[category] ? [finderProductByCategory[category]] : []
+  )))];
   const sourceUrls = splitList(row.source_urls);
   const websiteDomain = normalizedDomain(row.website);
   const extraLinks = sourceUrls
     .filter((url) => normalizedDomain(url) !== websiteDomain || url !== row.website)
-    .map((url, index) => ({ label: sourceLabel(url, index), href: url }));
+    .map((url, index) => ({ label: sourceLabel(url, index, websiteDomain), href: url }));
   const rawCapabilities = splitList(row.manufacturing_capabilities);
   const moqDisplay = polishMoqDisplay(row.moq);
   const overview = [
@@ -373,6 +420,11 @@ function toPlant(row, usedSlugs) {
     publicEmail: row.public_email || null,
     operationType: normalizeOperationType(row.operation_type),
     operationTypePublished: row.operation_type || null,
+    needsCurrentOwnershipVerification: splitList(row.flags).includes("needs_current_ownership_verification") || undefined,
+    introductionsPaused: splitList(row.flags).includes("introductions_paused") || undefined,
+    verificationNotice: splitList(row.flags).includes("needs_current_ownership_verification")
+      ? "Current ownership or operating details need verification. Contact help is paused until the active operating entity, capabilities, and public contact details are confirmed."
+      : undefined,
     flags: splitList(row.flags),
     qualityNotes: row.quality_notes || null,
     masterDedupeKey: row.master_dedupe_key,
@@ -458,7 +510,7 @@ function generate() {
   const taxonomyGaps = [...new Set(plants.filter((plant) => plant.categories.length === 0).flatMap((plant) => plant.rawProductTags))].sort();
   const states = [...new Set(plants.flatMap((plant) => plant.sites.map((site) => site.state)))].sort();
   const report = {
-    generatedAt: "2026-08-23",
+    generatedAt: selectedRows.map((row) => row.last_checked_date.slice(0, 10)).sort().at(-1),
     sourceFiles: readdirSync(INPUT_DIRECTORY).filter((file) => file.endsWith(".csv")).sort(),
     sourceRows: rows.length,
     safeRows: rows.filter((row) => SAFE_STATUSES.has(row.status)).length,

@@ -179,7 +179,7 @@ export function IntroForm({
         Step {step} of 3: {STEP_LABELS[step - 1]}
       </p>
 
-      <ol className="form-stepper" aria-label="Introduction request progress">
+      <ol className="form-stepper" aria-label="Contact-help request progress">
         {STEP_LABELS.map((label, index) => (
           <li key={label} className={step === index + 1 ? "is-current" : step > index + 1 ? "is-done" : ""}>
             <span>{index + 1}</span>{label}
@@ -280,7 +280,7 @@ export function IntroForm({
         {step < 3 ? (
           <button key={`continue-${step}`} className="btn btn-gold" type="button" onClick={next}>Continue</button>
         ) : (
-          <button key="submit-introduction" className="btn btn-gold" type="submit" disabled={pending}>{pending ? "Sending…" : "Request introduction"}</button>
+          <button key="submit-introduction" className="btn btn-gold" type="submit" disabled={pending}>{pending ? "Sending…" : "Request contact help"}</button>
         )}
       </div>
       <p className="form-aside">The manufacturer will confirm line availability, current minimums, and technical fit.</p>

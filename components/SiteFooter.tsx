@@ -9,11 +9,10 @@ export function SiteFooter() {
         <div>
           <Image
             className="footer-logo"
-            src="/brand/line-list-logo.png"
+            src="/brand/line-list-logo.webp"
             alt="The Line List"
-            width={1345}
-            height={662}
-            unoptimized
+            width={640}
+            height={315}
           />
           <p>
             A Fresh Industries project. Find food and beverage manufacturers and learn how to

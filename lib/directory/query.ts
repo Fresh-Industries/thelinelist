@@ -1,7 +1,7 @@
 import "./assert";
 import { STATE_NAMES } from "./labels";
 import { DIRECTORY_PLANTS } from "./plants";
-import { isProductCategorySlug, plantMatchesCategory } from "./categories";
+import { PRODUCT_CATEGORIES, isProductCategorySlug, plantMatchesCategory } from "./categories";
 import type {
   CertificationFilter,
   DirectoryQuery,
@@ -16,7 +16,7 @@ import type {
 } from "./types";
 import { hasPackagingFormat } from "./packaging";
 
-export const DIRECTORY_PAGE_SIZE = 30;
+export const DIRECTORY_PAGE_SIZE = 18;
 
 /**
  * Access layer for the public directory.
@@ -41,6 +41,16 @@ export function getPlantBySlug(slug: string): Plant | undefined {
 
 export function getPlantSlugs(): string[] {
   return DIRECTORY_PLANTS.map((plant) => plant.slug);
+}
+
+export function isPlantIndexable(plant: Plant): boolean {
+  return !plant.needsCurrentOwnershipVerification;
+}
+
+export function getIndexableProductCategories() {
+  return PRODUCT_CATEGORIES.filter((category) => (
+    DIRECTORY_PLANTS.some((plant) => isPlantIndexable(plant) && plantMatchesCategory(plant, category.slug))
+  ));
 }
 
 export function plantsForGuide(guide: GuideId): Plant[] {
@@ -227,8 +237,8 @@ function readCertification(value: string | undefined): CertificationFilter | und
 
 function readOperationType(value: string | undefined): OperationType | undefined {
   switch (value) {
-    case "co-packer": case "co-manufacturer": case "contract-manufacturer":
-    case "private-label-producer": case "shared-kitchen-incubator":
+    case "co-packer": case "co-manufacturer": case "contract-manufacturer": case "contract-packager":
+    case "private-label-producer": case "toll-processor": case "shared-kitchen-incubator":
     case "brand-with-co-pack": case "other": return value;
     default: return undefined;
   }

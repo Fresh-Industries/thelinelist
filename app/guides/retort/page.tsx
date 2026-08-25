@@ -42,7 +42,7 @@ export default function RetortGuidePage() {
           </div>
           <nav className="jump" aria-label="On this page">
             <a href="#retort-co-packers">Retort co-packers</a>
-            <a href="#request-an-intro">Request an intro</a>
+            <a href="#request-contact-help">Request contact help</a>
             <a href="#textbook">Textbook</a>
           </nav>
 
@@ -65,7 +65,7 @@ export default function RetortGuidePage() {
             Published minimums are not comparable units. Big Brands quotes <strong>100k units/SKU</strong> on the retort page only. Select Brands publishes a <strong>run range</strong> (10k–100k+ pouches), not a floor. If MOQ is unpublished, assume nothing. Walker’s “large or small” is not a number.
           </p>
 
-          <h2 id="process-decision-before-you-request-an-intro">Process decision (before you request an intro)</h2>
+          <h2 id="process-decision-before-you-request-contact-help">Process decision (before you request contact help)</h2>
           <div className="table-wrap">
             <table>
               <thead>
@@ -106,9 +106,9 @@ export default function RetortGuidePage() {
           </div>
           <p className="table-hint">On a small screen, scroll the table sideways — cells are not smashed.</p>
 
-          <h2 id="request-an-intro">Request an intro</h2>
+          <h2 id="request-contact-help">Request contact help</h2>
           <p>
-            If a plant in the table fits pH, format, and published minimum, we can <strong>introduce you</strong>. A named intro, not an AI match. See the{" "}
+            If a plant in the table fits pH, format, and published minimum, open its profile and request contact help. The Line List reviews the request and follows up by email; it does not promise a direct relationship or a response. See the{" "}
             <Link href="/find-manufacturers?process=retort">retort directory cards</Link>.
           </p>
 

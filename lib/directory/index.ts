@@ -16,12 +16,14 @@ export type {
 } from "./types";
 export {
   PRODUCT_CATEGORIES,
+  PRODUCT_MACRO_GROUPS,
   CATEGORY_HUB_CONTENT,
   getProductCategory,
   isProductCategorySlug,
   plantMatchesCategory,
   categoryFaqs,
   type ProductCategorySlug,
+  type ProductMacroSlug,
 } from "./categories";
 export { categorySnapshot, comparableMoq, type CategorySnapshot } from "./snapshot";
 export { LAST_VERIFIED } from "./types";
@@ -45,7 +47,9 @@ export {
   getDirectoryPlants,
   getPlantBySlug,
   getPlantSlugs,
+  getIndexableProductCategories,
   getVerifiedPlants,
+  isPlantIndexable,
   matchesQuery,
   parseDirectoryQuery,
   paginatePlants,

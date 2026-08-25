@@ -34,12 +34,11 @@ export function SiteHeader({ current }: { current?: string }) {
         <Link className="wordmark" href="/" aria-current={current === "/" ? "page" : undefined}>
           <Image
             className="brand-logo"
-            src="/brand/line-list-logo.png"
+            src="/brand/line-list-logo.webp"
             alt="The Line List"
-            width={1345}
-            height={662}
+            width={640}
+            height={315}
             priority
-            unoptimized
           />
         </Link>
         <details className="nav-menu">
