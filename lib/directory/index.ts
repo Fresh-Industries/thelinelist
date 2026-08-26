@@ -1,6 +1,7 @@
 export type {
   DirectoryQuery,
   DirectorySort,
+  VerificationDateFilter,
   FinderProcess,
   FinderProduct,
   PackagingFilter,
@@ -27,6 +28,14 @@ export {
 } from "./categories";
 export { categorySnapshot, comparableMoq, type CategorySnapshot } from "./snapshot";
 export { LAST_VERIFIED } from "./types";
+export {
+  certificationCardClaims,
+  certificationClaimCount,
+  claimSourceLabel,
+  classifyCertificationClaims,
+  matchesCertificationClaim,
+  type CertificationGroups,
+} from "./certifications";
 export {
   PROCESS_HINTS,
   PROCESS_OPTIONS,

@@ -10,12 +10,13 @@ import {
 } from "@/lib/directory";
 import { comparableMoq, categorySnapshot } from "@/lib/directory/snapshot";
 import type { Plant } from "@/lib/directory/types";
+import { certificationCardClaims, claimSourceLabel, classifyCertificationClaims } from "@/lib/directory/certifications";
 import { describe, expect, it } from "vitest";
 
 describe("directory trust and pagination", () => {
   it("keeps the dry-only California Spice Basket out of prepared refrigerated foods", () => {
     expect(filterPlants({ category: "prepared-refrigerated-foods" }).map((plant) => plant.slug))
-      .toEqual(["boulder-organic-foods-bolder-foods"]);
+      .toEqual(["boulder-organic-foods-bolder-foods", "portland-plant-foods"]);
   });
 
   it("keeps dry beverage pods separate from bottled wellness drinks", () => {
@@ -107,6 +108,35 @@ describe("directory trust and pagination", () => {
     expect(alpenrose?.verificationNotice).not.toMatch(/Clackamas|April 2026/);
   });
 
+  it("keeps directory-reported LISTABLE profiles out of indexable surfaces", () => {
+    const listable = filterPlants({}).find((plant) => plant.listingStatus === "LISTABLE");
+    expect(listable).toBeDefined();
+    expect(isPlantIndexable(listable!)).toBe(false);
+  });
+
+  it("separates regulatory, safety-system, third-party, and product certification claims", () => {
+    const groups = classifyCertificationClaims(["FDA approved", "HACCP", "HACCP training", "SQF Level 2", "SQF Level 3 HACCP", "Organic (Oregon Tilth)", "Nut-free facility", "third-party audited"]);
+    expect(groups.regulatoryStatus.join(" ")).not.toMatch(/FDA approved/i);
+    expect(groups.regulatoryStatus.join(" ")).toMatch(/confirm current registration or inspection scope/i);
+    expect(groups.foodSafetySystems).toEqual(["HACCP", "HACCP training"]);
+    expect(groups.thirdPartyCertifications).toEqual(["SQF Level 2", "SQF Level 3"]);
+    expect(groups.productFacilityCertifications).toEqual(["Organic (Oregon Tilth)"]);
+    expect(groups.facilityClaims).toEqual(["Nut-free facility"]);
+    expect(groups.otherPublishedClaims).toEqual(["third-party audited"]);
+  });
+
+  it("shows USDA Organic once and does not mislabel it as regulatory status", () => {
+    const groups = classifyCertificationClaims(["USDA certified organic facility"]);
+    expect(groups.regulatoryStatus).toEqual([]);
+    expect(groups.productFacilityCertifications).toEqual(["USDA certified organic facility"]);
+
+    const completeCoPack = getPlantBySlug("complete-copack-kcupcopack");
+    expect(completeCoPack).toBeDefined();
+    const cardClaims = certificationCardClaims(completeCoPack!);
+    expect(cardClaims).toEqual(["USDA certified organic facility"]);
+    expect(new Set(cardClaims.map((claim) => claim.toLowerCase())).size).toBe(cardClaims.length);
+  });
+
   it("uses descriptive, non-duplicated source labels on every profile", () => {
     for (const plant of filterPlants({})) {
       const links = [plant.website, ...(plant.extraLinks ?? [])].filter((source, index, all) => (
@@ -116,6 +146,13 @@ describe("directory trust and pagination", () => {
       expect(new Set(labels).size, plant.slug).toBe(labels.length);
       expect(labels.join(" "), plant.slug).not.toMatch(/Official source|Additional public source/);
     }
+  });
+
+  it("does not label legacy mixed-source records as company-published", () => {
+    const hppFoodServices = getPlantBySlug("hpp-food-services");
+    expect(hppFoodServices).toBeDefined();
+    expect(hppFoodServices?.claimSource).toBeUndefined();
+    expect(claimSourceLabel(hppFoodServices!)).toBe("Public sources listed below");
   });
 
   it("does not publish a selected capability that its description negates", () => {
@@ -179,11 +216,11 @@ describe("directory trust and pagination", () => {
   it("reports the complete Hot Sauce snapshot without mixing MOQ units", () => {
     const plants = filterPlants({ category: "hot-sauce" });
 
-    expect(plants).toHaveLength(7);
+    expect(plants).toHaveLength(9);
     expect(plants.map((plant) => plant.slug)).toContain("creative-foodworks");
     expect(plants.map((plant) => plant.slug)).not.toContain("acecopack");
     expect(categorySnapshot(plants)).toMatchObject({
-      matchingManufacturers: 7,
+      matchingManufacturers: 9,
       publishingMinimums: 2,
       comparableMoqRange: "50–1,000 gallons across 2 published minimums",
       commonProcesses: ["Hot fill", "Acidified", "Pack-out"],
@@ -221,6 +258,8 @@ describe("directory trust and pagination", () => {
   it("keeps standard batch disclosures in the minimum filter after copy normalization", () => {
     const disclosed = filterPlants({ moqDisclosed: true }).map((plant) => plant.slug);
     expect(disclosed).toContain("bevpro-solutions-formerly-beer-dudes-canning");
+    expect(disclosed).toContain("st-cousair");
+    expect(disclosed).toContain("oregon-trail-mountain-spring-water");
   });
 
   it("does not infer jars from glass material or a negated glass format", () => {

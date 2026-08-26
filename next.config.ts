@@ -41,6 +41,7 @@ const nextConfig: NextConfig = {
       "certification",
       "operationType",
       "state",
+      "verified",
       "sort",
     ];
 

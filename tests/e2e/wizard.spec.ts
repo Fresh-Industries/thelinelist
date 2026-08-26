@@ -30,35 +30,35 @@ test("keeps the Hot Sauce wizard result in sync with the directory URL", async (
   await expect(page).toHaveURL(/\/find-manufacturers\?category=hot-sauce$/);
   await expect(page.getByRole("heading", { level: 1, name: "Find a manufacturer for your product" })).toBeVisible();
   await expect(page.getByRole("list", { name: "Active filters" })).toContainText("Hot sauce");
-  await expect(page.getByRole("heading", { level: 2, name: "1–7 of 7 manufacturers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "1–9 of 9 manufacturers" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Creative Foodworks" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "AceCoPack" })).toHaveCount(0);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 
   await page.reload();
   await expect(page.getByRole("list", { name: "Active filters" })).toContainText("Hot sauce");
-  await expect(page.getByRole("heading", { level: 2, name: "1–7 of 7 manufacturers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "1–9 of 9 manufacturers" })).toBeVisible();
 
   await page.getByRole("link", { name: "Remove Hot sauce filter" }).click();
   await expect(page).toHaveURL(/\/find-manufacturers$/);
   await expect(page.getByRole("list", { name: "Active filters" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 86 manufacturers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 104 manufacturers" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 
   await page.goBack();
   await expect(page).toHaveURL(/category=hot-sauce/);
   await expect(page.getByRole("list", { name: "Active filters" })).toContainText("Hot sauce");
-  await expect(page.getByRole("heading", { level: 2, name: "1–7 of 7 manufacturers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "1–9 of 9 manufacturers" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 
   await page.goForward();
   await expect(page).toHaveURL(/\/find-manufacturers$/);
   await expect(page.getByRole("list", { name: "Active filters" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 86 manufacturers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 104 manufacturers" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 
   await page.getByRole("combobox", { name: "Where?" }).selectOption("TX");
-  await page.getByRole("button", { name: "Show manufacturers" }).click();
+  await page.getByRole("button", { name: "Search" }).click();
   await expect(page).toHaveURL(/\/find-manufacturers\?state=TX$/);
   await expect(page.getByRole("list", { name: "Active filters" })).toContainText("Texas");
 

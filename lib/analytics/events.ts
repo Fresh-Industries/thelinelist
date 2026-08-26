@@ -14,6 +14,9 @@ export const ANALYTICS_EVENTS = {
   cta_find_manufacturer_click: "cta_find_manufacturer_click",
   featured_slot_cta_click: "featured_slot_cta_click",
   guide_to_directory_click: "guide_to_directory_click",
+  comparison_added: "comparison_added",
+  comparison_removed: "comparison_removed",
+  comparison_opened: "comparison_opened",
 } as const;
 
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
@@ -33,4 +36,7 @@ export const ANALYTICS_EVENT_LABELS: Record<AnalyticsEvent, string> = {
   cta_find_manufacturer_click: "Find a Manufacturer click",
   featured_slot_cta_click: "Featured slot CTA click",
   guide_to_directory_click: "Guide to directory click",
+  comparison_added: "Manufacturer added to comparison",
+  comparison_removed: "Manufacturer removed from comparison",
+  comparison_opened: "Manufacturer comparison opened",
 };

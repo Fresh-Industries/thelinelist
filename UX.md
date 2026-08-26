@@ -5,7 +5,7 @@
 - Start with what the visitor wants to make.
 - Use one obvious route from product idea to manufacturer results.
 - Reveal manufacturing language only when it helps a decision.
-- Show sourced facts. Use "Not publicly listed" when a listing is blank.
+- Show sourced facts. Directory cards hide unknown technical fields except for a compact MOQ prompt; profiles may use "Unknown, ask the manufacturer" when a listing is blank.
 - Never treat an unknown capability as a match.
 - Keep food and beverage as the only product scope.
 - Separate education, manufacturer discovery, and plant-claim workflows.
@@ -94,7 +94,8 @@ Owns plant-side corrections and submissions. It is not embedded as a large form 
 - Progressive disclosure for wizard and introduction flows.
 - Tappable product cards with clear selected and focus states.
 - Evidence labels for verified capabilities and neutral labels for unknown fields.
-- Directory result cards use compact decision summaries: name, primary location, a short public product description, relevant products, capabilities, minimum order, a few useful certification badges, and one profile link. Do not repeat sources, reviewed dates, disclaimers, or every database field on each card.
+- Directory result cards use compact decision summaries: name, primary location, source-backed product and capability chips, a concise public-product fallback only when structured product tags are absent, compact minimum order copy, a few useful certification badges, compare, and one profile link. Do not generate "Best for" by pairing independent product and process fields; show it only if a future source record supports that exact summary. Hide unknown process, packaging, and operating-model fields rather than repeating empty labels. Do not repeat sources, reviewed dates, disclaimers, or every database field on each card.
+- The comparison page owns shortlist editing after arrival. Keep its floating directory dock hidden, show the selected manufacturers before the evidence table, and preserve readable column widths with intentional horizontal scrolling instead of squeezing five manufacturers onto one screen.
 - Visible breadcrumbs on nested routes.
 - Use face-free claymation product imagery for exploration surfaces: the homepage hero, product selection, guide covers, beginner onboarding, empty states, newsletter sections, and educational callouts.
 - Clay assets share handmade material, three-quarter isometric camera, soft studio lighting, scale, and a restrained deep-green, yellow, coral, lavender, aqua, navy, and cream family. Each category still needs its own silhouette, color story, packaging structure, and relevant props; do not repeat one label pattern across products.

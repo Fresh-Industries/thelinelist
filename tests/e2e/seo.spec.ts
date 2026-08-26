@@ -35,6 +35,12 @@ test("static directory pagination exposes normal profile and page links", async 
   expect(pageTwoCollection.mainEntity.itemListElement[0].position).toBe(18);
 });
 
+test("empty featured placement stays collapsed", async ({ page }) => {
+  await page.goto("/find-manufacturers");
+  await expect(page.locator(".sponsored-slot")).toHaveCount(0);
+  await expect(page.getByText("No featured listing here yet.")).toHaveCount(0);
+});
+
 test("robots stays minimal and uses the canonical sitemap", async ({ request }) => {
   const response = await request.get("/robots.txt");
   expect(response.ok()).toBe(true);
@@ -51,10 +57,11 @@ test("legacy company profiles redirect to the canonical manufacturer URL", async
   expect(response.headers().location).toBe("/manufacturers/innomark");
 });
 
-test("a one-result category uses singular result copy", async ({ page }) => {
+test("a refrigerated-food category shows the verified gap expansion", async ({ page }) => {
   await page.goto("/find-manufacturers/prepared-refrigerated-foods");
-  await expect(page.getByRole("heading", { level: 2, name: /^1 manufacturer that/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: /^2 manufacturers that/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Boulder Organic Foods (Bolder Foods)" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Portland Plant Foods" })).toBeVisible();
 });
 
 test("ownership-review profiles are noindex and cannot accept contact-help requests", async ({ page }) => {

@@ -10,7 +10,7 @@
  * (`sites.state`, `finderProducts`) are the slice keys.
  */
 
-export const LAST_VERIFIED = "2026-08-24" as const;
+export const LAST_VERIFIED = "2026-08-25" as const;
 
 export type GuideId = "hpp" | "hot-fill" | "retort" | "small-moq" | "sauce";
 
@@ -19,7 +19,9 @@ export type FinderProduct = "beverage" | "sauce" | "prepared-rte";
 export type PackagingFilter = "can" | "bottle" | "jar" | "pouch" | "other";
 export type CertificationFilter = "organic" | "kosher" | "halal" | "gluten-free" | "non-gmo" | "sqf";
 export type DirectorySort = "az" | "za";
+export type VerificationDateFilter = "30-days" | "90-days" | "year";
 export type ListingStatus = "VERIFIED" | "LISTABLE";
+export type ClaimSource = "company-published" | "directory-reported" | "mixed-public-sources";
 export type OperationType =
   | "co-packer"
   | "co-manufacturer"
@@ -89,6 +91,8 @@ export interface Plant {
   lastVerified: string;
   /** Legacy curated records default to VERIFIED when this is absent. */
   listingStatus?: ListingStatus;
+  /** Whether the public claims came from the company, a directory, or both. */
+  claimSource?: ClaimSource;
   confidence?: number;
   website: SourceLink;
   extraLinks?: SourceLink[];
@@ -122,6 +126,7 @@ export interface DirectoryQuery {
   certification?: CertificationFilter;
   operationType?: OperationType;
   state?: string;
+  verified?: VerificationDateFilter;
   sort?: DirectorySort;
   page?: number;
 }

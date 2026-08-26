@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-24",
+  "generatedAt": "2026-08-25",
   "sourceFiles": [
     "batch-01-a.csv",
     "batch-01-b.csv",
@@ -8,12 +8,13 @@
     "batch-04-a.csv",
     "batch-04-b.csv",
     "batch-05-a.csv",
-    "batch-05-b.csv"
+    "batch-05-b.csv",
+    "batch-06-gap-expansion.csv"
   ],
-  "sourceRows": 125,
-  "safeRows": 85,
-  "imported": 50,
-  "verified": 48,
+  "sourceRows": 134,
+  "safeRows": 94,
+  "imported": 68,
+  "verified": 66,
   "listable": 2,
   "states": [
     "CA",
@@ -37,40 +38,50 @@
     "SD",
     "TX",
     "UT",
+    "VA",
     "WA",
     "WI"
   ],
   "categoryCounts": {
-    "soda": 1,
-    "energy-drink": 1,
-    "sports-hydration": 2,
-    "functional-beverages": 1,
-    "cold-pressed-juice": 0,
-    "juice": 3,
+    "soda": 4,
+    "energy-drink": 3,
+    "sports-hydration": 3,
+    "functional-beverages": 4,
+    "cold-pressed-juice": 1,
+    "juice": 6,
     "rtd-coffee-tea": 1,
-    "water": 1,
-    "hot-sauce": 1,
-    "sauce": 25,
-    "salsa": 3,
-    "dressings-marinades": 9,
-    "dips-hummus": 4,
-    "snacks": 7,
+    "water": 3,
+    "hot-sauce": 3,
+    "sauce": 34,
+    "salsa": 5,
+    "dressings-marinades": 10,
+    "dips-hummus": 5,
+    "snacks": 8,
     "bakery": 7,
     "confectionery": 4,
-    "spices-dry-mixes": 15,
-    "supplements": 3,
+    "spices-dry-mixes": 18,
+    "supplements": 4,
     "dry-coffee-tea": 4,
     "dairy": 2,
     "frozen-foods": 1,
-    "prepared-refrigerated-foods": 1,
-    "shelf-stable-meals": 0,
-    "soups-broths-entrees": 7,
-    "fermented-foods": 2
+    "prepared-refrigerated-foods": 2,
+    "shelf-stable-meals": 1,
+    "soups-broths-entrees": 8,
+    "fermented-foods": 3
   },
   "taxonomyGaps": [
     "Beverages (bottles and cans)",
     "Food co-packing for small to medium food businesses (categories not detailed on site)",
-    "small to medium brand beverage runs"
+    "Hemp seed oil",
+    "Specialty food",
+    "beverage",
+    "hemp hearts",
+    "hulls",
+    "nutritional powders and liquids",
+    "other hemp grain ingredients",
+    "protein powder/pellets",
+    "small to medium brand beverage runs",
+    "tolling for sunflower/flax/canola and similar oilseeds"
   ],
   "skipped": {
     "byStatus": {
@@ -80,7 +91,7 @@
     "repeatedMasterKey": 17,
     "crossIdentityDuplicate": 1,
     "alreadyCurated": 3,
-    "safeNotSelected": 14
+    "safeNotSelected": 5
   },
   "skippedRecords": {
     "unsafeStatus": [
@@ -402,74 +413,29 @@
     ],
     "safeNotSelected": [
       {
-        "companyName": "America's Foods, Inc. (American Noodle Inc.)",
-        "source": "batch-02.csv:11",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "Barhyte Specialty Foods (Suzie's Organics)",
-        "source": "batch-02.csv:12",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "Beaverton Foods, Inc.",
-        "source": "batch-02.csv:13",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
         "companyName": "Dolce Amore",
         "source": "batch-02.csv:7",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "EPD, Inc.",
-        "source": "batch-02.csv:21",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "Freshies Food Corporation",
-        "source": "batch-02.csv:2",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "Hemp Acres",
-        "source": "batch-05-b.csv:10",
-        "reason": "outside initial 50-record cohort"
+        "reason": "outside initial 68-record cohort"
       },
       {
         "companyName": "Lupo's Bottling LLC",
         "source": "batch-02.csv:8",
-        "reason": "outside initial 50-record cohort"
+        "reason": "outside initial 68-record cohort"
       },
       {
         "companyName": "PREP Commercial Kitchens",
         "source": "batch-01-b.csv:2",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "Silver State Foods, Inc.",
-        "source": "batch-04-a.csv:4",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "Summit Beverage Group",
-        "source": "batch-02.csv:23",
-        "reason": "outside initial 50-record cohort"
+        "reason": "outside initial 68-record cohort"
       },
       {
         "companyName": "The Petite Chef",
         "source": "batch-04-b.csv:3",
-        "reason": "outside initial 50-record cohort"
-      },
-      {
-        "companyName": "Western Innovations, Inc.",
-        "source": "batch-05-a.csv:3",
-        "reason": "outside initial 50-record cohort"
+        "reason": "outside initial 68-record cohort"
       },
       {
         "companyName": "Worcester Regional Food Hub",
         "source": "batch-05-b.csv:6",
-        "reason": "outside initial 50-record cohort"
+        "reason": "outside initial 68-record cohort"
       }
     ]
   }

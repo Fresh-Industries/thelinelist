@@ -1,5 +1,6 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CopackerCard } from "@/components/CopackerCard";
+import { CompareDock } from "@/components/compare/CompareDock";
 import { JsonLd } from "@/components/JsonLd";
 import { JumpToManufacturers } from "@/components/JumpToManufacturers";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -61,10 +62,11 @@ export default async function ProductHubPage({ params }: { params: Promise<{ cat
           <p>MOQ figures are compared only when the published units match. Other minimums remain visible on individual profiles.</p>
         </section>
         <div className="category-results-heading"><p className="kicker">Manufacturer results</p><h2 id="manufacturer-results-heading" tabIndex={-1}>{plants.length > 0 ? `${plants.length} ${plants.length === 1 ? "manufacturer" : "manufacturers"} that publicly mention ${entry.label.toLowerCase()}` : `No manufacturers publicly mention ${entry.label.toLowerCase()} yet`}</h2></div>
-        {plants.length > 0 ? <div className="card-grid">{plants.map((plant) => <CopackerCard key={plant.slug} plant={plant} />)}</div> : <section className="empty-results"><Image src="/images/clay-v2/support/empty-results.webp" alt="Clay sample box and magnifying glass" width={640} height={640} sizes="18rem" /><div><h2>No stated matches yet</h2><p>We will not infer this product capability from a broad beverage or food tag. Try the wizard, broaden to the directory, or use the guide path to prepare questions.</p><div className="cta-band"><Link className="btn btn-gold" href="/find-manufacturers/wizard">Use the wizard</Link><Link className="btn btn-ghost" href="/guides">Browse guides</Link></div></div></section>}
+        {plants.length > 0 ? <div className="card-grid">{plants.map((plant) => <CopackerCard key={plant.slug} plant={plant} prioritizedCategory={entry.slug} />)}</div> : <section className="empty-results"><Image src="/images/clay-v2/support/empty-results.webp" alt="Clay sample box and magnifying glass" width={640} height={640} sizes="18rem" /><div><h2>No stated matches yet</h2><p>We will not infer this product capability from a broad beverage or food tag. Try the wizard, broaden to the directory, or use the guide path to prepare questions.</p><div className="cta-band"><Link className="btn btn-gold" href="/find-manufacturers/wizard">Use the wizard</Link><Link className="btn btn-ghost" href="/guides">Browse guides</Link></div></div></section>}
         <section className="product-faq" aria-labelledby="product-faq-heading"><p className="kicker">Questions to ask</p><h2 id="product-faq-heading">Before you choose a line</h2>{faqs.map((faq) => <details key={faq.question}><summary>{faq.question}</summary><p>{faq.answer}</p></details>)}</section>
         <TrustStrip />
       </div></main>
+      <CompareDock />
     </>
   );
 }

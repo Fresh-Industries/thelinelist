@@ -13,8 +13,11 @@ import type {
   PackagingFilter,
   Plant,
   OperationType,
+  VerificationDateFilter,
 } from "./types";
+import { LAST_VERIFIED } from "./types";
 import { hasPackagingFormat } from "./packaging";
+import { matchesCertificationClaim } from "./certifications";
 
 export const DIRECTORY_PAGE_SIZE = 18;
 
@@ -44,7 +47,7 @@ export function getPlantSlugs(): string[] {
 }
 
 export function isPlantIndexable(plant: Plant): boolean {
-  return !plant.needsCurrentOwnershipVerification;
+  return !plant.needsCurrentOwnershipVerification && (plant.listingStatus ?? "VERIFIED") === "VERIFIED";
 }
 
 export function getIndexableProductCategories() {
@@ -102,7 +105,15 @@ export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
   if (query.state && !plant.sites.some((site) => site.state === query.state)) {
     return false;
   }
+  if (query.verified && !matchesVerificationDate(plant, query.verified)) return false;
   return true;
+}
+
+function matchesVerificationDate(plant: Plant, filter: VerificationDateFilter): boolean {
+  const days = filter === "30-days" ? 30 : filter === "90-days" ? 90 : 365;
+  const reference = new Date(`${LAST_VERIFIED}T00:00:00Z`).getTime();
+  const reviewed = new Date(`${plant.lastVerified}T00:00:00Z`).getTime();
+  return Number.isFinite(reviewed) && reference - reviewed <= days * 86_400_000;
 }
 
 /**
@@ -127,16 +138,7 @@ function matchesPackaging(plant: Plant, packaging: PackagingFilter): boolean {
 }
 
 function matchesCertification(plant: Plant, certification: CertificationFilter): boolean {
-  const certs = plant.certs.join(" ");
-  const patterns: Record<CertificationFilter, RegExp> = {
-    organic: /\borganic\b/i,
-    kosher: /\bkosher\b|KOF-K|STAR-K/i,
-    halal: /\bhalal\b/i,
-    "gluten-free": /gluten[- ]?free|GFCO/i,
-    "non-gmo": /non[- ]?GMO/i,
-    sqf: /\bSQF\b/i,
-  };
-  return patterns[certification].test(certs);
+  return matchesCertificationClaim(plant, certification);
 }
 
 export function countByFinderProduct(product: FinderProduct): number {
@@ -186,6 +188,7 @@ export function parseDirectoryQuery(
     certification: readCertification(first(searchParams.certification)),
     operationType: readOperationType(first(searchParams.operationType)),
     state: readState(first(searchParams.state)),
+    verified: readVerificationDate(first(searchParams.verified)),
     sort: options.allowSort ? readSort(first(searchParams.sort)) : undefined,
     page: readPage(first(searchParams.page)),
   };
@@ -202,9 +205,14 @@ export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   if (query.certification) params.set("certification", query.certification);
   if (query.operationType) params.set("operationType", query.operationType);
   if (query.state) params.set("state", query.state);
+  if (query.verified) params.set("verified", query.verified);
   if (query.sort === "za") params.set("sort", query.sort);
   if (query.page && query.page > 1) params.set("page", String(query.page));
   return params;
+}
+
+function readVerificationDate(value: string | undefined): VerificationDateFilter | undefined {
+  return value === "30-days" || value === "90-days" || value === "year" ? value : undefined;
 }
 
 function readPage(value: string | undefined): number | undefined {

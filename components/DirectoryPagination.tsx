@@ -4,7 +4,7 @@ import Link from "next/link";
 function pageHref(query: DirectoryQuery, page: number): string {
   const hasFilters = Boolean(
     query.product || query.category || query.process || query.smallMoq || query.moqDisclosed
-      || query.packaging || query.certification || query.operationType || query.state || query.sort,
+      || query.packaging || query.certification || query.operationType || query.state || query.verified || query.sort,
   );
 
   if (!hasFilters) return page === 1 ? "/find-manufacturers" : `/find-manufacturers/page/${page}`;

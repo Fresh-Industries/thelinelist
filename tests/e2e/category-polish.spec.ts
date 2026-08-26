@@ -44,3 +44,33 @@ test("category jump link uses instant scrolling for reduced motion", async ({ pa
     window as Window & { __categoryScrollBehavior?: ScrollBehavior }
   ).__categoryScrollBehavior)).toBe("auto");
 });
+
+test("compound certification claims render without duplicate React keys", async ({ page }) => {
+  const duplicateKeyErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" && message.text().includes("same key")) {
+      duplicateKeyErrors.push(message.text());
+    }
+  });
+
+  await page.goto("/find-manufacturers/dry-coffee-tea");
+  await expect(page.getByRole("heading", { name: "Complete CoPack (Kcupcopack)" })).toBeVisible();
+  expect(duplicateKeyErrors).toEqual([]);
+});
+
+test("category cards expose the comparison dock after selection", async ({ page }) => {
+  await page.goto("/find-manufacturers/hot-sauce");
+  const cards = page.locator(".plant-card");
+
+  await cards.nth(0).getByRole("button", { name: /^Compare / }).click();
+  await expect(page.locator(".compare-dock")).toContainText("1 selected");
+  await cards.nth(1).getByRole("button", { name: /^Compare / }).click();
+  await expect(page.locator(".compare-dock").getByRole("link", { name: "Compare now" })).toBeVisible();
+});
+
+test("category cards prioritize the product label that explains the match", async ({ page }) => {
+  await page.goto("/find-manufacturers/functional-beverages");
+  const betterBeverage = page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: "Better Beverage Company" }) });
+
+  await expect(betterBeverage.locator(".capability-chip-product > span:last-child").first()).toHaveText("Wellness drinks & shots");
+});

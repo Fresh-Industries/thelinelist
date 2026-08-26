@@ -37,6 +37,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -61,6 +62,99 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Ready-to-eat popcorn; seasoned popcorn; caramel/gourmet popcorn.",
       "Public sources describe these capabilities: Popcorn co-packing; private label; product development/test batching; storage and fulfillment (linked)."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "actus-nutrition",
+    "name": "Actus Nutrition",
+    "sites": [
+      {
+        "city": "Wautoma",
+        "state": "WI"
+      }
+    ],
+    "locationDisplay": "Wautoma, WI",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [],
+    "categories": [
+      "supplements"
+    ],
+    "packaging": "Powder bottles and ready-to-mix formats; exact formats must be confirmed",
+    "productTypesPublished": "Protein powders; ready-to-mix beverages; sports nutrition; nutritional powders",
+    "manufacturingCapabilitiesPublished": "Custom formulation; private-label powder manufacturing; blending; powder bottling; application testing; commercial trials",
+    "rawProductTags": [
+      "Protein powders",
+      "ready-to-mix beverages",
+      "sports nutrition",
+      "nutritional powders"
+    ],
+    "rawCapabilityTags": [
+      "Custom formulation",
+      "private-label powder manufacturing",
+      "blending",
+      "powder bottling",
+      "application testing",
+      "commercial trials"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 5,
+    "website": {
+      "label": "Official website",
+      "href": "https://actus.com/"
+    },
+    "extraLinks": [
+      {
+        "label": "About",
+        "href": "https://actus.com/about/"
+      },
+      {
+        "label": "Private Label",
+        "href": "https://actus.com/private-label/"
+      },
+      {
+        "label": "Private Label Ready To Mix",
+        "href": "https://actus.com/private-label/private-label-ready-to-mix/"
+      }
+    ],
+    "phone": null,
+    "publicEmail": null,
+    "operationType": "private-label-producer",
+    "operationTypePublished": "private-label-producer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://actus.com/about/",
+        "https://actus.com/private-label/",
+        "https://actus.com/private-label/private-label-ready-to-mix/"
+      ],
+      "processes": [
+        "https://actus.com/about/",
+        "https://actus.com/private-label/",
+        "https://actus.com/private-label/private-label-ready-to-mix/"
+      ],
+      "packaging": [
+        "https://actus.com/about/",
+        "https://actus.com/private-label/",
+        "https://actus.com/private-label/private-label-ready-to-mix/"
+      ]
+    },
+    "flags": [
+      "dry_powder_gap",
+      "renamed_company",
+      "official_company_source"
+    ],
+    "qualityNotes": "Milk Specialties Global changed its name to Actus Nutrition in October 2024. Wautoma is the private-label sports-nutrition and powder-bottling facility named on the official About page. Certification scope varies by product and facility, so no broad badges were imported.",
+    "masterDedupeKey": "actus nutrition|wautoma|WI",
+    "overview": [
+      "Public sources list these products: Protein powders; ready-to-mix beverages; sports nutrition; nutritional powders.",
+      "Public sources describe these capabilities: Custom formulation; private-label powder manufacturing; blending; powder bottling; application testing; commercial trials."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -101,6 +195,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-24",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -145,6 +240,77 @@ export const IMPORTED_PLANTS = [
     "guideRows": {}
   },
   {
+    "slug": "america-s-foods-inc-american-noodle-inc",
+    "name": "America's Foods, Inc. (American Noodle Inc.)",
+    "sites": [
+      {
+        "city": "Portland",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Portland, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "sauce"
+    ],
+    "categories": [
+      "sauce",
+      "spices-dry-mixes"
+    ],
+    "packaging": null,
+    "productTypesPublished": "Tea; spices; sauces; dry and liquid products; noodles/meats (brand catalog)",
+    "manufacturingCapabilitiesPublished": "Co-packing; cold packing; hot packing; formulation; bottling; labeling",
+    "rawProductTags": [
+      "Tea",
+      "spices",
+      "sauces",
+      "dry and liquid products",
+      "noodles/meats (brand catalog)"
+    ],
+    "rawCapabilityTags": [
+      "Co-packing",
+      "cold packing",
+      "hot packing",
+      "formulation",
+      "bottling",
+      "labeling"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.americasfoodsinc.com/services.php"
+    },
+    "extraLinks": [
+      {
+        "label": "Oregon co-packer locator",
+        "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+      }
+    ],
+    "phone": "503-284-6818",
+    "publicEmail": "rayfew@gmail.com",
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "flags": [
+      "name_alias_americas_foods",
+      "seed_name_american_noodle"
+    ],
+    "qualityNotes": "americasfoodsinc.com Services page explicitly offers co-packing cold/hot packing for dry and liquid products including tea, spices, and sauces. Seed listed as American Noodle Inc.",
+    "masterDedupeKey": "american noodle inc.|portland|OR",
+    "overview": [
+      "Public sources list these products: Tea; spices; sauces; dry and liquid products; noodles/meats (brand catalog).",
+      "Public sources describe these capabilities: Co-packing; cold packing; hot packing; formulation; bottling; labeling."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
     "slug": "arty-s-premium-beverages-flooid",
     "name": "Arty's Premium Beverages / FLOOID",
     "sites": [
@@ -179,6 +345,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -270,6 +437,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -353,6 +521,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -433,6 +602,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -505,6 +675,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -534,6 +705,148 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Sauces; soups; grab-and-go meals; meal kits.",
       "Public sources describe these capabilities: Sauce and food manufacturing; co-packing; recipe development; ingredient sourcing."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "barhyte-specialty-foods-suzie-s-organics",
+    "name": "Barhyte Specialty Foods (Suzie's Organics)",
+    "sites": [
+      {
+        "city": "Pendleton",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Pendleton, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "sauce"
+    ],
+    "categories": [
+      "sauce",
+      "dressings-marinades"
+    ],
+    "packaging": null,
+    "productTypesPublished": "Condiments; mustards; salad dressings; wing sauces; shelf-stable non-cooked products",
+    "manufacturingCapabilitiesPublished": "Private label; name-drop program; co-packing of client condiment recipes",
+    "rawProductTags": [
+      "Condiments",
+      "mustards",
+      "salad dressings",
+      "wing sauces",
+      "shelf-stable non-cooked products"
+    ],
+    "rawCapabilityTags": [
+      "Private label",
+      "name-drop program",
+      "co-packing of client condiment recipes"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.suziesorganics.com/program-opportunities"
+    },
+    "extraLinks": [
+      {
+        "label": "Oregon co-packer locator",
+        "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+      }
+    ],
+    "phone": "503-691-7858",
+    "publicEmail": "sales@barhyte.com",
+    "operationType": "private-label-producer",
+    "operationTypePublished": "private-label producer",
+    "flags": [
+      "seed_url_was_fragment",
+      "private_label",
+      "also_copack_program"
+    ],
+    "qualityNotes": "Suzie's Organics Program Opportunities page (Barhyte Specialty Foods) confirms private label, name-drop, and co-packing programs. Seed URL was a text-fragment marketing link; normalized to program page. Directory MOQ 50 gallons not republished on page.",
+    "masterDedupeKey": "barhyte foods, inc.|pendleton|OR",
+    "overview": [
+      "Public sources list these products: Condiments; mustards; salad dressings; wing sauces; shelf-stable non-cooked products.",
+      "Public sources describe these capabilities: Private label; name-drop program; co-packing of client condiment recipes."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "beaverton-foods-inc",
+    "name": "Beaverton Foods, Inc.",
+    "sites": [
+      {
+        "city": "Hillsboro",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Hillsboro, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "sauce"
+    ],
+    "categories": [
+      "sauce",
+      "salsa"
+    ],
+    "packaging": null,
+    "productTypesPublished": "Mustards; horseradish; specialty condiments; sauces; salsas",
+    "manufacturingCapabilitiesPublished": "Co-packing opportunities; private label (third-party profiles); specialty condiment manufacturing",
+    "rawProductTags": [
+      "Mustards",
+      "horseradish",
+      "specialty condiments",
+      "sauces",
+      "salsas"
+    ],
+    "rawCapabilityTags": [
+      "Co-packing opportunities",
+      "private label (third-party profiles)",
+      "specialty condiment manufacturing"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://beavertonfoods.com/"
+    },
+    "extraLinks": [
+      {
+        "label": "Contact",
+        "href": "https://beavertonfoods.com/contact/"
+      },
+      {
+        "label": "Oregon co-packer locator",
+        "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+      }
+    ],
+    "phone": "(503) 646-8138",
+    "publicEmail": "customerservice@beavertonfoods.com",
+    "operationType": "co-manufacturer",
+    "operationTypePublished": "co-manufacturer",
+    "flags": [
+      "phone_updated_from_site",
+      "high_volume_signal",
+      "private_label"
+    ],
+    "qualityNotes": "Contact page welcomes co-packing inquiries; primary site is brand storefront for Beaver/Inglehoffer lines. Site phone (503) 646-8138 differs from seed. Seed MOQ/certs not confirmed on own pages; left blank.",
+    "masterDedupeKey": "beaverton foods, inc.|hillsboro|OR",
+    "overview": [
+      "Public sources list these products: Mustards; horseradish; specialty condiments; sauces; salsas.",
+      "Public sources describe these capabilities: Co-packing opportunities; private label (third-party profiles); specialty condiment manufacturing."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -580,6 +893,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -604,6 +918,124 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Hydration and sports drinks; specialty teas and juices; flavored waters; beverages.",
       "Public sources describe these capabilities: Beverage formulation; co-packing; PET bottle filling; R&D and test kitchen; QA."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "better-beverage-company",
+    "name": "Better Beverage Company",
+    "sites": [
+      {
+        "city": "Bend",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Bend, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "beverage"
+    ],
+    "categories": [
+      "soda",
+      "energy-drink",
+      "sports-hydration",
+      "functional-beverages",
+      "juice",
+      "fermented-foods"
+    ],
+    "packaging": "Kegs; glass bottles; cans; trays; paperboard cartons; corrugated boxes; variety packs",
+    "productTypesPublished": "Fermented beverages; non-fermented beverages; energy drinks; functional beverages; hydration drinks; juice-based drinks; hard cider; tea; kombucha; seltzer; soda",
+    "manufacturingCapabilitiesPublished": "Custom fermentation; carbonation; mixing; blending; flavoring; product development; pilot runs; pasteurization; warehousing; fulfillment",
+    "rawProductTags": [
+      "Fermented beverages",
+      "non-fermented beverages",
+      "energy drinks",
+      "functional beverages",
+      "hydration drinks",
+      "juice-based drinks",
+      "hard cider",
+      "tea",
+      "kombucha",
+      "seltzer",
+      "soda"
+    ],
+    "rawCapabilityTags": [
+      "Custom fermentation",
+      "carbonation",
+      "mixing",
+      "blending",
+      "flavoring",
+      "product development",
+      "pilot runs",
+      "pasteurization",
+      "warehousing",
+      "fulfillment"
+    ],
+    "moqDisplay": "Small and large batch runs; no numeric minimum published",
+    "publishedSmallMoq": false,
+    "certs": [
+      "SQF certified",
+      "FDA registered facility",
+      "certified organic by Oregon Tilth",
+      "allergen-free facility"
+    ],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 5,
+    "website": {
+      "label": "Official website",
+      "href": "https://betterbeveragecompany.com/"
+    },
+    "extraLinks": [
+      {
+        "label": "About Us",
+        "href": "https://betterbeveragecompany.com/about-us/"
+      },
+      {
+        "label": "Services and capabilities",
+        "href": "https://betterbeveragecompany.com/capabilities/"
+      }
+    ],
+    "phone": null,
+    "publicEmail": "Wade@BetterBeverageCompany.com",
+    "operationType": "co-manufacturer",
+    "operationTypePublished": "co-manufacturer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://betterbeveragecompany.com/about-us/",
+        "https://betterbeveragecompany.com/capabilities/"
+      ],
+      "processes": [
+        "https://betterbeveragecompany.com/about-us/",
+        "https://betterbeveragecompany.com/capabilities/"
+      ],
+      "packaging": [
+        "https://betterbeveragecompany.com/about-us/",
+        "https://betterbeveragecompany.com/capabilities/"
+      ],
+      "minimums": [
+        "https://betterbeveragecompany.com/about-us/",
+        "https://betterbeveragecompany.com/capabilities/"
+      ],
+      "certifications": [
+        "https://betterbeveragecompany.com/about-us/",
+        "https://betterbeveragecompany.com/capabilities/"
+      ]
+    },
+    "flags": [
+      "beverage_gap",
+      "fermentation",
+      "pilot_runs",
+      "official_company_source"
+    ],
+    "qualityNotes": "Division of Humm Kombucha. Official About and Capabilities pages establish outside co-manufacturing and product-development services. No numeric MOQ was published.",
+    "masterDedupeKey": "better beverage company|bend|OR",
+    "overview": [
+      "Public sources list these products: Fermented beverages; non-fermented beverages; energy drinks; functional beverages; hydration drinks; juice-based drinks; hard cider; tea; kombucha; seltzer; soda.",
+      "Public sources describe these capabilities: Custom fermentation; carbonation; mixing; blending; flavoring; product development; pilot runs; pasteurization; warehousing; fulfillment."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -649,6 +1081,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -732,6 +1165,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -811,6 +1245,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -892,6 +1327,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -971,6 +1407,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1038,6 +1475,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1115,6 +1553,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1198,6 +1637,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1284,6 +1724,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1313,6 +1754,89 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Pickles; sauces; dressings; beverage mixes; salsas; jams; fillings; jarred foods.",
       "Public sources describe these capabilities: Co-packing; recipe development; ingredient sourcing; acidified; cold fill; hot fill; shelf stable; sales/fulfillment support."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "cross-roots-group",
+    "name": "Cross Roots Group",
+    "sites": [
+      {
+        "city": "San Diego",
+        "state": "CA"
+      }
+    ],
+    "locationDisplay": "San Diego, CA",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "beverage",
+      "sauce"
+    ],
+    "categories": [
+      "cold-pressed-juice",
+      "juice",
+      "sauce"
+    ],
+    "packaging": "Glass bottles; jars and other formats subject to line review",
+    "productTypesPublished": "Cold-pressed juice; wellness tonics; honey; sauces",
+    "manufacturingCapabilitiesPublished": "Small-batch and mid-scale co-packing; white label; cold-press processing; formulation; ingredient sourcing; refrigerated storage; shipping support",
+    "rawProductTags": [
+      "Cold-pressed juice",
+      "wellness tonics",
+      "honey",
+      "sauces"
+    ],
+    "rawCapabilityTags": [
+      "Small-batch and mid-scale co-packing",
+      "white label",
+      "cold-press processing",
+      "formulation",
+      "ingredient sourcing",
+      "refrigerated storage",
+      "shipping support"
+    ],
+    "moqDisplay": "Flexible order quantities claimed; no numeric minimum published",
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 5,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.crossrootsgroup.com/"
+    },
+    "extraLinks": [],
+    "phone": "(858) 245-1678",
+    "publicEmail": "adam@crossrootsjuice.com",
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://www.crossrootsgroup.com/"
+      ],
+      "processes": [
+        "https://www.crossrootsgroup.com/"
+      ],
+      "packaging": [
+        "https://www.crossrootsgroup.com/"
+      ],
+      "minimums": [
+        "https://www.crossrootsgroup.com/"
+      ]
+    },
+    "flags": [
+      "cold_pressed_juice_gap",
+      "current_identity",
+      "official_company_source"
+    ],
+    "qualityNotes": "Uses the current Cross Roots Group co-packing identity, not only the consumer juice brand. Official site clearly invites outside beverage brands. Numeric MOQ and certifications remain unpublished.",
+    "masterDedupeKey": "cross roots group|san diego|CA",
+    "overview": [
+      "Public sources list these products: Cold-pressed juice; wellness tonics; honey; sauces.",
+      "Public sources describe these capabilities: Small-batch and mid-scale co-packing; white label; cold-press processing; formulation; ingredient sourcing; refrigerated storage; shipping support."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1359,6 +1883,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1436,6 +1961,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -1510,6 +2036,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1552,6 +2079,72 @@ export const IMPORTED_PLANTS = [
     "guideRows": {}
   },
   {
+    "slug": "epd-inc",
+    "name": "EPD, Inc.",
+    "sites": [
+      {
+        "city": "Angleton",
+        "state": "TX"
+      }
+    ],
+    "locationDisplay": "Angleton, TX",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [],
+    "categories": [],
+    "packaging": null,
+    "productTypesPublished": "Specialty food; beverage; nutritional powders and liquids",
+    "manufacturingCapabilitiesPublished": "Blending; powder filling; liquid filling; co-packaging; allergen management; testing; inventory management",
+    "rawProductTags": [
+      "Specialty food",
+      "beverage",
+      "nutritional powders and liquids"
+    ],
+    "rawCapabilityTags": [
+      "Blending",
+      "powder filling",
+      "liquid filling",
+      "co-packaging",
+      "allergen management",
+      "testing",
+      "inventory management"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.epdinc.org"
+    },
+    "extraLinks": [
+      {
+        "label": "PickYourOwn state co-packer listing",
+        "href": "https://www.pickyourown.org/copackers-Texas.php"
+      }
+    ],
+    "phone": "(979) 849-9633",
+    "publicEmail": "joseph@epdinc.org",
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "flags": [
+      "phone_updated_from_site",
+      "site_thin",
+      "mod_security_intermittent"
+    ],
+    "qualityNotes": "Official site (when reachable) describes full-service blending and co-packaging for specialty food/beverage/nutrition. Phone on site 979-849-9633 differs from seed 979-362-1670. Seed organic/kosher/nut-free claims not confirmed on thin homepage; left blank.",
+    "masterDedupeKey": "epd, inc.|angleton|TX",
+    "overview": [
+      "Public sources list these products: Specialty food; beverage; nutritional powders and liquids.",
+      "Public sources describe these capabilities: Blending; powder filling; liquid filling; co-packaging; allergen management; testing; inventory management."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
     "slug": "fatboy-foods",
     "name": "FATBOY Foods",
     "sites": [
@@ -1588,6 +2181,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1665,6 +2259,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1738,6 +2333,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "LISTABLE",
+    "claimSource": "directory-reported",
     "confidence": 3,
     "website": {
       "label": "Official website",
@@ -1768,6 +2364,77 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Lacto-fermented sauces; fermented vegetables; dehydrated herbs and spices.",
       "Public sources describe these capabilities: Small-batch fermentation co-packing; raw processing; dehydration; high-touch small batch (per directory)."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "freshies-food-corporation",
+    "name": "Freshies Food Corporation",
+    "sites": [
+      {
+        "city": "Denver",
+        "state": "CO"
+      }
+    ],
+    "locationDisplay": "Denver, CO",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "sauce"
+    ],
+    "categories": [
+      "hot-sauce",
+      "sauce"
+    ],
+    "packaging": null,
+    "productTypesPublished": "Cocktail mixes; hot sauces; BBQ sauce; cocktail rimming blends",
+    "manufacturingCapabilitiesPublished": "Private label and product development for cocktail mixes, hot sauces, and rimming blends",
+    "rawProductTags": [
+      "Cocktail mixes",
+      "hot sauces",
+      "BBQ sauce",
+      "cocktail rimming blends"
+    ],
+    "rawCapabilityTags": [
+      "Private label and product development for cocktail mixes, hot sauces, and rimming blends"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://freshies.com/"
+    },
+    "extraLinks": [
+      {
+        "label": "About",
+        "href": "https://freshies.com/about/"
+      },
+      {
+        "label": "PickYourOwn state co-packer listing",
+        "href": "https://www.pickyourown.org/copackers-Colorado.php"
+      }
+    ],
+    "phone": "(303) 382-1805",
+    "publicEmail": "sales@freshies.com",
+    "operationType": "private-label-producer",
+    "operationTypePublished": "private-label producer",
+    "flags": [
+      "city_updated_from_seed",
+      "private_label",
+      "www_freshies_com_500",
+      "email_updated_from_site"
+    ],
+    "qualityNotes": "freshies.com About page confirms private label/development for mixes and sauces; Denver address 4860 Broadway. Seed city Peyton appears wrong (Peyton is a different CO listing). www.freshies.com returned WordPress critical error.",
+    "masterDedupeKey": "freshies food corporation|peyton|CO",
+    "overview": [
+      "Public sources list these products: Cocktail mixes; hot sauces; BBQ sauce; cocktail rimming blends.",
+      "Public sources describe these capabilities: Private label and product development for cocktail mixes, hot sauces, and rimming blends."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1820,6 +2487,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -1850,6 +2518,80 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Sauces and condiments; dairy dips; jarred acidified soups; dry spice blends; syrups; jams; honey repack.",
       "Public sources describe these capabilities: Co-manufacturing (tolling); test batching; shared commissary kitchen membership; packaging/labeling using client-supplied materials."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "hemp-acres",
+    "name": "Hemp Acres",
+    "sites": [
+      {
+        "city": "Waconia",
+        "state": "MN"
+      }
+    ],
+    "locationDisplay": "Waconia, MN",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [],
+    "categories": [],
+    "packaging": null,
+    "productTypesPublished": "Hemp seed oil; hemp hearts; hulls; protein powder/pellets; other hemp grain ingredients; tolling for sunflower/flax/canola and similar oilseeds",
+    "manufacturingCapabilitiesPublished": "Grain receiving/cleaning; expeller press; milling/sifting; dehulling; custom blending; oil refining/bleaching; co-packing dry powder/oils/other liquids; tolling/contract manufacturing",
+    "rawProductTags": [
+      "Hemp seed oil",
+      "hemp hearts",
+      "hulls",
+      "protein powder/pellets",
+      "other hemp grain ingredients",
+      "tolling for sunflower/flax/canola and similar oilseeds"
+    ],
+    "rawCapabilityTags": [
+      "Grain receiving/cleaning",
+      "expeller press",
+      "milling/sifting",
+      "dehulling",
+      "custom blending",
+      "oil refining/bleaching",
+      "co-packing dry powder/oils/other liquids",
+      "tolling/contract manufacturing"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.hempacresusa.com/"
+    },
+    "extraLinks": [
+      {
+        "label": "Services and capabilities",
+        "href": "https://www.hempacresusa.com/pages/tolling-services"
+      },
+      {
+        "label": "About Us",
+        "href": "https://www.hempacresusa.com/pages/about-us"
+      }
+    ],
+    "phone": "612-230-9150",
+    "publicEmail": "sales@hempacresusa.com",
+    "operationType": "co-manufacturer",
+    "operationTypePublished": "co-manufacturer",
+    "flags": [
+      "hemp_specialty",
+      "tolling",
+      "ingredient_focus"
+    ],
+    "qualityNotes": "Tolling Services page explicitly lists co-packing for dry powder, oils, and other liquids. Food/bev ingredient relevant; also serves non-food hemp applications. Seed email vikki@ not shown; using sales@.",
+    "masterDedupeKey": "hemp acres|waconia|MN",
+    "overview": [
+      "Public sources list these products: Hemp seed oil; hemp hearts; hulls; protein powder/pellets; other hemp grain ingredients; tolling for sunflower/flax/canola and similar oilseeds.",
+      "Public sources describe these capabilities: Grain receiving/cleaning; expeller press; milling/sifting; dehulling; custom blending; oil refining/bleaching; co-packing dry powder/oils/other liquids; tolling/contract manufacturing."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -1901,6 +2643,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1973,6 +2716,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -1998,6 +2742,98 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Sauces; dressings; pickles; condiments; BBQ and hot sauces; mixes.",
       "Public sources describe these capabilities: Co-packing; co-manufacturing; R&D; recipe scale-up; warehousing and fulfillment; flexible batch sizes."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "landmark-foods",
+    "name": "Landmark Foods",
+    "sites": [
+      {
+        "city": "Denver",
+        "state": "CO"
+      }
+    ],
+    "locationDisplay": "Denver, CO",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [],
+    "categories": [
+      "spices-dry-mixes"
+    ],
+    "packaging": null,
+    "productTypesPublished": "Beverages; oils; dry mixes; dry blends",
+    "manufacturingCapabilitiesPublished": "Contract beverage bottling; oil bottling; dry mixing; dry packaging",
+    "rawProductTags": [
+      "Beverages",
+      "oils",
+      "dry mixes",
+      "dry blends"
+    ],
+    "rawCapabilityTags": [
+      "Contract beverage bottling",
+      "oil bottling",
+      "dry mixing",
+      "dry packaging"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [
+      "FDA registered",
+      "certified organic by Colorado Department of Agriculture",
+      "HACCP training",
+      "GMP program"
+    ],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.landmarkfoods.net/home.html"
+    },
+    "extraLinks": [
+      {
+        "label": "Bottling.Html",
+        "href": "https://www.landmarkfoods.net/bottling.html"
+      },
+      {
+        "label": "Dry Mixing.Html",
+        "href": "https://www.landmarkfoods.net/dry_mixing.html"
+      }
+    ],
+    "phone": null,
+    "publicEmail": null,
+    "operationType": "contract-packager",
+    "operationTypePublished": "contract-packager",
+    "fieldSourceUrls": {
+      "products": [
+        "https://www.landmarkfoods.net/home.html",
+        "https://www.landmarkfoods.net/bottling.html",
+        "https://www.landmarkfoods.net/dry_mixing.html"
+      ],
+      "processes": [
+        "https://www.landmarkfoods.net/home.html",
+        "https://www.landmarkfoods.net/bottling.html",
+        "https://www.landmarkfoods.net/dry_mixing.html"
+      ],
+      "certifications": [
+        "https://www.landmarkfoods.net/home.html",
+        "https://www.landmarkfoods.net/bottling.html",
+        "https://www.landmarkfoods.net/dry_mixing.html"
+      ]
+    },
+    "flags": [
+      "dry_blend_gap",
+      "beverage_gap",
+      "official_company_source"
+    ],
+    "qualityNotes": "Official site identifies a Denver contract packaging facility for beverage bottling and dry mixing. The corrupted spreadsheet MOQ was discarded because no reliable minimum was found.",
+    "masterDedupeKey": "landmark foods|denver|CO",
+    "overview": [
+      "Public sources list these products: Beverages; oils; dry mixes; dry blends.",
+      "Public sources describe these capabilities: Contract beverage bottling; oil bottling; dry mixing; dry packaging."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2048,6 +2884,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2117,6 +2954,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2194,6 +3032,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2266,6 +3105,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2340,6 +3180,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -2418,6 +3259,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2493,6 +3335,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2567,6 +3410,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2634,6 +3478,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2712,6 +3557,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2778,6 +3624,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -2802,6 +3649,260 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Herbs; spices; custom spice blends; foodservice and bulk spice products.",
       "Public sources describe these capabilities: Custom blending; flavor duplication / R&D; batch pack and co-packing opportunities; automated packaging; private label."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "oregon-trail-mountain-spring-water",
+    "name": "Oregon Trail Mountain Spring Water",
+    "sites": [
+      {
+        "city": "North Powder",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "North Powder, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "beverage"
+    ],
+    "categories": [
+      "water"
+    ],
+    "packaging": "Custom-labeled bottles; sizes must be confirmed",
+    "productTypesPublished": "Private-label bottled spring water",
+    "manufacturingCapabilitiesPublished": "Spring-water bottling; custom label design; label printing",
+    "rawProductTags": [
+      "Private-label bottled spring water"
+    ],
+    "rawCapabilityTags": [
+      "Spring-water bottling",
+      "custom label design",
+      "label printing"
+    ],
+    "moqDisplay": "Company states no minimum order for custom-labeled bottled water",
+    "publishedSmallMoq": true,
+    "certs": [],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://oregontrailmountainspringwater.com/index.html"
+    },
+    "extraLinks": [
+      {
+        "label": "Artdept.Htm",
+        "href": "https://oregontrailmountainspringwater.com/artdept.htm"
+      }
+    ],
+    "phone": "1-888-478-2900",
+    "publicEmail": null,
+    "operationType": "private-label-producer",
+    "operationTypePublished": "private-label-producer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://oregontrailmountainspringwater.com/index.html",
+        "https://oregontrailmountainspringwater.com/artdept.htm"
+      ],
+      "processes": [
+        "https://oregontrailmountainspringwater.com/index.html",
+        "https://oregontrailmountainspringwater.com/artdept.htm"
+      ],
+      "packaging": [
+        "https://oregontrailmountainspringwater.com/index.html",
+        "https://oregontrailmountainspringwater.com/artdept.htm"
+      ],
+      "minimums": [
+        "https://oregontrailmountainspringwater.com/index.html",
+        "https://oregontrailmountainspringwater.com/artdept.htm"
+      ]
+    },
+    "flags": [
+      "water_gap",
+      "published_moq",
+      "official_company_source"
+    ],
+    "qualityNotes": "Official company site clearly offers custom private-label bottled spring water and states no minimum order. Current package sizes and production timing must be confirmed directly.",
+    "masterDedupeKey": "oregon trail mountain spring water|north powder|OR",
+    "overview": [
+      "Public sources list these products: Private-label bottled spring water.",
+      "Public sources describe these capabilities: Spring-water bottling; custom label design; label printing."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "portland-bottling-company",
+    "name": "Portland Bottling Company",
+    "sites": [
+      {
+        "city": "Portland",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Portland, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "beverage"
+    ],
+    "categories": [
+      "soda",
+      "energy-drink",
+      "functional-beverages",
+      "juice",
+      "water"
+    ],
+    "packaging": "Aluminum cans in multiple sizes; 4-packs; 8-packs; 12-packs; 24-packs",
+    "productTypesPublished": "RTD beverages; energy drinks; functional beverages; juice-based drinks; sparkling water; carbonated beverages",
+    "manufacturingCapabilitiesPublished": "Beverage formulation support; can filling; secondary packaging; warehousing",
+    "rawProductTags": [
+      "RTD beverages",
+      "energy drinks",
+      "functional beverages",
+      "juice-based drinks",
+      "sparkling water",
+      "carbonated beverages"
+    ],
+    "rawCapabilityTags": [
+      "Beverage formulation support",
+      "can filling",
+      "secondary packaging",
+      "warehousing"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [
+      "FSSC 22000 certified",
+      "HACCP program"
+    ],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 5,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.portlandbottling.com/"
+    },
+    "extraLinks": [],
+    "phone": null,
+    "publicEmail": null,
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://www.portlandbottling.com/"
+      ],
+      "processes": [
+        "https://www.portlandbottling.com/"
+      ],
+      "packaging": [
+        "https://www.portlandbottling.com/"
+      ],
+      "certifications": [
+        "https://www.portlandbottling.com/"
+      ]
+    },
+    "flags": [
+      "beverage_gap",
+      "official_company_source"
+    ],
+    "qualityNotes": "Official site clearly offers beverage co-packing and names energy, functional, juice-based, and sparkling products. No minimum order was published on the page reviewed.",
+    "masterDedupeKey": "portland bottling company|portland|OR",
+    "overview": [
+      "Public sources list these products: RTD beverages; energy drinks; functional beverages; juice-based drinks; sparkling water; carbonated beverages.",
+      "Public sources describe these capabilities: Beverage formulation support; can filling; secondary packaging; warehousing."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "portland-plant-foods",
+    "name": "Portland Plant Foods",
+    "sites": [
+      {
+        "city": "Wilsonville",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Wilsonville, OR",
+    "processes": [
+      "hot-fill"
+    ],
+    "finderProcesses": [
+      "hot-fill"
+    ],
+    "finderProducts": [
+      "sauce",
+      "prepared-rte"
+    ],
+    "categories": [
+      "sauce",
+      "dips-hummus",
+      "prepared-refrigerated-foods",
+      "shelf-stable-meals",
+      "soups-broths-entrees"
+    ],
+    "packaging": "Retail and food-service formats compatible with the filling line; exact formats must be confirmed",
+    "productTypesPublished": "Refrigerated prepared beans; hummus; soups; dips; sauces; acidified shelf-stable foods",
+    "manufacturingCapabilitiesPublished": "Private label; contract manufacturing; kettle and skillet cooking; pumping; hot fill; refrigerated production",
+    "rawProductTags": [
+      "Refrigerated prepared beans",
+      "hummus",
+      "soups",
+      "dips",
+      "sauces",
+      "acidified shelf-stable foods"
+    ],
+    "rawCapabilityTags": [
+      "Private label",
+      "contract manufacturing",
+      "kettle and skillet cooking",
+      "pumping",
+      "hot fill",
+      "refrigerated production"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 5,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.betterbeanco.com/private-label-services/"
+    },
+    "extraLinks": [],
+    "phone": null,
+    "publicEmail": "Keith@betterbeanco.com",
+    "operationType": "co-manufacturer",
+    "operationTypePublished": "co-manufacturer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://www.betterbeanco.com/private-label-services/"
+      ],
+      "processes": [
+        "https://www.betterbeanco.com/private-label-services/"
+      ],
+      "packaging": [
+        "https://www.betterbeanco.com/private-label-services/"
+      ]
+    },
+    "flags": [
+      "refrigerated_food_gap",
+      "plant_based",
+      "official_company_source"
+    ],
+    "qualityNotes": "Official Better Bean service page identifies Portland Plant Foods as the operator and clearly offers outside private-label and contract manufacturing. Minimums and certifications were not published on the reviewed page.",
+    "masterDedupeKey": "portland plant foods|wilsonville|OR",
+    "overview": [
+      "Public sources list these products: Refrigerated prepared beans; hummus; soups; dips; sauces; acidified shelf-stable foods.",
+      "Public sources describe these capabilities: Private label; contract manufacturing; kettle and skillet cooking; pumping; hot fill; refrigerated production."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -2866,6 +3967,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -2955,6 +4057,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3024,6 +4127,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3092,6 +4196,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "LISTABLE",
+    "claimSource": "directory-reported",
     "confidence": 3,
     "website": {
       "label": "Official website",
@@ -3162,6 +4267,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3228,6 +4334,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3257,6 +4364,319 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Food; beverage; supplement concepts (formulation through manufacturing readiness).",
       "Public sources describe these capabilities: Strategy; product development/formulation; pilot and small-scale manufacturing; commercial ingredient sourcing; manufacturing readiness."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "silver-state-foods-inc",
+    "name": "Silver State Foods, Inc.",
+    "sites": [
+      {
+        "city": "Denver",
+        "state": "CO"
+      }
+    ],
+    "locationDisplay": "Denver, CO",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "sauce"
+    ],
+    "categories": [
+      "hot-sauce",
+      "sauce",
+      "salsa"
+    ],
+    "packaging": null,
+    "productTypesPublished": "Pasta sauces; BBQ sauces; hot sauces; salsas; Italian foods (own brands plus co-pack)",
+    "manufacturingCapabilitiesPublished": "Co-packing; bringing customer products to market (capabilities brochure linked on Co-Packing page)",
+    "rawProductTags": [
+      "Pasta sauces",
+      "BBQ sauces",
+      "hot sauces",
+      "salsas",
+      "Italian foods (own brands plus co-pack)"
+    ],
+    "rawCapabilityTags": [
+      "Co-packing",
+      "bringing customer products to market (capabilities brochure linked on Co-Packing page)"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.silverstatefoods.com"
+    },
+    "extraLinks": [
+      {
+        "label": "Our Brands",
+        "href": "https://silverstatefoods.com/pages/our-brands"
+      },
+      {
+        "label": "Contact",
+        "href": "https://silverstatefoods.com/pages/contact"
+      },
+      {
+        "label": "PickYourOwn state co-packer listing",
+        "href": "https://www.pickyourown.org/copackers-Colorado.php"
+      }
+    ],
+    "phone": "(303) 433-3351",
+    "publicEmail": "Info@Silverstatefoods.com",
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "flags": [
+      "brand_portfolio_also",
+      "brochure_gated"
+    ],
+    "qualityNotes": "Shopify Co-Packing page (handle our-brands) states they specialize in helping bring products to market and links a capabilities brochure. Primary storefront is own sauce brands. Contact email Info@Silverstatefoods.com and phone on site. Seed email tom@ not used; site contact used.",
+    "masterDedupeKey": "silver state foods, inc.|denver|CO",
+    "overview": [
+      "Public sources list these products: Pasta sauces; BBQ sauces; hot sauces; salsas; Italian foods (own brands plus co-pack).",
+      "Public sources describe these capabilities: Co-packing; bringing customer products to market (capabilities brochure linked on Co-Packing page)."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "st-cousair",
+    "name": "St. Cousair",
+    "sites": [
+      {
+        "city": "Newberg",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Newberg, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "sauce"
+    ],
+    "categories": [
+      "sauce"
+    ],
+    "packaging": "Glass jars; glass bottles; plastic food-service containers",
+    "productTypesPublished": "Jams; beverages; syrups; pasta sauce; foods and beverages for co-packing",
+    "manufacturingCapabilitiesPublished": "Product development; co-packing; glass and plastic filling; in-house R&D",
+    "rawProductTags": [
+      "Jams",
+      "beverages",
+      "syrups",
+      "pasta sauce",
+      "foods and beverages for co-packing"
+    ],
+    "rawCapabilityTags": [
+      "Product development",
+      "co-packing",
+      "glass and plastic filling",
+      "in-house R&D"
+    ],
+    "moqDisplay": "Four batches per flavor; examples include about 1,000 10 oz beverages per batch, 650 16 oz beverages per batch, or 880 12 oz pasta-sauce jars per batch",
+    "publishedSmallMoq": true,
+    "certs": [],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 5,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.stcousair-oregon.com/copacking/"
+    },
+    "extraLinks": [
+      {
+        "label": "Info Form",
+        "href": "https://www.stcousair-oregon.com/2019/info-form/"
+      }
+    ],
+    "phone": null,
+    "publicEmail": null,
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://www.stcousair-oregon.com/copacking/",
+        "https://www.stcousair-oregon.com/2019/info-form/"
+      ],
+      "processes": [
+        "https://www.stcousair-oregon.com/copacking/",
+        "https://www.stcousair-oregon.com/2019/info-form/"
+      ],
+      "packaging": [
+        "https://www.stcousair-oregon.com/copacking/",
+        "https://www.stcousair-oregon.com/2019/info-form/"
+      ],
+      "minimums": [
+        "https://www.stcousair-oregon.com/copacking/",
+        "https://www.stcousair-oregon.com/2019/info-form/"
+      ]
+    },
+    "flags": [
+      "moq_corrected",
+      "official_company_source"
+    ],
+    "qualityNotes": "The apparent 10,0000-unit spreadsheet typo was rejected. The official guidelines instead state four batches per flavor and publish example yields that vary by product and package.",
+    "masterDedupeKey": "st cousair|newberg|OR",
+    "overview": [
+      "Public sources list these products: Jams; beverages; syrups; pasta sauce; foods and beverages for co-packing.",
+      "Public sources describe these capabilities: Product development; co-packing; glass and plastic filling; in-house R&D."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "summit-beverage-group",
+    "name": "Summit Beverage Group",
+    "sites": [
+      {
+        "city": "Marion",
+        "state": "VA"
+      }
+    ],
+    "locationDisplay": "Marion, VA",
+    "processes": [
+      "hot-fill"
+    ],
+    "finderProcesses": [
+      "hot-fill"
+    ],
+    "finderProducts": [
+      "beverage"
+    ],
+    "categories": [
+      "functional-beverages"
+    ],
+    "packaging": "Glass or plastic bottles 8 to 32 oz; dome/PET/long-neck styles",
+    "productTypesPublished": "Functional beverages; hot-fill beverages",
+    "manufacturingCapabilitiesPublished": "Hot-fill bottling; shrink sleeve / roll-fed / pressure-sensitive labeling; trays and boxes; variety packs",
+    "rawProductTags": [
+      "Functional beverages",
+      "hot-fill beverages"
+    ],
+    "rawCapabilityTags": [
+      "Hot-fill bottling",
+      "shrink sleeve / roll-fed / pressure-sensitive labeling",
+      "trays and boxes",
+      "variety packs"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [
+      "Organic Certified (claimed on site)"
+    ],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.summitbeveragegroup.com/"
+    },
+    "extraLinks": [
+      {
+        "label": "More Info",
+        "href": "https://www.summitbeveragegroup.com/more-info/"
+      },
+      {
+        "label": "PickYourOwn state co-packer listing",
+        "href": "https://www.pickyourown.org/copackers-Virginia.php"
+      }
+    ],
+    "phone": "(276) 781-0671",
+    "publicEmail": "geofsoares@aol.com",
+    "operationType": "co-manufacturer",
+    "operationTypePublished": "co-manufacturer",
+    "flags": [
+      "beverage",
+      "organic_claimed",
+      "seed_moq_was_line_speed_not_moq"
+    ],
+    "qualityNotes": "Own site confirms hot-fill beverage manufacturing and organic certification claim with third-party safety audits. Seed '600 bottles a min' is line speed, not MOQ; left MOQ blank. Kosher/USDA from seed not confirmed on pages checked.",
+    "masterDedupeKey": "summit beverage group|marion|VA",
+    "overview": [
+      "Public sources list these products: Functional beverages; hot-fill beverages.",
+      "Public sources describe these capabilities: Hot-fill bottling; shrink sleeve / roll-fed / pressure-sensitive labeling; trays and boxes; variety packs."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "swift-cider",
+    "name": "Swift Cider",
+    "sites": [
+      {
+        "city": "Portland",
+        "state": "OR"
+      }
+    ],
+    "locationDisplay": "Portland, OR",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "beverage"
+    ],
+    "categories": [
+      "soda"
+    ],
+    "packaging": "12 oz standard cans; 12 oz sleek cans; 16 oz standard cans; American Sanke D-style kegs",
+    "productTypesPublished": "Hard cider; wine; non-alcoholic carbonated beverages",
+    "manufacturingCapabilitiesPublished": "Beverage co-packing; carbonated can filling; keg filling",
+    "rawProductTags": [
+      "Hard cider",
+      "wine",
+      "non-alcoholic carbonated beverages"
+    ],
+    "rawCapabilityTags": [
+      "Beverage co-packing",
+      "carbonated can filling",
+      "keg filling"
+    ],
+    "moqDisplay": "930 gallons (30 barrels), approximately 400 cases of 12 oz cans or 300 cases of 16 oz cans",
+    "publishedSmallMoq": true,
+    "certs": [],
+    "lastVerified": "2026-08-25",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 5,
+    "website": {
+      "label": "Official website",
+      "href": "https://www.swiftcider.com/copacking"
+    },
+    "extraLinks": [],
+    "phone": "(503) 719-3402",
+    "publicEmail": "info@swiftcider.com",
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "fieldSourceUrls": {
+      "products": [
+        "https://www.swiftcider.com/copacking"
+      ],
+      "processes": [
+        "https://www.swiftcider.com/copacking"
+      ],
+      "packaging": [
+        "https://www.swiftcider.com/copacking"
+      ],
+      "minimums": [
+        "https://www.swiftcider.com/copacking"
+      ]
+    },
+    "flags": [
+      "carbonated_beverage_gap",
+      "published_moq",
+      "official_company_source"
+    ],
+    "qualityNotes": "Official co-packing page states allowed beverages, package formats, minimum order, and excluded ingredients. Claims are limited to those published details.",
+    "masterDedupeKey": "swift cider|portland|OR",
+    "overview": [
+      "Public sources list these products: Hard cider; wine; non-alcoholic carbonated beverages.",
+      "Public sources describe these capabilities: Beverage co-packing; carbonated can filling; keg filling."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3296,6 +4716,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 4,
     "website": {
       "label": "Official website",
@@ -3373,6 +4794,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3447,6 +4869,7 @@ export const IMPORTED_PLANTS = [
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3528,6 +4951,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3615,6 +5039,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3692,6 +5117,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",
@@ -3724,6 +5150,93 @@ export const IMPORTED_PLANTS = [
     "overview": [
       "Public sources list these products: Shelf-stable sweet and savory liquids; sauces; syrups; condiments; toppings; beverage bases; coffee and bar syrups; marinades; bakery fillings.",
       "Public sources describe these capabilities: Contract manufacturing; product innovation and development; steam-jacketed kettle processing; powder induction; CIP; scalable USA production."
+    ],
+    "appearedOn": [],
+    "guideRows": {}
+  },
+  {
+    "slug": "western-innovations-inc",
+    "name": "Western Innovations, Inc.",
+    "sites": [
+      {
+        "city": "Denver",
+        "state": "CO"
+      }
+    ],
+    "locationDisplay": "Denver, CO",
+    "processes": [],
+    "finderProcesses": [],
+    "finderProducts": [
+      "sauce"
+    ],
+    "categories": [
+      "sauce",
+      "snacks",
+      "spices-dry-mixes"
+    ],
+    "packaging": "Pillow packs; sachets; stick packs; 3/4-sided seal pouches; sample packs; blister foil packs; counted bottles; trays",
+    "productTypesPublished": "Shelf-stable liquids; granules; powders; grains; candies; cereals; sauces; condiments; spices; seasonings; snack foods; dietary and food supplements",
+    "manufacturingCapabilitiesPublished": "Contract food packaging; liquid bottling (coldfill); VFFS; HFFS; blending liquids and powders; secondary packaging and assembly; packaging design assistance",
+    "rawProductTags": [
+      "Shelf-stable liquids",
+      "granules",
+      "powders",
+      "grains",
+      "candies",
+      "cereals",
+      "sauces",
+      "condiments",
+      "spices",
+      "seasonings",
+      "snack foods",
+      "dietary and food supplements"
+    ],
+    "rawCapabilityTags": [
+      "Contract food packaging",
+      "liquid bottling (coldfill)",
+      "VFFS",
+      "HFFS",
+      "blending liquids and powders",
+      "secondary packaging and assembly",
+      "packaging design assistance"
+    ],
+    "moqDisplay": null,
+    "publishedSmallMoq": false,
+    "certs": [
+      "Organic certified",
+      "cGMP compliant",
+      "FDA registered",
+      "third-party audited",
+      "GFSI compliant (claimed on company profile)"
+    ],
+    "lastVerified": "2026-08-22",
+    "listingStatus": "VERIFIED",
+    "claimSource": "company-published",
+    "confidence": 4,
+    "website": {
+      "label": "Official website",
+      "href": "http://westerninnovationsinc.com/"
+    },
+    "extraLinks": [
+      {
+        "label": "Company Profile",
+        "href": "http://westerninnovationsinc.com/company-profile/"
+      }
+    ],
+    "phone": "(303) 307-4500",
+    "publicEmail": null,
+    "operationType": "co-packer",
+    "operationTypePublished": "co-packer",
+    "flags": [
+      "city_corrected",
+      "peanut_free_plant",
+      "also_secondary_packaging"
+    ],
+    "qualityNotes": "Site confirms food packaging/co-pack in Denver (4825 Nome St). Seed city Castle Rock corrected to Denver. Seed email chris@yumbanashoppe.com not on site and looks unrelated; left blank.",
+    "masterDedupeKey": "western innovations inc.|denver|CO",
+    "overview": [
+      "Public sources list these products: Shelf-stable liquids; granules; powders; grains; candies; cereals; sauces; condiments; spices; seasonings; snack foods; dietary and food supplements.",
+      "Public sources describe these capabilities: Contract food packaging; liquid bottling (coldfill); VFFS; HFFS; blending liquids and powders; secondary packaging and assembly; packaging design assistance."
     ],
     "appearedOn": [],
     "guideRows": {}
@@ -3775,6 +5288,7 @@ export const IMPORTED_PLANTS = [
     ],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
+    "claimSource": "mixed-public-sources",
     "confidence": 5,
     "website": {
       "label": "Official website",

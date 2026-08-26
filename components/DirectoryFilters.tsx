@@ -16,6 +16,7 @@ import {
   type OperationType,
   type PackagingFilter,
   type ProductCategorySlug,
+  type VerificationDateFilter,
 } from "@/lib/directory";
 import Link from "next/link";
 import {
@@ -70,6 +71,13 @@ const PRODUCT_COMBOBOX_OPTIONS = [
     searchText: `${category.label} ${category.slug} ${category.description} ${CATEGORY_SEARCH_ALIASES[category.slug] ?? ""}`.toLowerCase(),
   })),
 ];
+
+const QUICK_CATEGORY_SLUGS = ["energy-drink", "sauce", "snacks", "bakery", "supplements"] as const satisfies readonly ProductCategorySlug[];
+const QUICK_CATEGORIES = QUICK_CATEGORY_SLUGS.map((slug) => {
+  const category = getProductCategory(slug);
+  if (!category) throw new Error(`Missing quick directory category: ${slug}`);
+  return category;
+});
 
 function directoryHref(query: DirectoryQuery): string {
   const params = queryToSearchParams(query);
@@ -134,6 +142,13 @@ function getActiveFilters(initial: DirectoryQuery): ActiveFilter[] {
           key: "moq",
           label: "Minimum listed",
           href: directoryHref({ ...initial, moqDisclosed: false, smallMoq: false, page: undefined }),
+        }
+      : null,
+    initial.verified
+      ? {
+          key: "verified",
+          label: initial.verified === "30-days" ? "Reviewed in latest 30 days" : initial.verified === "90-days" ? "Reviewed in latest 90 days" : "Reviewed in latest year",
+          href: directoryHref({ ...initial, verified: undefined, page: undefined }),
         }
       : null,
   ].filter((filter): filter is ActiveFilter => filter !== null);
@@ -257,7 +272,7 @@ function ProductCombobox({
           aria-controls={listboxId}
           aria-activedescendant={open && options[activeIndex] ? `${listboxId}-${options[activeIndex].value || "any"}` : undefined}
           autoComplete="off"
-          placeholder="Search products..."
+          placeholder="Search food or drink products"
           value={inputValue}
           onFocus={openOptions}
           onChange={(event) => {
@@ -327,7 +342,7 @@ export function DirectoryFilters({
   const id = useId();
   const [isPending, startTransition] = useTransition();
   const hasAdvancedFilters = Boolean(
-    initial.process || initial.packaging || initial.certification || initial.operationType || initial.moqDisclosed || initial.smallMoq,
+    initial.process || initial.packaging || initial.certification || initial.operationType || initial.moqDisclosed || initial.smallMoq || initial.verified,
   );
   const [advancedOpen, setAdvancedOpen] = useState(hasAdvancedFilters);
   const [category, setCategory] = useState(initial.category ?? "");
@@ -337,8 +352,10 @@ export function DirectoryFilters({
   const [operationType, setOperationType] = useState(initial.operationType ?? "");
   const [state, setState] = useState(initial.state ?? "");
   const [moqDisclosed, setMoqDisclosed] = useState(Boolean(initial.moqDisclosed || initial.smallMoq));
+  const [verified, setVerified] = useState(initial.verified ?? "");
 
   const activeFilters = getActiveFilters(initial);
+  const productInputId = `${id}-category`;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -351,6 +368,7 @@ export function DirectoryFilters({
       operationType: (operationType as OperationType) || undefined,
       state: state || undefined,
       moqDisclosed,
+      verified: (verified as VerificationDateFilter) || undefined,
       sort: initial.sort,
     };
     trackFilter({
@@ -361,6 +379,7 @@ export function DirectoryFilters({
       operationType: operationType || "any",
       state: state || "any",
       moqDisclosed,
+      verified: verified || "any",
     });
     startTransition(() => window.location.assign(directoryHref(query)));
   }
@@ -369,8 +388,8 @@ export function DirectoryFilters({
     <form className="directory-search" onSubmit={onSubmit} aria-label="Search and filter manufacturers">
       <div className="directory-search-primary">
         <div className="field">
-          <label htmlFor={`${id}-category`}>What are you making?</label>
-          <ProductCombobox id={`${id}-category`} value={category} onChange={setCategory} />
+          <label htmlFor={productInputId}>What are you making?</label>
+          <ProductCombobox id={productInputId} value={category} onChange={setCategory} />
         </div>
         <div className="field">
           <label htmlFor={`${id}-state`}>Where?</label>
@@ -380,8 +399,28 @@ export function DirectoryFilters({
           </select>
         </div>
         <button className="btn btn-gold directory-search-submit" type="submit" disabled={isPending}>
-          {isPending ? "Updating…" : <>Show manufacturers <span aria-hidden="true">→</span></>}
+          {isPending ? "Searching…" : <>Search <span aria-hidden="true">→</span></>}
         </button>
+      </div>
+
+      <div className="directory-quick-row">
+        <span>Quick picks:</span>
+        <ul aria-label="Quick product filters">
+          {QUICK_CATEGORIES.map((quickCategory) => (
+            <li key={quickCategory.slug}>
+              <Link
+                href={directoryHref({ ...initial, product: undefined, category: quickCategory.slug, page: undefined })}
+                aria-current={initial.category === quickCategory.slug ? "page" : undefined}
+              >
+                {quickCategory.label}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <button type="button" onClick={() => document.getElementById(productInputId)?.focus()}>More +</button>
+          </li>
+        </ul>
+        <p>Not sure what you need? <Link href="/find-manufacturers/wizard">Try the 4-step matcher <span aria-hidden="true">→</span></Link></p>
       </div>
 
       <details className="advanced-filters" open={advancedOpen} onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}>
@@ -427,6 +466,16 @@ export function DirectoryFilters({
                 {Object.entries(OPERATION_TYPE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
               <small>Uses the operating model stated in the public source record.</small>
+            </div>
+            <div className="field">
+              <label htmlFor={`${id}-verified`}>Last verified</label>
+              <select id={`${id}-verified`} value={verified} onChange={(event) => setVerified(event.target.value)}>
+                <option value="">Any review date</option>
+                <option value="30-days">Within 30 days of the latest catalog review</option>
+                <option value="90-days">Within 90 days of the latest catalog review</option>
+                <option value="year">Within one year of the latest catalog review</option>
+              </select>
+              <small>Uses each profile’s public-source review date.</small>
             </div>
           </div>
           <div className="advanced-filter-actions">

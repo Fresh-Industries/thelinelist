@@ -11,7 +11,7 @@ const CURATED_CATALOG = join(ROOT, "lib/directory/plants.ts");
 const GENERATED_CATALOG = join(ROOT, "lib/directory/imported-plants.generated.ts");
 const GENERATED_REPORT = join(ROOT, "data/manufacturer-imports/import-report.generated.json");
 const SAFE_STATUSES = new Set(["VERIFIED", "LISTABLE"]);
-const TARGET_COUNT = 50;
+const TARGET_COUNT = 68;
 const TARGET_LISTABLE_COUNT = 2;
 
 const rowSchema = z.object({
@@ -59,10 +59,10 @@ const categoryRules = [
   ["dry-coffee-tea", /\b(K-Cups?|coffee pods?|tea pods?|functional beverage pods?|loose leaf tea|private label coffee|tea pouches?)\b/i],
   ["dairy", /(?<!non[- ])\b(dairy|milk|butter|sour cream|cottage cheese|ice cream mix)\b/i],
   ["frozen-foods", /\bfrozen\b/i],
-  ["prepared-refrigerated-foods", /\b(refrigerated foods?|refrigerated meals?|refrigerated prepared foods?|fresh refrigerated)\b/i],
+  ["prepared-refrigerated-foods", /\b(refrigerated foods?|refrigerated meals?|refrigerated prepared (?:foods?|beans?|meals?|dips?|soups?)|fresh refrigerated)\b/i],
   ["shelf-stable-meals", /\b(shelf[- ]stable (?:RTE|ready[- ]to[- ]eat|meals?|foods?|sides?)|retort foods?)\b/i],
   ["soups-broths-entrees", /\b(soups?|broths?|stews?|chilis?|entr[eé]es?)\b/i],
-  ["fermented-foods", /(?<!un)\b(?:lacto[- ])?fermented foods?\b|\blacto[- ]fermented\b/i],
+  ["fermented-foods", /(?<!un)\b(?:lacto[- ])?fermented (?:foods?|beverages?|products?)\b|\blacto[- ]fermented\b/i],
 ];
 
 const processRules = [
@@ -384,6 +384,7 @@ function toPlant(row, usedSlugs) {
   )))];
   const sourceUrls = splitList(row.source_urls);
   const websiteDomain = normalizedDomain(row.website);
+  const hasExternalSource = sourceUrls.some((url) => normalizedDomain(url) && normalizedDomain(url) !== websiteDomain);
   const extraLinks = sourceUrls
     .filter((url) => normalizedDomain(url) !== websiteDomain || url !== row.website)
     .map((url, index) => ({ label: sourceLabel(url, index, websiteDomain), href: url }));
@@ -413,6 +414,7 @@ function toPlant(row, usedSlugs) {
     certs: splitList(row.certifications),
     lastVerified: row.last_checked_date.slice(0, 10),
     listingStatus: row.status,
+    claimSource: row.status === "LISTABLE" ? "directory-reported" : hasExternalSource ? "mixed-public-sources" : "company-published",
     confidence: row.confidence,
     website: { label: "Official website", href: row.website },
     extraLinks,
@@ -420,6 +422,13 @@ function toPlant(row, usedSlugs) {
     publicEmail: row.public_email || null,
     operationType: normalizeOperationType(row.operation_type),
     operationTypePublished: row.operation_type || null,
+    fieldSourceUrls: splitList(row.flags).includes("official_company_source") ? {
+      ...(row.product_types ? { products: sourceUrls } : {}),
+      ...(row.manufacturing_capabilities ? { processes: sourceUrls } : {}),
+      ...(row.packaging_formats ? { packaging: sourceUrls } : {}),
+      ...(row.moq ? { minimums: sourceUrls } : {}),
+      ...(row.certifications ? { certifications: sourceUrls } : {}),
+    } : undefined,
     needsCurrentOwnershipVerification: splitList(row.flags).includes("needs_current_ownership_verification") || undefined,
     introductionsPaused: splitList(row.flags).includes("introductions_paused") || undefined,
     verificationNotice: splitList(row.flags).includes("needs_current_ownership_verification")
@@ -456,6 +465,8 @@ function polishMoqDisplay(value) {
 
 function hasPublishedSmallMoq(value) {
   if (!value) return false;
+  if (/\b(?:company )?(?:states?|lists?|publishes?|offers?) no minimum order\b/i.test(value)) return true;
+  if (/\b(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+) batches? per (?:flavor|SKU)\b/i.test(value)) return true;
   if (/\bunpublished\b|\bnot (?:published|stated)\b|\bno (?:per-SKU unit MOQ|minimums?|numeric)\b|exact (?:units?|MOQ)|minimums? vary/i.test(value)) return false;
   if (/\$\s*\d/i.test(value) && /\b(?:projects?|runs?|MOQ|minimum|start|starting|from)\b/i.test(value)) return true;
   return /\d[\d,.]*\s*(?:K\s*)?[-–]?\s*(?:units?|bottles?|gallons?|gal|lit(?:er|re)s?|pounds?|lbs?|pallets?|cases?|pouches?|packets?|pods?)\b/i.test(value);
@@ -532,7 +543,7 @@ function generate() {
       repeatedMasterKey: repeatedMasterKeys,
       crossIdentityDuplicate: crossIdentityDuplicates,
       alreadyCurated: existingDuplicates,
-      safeNotSelected: safeNotSelected.map((row) => ({ companyName: row.company_name, source: row.__source, reason: "outside initial 50-record cohort" })),
+      safeNotSelected: safeNotSelected.map((row) => ({ companyName: row.company_name, source: row.__source, reason: `outside initial ${TARGET_COUNT}-record cohort` })),
     },
   };
 
