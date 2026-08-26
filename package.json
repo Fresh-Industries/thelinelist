@@ -13,7 +13,8 @@
     "test:e2e": "playwright test",
     "test:seo": "npm run build && node scripts/check-seo.mjs",
     "manufacturers:import": "node scripts/import-manufacturers.mjs",
-    "manufacturers:check": "node scripts/import-manufacturers.mjs --check"
+    "manufacturers:check": "node scripts/import-manufacturers.mjs --check",
+    "report:weekly": "node scripts/weekly-directory-report.mjs"
   },
   "dependencies": {
     "next": "16.3.2",

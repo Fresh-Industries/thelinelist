@@ -5,6 +5,9 @@ import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SourceLinks } from "@/components/SourceLinks";
 import { Unpublished } from "@/components/Unpublished";
+import { RelatedGuides } from "@/components/guides/RelatedGuides";
+import { CompareButton } from "@/components/compare/CompareButton";
+import { CompareDock } from "@/components/compare/CompareDock";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import {
   OPERATION_TYPE_LABELS,
@@ -12,6 +15,9 @@ import {
   formatLastVerified,
   formatProcesses,
   formatVerifiedMonth,
+  certificationClaimCount,
+  claimSourceLabel,
+  classifyCertificationClaims,
   getPlantBySlug,
   getPlantSlugs,
   plantMatchesCategory,
@@ -21,6 +27,7 @@ import {
 } from "@/lib/directory";
 import { plantProfileJsonLd } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { relatedGuidesForPlant } from "@/lib/guides/related";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -61,9 +68,10 @@ export async function generateMetadata({
   const title = `${plant.name} | Food and beverage manufacturer`;
   const description = `Public manufacturing details for ${plant.name} in ${plant.locationDisplay}, with source links and questions to ask.`;
   const path = `/manufacturers/${plant.slug}`;
+  const isUnverifiedListing = (plant.listingStatus ?? "VERIFIED") !== "VERIFIED";
   return {
     ...pageMetadata({ title, description, path }),
-    ...(plant.needsCurrentOwnershipVerification ? { robots: { index: false, follow: true } } : {}),
+    ...(plant.needsCurrentOwnershipVerification || isUnverifiedListing ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
@@ -96,6 +104,15 @@ export default async function ManufacturerPage({
     "Is my formula, storage plan, and expected shelf life compatible with your process?",
     "What documents and test results do you need before a first run?",
   ].filter((item): item is string => Boolean(item));
+  const certificationGroups = classifyCertificationClaims(plant.certs);
+  const certificationSections = [
+    { label: "Regulatory status", values: certificationGroups.regulatoryStatus },
+    { label: "Food-safety systems", values: certificationGroups.foodSafetySystems },
+    { label: "Third-party certifications", values: certificationGroups.thirdPartyCertifications },
+    { label: "Product or facility certifications", values: certificationGroups.productFacilityCertifications },
+    { label: "Facility claims", values: certificationGroups.facilityClaims },
+    { label: "Other published quality claims", values: certificationGroups.otherPublishedClaims },
+  ].filter((section) => section.values.length > 0);
 
   return (
     <>
@@ -158,12 +175,28 @@ export default async function ManufacturerPage({
             <div><dt>Manufacturing capabilities</dt><dd>{plant.manufacturingCapabilitiesPublished ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.processes} sourceNumbers={sourceNumbers} /></dd></div>
             <div><dt>Packaging</dt><dd>{plant.packaging ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.packaging} sourceNumbers={sourceNumbers} /></dd></div>
             <div><dt>Published minimum</dt><dd>{plant.moqDisplay ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.minimums} sourceNumbers={sourceNumbers} /></dd></div>
-            <div><dt>Certifications</dt><dd>{plant.certs.length > 0 ? plant.certs.join(" · ") : <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.certifications} sourceNumbers={sourceNumbers} /></dd></div>
+            <div><dt>Source basis</dt><dd>{claimSourceLabel(plant)}</dd></div>
             <div><dt>Operating model</dt><dd>{plant.operationType ? OPERATION_TYPE_LABELS[plant.operationType] : (plant.operationTypePublished ?? <Unpublished />)}</dd></div>
             <div><dt>Website</dt><dd><a href={plant.website.href} rel="noreferrer">Visit official website</a></dd></div>
             <div><dt>Phone</dt><dd>{plant.needsCurrentOwnershipVerification ? <Unpublished>Needs current ownership verification</Unpublished> : plant.phone ? <a href={`tel:${plant.phone}`}>{plant.phone}</a> : <Unpublished />}</dd></div>
             <div><dt>Public email</dt><dd>{plant.needsCurrentOwnershipVerification ? <Unpublished>Needs current ownership verification</Unpublished> : plant.publicEmail ? <a href={`mailto:${plant.publicEmail}`}>{plant.publicEmail}</a> : <Unpublished />}</dd></div>
           </dl>
+
+          <section aria-labelledby="quality-heading" className="profile-quality">
+            <h2 id="quality-heading">Regulatory and quality information</h2>
+            <p>These terms do not all mean the same thing. Registration and inspection are regulatory statuses. HACCP and GMP describe food-safety systems. SQF and BRCGS are third-party certification programs. Confirm the current facility, scope, and expiration directly.</p>
+            {certificationClaimCount(certificationGroups) > 0 ? (
+              <dl className="quality-groups">
+                {certificationSections.map((section) => (
+                  <div key={section.label}>
+                    <dt>{section.label}</dt>
+                    <dd>{section.values.join(" · ")}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : <p><Unpublished>Unknown, ask the manufacturer</Unpublished></p>}
+            <FieldCitations urls={plant.fieldSourceUrls?.certifications} sourceNumbers={sourceNumbers} />
+          </section>
 
           <h2>What the manufacturer says</h2>
           {plant.overview.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
@@ -199,6 +232,8 @@ export default async function ManufacturerPage({
             </section>
           ) : null}
 
+          <RelatedGuides guides={relatedGuidesForPlant(plant)} heading="Prepare for the next manufacturer conversation" />
+
           <h2>What to ask next</h2>
           <ul>{questions.map((question) => <li key={question}>{question}</li>)}</ul>
 
@@ -210,7 +245,7 @@ export default async function ManufacturerPage({
             {!plant.introductionsPaused ? <Link className="btn btn-gold" href={`/find-manufacturers/request-intro?manufacturer=${plant.slug}`}>
               Request help contacting this manufacturer
             </Link> : null}
-            <Link className="btn btn-ghost" href="/find-manufacturers">Compare manufacturers</Link>
+            <CompareButton className="btn btn-ghost" slug={plant.slug} name={plant.name} />
           </div>
           <p className="claim-compact">
             Represent this manufacturer? <Link href={`/claim-submit?manufacturer=${plant.slug}`}>Claim or correct this profile</Link>.
@@ -218,6 +253,7 @@ export default async function ManufacturerPage({
           <NewsletterCta />
         </article>
       </main>
+      <CompareDock />
     </>
   );
 }

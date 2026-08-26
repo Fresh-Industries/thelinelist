@@ -14,7 +14,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const guide = getCornerstoneGuide(slug);
   if (!guide) return { title: "Guide not found" };
-  return pageMetadata({ title: guide.seoTitle, description: guide.description, path: `/guides/${guide.slug}` });
+  const metadata = pageMetadata({ title: guide.seoTitle, description: guide.description, path: `/guides/${guide.slug}` });
+  return {
+    ...metadata,
+    openGraph: { ...metadata.openGraph, type: "article", images: [{ url: guide.image, alt: guide.imageAlt }] },
+    twitter: { ...metadata.twitter, images: [guide.image] },
+  };
 }
 
 export default async function CornerstoneGuidePage({ params }: { params: Promise<{ slug: string }> }) {

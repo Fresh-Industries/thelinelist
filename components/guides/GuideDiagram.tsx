@@ -1,5 +1,44 @@
 import type { CornerstoneGuide } from "@/lib/guides/cornerstones";
 
+const HOT_SAUCE_STEPS = [
+  ["Choose your", "route"],
+  ["Write the", "product brief"],
+  ["Get safety", "review"],
+  ["Confirm bottle", "+ process"],
+  ["Run a trial"],
+  ["Choose a", "manufacturer"],
+] as const;
+
+const FIRST_RUN_STEPS = ["Product brief", "Specifications", "Trial", "Approval", "Production", "Storage + freight"] as const;
+
+function HotSauceDiagram() {
+  return (
+    <figure className="guide-diagram">
+      <figcaption>The beginner path from sauce idea to manufacturer</figcaption>
+      <svg className="guide-diagram-svg guide-diagram-svg-hot-sauce" viewBox="0 0 940 235" role="img" aria-labelledby="hot-sauce-title hot-sauce-desc">
+        <title id="hot-sauce-title">Six steps to prepare a hot sauce brand for manufacturing</title>
+        <desc id="hot-sauce-desc">Choose private label or your own recipe, write a clear product brief, get a qualified food-safety review, confirm the bottle and process together, run a trial, and choose a fitting manufacturer.</desc>
+        <defs><marker id="hot-sauce-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" className="diagram-arrowhead" /></marker></defs>
+        {HOT_SAUCE_STEPS.map((lines, index) => {
+          const x = 18 + index * 154;
+          return (
+            <g key={lines.join(" ")}>
+              <circle className="diagram-step-number" cx={x + 66} cy="48" r="22" />
+              <text className="diagram-number" x={x + 66} y="55" textAnchor="middle">{index + 1}</text>
+              <rect className={index === 2 ? "diagram-node diagram-node-accent" : "diagram-node"} x={x} y="88" width="132" height="94" rx="18" />
+              <text className={index === 2 ? "diagram-label diagram-label-light" : "diagram-label"} x={x + 66} y={lines.length > 1 ? "124" : "136"} textAnchor="middle">
+                {lines.map((line, lineIndex) => <tspan key={line} x={x + 66} dy={lineIndex === 0 ? 0 : 21}>{line}</tspan>)}
+              </text>
+              {index < HOT_SAUCE_STEPS.length - 1 ? <path className="diagram-line" d={`M${x + 132} 135 H${x + 150}`} markerEnd="url(#hot-sauce-arrow)" /> : null}
+            </g>
+          );
+        })}
+        <text className="diagram-note" x="480" y="220" textAnchor="middle">The qualified expert and manufacturer set the exact process. This is a planning map, not a recipe.</text>
+      </svg>
+    </figure>
+  );
+}
+
 function FormulaDiagram() {
   return (
     <figure className="guide-diagram">
@@ -96,7 +135,6 @@ function StorageDiagram() {
 }
 
 function FirstRunDiagram() {
-  const nodes = ["Product brief", "Specifications", "Trial", "Approval", "Production", "Storage + freight"];
   return (
     <figure className="guide-diagram">
       <figcaption>Required sequence before finished goods leave the plant</figcaption>
@@ -104,7 +142,7 @@ function FirstRunDiagram() {
         <title id="run-title">First production run sequence</title>
         <desc id="run-desc">Product brief leads to written specifications, then a trial, written approval, production, and planned storage and freight.</desc>
         <defs><marker id="run-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" className="diagram-arrowhead" /></marker></defs>
-        {nodes.map((node, index) => {
+        {FIRST_RUN_STEPS.map((node, index) => {
           const x = 18 + index * 154;
           return (
             <g key={node}>
@@ -114,7 +152,7 @@ function FirstRunDiagram() {
               <text className={index === 4 ? "diagram-label diagram-label-light" : "diagram-label"} x={x + 66} y="120" textAnchor="middle">
                 {node === "Storage + freight" ? <><tspan x={x + 66}>Storage</tspan><tspan x={x + 66} dy="21">+ freight</tspan></> : node}
               </text>
-              {index < nodes.length - 1 ? <path className="diagram-line" d={`M${x + 132} 125 H${x + 150}`} markerEnd="url(#run-arrow)" /> : null}
+              {index < FIRST_RUN_STEPS.length - 1 ? <path className="diagram-line" d={`M${x + 132} 125 H${x + 150}`} markerEnd="url(#run-arrow)" /> : null}
             </g>
           );
         })}
@@ -124,6 +162,7 @@ function FirstRunDiagram() {
 }
 
 export function GuideDiagram({ variant }: { variant: CornerstoneGuide["diagram"] }) {
+  if (variant === "hot-sauce") return <HotSauceDiagram />;
   if (variant === "formula") return <FormulaDiagram />;
   if (variant === "package") return <PackageDiagram />;
   if (variant === "storage") return <StorageDiagram />;

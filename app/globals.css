@@ -27,6 +27,62 @@
   --shadow: 0 18px 40px rgba(22, 56, 45, 0.12);
 }
 
+/* Trust groups, contextual learning, and manufacturer comparison */
+.profile-quality {
+  margin-block: 2rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 2px solid var(--forest);
+  background: var(--raised);
+}
+
+.quality-groups {
+  display: grid;
+  gap: 0;
+  margin: 1rem 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--forest) 35%, transparent);
+}
+
+.quality-groups > div {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.36fr) 1fr;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--forest) 25%, transparent);
+}
+
+.quality-groups dt { font-weight: 800; }
+.quality-groups dd { margin: 0; }
+
+.related-guide-band {
+  margin-block: clamp(2rem, 6vw, 4rem);
+  padding: clamp(1.2rem, 4vw, 2rem);
+  border: 3px solid var(--forest);
+  background: var(--aqua);
+  box-shadow: 6px 6px 0 var(--forest);
+}
+
+.related-guide-band h2 { margin-block: 0.2rem 1rem; }
+.related-guide-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
+.related-guide-grid a {
+  display: flex;
+  min-height: 10rem;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1rem;
+  border: 2px solid var(--forest);
+  background: var(--raised);
+  color: var(--ink);
+  text-decoration: none;
+}
+.related-guide-grid a:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--forest); }
+.related-guide-grid strong { font-size: 1.05rem; }
+.related-guide-grid span { color: var(--muted); }
+.related-guide-grid em { margin-top: auto; color: var(--forest); font-style: normal; font-weight: 800; }
+
+.guide-related { margin-block: 2.5rem; }
+.guide-related ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; padding: 0; list-style: none; }
+.guide-related a { display: block; height: 100%; padding: 1rem; border: 2px solid var(--forest); background: var(--yellow); color: var(--ink); font-weight: 800; text-decoration: none; }
+
 .compare-toggle {
   appearance: none;
   border: 0;
@@ -124,6 +180,9 @@
 .compare-next .btn { flex: 0 0 auto; }
 
 @media (max-width: 760px) {
+  .quality-groups > div { grid-template-columns: 1fr; gap: 0.25rem; }
+  .related-guide-grid, .guide-related ul { grid-template-columns: 1fr; }
+  .related-guide-grid a { min-height: 0; }
   .compare-dock { right: 0.75rem; bottom: 0.75rem; left: 0.75rem; width: auto; gap: 0.65rem; padding: 0.65rem 0.7rem; box-shadow: 4px 4px 0 var(--forest); }
   .compare-dock > div:first-child span { display: none; }
   .compare-dock-actions { margin-left: auto; gap: 0.45rem; }
@@ -2526,6 +2585,7 @@ details.textbook .textbook-mark {
 .guide-diagram { width: 100%; max-width: 100%; margin: 1.8rem 0; padding: 1rem; border: 1px solid var(--rule); border-radius: 1rem; background: var(--raised); overflow-x: auto; }
 .guide-diagram figcaption { font-weight: 700; margin-bottom: 0.85rem; }
 .guide-diagram-svg { display: block; width: 100%; height: auto; min-width: 38rem; font-family: var(--font-sans); }
+.guide-diagram-svg-hot-sauce { min-width: 40rem; }
 .guide-diagram-svg-wide { min-width: 48rem; }
 .diagram-node { fill: var(--paper); stroke: var(--rule); stroke-width: 2; }
 .diagram-node-accent { fill: var(--forest); stroke: var(--forest); }
@@ -5126,6 +5186,26 @@ main:not(.home) .wizard-fields select {
 
 .direct-answer p:last-child {
   margin-bottom: 0;
+}
+
+.guide-audience {
+  margin: 1rem 0 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.75rem;
+  background: var(--raised);
+}
+
+.guide-audience h2 {
+  margin: 0 0 0.35rem;
+  padding: 0;
+  border: 0;
+  color: var(--forest-deep);
+  font-size: 1rem;
+}
+
+.guide-audience p {
+  margin: 0;
 }
 
 .guide-steps {

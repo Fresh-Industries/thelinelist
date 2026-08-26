@@ -1,3 +1,3 @@
-export function Unpublished({ children = "Not publicly listed" }: { children?: string }) {
+export function Unpublished({ children = "Unknown, ask the manufacturer" }: { children?: string }) {
   return <span className="unpublished">{children}</span>;
 }

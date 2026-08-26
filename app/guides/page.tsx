@@ -90,10 +90,10 @@ export default function GuidesPage() {
         <section id="pick-a-guide" className="guide-hub-section" aria-labelledby="pick-a-guide-title">
           <div className="guide-section-heading">
             <div>
-              <p className="kicker">Product playbooks</p>
-              <h2 id="pick-a-guide-title">Pick the one that sounds like you</h2>
+              <p className="kicker">Beginner playbooks</p>
+              <h2 id="pick-a-guide-title">Pick the problem you need to solve</h2>
             </div>
-            <p>Each guide turns a product idea into a practical first-manufacturer brief.</p>
+            <p>Each guide solves one part of the path from idea to a prepared manufacturer conversation.</p>
           </div>
 
           <div className="guide-card-grid">

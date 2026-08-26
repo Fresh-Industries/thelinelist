@@ -23,7 +23,7 @@ export function SponsoredSlot({ position }: { position: SlotPosition }) {
         placements stay outside the A to Z directory order.
       </p>
       <p className="featured-actions">
-        <Link className="btn btn-ghost" href="/about#claim" onClick={onCta}>
+        <Link className="btn btn-ghost" href="/claim-submit" onClick={onCta}>
           Claim your profile
         </Link>
         <a
