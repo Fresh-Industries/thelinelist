@@ -14,7 +14,7 @@ Intro and claim forms always render. They store a lead and notify the owner when
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `BLOB_READ_WRITE_TOKEN` | Recommended | Vercel Blob. JSON files at `leads/{intro\|claim}/{date}/{id}.json`. |
+| `BLOB_READ_WRITE_TOKEN` | Recommended | Vercel Blob. Lead JSON files use `leads/{intro\|claim}/{date}/{id}.json`; sourcing workspaces use private objects under `sourcing/`. |
 
 If Blob is missing and email is configured, the notification email is the archive.
 
@@ -37,6 +37,20 @@ If Blob is missing and email is configured, the notification email is the archiv
 | `UPSTASH_REDIS_REST_TOKEN` | With the URL | |
 
 Without Upstash, a best-effort in-memory limiter still runs on the current instance.
+
+## Sourcing workspace store
+
+The `/sourcing` product-plan workflow requires a durable store in production. It prefers Upstash when both Redis variables above are set, then falls back to private Vercel Blob. Development uses local temporary JSON files.
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `UPSTASH_REDIS_REST_URL` | One durable-store option | Used with `UPSTASH_REDIS_REST_TOKEN` for workspace records and atomic send claims. |
+| `UPSTASH_REDIS_REST_TOKEN` | With the URL | |
+| `BLOB_READ_WRITE_TOKEN` | Alternative durable-store option | Reuses the Vercel Blob token from Leads store. |
+| `BLOB_STORE_ID` | OIDC alternative | Use with `VERCEL_OIDC_TOKEN` when no Blob read/write token is set. |
+| `VERCEL_OIDC_TOKEN` | With `BLOB_STORE_ID` | Vercel-provided OIDC credential for private Blob access. |
+
+Without either durable backend, production returns `503` when a founder tries to create a workspace. It does not create a workspace link that may disappear between server instances.
 
 ## Newsletter
 
