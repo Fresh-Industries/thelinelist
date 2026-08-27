@@ -1,4 +1,4 @@
-import { BlobNotFoundError, BlobPreconditionFailedError, del, get, put } from "@vercel/blob";
+import { BlobNotFoundError, BlobPreconditionFailedError, del, get, head, put } from "@vercel/blob";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -224,9 +224,12 @@ async function readBlob(pathname: string): Promise<string | null> {
 
 async function readBlobRecord(pathname: string): Promise<{ body: string; etag: string } | null> {
   try {
+    // Private Blob downloads can expose a weak HTTP ETag (W/"..."). Conditional
+    // writes require the strong Blob ETag returned by the metadata API.
+    const metadata = await head(pathname);
     const result = await get(pathname, { access: "private", useCache: false });
     if (!result || result.statusCode !== 200 || !result.stream) return null;
-    return { body: await new Response(result.stream).text(), etag: result.blob.etag };
+    return { body: await new Response(result.stream).text(), etag: metadata.etag };
   } catch (error) {
     if (error instanceof BlobNotFoundError || (error instanceof Error && error.name === "BlobNotFoundError")) return null;
     throw error;
