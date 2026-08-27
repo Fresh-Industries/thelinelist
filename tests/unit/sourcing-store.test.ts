@@ -74,6 +74,7 @@ describe("production sourcing storage", () => {
     vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "");
     vi.stubEnv("BLOB_STORE_ID", "");
     vi.stubEnv("VERCEL_OIDC_TOKEN", "");
+    vi.stubEnv("VERCEL", "");
   });
 
   it("persists workspaces in Vercel Blob when Redis is unavailable", async () => {
@@ -94,6 +95,12 @@ describe("production sourcing storage", () => {
     vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example.test");
     vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "redis-token");
     expect(sourcingStoreAdapter()).toBe("upstash");
+  });
+
+  it("recognizes a connected Blob store on Vercel where OIDC refresh is automatic", () => {
+    vi.stubEnv("BLOB_STORE_ID", "store-id");
+    vi.stubEnv("VERCEL", "1");
+    expect(sourcingStoreAdapter()).toBe("blob");
   });
 
   it("writes private deterministic blobs and resolves packet tokens", async () => {
