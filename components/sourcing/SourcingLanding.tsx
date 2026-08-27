@@ -10,7 +10,7 @@ function starterPrompt(idea: string): string {
 
 Ask me one simple question at a time and update my Line List workspace as we go. Tell me what I still need to figure out, find potential manufacturers using sourced information only, and help me prepare an introduction when I’m ready.
 
-Do not contact or send anything to a manufacturer without showing it to me and getting my approval first.`;
+Do not contact or send anything to a manufacturer. Prepare the introduction and open the final review for me; only I can click the final send button inside The Line List.`;
 }
 
 export function SourcingLanding() {
@@ -84,7 +84,7 @@ export function SourcingLanding() {
         <div className="sourcing-hero-copy">
           <p className="kicker">Your idea, with a clear next step</p>
           <h1 id="sourcing-hero-heading">Turn your food idea into a plan manufacturers can use.</h1>
-          <p className="lede">Use ChatGPT and The Line List together to build your product plan, find possible manufacturers, and prepare your first introduction.</p>
+          <p className="lede">Use ChatGPT and The Line List together to build your product plan, compare sourced manufacturer possibilities, and prepare a warm introduction. Only you can send it.</p>
           <div className="sourcing-hero-actions">
             <button className="btn btn-gold" type="button" onClick={() => openOnboarding()}>Use with ChatGPT</button>
             <button className="btn btn-ghost" type="button" disabled={pending !== null} onClick={() => createWorkspace({}, "manual")}>{pending === "manual" ? "Starting…" : "Build it myself"}</button>
@@ -127,7 +127,7 @@ export function SourcingLanding() {
           <form method="dialog" onSubmit={(event) => { event.preventDefault(); void continueToPrompt(); }}>
             <p className="kicker">Start with a sentence</p>
             <h2 id="chatgpt-onboarding-heading">Build your product plan with ChatGPT</h2>
-            <p>Keep The Line List open while you talk with ChatGPT. In supported browsers, ChatGPT can build and update your product plan here as you answer questions.</p>
+            <p>Keep The Line List open while you talk with ChatGPT. It can update the plan and prepare an introduction as you answer questions. The final send always stays in your hands.</p>
             <label htmlFor="sourcing-idea">What do you want to make?</label>
             <input ref={ideaInputRef} id="sourcing-idea" value={idea} onChange={(event) => setIdea(event.target.value)} placeholder="A packaged banana bread I can sell in grocery stores" maxLength={300} autoComplete="off" />
             {error ? <p className="sourcing-error" role="alert">{error}</p> : null}

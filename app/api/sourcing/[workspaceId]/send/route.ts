@@ -1,8 +1,8 @@
 import { isNotifyConfigured, sendEmail } from "@/lib/notify/email";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
-import { getDemoRecipient, packetUrl } from "@/lib/sourcing/outreach";
-import { sendInquirySchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
+import { packetUrl, resolveApprovedDeliveryRecipient, validateHumanSendToken } from "@/lib/sourcing/outreach";
+import { contactEmailSchema, sendInquirySchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, claimInquirySend, getSourcingWorkspace, releaseInquirySend, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
@@ -24,9 +24,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   if (!draft.approvedVersion || draft.approvedVersion !== draft.version || draft.approvedVersion !== parsed.data.approvedContentVersion) {
     return responseError("The visible draft version must be approved before sending.", 409);
   }
-  const demoRecipient = getDemoRecipient();
-  if (!demoRecipient || !isNotifyConfigured()) {
-    return responseError("Safe demo delivery is not configured. Add SOURCING_DEMO_RECIPIENT and an email provider; nothing was sent.", 503);
+  if (!validateHumanSendToken(draft, parsed.data.humanSendToken)) {
+    return responseError("Return to the final review and click the send button yourself. The approval window may have expired.", 409);
+  }
+  const founderCopyEmail = draft.founderCopyEmail;
+  if (!founderCopyEmail || !contactEmailSchema.safeParse(founderCopyEmail).success) {
+    return responseError("Return to final review and approve a valid founder email before sending.", 409);
+  }
+  if (workspace.fields.contact_email.status !== "confirmed" || workspace.fields.contact_email.value !== founderCopyEmail) {
+    return responseError("Your founder email changed after approval. Return to final review and approve the updated introduction.", 409);
+  }
+
+  const delivery = resolveApprovedDeliveryRecipient(draft);
+  if (!delivery.ok) return responseError(delivery.error, delivery.status);
+  const recipient = delivery.recipient;
+  if (!isNotifyConfigured()) {
+    return responseError("Introduction delivery is not configured. Nothing was sent.", 503);
   }
   const context = await getRequestContext();
   const limited = await rateLimit({ key: `sourcing-send:${context.ipHash}:${workspaceId}`, limit: 5, windowSec: 60 * 60 });
@@ -34,17 +47,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   if (!(await claimInquirySend(draft.id))) return responseError("This approved draft is already being sent or was sent.", 409);
 
   const result = await sendEmail({
-    to: demoRecipient,
-    replyTo: workspace.fields.contact_email.status === "confirmed" ? workspace.fields.contact_email.value ?? undefined : undefined,
-    subject: `[DEMO for ${draft.manufacturerName}] ${draft.subject}`,
-    text: [
+    from: process.env.SOURCING_FROM_EMAIL?.trim() || "The Line List Introductions <introductions@mail.thelinelist.com>",
+    to: recipient,
+    cc: draft.availableDeliveryMethod === "line_list_introduction" ? founderCopyEmail : undefined,
+    replyTo: founderCopyEmail,
+    subject: draft.availableDeliveryMethod === "safe_demo_email" ? `[SAFE DEMO for ${draft.manufacturerName}] ${draft.subject}` : draft.subject,
+    text: draft.availableDeliveryMethod === "safe_demo_email" ? [
       "SAFE DEMO DELIVERY — this message was redirected by The Line List.",
       `Selected manufacturer: ${draft.manufacturerName}`,
       `Approved packet: ${packetUrl(draft.packet.token)}`,
       "",
       draft.body,
-    ].join("\n"),
-    tags: { kind: "sourcing-demo", slug: draft.manufacturerSlug },
+    ].join("\n") : draft.body,
+    tags: { kind: draft.availableDeliveryMethod === "safe_demo_email" ? "sourcing-demo" : "sourcing-introduction", slug: draft.manufacturerSlug },
   });
 
   if (!result.ok) {
@@ -52,7 +67,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     const failed = { ...draft, deliveryStatus: "failed" as const, deliveryError: result.error ?? "Email delivery failed.", updatedAt: new Date().toISOString() };
     const drafts = [...workspace.outreachDrafts];
     drafts[index] = failed;
-    workspace = addWorkspaceActivity({ ...workspace, outreachDrafts: drafts }, "send_failed", `Demo delivery for ${draft.manufacturerName} failed. Nothing was marked contacted.`);
+    const deliveryLabel = draft.availableDeliveryMethod === "line_list_introduction" ? "Live introduction" : "Safe demo delivery";
+    workspace = addWorkspaceActivity({ ...workspace, outreachDrafts: drafts }, "send_failed", `${deliveryLabel} for ${draft.manufacturerName} failed. Nothing was marked contacted.`);
     try {
       await saveSourcingWorkspace(workspace, expectedRevision);
     } catch (error) {
@@ -69,8 +85,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   workspace = addWorkspaceActivity({
     ...workspace,
     outreachDrafts: drafts,
-    inquiries: [{ draftId: draft.id, manufacturerSlug: draft.manufacturerSlug, manufacturerName: draft.manufacturerName, status: "contacted", contactedAt: sentAt, deliveryMethod: "safe_demo_email" }, ...workspace.inquiries],
-  }, "sent", `${draft.manufacturerName} marked Contacted after safe demo delivery.`);
+    inquiries: [{
+      draftId: draft.id,
+      manufacturerSlug: draft.manufacturerSlug,
+      manufacturerName: draft.manufacturerName,
+      status: "contacted",
+      contactedAt: sentAt,
+      deliveryMethod: draft.availableDeliveryMethod === "line_list_introduction" ? "line_list_introduction" : "safe_demo_email",
+      deliveredTo: recipient,
+      founderCopied: draft.availableDeliveryMethod === "line_list_introduction" ? founderCopyEmail : null,
+    }, ...workspace.inquiries],
+  }, "sent", `${draft.manufacturerName} marked Contacted after the approved introduction was delivered.`);
   try {
     await saveSourcingWorkspace(workspace, expectedRevision);
   } catch (error) {
@@ -79,7 +104,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     }
     throw error;
   }
-  return NextResponse.json({ workspace, inquiry: workspace.inquiries[0], deliveredTo: demoRecipient });
+  return NextResponse.json({ workspace, inquiry: workspace.inquiries[0], deliveredTo: recipient, founderCopied: draft.availableDeliveryMethod === "line_list_introduction" ? founderCopyEmail : null });
 }
 
 function responseError(message: string, status: number) {

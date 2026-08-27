@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { FIELD_DEFINITION_BY_KEY, SOURCING_FIELD_DEFINITIONS } from "./fields";
-import type { AgentFieldUpdate, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
+import type { AgentFieldUpdate, OutreachDraft, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
 
 function now(): string {
   return new Date().toISOString();
@@ -21,6 +21,33 @@ function blankField(key: SourcingFieldKey, timestamp: string): SourcingField {
     shareWithManufacturer: false,
     updatedAt: timestamp,
     updatedBy: "system",
+    evidence: [],
+  };
+}
+
+export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorkspace {
+  const timestamp = workspace.updatedAt || now();
+  const fields = Object.fromEntries(
+    SOURCING_FIELD_DEFINITIONS.map(({ key }) => {
+      const existing = workspace.fields?.[key];
+      return [key, existing ? { ...blankField(key, timestamp), ...existing, evidence: existing.evidence ?? [] } : blankField(key, timestamp)];
+    }),
+  ) as Record<SourcingFieldKey, SourcingField>;
+  const outreachDrafts = (workspace.outreachDrafts ?? []).map((draft): OutreachDraft => ({
+    ...draft,
+    recipientEmail: draft.recipientEmail ?? draft.demoRecipient ?? null,
+    founderCopyEmail: draft.founderCopyEmail ?? null,
+    humanSendTokenHash: draft.humanSendTokenHash ?? null,
+    humanSendTokenExpiresAt: draft.humanSendTokenExpiresAt ?? null,
+  }));
+  return {
+    ...workspace,
+    fields,
+    selectedManufacturerSlugs: workspace.selectedManufacturerSlugs ?? [],
+    matches: workspace.matches ?? [],
+    outreachDrafts,
+    inquiries: workspace.inquiries ?? [],
+    activity: workspace.activity ?? [],
   };
 }
 
@@ -72,8 +99,9 @@ export function createWorkspace(options: { demo?: boolean; idea?: string } = {})
     { key: "target_launch_date", value: "Within six months", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
     { key: "preferred_geography", value: "Near Texas", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
     { key: "formulation_assistance", value: "Required", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
+    { key: "storage_distribution", value: "Room temperature", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
+    { key: "production_volume", value: "1,000 to 5,000 units", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
     { key: "carbonation", value: "Carbonated", explicitlyStated: false, source: "Agent inference from energy drink", reason: "Many energy drinks are carbonated, but this needs founder confirmation.", suggestedSharing: true },
-    { key: "production_volume", value: null, explicitlyStated: false, source: "Sourcing readiness check", reason: "Manufacturers need an estimated first-run volume.", suggestedSharing: true },
   ]);
 }
 
@@ -83,21 +111,30 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
   for (const update of updates) {
     const definition = FIELD_DEFINITION_BY_KEY[update.key];
     const hasValue = typeof update.value === "string" && update.value.trim().length > 0;
+    const requestedStatus = update.status ?? (update.explicitlyStated ? "confirmed" : "proposed");
     const status: SourcingFieldStatus = hasValue
-      ? update.explicitlyStated ? "confirmed" : "proposed"
+      ? requestedStatus === "confirmed" && update.explicitlyStated !== true ? "proposed" : requestedStatus
       : "needs_decision";
+    const evidence = (update.sources ?? []).map((source) => ({
+      title: source.title.trim(),
+      url: source.url,
+      claim: source.claim.trim(),
+      publisher: source.publisher?.trim() || null,
+      reviewedAt: source.reviewedAt ?? timestamp,
+    }));
     fields[update.key] = {
       ...fields[update.key],
       value: hasValue ? update.value!.trim() : null,
       status,
       reason: update.reason?.trim() || null,
       source: update.source?.trim() || null,
-      explicitlyStated: update.explicitlyStated,
+      explicitlyStated: update.explicitlyStated === true,
       shareWithManufacturer: hasValue && !definition.privateByDefault
         ? (update.suggestedSharing ?? definition.shareByDefault)
         : false,
       updatedAt: timestamp,
       updatedBy: "agent",
+      evidence,
     };
   }
   const suggestedCount = updates.filter((update) => update.value?.trim() && !update.explicitlyStated).length;
@@ -129,12 +166,31 @@ export function applyFounderFieldUpdate(
     shareWithManufacturer: Boolean(value && status === "confirmed" && !definition.privateByDefault && input.shareWithManufacturer),
     updatedAt: timestamp,
     updatedBy: "founder",
+    evidence: workspace.fields[input.key].evidence ?? [],
   };
   return touch({
     ...workspace,
     fields: { ...workspace.fields, [input.key]: field },
     activity: addActivity(workspace.activity, activity("founder_updated", `${definition.label} updated by founder.`)),
   }, timestamp);
+}
+
+export function invalidateDraftApprovalsForFounderEmailChange(workspace: SourcingWorkspace): SourcingWorkspace {
+  const timestamp = now();
+  return {
+    ...workspace,
+    outreachDrafts: workspace.outreachDrafts.map((draft) => draft.sentAt ? draft : {
+      ...draft,
+      approvedVersion: null,
+      approvedAt: null,
+      deliveryStatus: "draft" as const,
+      deliveryError: null,
+      founderCopyEmail: null,
+      humanSendTokenHash: null,
+      humanSendTokenExpiresAt: null,
+      updatedAt: timestamp,
+    }),
+  };
 }
 
 export function touch(workspace: SourcingWorkspace, timestamp = now()): SourcingWorkspace {

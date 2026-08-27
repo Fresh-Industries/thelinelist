@@ -37,6 +37,11 @@ export const SOURCING_FIELD_DEFINITIONS: SourcingFieldDefinition[] = [
   { key: "company_introduction", label: "Founder or company introduction", hint: "A short, practical introduction", group: "founder", shareByDefault: true, multiline: true },
   { key: "contact_email", label: "Contact email", hint: "Shared only when selected", group: "founder", shareByDefault: true },
   { key: "contact_phone", label: "Contact phone", hint: "Optional", group: "founder", shareByDefault: false },
+  { key: "retail_channel", label: "Where you want to sell first", hint: "Independent grocery, regional retail, online, or another starting point", group: "business", shareByDefault: true },
+  { key: "target_retail_price", label: "Expected shelf price", hint: "A target is enough for now", group: "business", shareByDefault: false, privateByDefault: true },
+  { key: "target_unit_cost", label: "Target cost per unit", hint: "Your cost ceiling before freight and retailer margin", group: "business", shareByDefault: false, privateByDefault: true },
+  { key: "allergens", label: "Ingredients and allergens", hint: "Known allergens, exclusions, and cross-contact needs", group: "product", shareByDefault: true, multiline: true },
+  { key: "case_pack", label: "Case pack", hint: "How many retail units go in one shipping case", group: "run", shareByDefault: true },
 ];
 
 export const FIELD_DEFINITION_BY_KEY = Object.fromEntries(
@@ -62,4 +67,7 @@ export const NEVER_SHARE_FIELD_KEYS = new Set<SourcingFieldKey>([
   "confirmed_decisions",
   "proposed_assumptions",
   "missing_information",
+  "contact_email",
+  "target_retail_price",
+  "target_unit_cost",
 ]);

@@ -36,6 +36,11 @@ function includesAny(text: string, terms: string[]): boolean {
   return terms.some((term) => text.includes(term));
 }
 
+function hasPublishedManufacturingCapability(plant: Plant): boolean {
+  const capabilities = plant.manufacturingCapabilitiesPublished?.toLowerCase() ?? "";
+  return /co-?pack|co-manufact|contract manufactur|private label|wholesale production|bakery manufacturing/.test(capabilities);
+}
+
 function fieldValue(workspace: SourcingWorkspace, key: SourcingFieldKey): string | null {
   const field = workspace.fields[key];
   return field.status === "confirmed" ? field.value : null;
@@ -57,8 +62,10 @@ function productRequirement(plant: Plant, value: string): RequirementResult {
     supported = categories.has("energy-drink") || includesAny(text, ["energy drink", "energy drinks"]);
   } else if (includesAny(normalized, ["sparkling water", "seltzer"])) {
     supported = (categories.has("water") || categories.has("soda")) && includesAny(text, ["sparkling", "seltzer", "carbonated"]);
-  } else if (includesAny(normalized, ["banana bread", "bread", "bakery", "cake", "cookie", "muffin"])) {
-    supported = categories.has("bakery") && includesAny(text, ["bread", "bakery", "baked", "cake", "cookie", "muffin", "loaf"]);
+  } else if (normalized.includes("banana bread")) {
+    supported = categories.has("bakery") && text.includes("banana bread");
+  } else if (includesAny(normalized, ["bread", "bakery", "cake", "cookie", "muffin"])) {
+    supported = categories.has("bakery") && includesAny(text, ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"]);
   } else if (includesAny(normalized, ["protein snack", "snack", "protein bar", "granola", "cracker", "chips"])) {
     supported = categories.has("snacks") && includesAny(text, ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
   } else if (includesAny(normalized, ["drink", "beverage", "juice", "tea", "coffee"])) {
@@ -76,9 +83,20 @@ function productRequirement(plant: Plant, value: string): RequirementResult {
       ? includesAny(normalized, ["energy drink", "functional beverage", "sports drink", "wellness drink"])
         ? "Reviewed product information explicitly includes energy drinks."
         : `Reviewed product information includes ${value}.`
+      : normalized.includes("banana bread") && categories.has("bakery") && includesAny(text, ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"])
+        ? "Reviewed information supports the broader bakery category, but exact banana-bread capability is not publicly established."
       : `A direct fit for ${value} is not publicly established.`,
     sourceField: "products",
   };
+}
+
+function isProductCandidate(plant: Plant, value: string): boolean {
+  const result = productRequirement(plant, value);
+  if (result.outcome === "supported") return true;
+  const normalized = value.toLowerCase();
+  return normalized.includes("banana bread")
+    && (plant.categories ?? []).includes("bakery")
+    && includesAny(searchablePlantText(plant), ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"]);
 }
 
 function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: SourcingFieldKey, value: string): RequirementResult | null {
@@ -92,7 +110,9 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       const terms = wanted.includes("can") ? ["can", "cans", "canning"]
         : wanted.includes("bottle") ? ["bottle", "bottles", "bottling"]
         : wanted.includes("pouch") ? ["pouch", "pouches"]
-        : wanted.includes("jar") ? ["jar", "jars"] : [wanted];
+        : wanted.includes("jar") ? ["jar", "jars"]
+        : wanted.includes("wrap") ? ["individually wrapped", "flow wrap", "flow-wrap", "wrapped"]
+        : wanted.includes("loaf") ? ["loaf", "loaves"] : [wanted];
       const packaging = plant.packaging?.toLowerCase() ?? "";
       return {
         key, label,
@@ -180,6 +200,31 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
         sourceField: "minimums",
         notes: plant.moqDisplay ?? undefined,
       };
+    case "storage_distribution": {
+      const wanted = value.toLowerCase();
+      const terms = /room|ambient|shelf.?stable/.test(wanted) ? ["shelf stable", "shelf-stable", "ambient", "dry shelf"]
+        : /refrigerat|chilled|cold/.test(wanted) ? ["refrigerated", "chilled", "cold storage", "cold chain"]
+        : /frozen|freezer/.test(wanted) ? ["frozen", "freezer"] : [];
+      if (!terms.length) return null;
+      const supported = includesAny(text, terms);
+      return {
+        key, label,
+        outcome: supported ? "supported" : "unknown",
+        claim: supported ? `Published information supports ${value}.` : `${value} storage or distribution capability is not publicly established.`,
+        sourceField: "processes",
+      };
+    }
+    case "allergens": {
+      const wantsNutFree = /no nuts|nut.?free|without nuts/i.test(value);
+      if (!wantsNutFree) return null;
+      const supported = includesAny(text, ["nut-free", "nut free", "peanut-free", "peanut free"]);
+      return {
+        key, label,
+        outcome: supported ? "supported" : "unknown",
+        claim: supported ? "Published information includes a nut-free capability or facility statement." : "Nut controls and cross-contact requirements are not publicly established.",
+        sourceField: "certifications",
+      };
+    }
     default:
       return null;
   }
@@ -217,14 +262,14 @@ export function matchManufacturers(
   const confirmed = Object.values(workspace.fields).filter((field) => field.status === "confirmed" && field.value);
   const requirementKeys = new Set<SourcingFieldKey>([
     "product_type", "packaging_format", "packaging_size", "carbonation", "formulation_assistance",
-    "manufacturing_process", "preferred_geography", "certifications", "production_volume",
+    "manufacturing_process", "preferred_geography", "certifications", "production_volume", "storage_distribution", "allergens",
   ]);
   const usable = confirmed.filter((field) => requirementKeys.has(field.key));
   if (options.geographyPreference) {
     usable.push({ ...workspace.fields.preferred_geography, value: options.geographyPreference, status: "confirmed" });
   }
   const product = fieldValue(workspace, "product_type");
-  const candidates = getDirectoryPlants().filter((plant) => product ? productRequirement(plant, product).outcome === "supported" : false);
+  const candidates = getDirectoryPlants().filter((plant) => product ? isProductCandidate(plant, product) : false);
   const required = new Set(options.requiredRequirements ?? []);
   const preferred = new Set(options.preferredRequirements ?? []);
 
@@ -237,6 +282,7 @@ export function matchManufacturers(
     const conflicts = results.filter((result) => result.outcome === "mismatch" || result.outcome === "conflicting");
     const unknowns = results.filter((result) => result.outcome === "unknown");
     const productSupport = supported.some((result) => result.key === "product_type");
+    const productCandidate = product ? isProductCandidate(plant, product) : false;
     const geographySupport = supported.some((result) => result.key === "preferred_geography");
     const match: ManufacturerMatch = {
       manufacturerSlug: plant.slug,
@@ -259,9 +305,14 @@ export function matchManufacturers(
       supportedCount: supported.length,
       conflictCount: conflicts.length,
       productSupport,
+      productCandidate,
       geographySupport,
-      requiredGaps: results.filter((result) => required.has(result.key) && result.outcome !== "supported").length,
+      requiredGaps: [...required].filter((key) => {
+        const result = results.find((candidate) => candidate.key === key);
+        return !result || result.outcome !== "supported";
+      }).length,
       preferredSupport: results.filter((result) => preferred.has(result.key) && result.outcome === "supported").length,
+      capabilitySupport: supported.filter((result) => result.key !== "product_type" && result.key !== "preferred_geography").length + Number(hasPublishedManufacturingCapability(plant)),
     };
   });
 
@@ -273,7 +324,7 @@ export function matchManufacturers(
       || right.supportedCount - left.supportedCount
       || left.conflictCount - right.conflictCount
       || left.match.manufacturerName.localeCompare(right.match.manufacturerName))
-    .filter(({ productSupport }) => productSupport)
+    .filter(({ productCandidate, capabilitySupport, requiredGaps }) => productCandidate && capabilitySupport > 0 && requiredGaps === 0)
     .slice(0, Math.min(options.resultLimit ?? 3, 3))
     .map(({ match }) => match);
 }

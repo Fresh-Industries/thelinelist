@@ -6,7 +6,9 @@ const DEFAULT_RESEND_FROM_ADDRESS = `${SITE_NAME} <notifications@mail.thelinelis
 export type EmailProvider = "resend" | "postmark";
 
 export interface EmailMessage {
+  from?: string;
   to: string | string[];
+  cc?: string | string[];
   subject: string;
   text: string;
   html?: string;
@@ -104,8 +106,9 @@ async function sendWithResend(message: EmailMessage): Promise<NotifyResult> {
       "User-Agent": "TheLineList/1.0",
     },
     body: JSON.stringify({
-      from: getNotifyFromAddress(),
+      from: message.from || getNotifyFromAddress(),
       to: Array.isArray(message.to) ? message.to : [message.to],
+      cc: message.cc ? (Array.isArray(message.cc) ? message.cc : [message.cc]) : undefined,
       subject: message.subject,
       text: message.text,
       html: message.html ?? undefined,
@@ -125,6 +128,7 @@ async function sendWithResend(message: EmailMessage): Promise<NotifyResult> {
 
 async function sendWithPostmark(message: EmailMessage): Promise<NotifyResult> {
   const to = Array.isArray(message.to) ? message.to.join(",") : message.to;
+  const cc = message.cc ? (Array.isArray(message.cc) ? message.cc.join(",") : message.cc) : undefined;
   const response = await fetch("https://api.postmarkapp.com/email", {
     method: "POST",
     headers: {
@@ -133,8 +137,9 @@ async function sendWithPostmark(message: EmailMessage): Promise<NotifyResult> {
       "X-Postmark-Server-Token": read("POSTMARK_SERVER_TOKEN"),
     },
     body: JSON.stringify({
-      From: getNotifyFromAddress(),
+      From: message.from || getNotifyFromAddress(),
       To: to,
+      Cc: cc,
       Subject: message.subject,
       TextBody: message.text,
       HtmlBody: message.html,

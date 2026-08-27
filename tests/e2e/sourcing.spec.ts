@@ -36,6 +36,7 @@ test("ChatGPT onboarding creates a personalized prompt while the manual path sta
   const prompt = promptDialog.getByLabel("Personalized starter prompt");
   await expect(prompt).toHaveValue(/a packaged banana bread I can sell in grocery stores/);
   await expect(prompt).toHaveValue(/Ask me one simple question at a time/);
+  await expect(prompt).toHaveValue(/only I can click the final send button/);
   await expect(promptDialog.getByText("this is not a connection indicator", { exact: false })).toBeVisible();
 
   const popupPromise = page.waitForEvent("popup");
@@ -67,7 +68,7 @@ test("founder moves through one guided stage at a time to an approved private br
   await expect(page.locator(".guided-stage")).toHaveCount(1);
 
   await page.getByRole("button", { name: "Yes, keep this" }).click();
-  await expect(page.getByText("Your plan is ready enough to start looking for manufacturers.")).toBeVisible();
+  await expect(page.getByText("Your core manufacturing decisions are confirmed.")).toBeVisible();
   await page.getByRole("button", { name: "Find my best matches" }).click();
   await expect(page.getByRole("heading", { name: "Here are the strongest possible matches based on what we know." })).toBeVisible();
   await expect(page.locator(".match-card")).toHaveCount(3);
@@ -92,15 +93,18 @@ test("founder moves through one guided stage at a time to an approved private br
   await expect(packetPage.getByText("About $15,000")).toHaveCount(0);
   await packetPage.close();
 
-  await page.getByRole("button", { name: "Approve introduction" }).click();
-  await expect(page.getByText("This exact message and product brief are approved.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Introduction approved" })).toBeDisabled();
+  await page.getByLabel("Email address").fill("founder@example.com");
+  await page.getByRole("button", { name: "Save my email" }).click();
+  await expect(page.getByText("The manufacturer needs a confirmed reply address.")).toHaveCount(0);
+  await page.getByRole("button", { name: "Continue to final review" }).click();
+  await expect(page.getByRole("heading", { name: "Only you can send this introduction." })).toBeVisible();
+  await expect(page.getByText("ChatGPT and WebMCP cannot press this button for you.")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Send introduction to|Sending is not configured/ })).toBeVisible();
 });
 
-test("all five WebMCP tools share visible state and sending rejects an unapproved version", async ({ page }) => {
+test("all five WebMCP tools share visible state but expose no agent send action", async ({ page }) => {
   await installWebMcpHarness(page);
   await openDemo(page);
-  const workspaceId = page.url().split("/").pop()!;
   const invoke = async (name: string, input: Record<string, unknown>) => page.evaluate(async ({ name, input }) => {
     const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
     const tool = tools.get(name);
@@ -110,24 +114,28 @@ test("all five WebMCP tools share visible state and sending rejects an unapprove
 
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(5);
   await page.getByRole("button", { name: "Yes, keep this" }).click();
-  const afterFounderDecision = await invoke("get_sourcing_workspace", { workspaceId }) as { workspace: { fields: { carbonation: { status: string; updatedBy: string } } } };
+  await expect(page.getByText("Your core manufacturing decisions are confirmed.")).toBeVisible();
+  const afterFounderDecision = await invoke("get_sourcing_workspace", {}) as { workspace: { fields: { carbonation: { status: string; updatedBy: string } } }; finalSendRequiresHumanClick: boolean };
   expect(afterFounderDecision.workspace.fields.carbonation).toMatchObject({ status: "confirmed", updatedBy: "founder" });
-  await invoke("update_sourcing_workspace", { workspaceId, proposedUpdates: [
-    { key: "product_description", value: "A lower-sugar energy drink for afternoon focus", explicitlyStated: true, source: "Founder statement", suggestedSharing: true },
-    { key: "formula_status", value: "I have a recipe, but it needs work", explicitlyStated: true, source: "Founder statement", suggestedSharing: true },
+  expect(afterFounderDecision.finalSendRequiresHumanClick).toBe(true);
+  await invoke("update_sourcing_workspace", { proposedUpdates: [
+    { key: "product_description", value: "A lower-sugar energy drink for afternoon focus", status: "confirmed", explicitlyStated: true, source: "Founder statement", suggestedSharing: true },
+    { key: "formula_status", value: "I have a recipe, but it needs work", status: "confirmed", explicitlyStated: true, source: "Founder statement", suggestedSharing: true },
   ] });
   await expect(page.getByText("A lower-sugar energy drink for afternoon focus").first()).toBeVisible();
   await expect(page.getByText(/ChatGPT added 2 details/)).toBeVisible();
 
-  const matched = await invoke("match_manufacturers", { workspaceId, resultLimit: 10 }) as { matches: Array<{ manufacturerSlug: string }> };
+  const matched = await invoke("match_manufacturers", { resultLimit: 10 }) as { matches: Array<{ manufacturerSlug: string }> };
   expect(matched.matches.length).toBeGreaterThan(0);
   expect(matched.matches.length).toBeLessThanOrEqual(3);
   await expect(page.locator(".match-card")).toHaveCount(matched.matches.length);
 
-  const prepared = await invoke("prepare_manufacturer_outreach", { workspaceId, selectedManufacturerIds: [matched.matches[0].manufacturerSlug] }) as { drafts: Array<{ id: string }> };
+  const prepared = await invoke("prepare_manufacturer_outreach", { selectedManufacturerIds: [matched.matches[0].manufacturerSlug] }) as { drafts: Array<{ id: string }> };
   expect(prepared.drafts).toHaveLength(1);
+  await invoke("open_manufacturer_introduction_review", {});
   await expect(page.getByRole("heading", { name: "What the manufacturer will see" })).toBeVisible();
-  await expect(invoke("send_manufacturer_inquiry", { workspaceId, outreachDraftId: prepared.drafts[0].id, approvedContentVersion: 1 })).rejects.toThrow(/approved/i);
+  const hasAgentSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
+  expect(hasAgentSendTool).toBe(false);
 });
 
 test("mobile keeps the current action and collapsible plan inside the viewport", async ({ page }) => {

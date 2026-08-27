@@ -3,6 +3,7 @@ import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { SourcingWorkspace } from "./types";
+import { normalizeWorkspace } from "./workspace";
 
 const localStoreDirectory = join(tmpdir(), "thelinelist-sourcing-workspaces");
 
@@ -75,7 +76,7 @@ export async function getSourcingWorkspace(id: string): Promise<SourcingWorkspac
     const value = await redisCommand<string | null>(["GET", workspaceKey(id)]);
     if (!value) return null;
     try {
-      return JSON.parse(value) as SourcingWorkspace;
+      return normalizeWorkspace(JSON.parse(value) as SourcingWorkspace);
     } catch {
       return null;
     }
@@ -84,14 +85,14 @@ export async function getSourcingWorkspace(id: string): Promise<SourcingWorkspac
     const value = await readBlob(blobWorkspacePath(id));
     if (!value) return null;
     try {
-      return JSON.parse(value) as SourcingWorkspace;
+      return normalizeWorkspace(JSON.parse(value) as SourcingWorkspace);
     } catch {
       return null;
     }
   }
   if (fileStoreReady()) {
     try {
-      return JSON.parse(await readFile(join(localStoreDirectory, `${id}.json`), "utf8")) as SourcingWorkspace;
+      return normalizeWorkspace(JSON.parse(await readFile(join(localStoreDirectory, `${id}.json`), "utf8")) as SourcingWorkspace);
     } catch {
       return null;
     }
