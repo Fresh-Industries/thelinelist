@@ -3,7 +3,7 @@ import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
 import { getDemoRecipient, packetUrl } from "@/lib/sourcing/outreach";
 import { sendInquirySchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
-import { claimInquirySend, getSourcingWorkspace, releaseInquirySend, saveSourcingWorkspace } from "@/lib/sourcing/store";
+import { SourcingWorkspaceConflictError, claimInquirySend, getSourcingWorkspace, releaseInquirySend, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 
@@ -14,6 +14,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   if (!workspaceIdSchema.safeParse(workspaceId).success) return responseError("Workspace not found.", 404);
   let workspace = await getSourcingWorkspace(workspaceId);
   if (!workspace) return responseError("Workspace not found.", 404);
+  const expectedRevision = workspace.revision;
   const parsed = sendInquirySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return responseError("Invalid send request.", 400);
   const index = workspace.outreachDrafts.findIndex((draft) => draft.id === parsed.data.outreachDraftId);
@@ -52,7 +53,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     const drafts = [...workspace.outreachDrafts];
     drafts[index] = failed;
     workspace = addWorkspaceActivity({ ...workspace, outreachDrafts: drafts }, "send_failed", `Demo delivery for ${draft.manufacturerName} failed. Nothing was marked contacted.`);
-    await saveSourcingWorkspace(workspace);
+    try {
+      await saveSourcingWorkspace(workspace, expectedRevision);
+    } catch (error) {
+      if (error instanceof SourcingWorkspaceConflictError) return responseError(error.message, 409);
+      throw error;
+    }
     return NextResponse.json({ error: failed.deliveryError, workspace }, { status: 502 });
   }
 
@@ -65,7 +71,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     outreachDrafts: drafts,
     inquiries: [{ draftId: draft.id, manufacturerSlug: draft.manufacturerSlug, manufacturerName: draft.manufacturerName, status: "contacted", contactedAt: sentAt, deliveryMethod: "safe_demo_email" }, ...workspace.inquiries],
   }, "sent", `${draft.manufacturerName} marked Contacted after safe demo delivery.`);
-  await saveSourcingWorkspace(workspace);
+  try {
+    await saveSourcingWorkspace(workspace, expectedRevision);
+  } catch (error) {
+    if (error instanceof SourcingWorkspaceConflictError) {
+      return responseError("The inquiry was delivered, but another workspace update prevented its status from being saved. Do not resend it.", 409);
+    }
+    throw error;
+  }
   return NextResponse.json({ workspace, inquiry: workspace.inquiries[0], deliveredTo: demoRecipient });
 }
 

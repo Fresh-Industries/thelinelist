@@ -59,7 +59,7 @@ export function SourcingWorkspace({
   chatGptReady = false,
 }: {
   initialWorkspace: Workspace;
-  storageAdapter: "upstash" | "filesystem" | "memory";
+  storageAdapter: "upstash" | "blob" | "filesystem" | "unavailable";
   demoRecipient: string | null;
   emailConfigured: boolean;
   chatGptReady?: boolean;
@@ -146,7 +146,7 @@ export function SourcingWorkspace({
         <div className="workspace-save-state" role="status" aria-live="polite">
           <span className={busy ? "is-busy" : ""} aria-hidden="true" />
           <strong>{busy || "Saved"}</strong>
-          <small>{storageAdapter === "upstash" ? "Your plan is saved" : storageAdapter === "filesystem" ? "Saved for local testing" : "Saved on this demo instance"}</small>
+          <small>{storageAdapter === "upstash" || storageAdapter === "blob" ? "Your plan is saved" : storageAdapter === "filesystem" ? "Saved for local testing" : "Persistent storage is unavailable"}</small>
         </div>
       </header>
 

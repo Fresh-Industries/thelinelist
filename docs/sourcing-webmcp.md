@@ -14,16 +14,23 @@ The canonical founder route is `/sourcing`. A new workspace receives a 144-bit u
 
 - Framework: Next.js 16 App Router, React 19, TypeScript, Zod.
 - Manufacturer data: the existing `Plant` catalog behind `lib/directory/query.ts`.
-- Persistent workspace store: Upstash Redis in production. Development falls back to owner-only JSON files under the operating system temp directory so route handlers and Server Components share state. An unconfigured production instance reports single-instance memory and is not suitable for a durable demo.
+- Persistent workspace store: Upstash Redis is preferred in production, with private Vercel Blob as the fallback. Development uses owner-only JSON files under the operating system temp directory so route handlers and Server Components share state. An unconfigured production instance refuses to create a workspace and returns `503` instead of issuing a link that another server instance cannot read.
 - Authentication: the current site has no account system. The prototype uses unguessable capability URLs. Anyone with a workspace URL can edit it, so treat it like a private shared document. Adding account ownership can wrap the same store API later.
 - Email: the existing Resend/Postmark adapter. Sourcing inquiries never use a manufacturer email address; delivery is redirected to `SOURCING_DEMO_RECIPIENT`.
 - Consequential-action safety: the send route requires the persisted founder-approved content version, uses an atomic idempotency claim, rate limits attempts, and records Contacted only after the email provider succeeds.
+- Concurrent updates: each workspace write checks the revision it originally read. A stale write returns `409` and asks the founder to refresh instead of overwriting a newer change.
 
 No database migration is required. Upstash keys use these prefixes:
 
 - `sourcing:workspace:{unguessableWorkspaceId}`
 - `sourcing:packet:{unguessablePacketToken}`
 - `sourcing:send:{draftUuid}`
+
+Vercel Blob stores the same records as private, deterministic objects:
+
+- `sourcing/workspaces/{unguessableWorkspaceId}.json`
+- `sourcing/packets/{unguessablePacketToken}.txt`
+- `sourcing/send-claims/{draftUuid}.lock`
 
 ## Current WebMCP contract
 
@@ -67,6 +74,13 @@ The write tools update the same server record used by the React UI. Successful t
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 
+# Or use private Vercel Blob when Upstash is not configured
+BLOB_READ_WRITE_TOKEN=
+
+# Vercel OIDC can replace BLOB_READ_WRITE_TOKEN when both values are present
+BLOB_STORE_ID=
+VERCEL_OIDC_TOKEN=
+
 # Existing email provider configuration
 EMAIL_PROVIDER=resend
 RESEND_API_KEY=
@@ -78,6 +92,8 @@ SOURCING_DEMO_RECIPIENT=your-safe-demo-inbox@example.com
 # Used to build packet links in email
 NEXT_PUBLIC_SITE_URL=https://www.thelinelist.com
 ```
+
+Configure one durable store: both Upstash variables, `BLOB_READ_WRITE_TOKEN`, or the `BLOB_STORE_ID` plus `VERCEL_OIDC_TOKEN` pair. When more than one is present, Upstash is used first.
 
 If the safe recipient or email provider is missing, the approval UI remains complete but send stays disabled and the API returns a truthful configuration error. It never reports a delivery or Contacted status.
 

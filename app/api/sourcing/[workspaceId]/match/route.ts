@@ -1,7 +1,7 @@
 import { matchManufacturers } from "@/lib/sourcing/matching";
 import { hasMinimumMatchingInfo } from "@/lib/sourcing/readiness";
 import { matchRequestSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
-import { getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
+import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
@@ -28,6 +28,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     matches,
     matchesUpdatedAt: new Date().toISOString(),
   }, "matched", `${matches.length} evidence-backed manufacturer match${matches.length === 1 ? "" : "es"} prepared.`);
-  await saveSourcingWorkspace(updated);
+  try {
+    await saveSourcingWorkspace(updated, workspace.revision);
+  } catch (error) {
+    if (error instanceof SourcingWorkspaceConflictError) return NextResponse.json({ error: error.message }, { status: 409 });
+    throw error;
+  }
   return NextResponse.json({ workspace: updated, matches });
 }
