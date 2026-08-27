@@ -47,8 +47,8 @@ The `/sourcing` product-plan workflow requires a durable store in production. It
 | `UPSTASH_REDIS_REST_URL` | One durable-store option | Used with `UPSTASH_REDIS_REST_TOKEN` for workspace records and atomic send claims. |
 | `UPSTASH_REDIS_REST_TOKEN` | With the URL | |
 | `BLOB_READ_WRITE_TOKEN` | Alternative durable-store option | Reuses the Vercel Blob token from Leads store. |
-| `BLOB_STORE_ID` | OIDC alternative | Use with `VERCEL_OIDC_TOKEN` when no Blob read/write token is set. |
-| `VERCEL_OIDC_TOKEN` | With `BLOB_STORE_ID` | Vercel-provided OIDC credential for private Blob access. |
+| `BLOB_STORE_ID` | OIDC alternative | A connected Vercel project can use this store ID with automatically refreshed OIDC credentials when no Blob read/write token is set. |
+| `VERCEL_OIDC_TOKEN` | Local OIDC use | Explicit Vercel-provided OIDC credential for private Blob access outside the deployed project runtime. |
 
 Without either durable backend, production returns `503` when a founder tries to create a workspace. It does not create a workspace link that may disappear between server instances.
 

@@ -23,3 +23,6 @@ playwright-report/
 next-env.d.ts
 *.tsbuildinfo
 .gstack/
+.vercel/
+.env.local
+.env.*.local

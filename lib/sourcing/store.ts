@@ -17,7 +17,7 @@ function redisReady(): boolean {
 function blobReady(): boolean {
   return Boolean(
     read("BLOB_READ_WRITE_TOKEN") ||
-    (read("VERCEL_OIDC_TOKEN") && read("BLOB_STORE_ID")),
+    (read("BLOB_STORE_ID") && (read("VERCEL_OIDC_TOKEN") || read("VERCEL") === "1")),
   );
 }
 
