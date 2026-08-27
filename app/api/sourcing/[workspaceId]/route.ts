@@ -2,7 +2,7 @@ import { getPlantBySlug } from "@/lib/directory";
 import { matchManufacturers } from "@/lib/sourcing/matching";
 import { hasMinimumMatchingInfo } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, founderUpdateSchema, selectionUpdateSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
-import { getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
+import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
 import { applyAgentUpdates, applyFounderFieldUpdate, touch } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
@@ -57,7 +57,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       matchesUpdatedAt: hasMinimumMatchingInfo(updated) ? new Date().toISOString() : null,
     };
   }
-  await saveSourcingWorkspace(updated);
+  try {
+    await saveSourcingWorkspace(updated, workspace.revision);
+  } catch (error) {
+    if (error instanceof SourcingWorkspaceConflictError) {
+      const current = await getSourcingWorkspace(workspaceId);
+      return NextResponse.json({ error: error.message, workspace: current ?? workspace }, { status: 409 });
+    }
+    throw error;
+  }
   return NextResponse.json({ workspace: updated });
 }
 

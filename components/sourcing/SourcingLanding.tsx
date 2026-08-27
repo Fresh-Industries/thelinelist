@@ -47,8 +47,8 @@ export function SourcingLanding() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
       });
-      const body = await response.json() as { workspace?: { id: string }; error?: string };
-      if (!response.ok || !body.workspace) throw new Error(body.error || "Your product plan could not be created.");
+      const body = await response.json().catch(() => null) as { workspace?: { id: string }; error?: string } | null;
+      if (!response.ok || !body?.workspace) throw new Error(body?.error || "Your product plan could not be created.");
       if (kind === "prompt") setWorkspaceId(body.workspace.id);
       else router.push(`/sourcing/${body.workspace.id}`);
       return body.workspace.id;

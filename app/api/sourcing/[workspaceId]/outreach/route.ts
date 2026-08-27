@@ -1,6 +1,6 @@
 import { prepareOutreachDrafts } from "@/lib/sourcing/outreach";
 import { prepareOutreachSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
-import { getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
+import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
@@ -25,6 +25,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     selectedManufacturerSlugs: parsed.data.selectedManufacturerIds,
     outreachDrafts: [...drafts, ...workspace.outreachDrafts],
   }, "drafted", `${drafts.length} personalized outreach draft${drafts.length === 1 ? "" : "s"} prepared. Nothing was sent.`);
-  await saveSourcingWorkspace(updated);
+  try {
+    await saveSourcingWorkspace(updated, workspace.revision);
+  } catch (error) {
+    if (error instanceof SourcingWorkspaceConflictError) return NextResponse.json({ error: error.message }, { status: 409 });
+    throw error;
+  }
   return NextResponse.json({ workspace: updated, drafts }, { status: 201 });
 }

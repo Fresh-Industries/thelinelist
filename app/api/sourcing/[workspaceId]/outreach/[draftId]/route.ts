@@ -1,6 +1,6 @@
 import { editAndApproveDraft } from "@/lib/sourcing/outreach";
 import { editDraftSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
-import { getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
+import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
@@ -29,6 +29,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ wo
   const drafts = [...workspace.outreachDrafts];
   drafts[index] = draft;
   const updated = addWorkspaceActivity({ ...workspace, outreachDrafts: drafts }, "approved", `Founder approved outreach version ${draft.version} for ${draft.manufacturerName}.`);
-  await saveSourcingWorkspace(updated);
+  try {
+    await saveSourcingWorkspace(updated, workspace.revision);
+  } catch (error) {
+    if (error instanceof SourcingWorkspaceConflictError) return NextResponse.json({ error: error.message }, { status: 409 });
+    throw error;
+  }
   return NextResponse.json({ workspace: updated, draft });
 }
