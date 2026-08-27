@@ -1,4 +1,4 @@
-import { createWorkspace } from "@/lib/sourcing/workspace";
+import { createWorkspace, normalizeWorkspace } from "@/lib/sourcing/workspace";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const blobBodies = vi.hoisted(() => new Map<string, string>());
@@ -156,7 +156,7 @@ describe("production sourcing storage", () => {
 
     await saveSourcingWorkspace(workspace, null);
 
-    expect(await getWorkspaceByPacketToken("packet-1")).toEqual(workspace);
+    expect(await getWorkspaceByPacketToken("packet-1")).toEqual(normalizeWorkspace(workspace));
     expect(vi.mocked(blobPut)).toHaveBeenCalledWith(
       `sourcing/workspaces/${workspace.id}.json`,
       JSON.stringify(workspace),

@@ -1,7 +1,7 @@
 "use client";
 
 import { FIELD_DEFINITION_BY_KEY, NEVER_SHARE_FIELD_KEYS, SOURCING_FIELD_DEFINITIONS } from "@/lib/sourcing/fields";
-import { hasMinimumMatchingInfo } from "@/lib/sourcing/readiness";
+import { getSourcingReadiness, type SourcingReadiness } from "@/lib/sourcing/readiness";
 import type { OutreachDraft, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
 import Link from "next/link";
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -17,17 +17,24 @@ interface QuestionDefinition {
   placeholder?: string;
 }
 
+interface DraftApprovalResult {
+  workspace: Workspace;
+  humanSendToken: string;
+}
+
 const QUESTIONS: QuestionDefinition[] = [
   { key: "product_type", title: "What do you want to make?", help: "A simple description is enough to start.", placeholder: "A hot sauce for grocery stores" },
   { key: "packaging_format", title: "How do you picture it being packaged?", help: "This helps us look for manufacturers with the right type of line.", options: ["Cans", "Bottles", "Jars", "Pouches", "I’m not sure yet"] },
+  { key: "packaging_size", title: "What size should each retail unit be?", help: "A rough size is enough. If you are unsure, ChatGPT can research comparable products first.", placeholder: "For example: one 4 oz wrapped slice" },
+  { key: "formula_status", title: "Is your recipe ready?", help: "It is completely normal to start with only an idea.", options: ["Yes, it is ready", "I have a recipe, but it needs work", "No, I need help creating it", "I’m not sure yet"] },
   { key: "formulation_assistance", title: "Do you need help creating the recipe?", help: "Some manufacturers help develop recipes; others expect a finished formula.", options: ["Yes, I need help", "I have a recipe, but it needs work", "No, my recipe is ready", "I’m not sure yet"] },
   { key: "carbonation", title: "Should your drink be carbonated?", help: "Carbonation changes which beverage lines may work.", options: ["Carbonated", "Still", "I’m not sure yet"] },
-  { key: "formula_status", title: "Is your recipe ready?", help: "It is completely normal to start with only an idea.", options: ["Yes, it is ready", "I have a recipe, but it needs work", "No, I need help creating it", "I’m not sure yet"] },
+  { key: "storage_distribution", title: "How should it be stored and sold?", help: "This affects food safety, shelf-life work, packaging, shipping, and manufacturer fit.", options: ["Room temperature", "Refrigerated", "Frozen", "I’m not sure yet"] },
   { key: "production_volume", title: "How much do you want to make for your first run?", help: "A rough range is useful. You do not need a perfect number.", options: ["Fewer than 1,000 units", "1,000 to 5,000 units", "More than 5,000 units", "I’m not sure yet"] },
 ];
 
 const PLAN_SUMMARY_KEYS: SourcingFieldKey[] = [
-  "product_type", "product_description", "packaging_format", "packaging_size", "budget", "target_launch_date", "formulation_assistance", "preferred_geography", "carbonation", "production_volume", "formula_status",
+  "product_type", "product_description", "packaging_format", "packaging_size", "formula_status", "formulation_assistance", "storage_distribution", "production_volume", "allergens", "case_pack", "budget", "target_unit_cost", "target_retail_price", "target_launch_date", "preferred_geography", "carbonation",
 ];
 
 const STATUS_LABELS: Record<SourcingFieldStatus, string> = {
@@ -127,7 +134,27 @@ export function SourcingWorkspace({
     }));
   }
 
-  const planReady = hasMinimumMatchingInfo(workspace);
+  async function approveDraft(subject: string, body: string, includedFieldKeys: SourcingFieldKey[]): Promise<DraftApprovalResult | null> {
+    if (!selectedDraft) return null;
+    setBusy("Saving your final review…");
+    setError("");
+    try {
+      const result = await requestJson<DraftApprovalResult>(`/api/sourcing/${workspace.id}/outreach/${selectedDraft.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ subject, body, includedFieldKeys }),
+      });
+      setWorkspace(result.workspace);
+      return result;
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Something went wrong.");
+      return null;
+    } finally {
+      setBusy("");
+    }
+  }
+
+  const readiness = getSourcingReadiness(workspace);
+  const planReady = readiness.matchingReady;
   const latestActivity = workspace.activity[0];
   const selectedSlug = workspace.selectedManufacturerSlugs[0];
   const selectedMatch = workspace.matches.find((match) => match.manufacturerSlug === selectedSlug);
@@ -136,7 +163,7 @@ export function SourcingWorkspace({
 
   return (
     <>
-      <WebMcpSourcingTools workspaceId={workspace.id} onWorkspaceChanged={onWorkspaceChanged} />
+      <WebMcpSourcingTools workspaceId={workspace.id} onWorkspaceChanged={onWorkspaceChanged} onOpenIntroductionReview={() => setActiveStage("contact")} />
       <header className="sourcing-workspace-header">
         <div>
           <p className="kicker">Your product plan</p>
@@ -156,6 +183,8 @@ export function SourcingWorkspace({
         <StageButton number="3" label="Contact" active={activeStage === "contact"} complete={Boolean(selectedInquiry)} disabled={!selectedSlug} onClick={() => setActiveStage("contact")} />
       </nav>
 
+      <ReadinessStrip readiness={readiness} />
+
       {showCopiedTip ? (
         <div className="chatgpt-ready-note" role="status">
           <div><strong>Copied. Paste the prompt into ChatGPT to begin.</strong><p>Keep this product plan open. No manufacturer can be contacted without your approval.</p></div>
@@ -170,7 +199,7 @@ export function SourcingWorkspace({
       {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
 
       {activeStage === "plan" ? (
-        <PlanStage ref={stageRef} workspace={workspace} busy={Boolean(busy)} ready={planReady} onUpdate={updateField} onFind={findMatches} />
+        <PlanStage ref={stageRef} workspace={workspace} busy={Boolean(busy)} readiness={readiness} onUpdate={updateField} onFind={findMatches} />
       ) : null}
       {activeStage === "matches" ? (
         <MatchesStage ref={stageRef} workspace={workspace} busy={Boolean(busy)} onFind={findMatches} onSelect={selectManufacturer} />
@@ -186,8 +215,9 @@ export function SourcingWorkspace({
           demoRecipient={demoRecipient}
           emailConfigured={emailConfigured}
           onPrepare={prepareOutreach}
-          onApprove={(subject, body, includedFieldKeys) => selectedDraft ? run("Approving your introduction…", () => requestJson(`/api/sourcing/${workspace.id}/outreach/${selectedDraft.id}`, { method: "PATCH", body: JSON.stringify({ subject, body, includedFieldKeys }) })) : Promise.resolve(null)}
-          onSend={(draftId, version) => run("Sending your approved introduction…", () => requestJson(`/api/sourcing/${workspace.id}/send`, { method: "POST", body: JSON.stringify({ outreachDraftId: draftId, approvedContentVersion: version }) }))}
+          onUpdate={updateField}
+          onApprove={approveDraft}
+          onSend={(draftId, version, humanSendToken) => run("Sending your introduction…", () => requestJson(`/api/sourcing/${workspace.id}/send`, { method: "POST", body: JSON.stringify({ outreachDraftId: draftId, approvedContentVersion: version, humanSendToken, confirmation: "human_click" }) }))}
         />
       ) : null}
     </>
@@ -198,14 +228,24 @@ function StageButton({ number, label, active, complete, disabled, onClick }: { n
   return <button type="button" className={active ? "is-active" : ""} disabled={disabled} aria-current={active ? "step" : undefined} onClick={onClick}><span>{complete ? "✓" : number}</span>{label}</button>;
 }
 
+function ReadinessStrip({ readiness }: { readiness: SourcingReadiness }) {
+  return (
+    <section className="readiness-strip" aria-label="Manufacturer readiness">
+      <div className="readiness-copy"><p className="kicker">Current milestone</p><strong>{readiness.milestoneLabel}</strong><p>{readiness.summary}</p></div>
+      <div className="readiness-meter"><div><span>Manufacturer readiness</span><strong>{readiness.percent}%</strong></div><div className="readiness-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={readiness.percent}><span style={{ width: `${readiness.percent}%` }} /></div></div>
+      {readiness.nextQuestionLabel ? <div className="readiness-next"><span>Next decision</span><strong>{readiness.nextQuestionLabel}</strong><small>{readiness.whyItMatters}</small></div> : <div className="readiness-next is-ready"><span>Next move</span><strong>Find focused matches</strong><small>You can keep refining the plan after the search.</small></div>}
+    </section>
+  );
+}
+
 const PlanStage = forwardRef<HTMLElement, {
   workspace: Workspace;
   busy: boolean;
-  ready: boolean;
+  readiness: SourcingReadiness;
   onUpdate: (key: SourcingFieldKey, value: string | null, status: SourcingFieldStatus, share?: boolean) => Promise<Workspace | null>;
   onFind: () => Promise<void>;
-}>(function PlanStage({ workspace, busy, ready, onUpdate, onFind }, ref) {
-  const question = currentQuestion(workspace, ready);
+}>(function PlanStage({ workspace, busy, readiness, onUpdate, onFind }, ref) {
+  const question = currentQuestion(workspace, readiness);
   return (
     <section ref={ref} tabIndex={-1} className="guided-stage plan-stage" aria-labelledby="plan-stage-heading">
       <div className="guided-main">
@@ -217,7 +257,7 @@ const PlanStage = forwardRef<HTMLElement, {
         {question ? <CurrentQuestion key={question.key} workspace={workspace} question={question} busy={busy} onUpdate={onUpdate} /> : (
           <div className="plan-ready-card">
             <span aria-hidden="true">✓</span>
-            <div><p className="kicker">Ready for the next step</p><h3>Your plan is ready enough to start looking for manufacturers.</h3><p>You can keep filling in details later. For now, we have enough to find a small, useful set of possibilities.</p></div>
+            <div><p className="kicker">Ready for a focused search</p><h3>Your core manufacturing decisions are confirmed.</h3><p>We’ll look for a small set of manufacturers whose publicly sourced capabilities support this plan. Unknown facts stay clearly labeled.</p></div>
             <button className="btn btn-gold" type="button" disabled={busy} onClick={onFind}>Find my best matches</button>
           </div>
         )}
@@ -236,6 +276,7 @@ function CurrentQuestion({ workspace, question, busy, onUpdate }: {
   const field = workspace.fields[question.key];
   const [value, setValue] = useState(field.value ?? "");
   const [editingSuggestion, setEditingSuggestion] = useState(false);
+  const options = questionOptions(workspace, question);
 
   async function choose(nextValue: string) {
     await onUpdate(question.key, nextValue, "confirmed", FIELD_DEFINITION_BY_KEY[question.key].shareByDefault);
@@ -248,6 +289,7 @@ function CurrentQuestion({ workspace, question, busy, onUpdate }: {
         <h3>Does this look right?</h3>
         <p className="suggested-value">{field.value}</p>
         {field.reason ? <p className="question-help">{field.reason}</p> : null}
+        {field.evidence?.length ? <div className="suggestion-evidence"><strong>Why ChatGPT suggested this</strong><ul>{field.evidence.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><p>{source.claim}</p>{source.publisher ? <small>{source.publisher}</small> : null}</li>)}</ul></div> : null}
         <div className="question-actions">
           <button className="btn btn-gold" type="button" disabled={busy} onClick={() => choose(field.value!)}>Yes, keep this</button>
           <button className="btn btn-ghost" type="button" disabled={busy} onClick={() => setEditingSuggestion(true)}>Choose something else</button>
@@ -262,9 +304,9 @@ function CurrentQuestion({ workspace, question, busy, onUpdate }: {
       <p className="question-count">One thing at a time</p>
       <h3>{question.title}</h3>
       <p className="question-help">{question.help}</p>
-      {question.options ? (
+      {options ? (
         <div className="answer-options">
-          {question.options.map((option) => <button type="button" key={option} disabled={busy} onClick={() => choose(option)}>{option}<span aria-hidden="true">→</span></button>)}
+          {options.map((option) => <button type="button" key={option} disabled={busy} onClick={() => choose(option)}>{option}<span aria-hidden="true">→</span></button>)}
         </div>
       ) : (
         <form onSubmit={(event) => { event.preventDefault(); if (value.trim()) void choose(value.trim()); }}>
@@ -342,76 +384,111 @@ const ContactStage = forwardRef<HTMLElement, {
   demoRecipient: string | null;
   emailConfigured: boolean;
   onPrepare: () => Promise<void>;
-  onApprove: (subject: string, body: string, included: SourcingFieldKey[]) => Promise<Workspace | null>;
-  onSend: (draftId: string, version: number) => Promise<Workspace | null>;
-}>(function ContactStage({ workspace, match, draft, inquiry, busy, demoRecipient, emailConfigured, onPrepare, onApprove, onSend }, ref) {
+  onUpdate: (key: SourcingFieldKey, value: string | null, status: SourcingFieldStatus, share?: boolean) => Promise<Workspace | null>;
+  onApprove: (subject: string, body: string, included: SourcingFieldKey[]) => Promise<DraftApprovalResult | null>;
+  onSend: (draftId: string, version: number, humanSendToken: string) => Promise<Workspace | null>;
+}>(function ContactStage({ workspace, match, draft, inquiry, busy, demoRecipient, emailConfigured, onPrepare, onUpdate, onApprove, onSend }, ref) {
   const manufacturerName = match?.manufacturerName || draft?.manufacturerName || inquiry?.manufacturerName || "your manufacturer";
   return (
     <section ref={ref} tabIndex={-1} className="guided-stage contact-stage" aria-labelledby="contact-stage-heading">
       <div className="stage-intro"><p className="kicker">Step 3 of 3</p><h2 id="contact-stage-heading">You chose {manufacturerName}. Let’s prepare your introduction.</h2><p>Review the message and exactly what will be shared. Nothing is sent without your approval.</p></div>
-      {!draft ? <div className="prepare-outreach-card"><div><strong>Start with a personalized draft</strong><p>We’ll use only confirmed details and supported manufacturer facts. This step does not send anything.</p></div><button className="btn btn-gold" type="button" disabled={busy} onClick={onPrepare}>Draft my introduction</button></div> : <OutreachEditor workspace={workspace} draft={draft} inquiry={inquiry} busy={busy} demoRecipient={demoRecipient} emailConfigured={emailConfigured} onApprove={onApprove} onSend={onSend} />}
+      {!draft ? <div className="prepare-outreach-card"><div><strong>Start with a personalized draft</strong><p>We’ll use only confirmed details and supported manufacturer facts. This step does not send anything.</p></div><button className="btn btn-gold" type="button" disabled={busy} onClick={onPrepare}>Draft my introduction</button></div> : <OutreachEditor workspace={workspace} draft={draft} inquiry={inquiry} busy={busy} demoRecipient={demoRecipient} emailConfigured={emailConfigured} onUpdate={onUpdate} onApprove={onApprove} onSend={onSend} />}
     </section>
   );
 });
 
-function OutreachEditor({ workspace, draft, inquiry, busy, demoRecipient, emailConfigured, onApprove, onSend }: {
+function OutreachEditor({ workspace, draft, inquiry, busy, demoRecipient, emailConfigured, onUpdate, onApprove, onSend }: {
   workspace: Workspace;
   draft: OutreachDraft;
   inquiry: Workspace["inquiries"][number] | undefined;
   busy: boolean;
   demoRecipient: string | null;
   emailConfigured: boolean;
-  onApprove: (subject: string, body: string, included: SourcingFieldKey[]) => Promise<Workspace | null>;
-  onSend: (draftId: string, version: number) => Promise<Workspace | null>;
+  onUpdate: (key: SourcingFieldKey, value: string | null, status: SourcingFieldStatus, share?: boolean) => Promise<Workspace | null>;
+  onApprove: (subject: string, body: string, included: SourcingFieldKey[]) => Promise<DraftApprovalResult | null>;
+  onSend: (draftId: string, version: number, humanSendToken: string) => Promise<Workspace | null>;
 }) {
   const [subject, setSubject] = useState(draft.subject);
   const [body, setBody] = useState(draft.body);
   const [included, setIncluded] = useState<SourcingFieldKey[]>(draft.includedFieldKeys);
+  const [humanSendToken, setHumanSendToken] = useState<string | null>(null);
+  const [founderEmail, setFounderEmail] = useState(workspace.fields.contact_email.value ?? "");
+  const finalReviewRef = useRef<HTMLElement>(null);
   const confirmedFields = useMemo(() => SOURCING_FIELD_DEFINITIONS.filter(({ key }) => workspace.fields[key].status === "confirmed" && workspace.fields[key].value && !NEVER_SHARE_FIELD_KEYS.has(key)), [workspace]);
   const dirty = subject !== draft.subject || body !== draft.body || [...included].sort().join() !== [...draft.includedFieldKeys].sort().join();
-  const deliveryReady = Boolean(demoRecipient && emailConfigured);
-  const approved = draft.approvedVersion === draft.version && !dirty;
+  const founderEmailReady = workspace.fields.contact_email.status === "confirmed" && Boolean(workspace.fields.contact_email.value);
+  const deliveryReady = draft.availableDeliveryMethod !== "not_configured" && emailConfigured && founderEmailReady;
+  const liveDelivery = draft.availableDeliveryMethod === "line_list_introduction";
+  const recipient = draft.recipientEmail || demoRecipient;
+  const approved = draft.approvedVersion === draft.version && !dirty && Boolean(humanSendToken);
+
+  useEffect(() => {
+    if (humanSendToken) finalReviewRef.current?.scrollIntoView({ block: "start" });
+  }, [humanSendToken]);
 
   function toggle(key: SourcingFieldKey, checked: boolean) {
+    setHumanSendToken(null);
     setIncluded((current) => checked ? [...new Set([...current, key])] : current.filter((candidate) => candidate !== key));
   }
 
-  async function approveOrSend() {
-    let approvedDraft = draft;
-    if (dirty || draft.approvedVersion !== draft.version) {
-      const next = await onApprove(subject, body, included);
-      const updated = next?.outreachDrafts.find((candidate) => candidate.id === draft.id);
-      if (!updated) return;
-      approvedDraft = updated;
-    }
-    if (deliveryReady) await onSend(approvedDraft.id, approvedDraft.version);
+  async function saveFounderEmail() {
+    const next = await onUpdate("contact_email", founderEmail.trim(), "confirmed", false);
+    if (next) setHumanSendToken(null);
+  }
+
+  async function approveForFinalReview() {
+    const result = await onApprove(subject, body, included);
+    if (result) setHumanSendToken(result.humanSendToken);
+  }
+
+  async function sendFromHumanClick() {
+    if (!humanSendToken) return;
+    await onSend(draft.id, draft.version, humanSendToken);
   }
 
   if (inquiry) {
-    return <div className="introduction-sent"><span aria-hidden="true">✓</span><div><p className="kicker">Introduction sent</p><h3>{draft.manufacturerName}</h3><p>Delivered to the safe demo inbox on {formatDate(inquiry.contactedAt)}.</p><Link href={`/packet/${draft.packet.token}`} target="_blank">Open the product brief ↗</Link><small>Next: watch the safe inbox and prepare for the manufacturer’s questions.</small></div></div>;
+    return <div className="introduction-sent"><span aria-hidden="true">✓</span><div><p className="kicker">Introduction sent</p><h3>{draft.manufacturerName}</h3><p>Sent by The Line List on {formatDate(inquiry.contactedAt)}{inquiry.founderCopied ? ", with you copied" : ""}.</p><Link href={`/packet/${draft.packet.token}`} target="_blank">Open the product brief ↗</Link><small>Next: watch your inbox and prepare for the manufacturer’s questions.</small></div></div>;
   }
 
   return (
     <div className="outreach-editor">
-      <div className={`demo-delivery-banner${deliveryReady ? " is-ready" : ""}`} role="note"><strong>{deliveryReady ? "Safe demo delivery is ready" : "Sending is not configured yet"}</strong><p>{deliveryReady ? <>Your introduction for {draft.manufacturerName} will go only to <b>{demoRecipient}</b>.</> : "You can review and approve everything now. Nothing can be sent until the safe demo inbox is configured."}</p></div>
+      <div className={`demo-delivery-banner${deliveryReady ? " is-ready" : ""}`} role="note"><strong>{!founderEmailReady ? "Add your email before the final review" : deliveryReady ? liveDelivery ? "The Line List introduction is ready" : "Safe demo delivery is ready" : "Sending is not configured yet"}</strong><p>{!founderEmailReady ? "The manufacturer needs a confirmed reply address. Your email stays out of the public product brief." : deliveryReady ? liveDelivery ? <>The Line List will introduce you to <b>{draft.manufacturerName}</b>. You will be copied, and replies will come back to you.</> : <>This test introduction will go only to <b>{recipient}</b>. The founder will not be copied in demo mode.</> : "You can review everything now. Nothing can be sent until delivery is configured."}</p></div>
+      {!founderEmailReady ? <div className="founder-email-card"><div><strong>Where should manufacturer replies go?</strong><p>This becomes the reply-to address only if you personally send the introduction.</p></div><label>Email address<input type="email" autoComplete="email" placeholder="you@yourcompany.com" value={founderEmail} onChange={(event) => setFounderEmail(event.target.value)} /></label><button className="btn btn-ghost" type="button" disabled={busy || !/^\S+@\S+\.\S+$/.test(founderEmail.trim())} onClick={saveFounderEmail}>Save my email</button></div> : null}
       <div className="outreach-grid">
-        <section className="message-editor" aria-labelledby="message-editor-heading"><p className="kicker">Your introduction</p><h3 id="message-editor-heading">Message for {draft.manufacturerName}</h3><label>Subject<input value={subject} onChange={(event) => setSubject(event.target.value)} /></label><label>Message<textarea value={body} onChange={(event) => setBody(event.target.value)} rows={15} /></label></section>
+        <section className="message-editor" aria-labelledby="message-editor-heading"><p className="kicker">Warm introduction from The Line List</p><h3 id="message-editor-heading">Message for {draft.manufacturerName}</h3><label>Subject<input value={subject} onChange={(event) => { setSubject(event.target.value); setHumanSendToken(null); }} /></label><label>Message<textarea value={body} onChange={(event) => { setBody(event.target.value); setHumanSendToken(null); }} rows={15} /></label></section>
         <aside className="share-preview" aria-labelledby="share-preview-heading"><p className="kicker">Product brief</p><h3 id="share-preview-heading">What the manufacturer will see</h3><ul className="shared-field-list">{confirmedFields.map(({ key }) => <li key={key}><label><input type="checkbox" checked={included.includes(key)} onChange={(event) => toggle(key, event.target.checked)} /><span><strong>{friendlyFieldLabel(key)}</strong><small>{workspace.fields[key].value}</small></span></label></li>)}</ul><h4>Staying private</h4><ul className="excluded-list"><li>Internal notes</li><li>Manufacturer rankings and comparisons</li><li>Private concerns</li><li>Anything ChatGPT suggested that you did not confirm</li>{!included.includes("budget") && workspace.fields.budget.value ? <li>Budget</li> : null}</ul><Link className="packet-preview-link" href={`/packet/${draft.packet.token}`} target="_blank">Preview product brief ↗</Link></aside>
       </div>
       {draft.warnings.length ? <details className="outreach-warnings"><summary>A few things you may still want to answer</summary><ul>{draft.warnings.map((warning) => <li key={warning}>{plainWarning(warning)}</li>)}</ul></details> : null}
-      <div className="approval-actions"><div><strong>{approved ? "Introduction approved" : "Nothing is sent without your approval."}</strong><p>{approved ? "This exact message and product brief are approved." : "Changing the message or shared details means you will approve it again."}</p></div><button className="btn btn-gold" type="button" disabled={busy || !subject.trim() || !body.trim() || (approved && !deliveryReady)} onClick={approveOrSend}>{approved && !deliveryReady ? "Introduction approved" : deliveryReady ? "Approve and send introduction" : "Approve introduction"}</button></div>
+      {!approved ? <div className="approval-actions"><div><strong>Nothing is sent at this step.</strong><p>{founderEmailReady ? "Review the message and shared details, then continue to a separate final send screen." : "Save your reply email above, then continue to the separate final send screen."}</p></div><button className="btn btn-gold" type="button" disabled={busy || !subject.trim() || !body.trim() || !founderEmailReady} onClick={approveForFinalReview}>Continue to final review</button></div> : (
+        <section ref={finalReviewRef} className="final-send-card" aria-labelledby="final-send-heading">
+          <div className="human-only-badge">Founder action required</div>
+          <div><p className="kicker">Final review</p><h3 id="final-send-heading">Only you can send this introduction.</h3><p>The message is approved. ChatGPT and WebMCP cannot press this button for you.</p></div>
+          <dl><div><dt>From</dt><dd>The Line List Introductions</dd></div><div><dt>To</dt><dd>{recipient || draft.manufacturerName}</dd></div><div><dt>CC</dt><dd>{liveDelivery ? draft.founderCopyEmail || workspace.fields.contact_email.value : "No one in demo mode"}</dd></div><div><dt>Reply-to</dt><dd>{workspace.fields.contact_email.value}</dd></div></dl>
+          <button className="btn btn-gold final-send-button" type="button" disabled={busy || !deliveryReady} onClick={sendFromHumanClick}>{deliveryReady ? `Send introduction to ${draft.manufacturerName}` : "Sending is not configured"}</button>
+          <button className="text-button" type="button" disabled={busy} onClick={() => setHumanSendToken(null)}>Go back and edit</button>
+          <small>Clicking send delivers this exact approved version. The approval expires after 20 minutes for safety.</small>
+        </section>
+      )}
     </div>
   );
 }
 
-function currentQuestion(workspace: Workspace, ready: boolean): QuestionDefinition | null {
-  const proposed = QUESTIONS.find(({ key }) => workspace.fields[key].status === "proposed");
-  if (proposed) return proposed;
-  if (ready) return null;
-  return QUESTIONS.find(({ key }) => {
-    const field = workspace.fields[key];
-    return field.status !== "confirmed" && field.status !== "rejected";
-  }) ?? null;
+function currentQuestion(workspace: Workspace, readiness: SourcingReadiness): QuestionDefinition | null {
+  if (readiness.matchingReady) return null;
+  if (readiness.nextQuestionKey) {
+    const next = QUESTIONS.find(({ key }) => key === readiness.nextQuestionKey);
+    if (next) return next;
+  }
+  return QUESTIONS.find(({ key }) => workspace.fields[key].status !== "confirmed" && workspace.fields[key].status !== "rejected") ?? null;
+}
+
+function questionOptions(workspace: Workspace, question: QuestionDefinition): string[] | undefined {
+  if (question.key !== "packaging_format") return question.options;
+  const product = `${workspace.fields.product_type.value ?? ""} ${workspace.fields.product_description.value ?? ""}`.toLowerCase();
+  if (/bread|bakery|cake|muffin|cookie|bar|snack/.test(product)) {
+    return ["Individually wrapped slices", "Wrapped loaf", "Multi-pack", "I’m not sure yet"];
+  }
+  return question.options;
 }
 
 function friendlyFieldLabel(key: SourcingFieldKey): string {
@@ -426,7 +503,7 @@ function friendlyFieldLabel(key: SourcingFieldKey): string {
 }
 
 function importantMissing(key: SourcingFieldKey): boolean {
-  return ["product_type", "packaging_format", "formula_status", "production_volume"].includes(key);
+  return ["product_type", "packaging_format", "packaging_size", "formula_status", "storage_distribution", "production_volume"].includes(key);
 }
 
 function isUnsure(value: string): boolean { return /not sure/i.test(value); }

@@ -21,8 +21,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ wo
   const parsed = editDraftSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Check the subject, message, and shared fields." }, { status: 400 });
   let draft;
+  let humanSendToken;
   try {
-    draft = editAndApproveDraft(workspace.outreachDrafts[index], workspace, parsed.data);
+    const approved = editAndApproveDraft(workspace.outreachDrafts[index], workspace, parsed.data);
+    draft = approved.draft;
+    humanSendToken = approved.humanSendToken;
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Draft could not be approved." }, { status: 400 });
   }
@@ -35,5 +38,5 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ wo
     if (error instanceof SourcingWorkspaceConflictError) return NextResponse.json({ error: error.message }, { status: 409 });
     throw error;
   }
-  return NextResponse.json({ workspace: updated, draft });
+  return NextResponse.json({ workspace: updated, draft, humanSendToken });
 }

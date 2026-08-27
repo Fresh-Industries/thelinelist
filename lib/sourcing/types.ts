@@ -25,11 +25,24 @@ export const SOURCING_FIELD_KEYS = [
   "company_introduction",
   "contact_email",
   "contact_phone",
+  "retail_channel",
+  "target_retail_price",
+  "target_unit_cost",
+  "allergens",
+  "case_pack",
 ] as const;
 
 export type SourcingFieldKey = (typeof SOURCING_FIELD_KEYS)[number];
 export type SourcingFieldStatus = "confirmed" | "proposed" | "unknown" | "needs_decision" | "rejected";
 export type WorkspaceActor = "founder" | "agent" | "system";
+
+export interface SourcingFieldEvidence {
+  title: string;
+  url: string;
+  claim: string;
+  publisher: string | null;
+  reviewedAt: string;
+}
 
 export interface SourcingField {
   key: SourcingFieldKey;
@@ -41,6 +54,7 @@ export interface SourcingField {
   shareWithManufacturer: boolean;
   updatedAt: string;
   updatedBy: WorkspaceActor;
+  evidence?: SourcingFieldEvidence[];
 }
 
 export type EvidenceStatus = "verified" | "publicly_listed" | "unknown" | "not_publicly_listed" | "conflicting";
@@ -96,14 +110,18 @@ export interface OutreachDraft {
   excludedFieldKeys: SourcingFieldKey[];
   warnings: string[];
   packet: SourcingPacket;
-  availableDeliveryMethod: "safe_demo_email" | "not_configured";
+  availableDeliveryMethod: "line_list_introduction" | "safe_demo_email" | "not_configured";
   demoRecipient: string | null;
+  recipientEmail?: string | null;
+  founderCopyEmail?: string | null;
   version: number;
   approvedVersion: number | null;
   approvedAt: string | null;
   sentAt: string | null;
   deliveryStatus: "draft" | "approved" | "sent" | "failed";
   deliveryError: string | null;
+  humanSendTokenHash?: string | null;
+  humanSendTokenExpiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -114,7 +132,9 @@ export interface ManufacturerInquiry {
   manufacturerName: string;
   status: "contacted";
   contactedAt: string;
-  deliveryMethod: "safe_demo_email";
+  deliveryMethod: "line_list_introduction" | "safe_demo_email";
+  deliveredTo?: string;
+  founderCopied?: string | null;
 }
 
 export interface WorkspaceActivity {
@@ -143,6 +163,14 @@ export interface AgentFieldUpdate {
   value: string | null;
   reason?: string;
   source?: string;
-  explicitlyStated: boolean;
+  explicitlyStated?: boolean;
+  status?: Extract<SourcingFieldStatus, "confirmed" | "proposed" | "needs_decision">;
   suggestedSharing?: boolean;
+  sources?: Array<{
+    title: string;
+    url: string;
+    claim: string;
+    publisher?: string;
+    reviewedAt?: string;
+  }>;
 }

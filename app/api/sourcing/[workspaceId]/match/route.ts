@@ -1,5 +1,5 @@
 import { matchManufacturers } from "@/lib/sourcing/matching";
-import { hasMinimumMatchingInfo } from "@/lib/sourcing/readiness";
+import { getSourcingReadiness, hasMinimumMatchingInfo } from "@/lib/sourcing/readiness";
 import { matchRequestSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
@@ -20,7 +20,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   const parsed = matchRequestSchema.safeParse(await request.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "Invalid matching request." }, { status: 400 });
   if (!hasMinimumMatchingInfo(workspace)) {
-    return NextResponse.json({ error: "I need to learn a little more about your product before I can find useful matches.", workspace, matches: [] }, { status: 409 });
+    return NextResponse.json({ error: "Your plan needs a little more detail before a useful manufacturer search.", workspace, readiness: getSourcingReadiness(workspace), matches: [] }, { status: 409 });
   }
   const matches = matchManufacturers(workspace, parsed.data);
   const updated = addWorkspaceActivity({
@@ -34,5 +34,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     if (error instanceof SourcingWorkspaceConflictError) return NextResponse.json({ error: error.message }, { status: 409 });
     throw error;
   }
-  return NextResponse.json({ workspace: updated, matches });
+  return NextResponse.json({ workspace: updated, readiness: getSourcingReadiness(updated), matches });
 }

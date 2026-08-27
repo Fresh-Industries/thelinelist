@@ -1,9 +1,8 @@
 import { getPlantBySlug } from "@/lib/directory";
-import { matchManufacturers } from "@/lib/sourcing/matching";
-import { hasMinimumMatchingInfo } from "@/lib/sourcing/readiness";
+import { getSourcingReadiness, MATCH_SHAPING_FIELDS } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, founderUpdateSchema, selectionUpdateSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
-import { applyAgentUpdates, applyFounderFieldUpdate, touch } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderFieldUpdate, invalidateDraftApprovalsForFounderEmailChange, touch } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
@@ -17,7 +16,7 @@ export async function GET(_request: Request, context: RouteContext) {
   if (!workspaceIdSchema.safeParse(workspaceId).success) return error("Workspace not found.", 404);
   const workspace = await getSourcingWorkspace(workspaceId);
   if (!workspace) return error("Workspace not found.", 404);
-  return NextResponse.json({ workspace, storageAdapter: sourcingStoreAdapter() });
+  return NextResponse.json({ workspace, readiness: getSourcingReadiness(workspace), storageAdapter: sourcingStoreAdapter() });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
@@ -50,11 +49,22 @@ export async function PATCH(request: Request, context: RouteContext) {
     return error("Invalid workspace update.", 400);
   }
 
-  if (agent.success || founder.success) {
+  const founderEmailChanged = updated.fields.contact_email.value !== workspace.fields.contact_email.value
+    || updated.fields.contact_email.status !== workspace.fields.contact_email.status;
+  if (founderEmailChanged) {
+    updated = invalidateDraftApprovalsForFounderEmailChange(updated);
+  }
+
+  const matchRelevantKeys = new Set(["product_type", "product_description", ...MATCH_SHAPING_FIELDS]);
+  const changesManufacturerFit = agent.success
+    ? agent.data.proposedUpdates.some((update) => matchRelevantKeys.has(update.key))
+    : founder.success ? matchRelevantKeys.has(founder.data.fieldUpdate.key) : false;
+  if (changesManufacturerFit) {
     updated = {
       ...updated,
-      matches: hasMinimumMatchingInfo(updated) ? matchManufacturers(updated, { resultLimit: 3 }) : [],
-      matchesUpdatedAt: hasMinimumMatchingInfo(updated) ? new Date().toISOString() : null,
+      matches: [],
+      matchesUpdatedAt: null,
+      selectedManufacturerSlugs: [],
     };
   }
   try {
@@ -66,7 +76,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
     throw error;
   }
-  return NextResponse.json({ workspace: updated });
+  return NextResponse.json({ workspace: updated, readiness: getSourcingReadiness(updated) });
 }
 
 function error(message: string, status: number) {
