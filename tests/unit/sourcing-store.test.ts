@@ -2,6 +2,8 @@ import { createWorkspace } from "@/lib/sourcing/workspace";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const blobBodies = vi.hoisted(() => new Map<string, string>());
+const blobEtags = vi.hoisted(() => new Map<string, string>());
+const blobEtagCounter = vi.hoisted(() => ({ value: 0 }));
 
 vi.mock("@vercel/blob", () => {
   class BlobNotFoundError extends Error {}
@@ -13,6 +15,7 @@ vi.mock("@vercel/blob", () => {
     get: vi.fn(async (pathname: string) => {
       const body = blobBodies.get(pathname);
       if (body === undefined) return null;
+      const etag = blobEtags.get(pathname) ?? '"external-etag"';
       return {
         statusCode: 200,
         stream: new Response(body).body,
@@ -24,21 +27,31 @@ vi.mock("@vercel/blob", () => {
           contentDisposition: "inline",
           cacheControl: "no-cache",
           uploadedAt: new Date(),
-          etag: "test-etag",
+          etag: `W/${etag}`,
           contentType: "application/json",
           size: body.length,
         },
       };
     }),
-    put: vi.fn(async (pathname: string, body: string, options: { allowOverwrite?: boolean }) => {
+    head: vi.fn(async (pathname: string) => {
+      if (!blobBodies.has(pathname)) throw new BlobNotFoundError("Blob not found");
+      return { pathname, url: pathname, downloadUrl: pathname, etag: blobEtags.get(pathname) ?? '"external-etag"' };
+    }),
+    put: vi.fn(async (pathname: string, body: string, options: { allowOverwrite?: boolean; ifMatch?: string }) => {
       if (!options.allowOverwrite && blobBodies.has(pathname)) {
         throw new BlobPreconditionFailedError("Blob already exists");
       }
+      if (options.ifMatch && options.ifMatch !== blobEtags.get(pathname)) {
+        throw new BlobPreconditionFailedError("ETag mismatch");
+      }
+      const etag = `"test-etag-${++blobEtagCounter.value}"`;
       blobBodies.set(pathname, body);
-      return { pathname, url: pathname, downloadUrl: pathname, etag: "test-etag" };
+      blobEtags.set(pathname, etag);
+      return { pathname, url: pathname, downloadUrl: pathname, etag };
     }),
     del: vi.fn(async (pathname: string) => {
       blobBodies.delete(pathname);
+      blobEtags.delete(pathname);
     }),
   };
 });
@@ -52,7 +65,7 @@ vi.mock("@/lib/rate-limit", () => ({
 }));
 
 import { POST as createSourcingWorkspace } from "@/app/api/sourcing/route";
-import { BlobNotFoundError, BlobPreconditionFailedError, get as blobGet, put as blobPut } from "@vercel/blob";
+import { BlobNotFoundError, BlobPreconditionFailedError, get as blobGet, head as blobHead, put as blobPut } from "@vercel/blob";
 import {
   SourcingStoreUnavailableError,
   SourcingWorkspaceConflictError,
@@ -67,6 +80,8 @@ import {
 describe("production sourcing storage", () => {
   beforeEach(() => {
     blobBodies.clear();
+    blobEtags.clear();
+    blobEtagCounter.value = 0;
     vi.clearAllMocks();
     vi.unstubAllEnvs();
     vi.stubEnv("NODE_ENV", "production");
@@ -177,7 +192,7 @@ describe("production sourcing storage", () => {
     expect(vi.mocked(blobPut)).toHaveBeenCalledWith(
       `sourcing/workspaces/${workspace.id}.json`,
       JSON.stringify(firstUpdate),
-      expect.objectContaining({ allowOverwrite: true, ifMatch: "test-etag" }),
+      expect.objectContaining({ allowOverwrite: true, ifMatch: '"test-etag-1"' }),
     );
   });
 
@@ -216,10 +231,10 @@ describe("production sourcing storage", () => {
 
   it("treats thrown Blob not-found errors as missing workspaces", async () => {
     vi.stubEnv("BLOB_READ_WRITE_TOKEN", "test-token");
-    vi.mocked(blobGet).mockRejectedValueOnce(new BlobNotFoundError());
+    vi.mocked(blobHead).mockRejectedValueOnce(new BlobNotFoundError());
     await expect(getSourcingWorkspace("missing-class-error")).resolves.toBeNull();
 
-    vi.mocked(blobGet).mockRejectedValueOnce(Object.assign(new Error("Missing"), { name: "BlobNotFoundError" }));
+    vi.mocked(blobHead).mockRejectedValueOnce(Object.assign(new Error("Missing"), { name: "BlobNotFoundError" }));
     await expect(getSourcingWorkspace("missing-named-error")).resolves.toBeNull();
   });
 
@@ -228,12 +243,14 @@ describe("production sourcing storage", () => {
     blobBodies.set("sourcing/workspaces/corrupt.json", "not-json");
     await expect(getSourcingWorkspace("corrupt")).resolves.toBeNull();
 
+    blobBodies.set("sourcing/workspaces/bodyless.json", "ignored");
     vi.mocked(blobGet).mockResolvedValueOnce({ statusCode: 304, stream: null } as never);
     await expect(getSourcingWorkspace("bodyless")).resolves.toBeNull();
   });
 
   it("propagates unexpected Blob read failures", async () => {
     vi.stubEnv("BLOB_READ_WRITE_TOKEN", "test-token");
+    blobBodies.set("sourcing/workspaces/workspace-1.json", "ignored");
     vi.mocked(blobGet).mockRejectedValueOnce(new Error("Blob service unavailable"));
     await expect(getSourcingWorkspace("workspace-1")).rejects.toThrow("Blob service unavailable");
   });
