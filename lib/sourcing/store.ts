@@ -112,7 +112,7 @@ export function packetIsActive(packet: { expiresAt: string; revokedAt: string | 
 }
 
 function actorForActivity(kind: WorkspaceActivity["kind"]): "FOUNDER" | "AGENT" | "SYSTEM" {
-  if (kind === "founder_updated" || kind === "approved") return "FOUNDER";
+  if (kind === "founder_updated" || kind === "agent_undone" || kind === "approved") return "FOUNDER";
   if (kind === "agent_proposed" || kind === "matched" || kind === "drafted") return "AGENT";
   return "SYSTEM";
 }

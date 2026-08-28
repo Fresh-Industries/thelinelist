@@ -67,6 +67,13 @@ export const selectionUpdateSchema = z.object({
 export const packageDesignUpdateSchema = z.object({
   revision: z.number().int().positive(),
   packageDesign: PackageDesignSchema,
+  updatedBy: z.enum(["founder", "agent"]).default("founder"),
+  explicitlyStated: z.boolean().default(true),
+});
+
+export const undoAgentChangeSchema = z.object({
+  revision: z.number().int().positive(),
+  undoAgentChangeId: z.string().min(1).max(500),
 });
 
 export const matchRequestSchema = z.object({

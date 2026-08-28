@@ -143,9 +143,18 @@ export interface ManufacturerInquiry {
 
 export interface WorkspaceActivity {
   id: string;
-  kind: "created" | "claimed" | "agent_proposed" | "founder_updated" | "artwork_attached" | "matched" | "drafted" | "approved" | "sent" | "send_failed";
+  kind: "created" | "claimed" | "agent_proposed" | "agent_undone" | "founder_updated" | "artwork_attached" | "matched" | "drafted" | "approved" | "sent" | "send_failed";
   message: string;
   at: string;
+}
+
+export interface AgentChangeSnapshot {
+  id: string;
+  at: string;
+  changedKeys: SourcingFieldKey[];
+  previousFields: Partial<Record<SourcingFieldKey, SourcingField>>;
+  packageDesignChanged?: boolean;
+  previousPackageDesign?: PackageDesign | null;
 }
 
 export interface ProductArtwork {
@@ -180,6 +189,7 @@ export interface SourcingWorkspace {
   originalIdea: string | null;
   artwork: ProductArtwork | null;
   packageDesign: PackageDesign | null;
+  lastAgentChange: AgentChangeSnapshot | null;
   revision: number;
   createdAt: string;
   updatedAt: string;

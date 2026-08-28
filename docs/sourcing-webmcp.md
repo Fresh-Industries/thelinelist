@@ -4,11 +4,11 @@ This document describes the production Product Workspace integration. Product an
 
 ## Founder journey
 
-`/sourcing` has one entry path: the founder describes the product they want to make. The server creates a private guest workspace and sends the founder to `/sourcing/[workspaceId]`.
+`/sourcing` has one canonical entry path. With WebMCP, the founder describes the product conversationally and `create_sourcing_workspace` creates the private guest workspace before navigating to `/sourcing/[workspaceId]`. A progressively disclosed manual form creates the same workspace when an agent is unavailable or the founder prefers typing on the page.
 
 The workspace is one living product brief. Its canonical ProductPlan keeps the founder's raw `originalIdea`, optional `brand_name`, and concise `product_type` descriptor separate. The product collaborator asks about an existing brand early without making it a readiness requirement. Direct founder corrections edit that same document inline. Packaging opens as a focused 3D workbench using the production jar, bottle, slim-can, and stand-up-pouch models. Its selected direction writes back into the same ProductPlan, and the brief renders a restrained preview from that exact saved configuration. Manufacturer matching and introduction preparation continue below the document when ready.
 
-The page does not open an external AI website or present a manual prompt handoff. WebMCP is exposed to the Codex app through the model-context API; the normal HTML workspace remains fully usable when that API is unavailable.
+The page does not open an external AI website or present a manual prompt handoff. WebMCP is exposed to the Codex app through the model-context API; the normal HTML workspace remains fully usable when that API is unavailable. Agent-authored changes are attributed, highlighted as the latest change, and stored with a one-step undo snapshot.
 
 ## Canonical state and persistence
 
@@ -39,14 +39,23 @@ Workspace IDs are identifiers, not authorization credentials. Client-provided us
 
 ## Registered WebMCP tools
 
-Five tools register only on an authorized workspace page:
+One tool registers on `/sourcing`:
+
+1. `create_sourcing_workspace` — creates the canonical workspace from the founder's idea and navigates into it. It does not match, select, draft, or contact manufacturers.
+
+Nine tools register only on an authorized workspace page:
 
 1. `get_sourcing_workspace` — reads the canonical plan, readiness, product journey, package direction, matches, and outreach state.
 2. `update_sourcing_workspace` — applies explicit founder statements as confirmed and keeps inference/research as proposed or needs-decision. It uses the current server revision.
-3. `match_manufacturers` — runs only after readiness and returns supported facts, conflicts, unknowns, URLs, and review dates. Unknown never means match.
-4. `prepare_manufacturer_outreach` — prepares separate drafts for one to three selected manufacturers from confirmed, share-enabled fields.
-5. `open_manufacturer_introduction_review` — scrolls the founder to visible recipient/message/sharing review.
+3. `get_package_design` — reads the saved package direction and valid options.
+4. `update_package_design` — applies only explicit founder packaging instructions; unstated visual choices remain in the human workbench.
+5. `undo_last_agent_change` — reverses the current visible agent update after the founder asks.
+6. `export_product_packet` — returns an authenticated private PDF download URL and never shares the file externally.
+7. `match_manufacturers` — runs once the brief is ready to research and returns supported facts, conflicts, unknowns, URLs, and review dates. It clears selection and never creates a draft. Unknown never means match.
+8. `prepare_manufacturer_outreach` — prepares drafts only for the exact manufacturers already selected by the founder in the visible workspace.
+9. `open_manufacturer_introduction_review` — opens the human review surface and never sends.
 
+Readiness is deliberately staged: `searchReady` allows sourced discovery with visible unknowns; `manufacturerReady` means the core fit-conversation inputs are confirmed; `launchReady` means the planning brief's commercial fields are filled. None is a safety, regulatory, shelf-life, or production approval.
 There is no agent-callable send tool. The legacy HTTP send route is retired with `410 Gone`. Draft approval and any later external contact are separate states, and external contact remains a visible founder-controlled action.
 
 Tool guidance tells the agent to:
@@ -55,7 +64,7 @@ Tool guidance tells the agent to:
 - drive one unresolved decision at a time;
 - preserve confirmed founder decisions;
 - keep “I’m not sure” explicit;
-- direct visual packaging decisions to the real page workbench;
+- apply only packaging choices explicitly stated by the founder and otherwise direct visual judgment to the real page workbench;
 - match only from supported evidence;
 - prepare up to three recipient-specific drafts;
 - open founder review and stop before external contact.

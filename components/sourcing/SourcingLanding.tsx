@@ -2,7 +2,7 @@
 
 import { ArrowRight, Sparkle } from "@phosphor-icons/react";
 import Image from "next/image";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SourcingWorkspace } from "@/lib/sourcing/types";
 
@@ -20,7 +20,9 @@ export function SourcingLanding() {
   const [idea, setIdea] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [agentConnected, setAgentConnected] = useState(false);
   const ideaRef = useRef<HTMLTextAreaElement>(null);
+  const creatingRef = useRef(false);
 
   function seedIdea(seed: string) {
     setIdea(seed);
@@ -32,10 +34,10 @@ export function SourcingLanding() {
     });
   }
 
-  async function start(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmed = idea.trim();
-    if (!trimmed || pending) return;
+  const createWorkspace = useCallback(async (rawIdea: string) => {
+    const trimmed = rawIdea.trim();
+    if (!trimmed || creatingRef.current) return;
+    creatingRef.current = true;
     setPending(true);
     setError("");
     try {
@@ -51,19 +53,61 @@ export function SourcingLanding() {
       const payload = await response.json().catch(() => null) as { workspace?: SourcingWorkspace; error?: string } | null;
       if (!payload?.workspace) throw new Error(payload?.error || "Your product workspace could not be created.");
       router.push(`/sourcing/${payload.workspace.id}`);
+      return payload.workspace;
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Your product workspace could not be created.");
       setPending(false);
+      creatingRef.current = false;
+      throw caught;
     }
+  }, [router]);
+
+  async function start(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await createWorkspace(idea).catch(() => undefined);
   }
+
+  useEffect(() => {
+    const modelContext = document.modelContext ?? navigator.modelContext;
+    if (!modelContext) return;
+    const controller = new AbortController();
+    const tool: WebMcpToolDefinition = {
+      name: "create_sourcing_workspace",
+      title: "Start a Line List product workspace",
+      description: "Create the founder's canonical Line List Product Workspace as soon as they describe a food or beverage idea. Pass their idea in their own words, then continue in the new workspace one simple question at a time. Never create a manufacturer outreach draft or contact anyone as part of workspace creation.",
+      inputSchema: {
+        type: "object",
+        properties: { idea: { type: "string", minLength: 2, maxLength: 1500 } },
+        required: ["idea"],
+        additionalProperties: false,
+      },
+      annotations: { readOnlyHint: false, untrustedContentHint: true },
+      async execute(input) {
+        const rawIdea = (input as { idea?: unknown }).idea;
+        if (typeof rawIdea !== "string" || rawIdea.trim().length < 2) throw new Error("Tell me the product idea in at least two characters.");
+        const workspace = await createWorkspace(rawIdea);
+        if (!workspace) throw new Error("The product workspace could not be created.");
+        return { workspace, workspaceUrl: `/sourcing/${workspace.id}`, nextAction: "Open the new workspace and ask its single next useful question.", externalContactRequiresFounderAction: true };
+      },
+    };
+    void modelContext.registerTool(tool, { signal: controller.signal })
+      .then(() => { if (!controller.signal.aborted) setAgentConnected(true); })
+      .catch((caught) => {
+        if (!controller.signal.aborted) console.warn("[webmcp] sourcing entry unavailable", caught);
+      });
+    return () => controller.abort();
+  }, [createWorkspace]);
 
   return (
     <section className="sourcing-entry" aria-labelledby="sourcing-entry-heading">
       <div className="sourcing-entry-copy">
-        <p className="document-kicker"><Sparkle aria-hidden="true" weight="fill" /> Product collaborator</p>
-        <h1 id="sourcing-entry-heading">Start with the product in your head.</h1>
-        <p>Tell your agent what you want to make. The Line List turns what you know into a living product brief, then helps with the decisions that come next.</p>
+        <p className="document-kicker"><Sparkle aria-hidden="true" weight="fill" /> First Run · Product collaborator</p>
+        <h1 id="sourcing-entry-heading">Tell your agent what you want to make.</h1>
+        <p>Your agent starts the workspace, fills only what you actually said, and brings you here for visual decisions and approval. You stay in control of every manufacturer introduction.</p>
       </div>
+      <div className={`agent-start-state${agentConnected ? " is-connected" : ""}`}><span aria-hidden="true" /><div><strong>{agentConnected ? "Agent connected" : "Agent start available"}</strong><p>{agentConnected ? "Describe your idea in chat. Your agent can create this workspace now." : "Open this page with a WebMCP-capable agent, or start manually below."}</p></div></div>
+      <details className="manual-start" open={!agentConnected}>
+        <summary>Or start here yourself</summary>
       <form className="idea-composer" onSubmit={start}>
         <label htmlFor="product-idea">What do you want to make?</label>
         <textarea
@@ -94,6 +138,7 @@ export function SourcingLanding() {
         </div>
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
       </form>
+      </details>
       <div className="sourcing-journey" aria-label="Product workspace journey">
         <span>Living brief</span><i aria-hidden="true">→</i><span>Package mockup</span><i aria-hidden="true">→</i><span>Evidence-backed matches</span><i aria-hidden="true">→</i><span>Founder-reviewed introductions</span>
       </div>

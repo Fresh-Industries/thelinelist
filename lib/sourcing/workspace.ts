@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { FIELD_DEFINITION_BY_KEY, SOURCING_FIELD_DEFINITIONS } from "./fields";
 import { deriveProductDescriptorFromIdea, isOpenBrandAnswer } from "./product-identity";
-import type { AgentFieldUpdate, OutreachDraft, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
+import type { AgentFieldUpdate, OutreachDraft, PackageDesign, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
 
 function now(): string {
   return new Date().toISOString();
@@ -59,6 +59,7 @@ export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorksp
     originalIdea,
     artwork: workspace.artwork ?? null,
     packageDesign: workspace.packageDesign ?? null,
+    lastAgentChange: workspace.lastAgentChange ?? null,
     fields,
     selectedManufacturerSlugs: workspace.selectedManufacturerSlugs ?? [],
     matches: workspace.matches ?? [],
@@ -80,6 +81,7 @@ export function createWorkspace(options: { demo?: boolean; idea?: string } = {})
     originalIdea: options.idea?.trim() || null,
     artwork: null,
     packageDesign: null,
+    lastAgentChange: null,
     revision: 1,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -134,6 +136,8 @@ export function createWorkspace(options: { demo?: boolean; idea?: string } = {})
 export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFieldUpdate[]): SourcingWorkspace {
   const timestamp = now();
   const fields = { ...workspace.fields };
+  const changedKeys = [...new Set(updates.map((update) => update.key))];
+  const previousFields = Object.fromEntries(changedKeys.map((key) => [key, workspace.fields[key]]));
   for (const update of updates) {
     const definition = FIELD_DEFINITION_BY_KEY[update.key];
     const brandStillOpen = update.key === "brand_name" && isOpenBrandAnswer(update.value);
@@ -177,7 +181,54 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
   return touch({
     ...workspace,
     fields,
+    lastAgentChange: { id: randomUUID(), at: timestamp, changedKeys, previousFields },
     activity: addActivity(workspace.activity, activity("agent_proposed", activityDetail)),
+  }, timestamp);
+}
+
+export function undoLastAgentChange(workspace: SourcingWorkspace, changeId: string): SourcingWorkspace {
+  const snapshot = workspace.lastAgentChange;
+  if (!snapshot || snapshot.id !== changeId) return workspace;
+  const fields = { ...workspace.fields };
+  for (const key of snapshot.changedKeys) {
+    const previous = snapshot.previousFields[key];
+    if (previous) fields[key] = previous;
+  }
+  return touch({
+    ...workspace,
+    fields,
+    packageDesign: snapshot.packageDesignChanged ? snapshot.previousPackageDesign ?? null : workspace.packageDesign,
+    lastAgentChange: null,
+    activity: addActivity(workspace.activity, activity("agent_undone", `Undid the agent's latest ${snapshot.changedKeys.length} field change${snapshot.changedKeys.length === 1 ? "" : "s"}.`)),
+  });
+}
+
+export function applyPackageDesignUpdate(workspace: SourcingWorkspace, design: PackageDesign, updatedBy: "founder" | "agent"): SourcingWorkspace {
+  const timestamp = now();
+  const packagingField: SourcingField = {
+    ...workspace.fields.packaging_format,
+    value: design.summary,
+    status: "confirmed",
+    reason: null,
+    source: updatedBy === "agent" ? "Agent packaging update from founder instruction" : "Package mockup workbench",
+    explicitlyStated: true,
+    shareWithManufacturer: true,
+    updatedAt: timestamp,
+    updatedBy,
+  };
+  return touch({
+    ...workspace,
+    packageDesign: design,
+    fields: { ...workspace.fields, packaging_format: packagingField },
+    lastAgentChange: updatedBy === "agent" ? {
+      id: randomUUID(),
+      at: timestamp,
+      changedKeys: ["packaging_format"],
+      previousFields: { packaging_format: workspace.fields.packaging_format },
+      packageDesignChanged: true,
+      previousPackageDesign: workspace.packageDesign,
+    } : workspace.lastAgentChange,
+    activity: addActivity(workspace.activity, activity(updatedBy === "agent" ? "agent_proposed" : "founder_updated", updatedBy === "agent" ? "Your agent updated the packaging direction from your instruction." : "Packaging direction updated by founder.")),
   }, timestamp);
 }
 

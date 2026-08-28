@@ -28,6 +28,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   const updated = addWorkspaceActivity({
     ...workspace,
     matches,
+    selectedManufacturerSlugs: [],
     matchesUpdatedAt: new Date().toISOString(),
   }, "matched", `${matches.length} evidence-backed manufacturer match${matches.length === 1 ? "" : "es"} prepared.`);
   try {

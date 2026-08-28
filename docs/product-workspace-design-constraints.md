@@ -147,6 +147,8 @@ The Line List owns persistent state, provenance, evidence, founder confirmation,
 
 The Line List does not care whether an instruction originated from the Codex agent through WebMCP or from the workspace UI. Both surfaces read and write the same canonical product.
 
+When WebMCP is available on the sourcing landing, the founder may simply explain the idea to the Codex agent and the agent creates the canonical workspace. The visible manual entry is a fallback into the same workflow, not a separate mode or competing builder.
+
 When a founder answers the Codex agent:
 
 1. The agent reads the latest workspace state.
@@ -181,7 +183,7 @@ Explicit confirmation is required for:
 - Making private information shareable.
 - External actions and manufacturer contact.
 
-WebMCP may expose tools to read state, apply clear founder statements, propose uncertain changes, retrieve decision context, find evidence-backed candidates, prepare reversible outreach drafts, and open human review. It must not provide an agent-callable manufacturer-send action.
+WebMCP may expose tools to create and read state, apply clear founder statements, propose uncertain changes, retrieve decision context, apply explicit packaging instructions, export a private founder PDF, find evidence-backed candidates, prepare reversible outreach drafts after visible founder selection, and open human review. It must not provide an agent-callable manufacturer-send action.
 
 WebMCP is progressive enhancement. The complete human workflow remains usable without it. The interface does not open an external AI website or imply a cross-tab connection; the supported agent integration is the Codex app.
 
@@ -490,6 +492,7 @@ Delete or demote it when it repeats information, only makes the interface feel p
 17. A manufacturer can understand the opportunity and give a meaningful fit response.
 18. The complete journey remains usable without WebMCP or 3D.
 19. Mobile preserves the same state, trust, and approval model as desktop.
+20. The founder and agent can export the current private plan as a PDF without sharing it externally.
 
 ## Ten highest-priority constraints
 

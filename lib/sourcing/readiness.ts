@@ -19,6 +19,13 @@ export const MATCH_SHAPING_FIELDS: SourcingFieldKey[] = [
 export interface SourcingReadiness {
   matchingReady: boolean;
   percent: number;
+  searchReady: boolean;
+  manufacturerReady: boolean;
+  launchReady: boolean;
+  stageLabel: string;
+  stageSummary: string;
+  manufacturerMissing: SourcingFieldKey[];
+  launchMissing: SourcingFieldKey[];
   milestone: "concept" | "product" | "commercial" | "match" | "introduction";
   milestoneLabel: string;
   confirmedRequirements: SourcingFieldKey[];
@@ -73,14 +80,19 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const brandField = workspace.fields.brand_name;
   const brandQuestionPending = brandField.status === "unknown" || brandField.status === "proposed";
   const hasProduct = isUsefulConfirmedValue(workspace, "product_type");
-  const matchingReady = confirmed.length === required.length;
-  const nextQuestionKey = !matchingReady && hasProduct && brandQuestionPending ? "brand_name" : proposed[0] ?? missing[0] ?? null;
+  const searchReady = hasProduct && MATCH_SHAPING_FIELDS.some((key) => isUsefulConfirmedValue(workspace, key));
+  const manufacturerReady = confirmed.length === required.length;
+  const launchFields: SourcingFieldKey[] = ["retail_channel", "target_retail_price", "target_unit_cost", "case_pack", "allergens", "target_launch_date"];
+  const launchMissing = launchFields.filter((key) => !isUsefulConfirmedValue(workspace, key));
+  const launchReady = manufacturerReady && launchMissing.length === 0;
+  const matchingReady = manufacturerReady;
+  const nextQuestionKey = !manufacturerReady && hasProduct && brandQuestionPending ? "brand_name" : proposed[0] ?? missing[0] ?? null;
   const percent = Math.round((confirmed.length / Math.max(required.length, 1)) * 100);
   const hasProductDefinition = hasProduct && confirmed.some((key) => ["product_format", "packaging_format", "packaging_size", "storage_distribution"].includes(key));
   const hasPreparedIntroduction = workspace.outreachDrafts.some((draft) => draft.approvedVersion !== null);
   const milestone = (workspace.inquiries.length || hasPreparedIntroduction) ? "introduction"
     : workspace.matches.length ? "match"
-    : matchingReady ? "commercial"
+    : searchReady ? "commercial"
     : hasProductDefinition ? "product"
     : "concept";
   const milestoneLabel = ({
@@ -91,15 +103,33 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
     introduction: "Introduction prepared",
   } as const)[milestone];
   const remaining = required.length - confirmed.length;
-  const summary = matchingReady
-    ? "You have enough confirmed information for a focused manufacturer search."
+  const summary = manufacturerReady
+    ? "Your brief is ready for an introductory manufacturer fit conversation."
+    : searchReady
+      ? "You can research manufacturers now while the remaining product decisions stay visibly open."
     : remaining === 1
-      ? "One important decision remains before manufacturer matching."
-      : `${remaining} important decisions remain before manufacturer matching.`;
+      ? "One more useful product decision will make manufacturer research worthwhile."
+      : "Add one product or packaging decision to begin useful manufacturer research.";
+  const stageLabel = launchReady ? "Launch planning complete"
+    : manufacturerReady ? "Manufacturer-ready brief"
+    : searchReady ? "Ready to research"
+    : "Shaping the idea";
+  const stageSummary = launchReady
+    ? "The planning brief has the core commercial decisions filled. Production, safety, and regulatory validation still belong with qualified partners."
+    : manufacturerReady
+      ? `${launchMissing.length} launch-planning decision${launchMissing.length === 1 ? " remains" : "s remain"}; they do not block an introductory fit conversation.`
+      : summary;
 
   return {
     matchingReady,
     percent,
+    searchReady,
+    manufacturerReady,
+    launchReady,
+    stageLabel,
+    stageSummary,
+    manufacturerMissing: missing,
+    launchMissing,
     milestone,
     milestoneLabel,
     confirmedRequirements: confirmed,
@@ -113,5 +143,5 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
 }
 
 export function hasMinimumMatchingInfo(workspace: SourcingWorkspace): boolean {
-  return getSourcingReadiness(workspace).matchingReady;
+  return getSourcingReadiness(workspace).searchReady;
 }

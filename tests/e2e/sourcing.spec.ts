@@ -15,8 +15,10 @@ async function visualVariationRatio(image: Buffer) {
   return variedPixels / (rendered.info.width * rendered.info.height);
 }
 
-async function startProduct(page: Page, idea = "A packaged banana bread mini loaf for individual sale in coffee shops") {
-  await page.goto("/sourcing");
+async function startProduct(page: Page, idea = "A packaged banana bread mini loaf for individual sale in coffee shops", navigate = true) {
+  if (navigate) await page.goto("/sourcing");
+  const manualStart = page.locator("details.manual-start");
+  if (!(await manualStart.evaluate((element) => (element as HTMLDetailsElement).open))) await page.getByText("Or start here yourself").click();
   await page.getByLabel("What do you want to make?").fill(idea);
   await page.getByRole("button", { name: "Build with your agent" }).click();
   await expect(page).toHaveURL(/\/sourcing\/[A-Za-z0-9_-]+$/, { timeout: 20_000 });
@@ -38,7 +40,7 @@ async function installWebMcpHarness(page: Page) {
 
 test("single sourcing entry creates the agent-led living document", async ({ page }) => {
   await page.goto("/sourcing");
-  await expect(page.getByRole("heading", { name: "Start with the product in your head." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tell your agent what you want to make." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Build with your agent" })).toHaveCount(1);
   for (const starter of ["Drink", "Sauce or condiment", "Baked good", "Snack", "Prepared food", "Something else"]) {
     await expect(page.getByRole("button", { name: starter })).toBeVisible();
@@ -54,11 +56,18 @@ test("single sourcing entry creates the agent-led living document", async ({ pag
   await expect(page.getByText("ready-made energy drink demo")).toHaveCount(0);
 
   await startProduct(page);
-  await expect(page.getByText("Product brief", { exact: true })).toBeVisible();
+  await expect(page.getByText("First Run · Product brief", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Packaged banana bread mini loaf" })).toBeVisible();
   await expect(page.getByText("Brand name still open").first()).toBeVisible();
   await expect(page.getByText("Product collaborator", { exact: true }).last()).toBeVisible();
   await expect(page.getByRole("heading", { name: /Do you already have a brand name/ })).toBeVisible();
+  const exported = await page.evaluate(async () => {
+    const response = await fetch(`${location.pathname.replace("/sourcing/", "/api/sourcing/")}/export`);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    return { contentType: response.headers.get("content-type"), signature: String.fromCharCode(...bytes.slice(0, 4)), byteLength: bytes.byteLength };
+  });
+  expect(exported).toMatchObject({ contentType: "application/pdf", signature: "%PDF" });
+  expect(exported.byteLength).toBeGreaterThan(500);
   await expect(page.getByText("Development workspace")).toHaveCount(0);
   await expect(page.getByText(/local development/i)).toHaveCount(0);
   await expect(page.getByText(/Started from:/i)).toHaveCount(0);
@@ -148,9 +157,12 @@ test("the focused package workbench uses all four production 3D models and write
   await expect(dialog.getByLabel("Logo size")).toHaveValue("1.1");
 });
 
-test("five WebMCP tools share canonical state and expose no send action", async ({ page }) => {
+test("landing and workspace WebMCP tools share canonical state and expose no send action", async ({ page }) => {
   await installWebMcpHarness(page);
-  await startProduct(page, "A sparkling beverage in slim cans");
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  expect(await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("create_sourcing_workspace"))).toBe(true);
+  await startProduct(page, "A sparkling beverage in slim cans", false);
   const invoke = async (name: string, input: Record<string, unknown>) => page.evaluate(async ({ name, input }) => {
     const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
     const tool = tools.get(name);
@@ -158,16 +170,36 @@ test("five WebMCP tools share canonical state and expose no send action", async 
     return tool.execute(input);
   }, { name, input });
 
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(5);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(9);
   const current = await invoke("get_sourcing_workspace", {}) as { canonicalPlan: { schemaVersion: number; originalIdea: string }; product: { brandName: string | null; descriptor: string }; externalContactRequiresFounderAction: boolean };
   expect(current.canonicalPlan.schemaVersion).toBe(2);
   expect(current.canonicalPlan.originalIdea).toBe("A sparkling beverage in slim cans");
   expect(current.product).toMatchObject({ brandName: null, descriptor: "Sparkling beverage" });
   expect(current.externalContactRequiresFounderAction).toBe(true);
-  await invoke("update_sourcing_workspace", { proposedUpdates: [{ key: "product_type", value: "Sparkling beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true }] });
+  await invoke("update_sourcing_workspace", { proposedUpdates: [
+    { key: "product_type", value: "Sparkling beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    { key: "packaging_format", value: "Slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+  ] });
   await expect(page.getByText("Sparkling beverage", { exact: true }).first()).toBeVisible();
+  await expect(page.locator(".agent-change-review")).toContainText("Latest agent update · 2 changes");
+  const matched = await invoke("match_manufacturers", { resultLimit: 2 }) as { workspace: { matches: Array<{ manufacturerSlug: string }>; selectedManufacturerSlugs: string[]; outreachDrafts: unknown[] } };
+  expect(matched.workspace.selectedManufacturerSlugs).toEqual([]);
+  expect(matched.workspace.outreachDrafts).toEqual([]);
+  const guardedDraft = await page.evaluate(async (manufacturerSlug) => {
+    const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
+    try {
+      await tools.get("prepare_manufacturer_outreach")!.execute({ selectedManufacturerIds: [manufacturerSlug] });
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    }
+  }, matched.workspace.matches[0].manufacturerSlug);
+  expect(guardedDraft).toContain("founder must select");
   const hasSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
   expect(hasSendTool).toBe(false);
+  for (const tool of ["get_package_design", "update_package_design", "undo_last_agent_change", "export_product_packet"]) {
+    expect(await page.evaluate((name) => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has(name), tool)).toBe(true);
+  }
 });
 
 test("multiple manufacturers receive separate reviewable drafts", async ({ page }) => {

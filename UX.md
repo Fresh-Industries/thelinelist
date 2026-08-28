@@ -69,7 +69,7 @@ Owns the agent-assisted living product brief, founder decisions, evidence-backed
 
 ### Sourcing landing
 
-Owns the promise and single first action: describe what you want to make and create one product plan that the Codex agent and direct inline editing can both update. A small set of broad visual prompt starters may seed and focus the same idea field; they never navigate, constrain the product category, or become a second creation mode. It does not open an external AI website, add recent-product cards, create demo branches, or introduce a second manual-builder path.
+Owns the promise and single first action: describe what you want to make and create one product plan that the Codex agent and direct inline editing can both update. When WebMCP is available, the primary entry is conversational: the founder explains the idea to the agent and the agent creates the workspace directly. A manual form remains a progressively disclosed fallback into that exact same canonical workflow, not a separate builder. Broad visual prompt starters may seed the same idea field; they never navigate or constrain the category. The page does not open an external AI website, add recent-product cards, or create demo branches.
 
 ### Manufacturer-facing sourcing packet
 
@@ -118,6 +118,8 @@ Owns the portable, manufacturer-safe project summary. It never contains internal
 - On mobile, remove decorative transforms and reduce offset shadows before reducing text size or tap targets.
 - Progressive disclosure for wizard and introduction flows.
 - Product-plan workflows are organized around an agent-assisted living brief and one dominant next decision, without locking direct editing elsewhere. The document remains primary. 3D appears only when it materially helps compare or choose a supported package; it recedes when it is not useful and never makes an unconfirmed choice look resolved. Readiness uses human language rather than a percentage. Matching may begin with explicit unknowns and become narrower as relevant decisions are confirmed.
+- Readiness is split into honest stages: ready to research, ready for an introductory manufacturer fit conversation, and launch planning complete. None of these states claims regulatory, safety, shelf-life, or production validation.
+- Agent-authored fields identify their provenance, the latest agent update is reviewable, and the founder has a lightweight undo. The workspace and agent can both export the current private plan as a PDF without sharing it externally.
 - Product identity keeps three concepts separate in the canonical plan: the raw original idea as quiet source context, an optional founder-controlled brand name as identity, and a concise product descriptor for what will be manufactured. The brief header is the single visual owner of brand and product identity; do not repeat the same identity in a workspace bar or in the product field grid. Never promote the raw prompt into the document title. An unresolved brand stays optional and does not block manufacturing decisions.
 - A confirmed packaging direction may show a small, non-interactive preview rendered from the same canonical package configuration as the workbench. It reflects the saved package type, finish, color, artwork placement, and dimensions state without becoming a second editor or a product hero.
 - Tappable product cards with clear selected and focus states.

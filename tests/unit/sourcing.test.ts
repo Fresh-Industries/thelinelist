@@ -9,7 +9,7 @@ import { getPackageColorName, getPackageDesignPresentation } from "@/lib/sourcin
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, editDraftSchema, founderUpdateSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
-import { applyAgentUpdates, applyFounderFieldUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderFieldUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { describe, expect, it } from "vitest";
 
 describe("sourcing workspace trust rules", () => {
@@ -70,6 +70,29 @@ describe("sourcing workspace trust rules", () => {
     expect(workspace.fields.budget.shareWithManufacturer).toBe(false);
   });
 
+  it("makes the latest agent update visible and reversibly restores prior fields", () => {
+    const initial = createWorkspace({ idea: "A sparkling energy drink" });
+    const updated = applyAgentUpdates(initial, [
+      { key: "packaging_size", value: "12 oz", explicitlyStated: true, status: "confirmed" },
+      { key: "carbonation", value: "Carbonated", explicitlyStated: false, status: "proposed" },
+    ]);
+    expect(updated.lastAgentChange?.changedKeys).toEqual(["packaging_size", "carbonation"]);
+    expect(updated.fields.packaging_size.value).toBe("12 oz");
+
+    const restored = undoLastAgentChange(updated, updated.lastAgentChange!.id);
+    expect(restored.fields.packaging_size.value).toBeNull();
+    expect(restored.fields.carbonation.value).toBeNull();
+    expect(restored.lastAgentChange).toBeNull();
+    expect(restored.activity[0].kind).toBe("agent_undone");
+  });
+
+  it("separates research readiness from manufacturer and launch readiness", () => {
+    const concept = createWorkspace({ idea: "A packaged banana bread" });
+    expect(getSourcingReadiness(concept)).toMatchObject({ searchReady: false, manufacturerReady: false, launchReady: false, stageLabel: "Shaping the idea" });
+    const searchable = applyFounderFieldUpdate(concept, { key: "product_format", value: "Wrapped slice", status: "confirmed", shareWithManufacturer: true });
+    expect(getSourcingReadiness(searchable)).toMatchObject({ searchReady: true, manufacturerReady: false, launchReady: false, stageLabel: "Ready to research" });
+  });
+
   it("lets the founder confirm, reject, mark unknown, and control sharing", () => {
     const proposed = applyAgentUpdates(createWorkspace(), [
       { key: "carbonation", value: "Carbonated", explicitlyStated: false, suggestedSharing: true },
@@ -102,9 +125,11 @@ describe("sourcing workspace trust rules", () => {
     expect(matches.map((match) => match.manufacturerName)).toEqual(expect.arrayContaining(["Better Beverage Company", "Portland Bottling Company"]));
   });
 
-  it("does not match an empty plan or pad an unresolved plan with weak results", () => {
+  it("does not match an empty plan and allows sourced research with visible unknowns", () => {
     expect(matchManufacturers(createWorkspace(), { resultLimit: 10 })).toEqual([]);
-    expect(matchManufacturers(createWorkspace({ demo: true }), { resultLimit: 10 })).toEqual([]);
+    const earlyMatches = matchManufacturers(createWorkspace({ demo: true }), { resultLimit: 10 });
+    expect(earlyMatches.length).toBeGreaterThan(0);
+    expect(earlyMatches.some((match) => match.unknowns.length > 0 || match.possibleConflicts.length > 0)).toBe(true);
   });
 
   it("requires the core manufacturing decisions before matching", () => {

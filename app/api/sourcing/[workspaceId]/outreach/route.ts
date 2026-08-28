@@ -20,6 +20,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   if (!limited.ok) return NextResponse.json({ error: "Outreach draft limit reached. Try again later." }, { status: 429 });
   const parsed = prepareOutreachSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid outreach request." }, { status: 400 });
+  const requested = [...parsed.data.selectedManufacturerIds].sort();
+  const founderSelected = [...workspace.selectedManufacturerSlugs].sort();
+  if (!founderSelected.length || requested.length !== founderSelected.length || requested.some((slug, index) => slug !== founderSelected[index])) {
+    return NextResponse.json({ error: "The founder must select these manufacturers in the workspace before any introduction drafts can be prepared." }, { status: 409 });
+  }
   const drafts = prepareOutreachDrafts(workspace, parsed.data);
   if (!drafts.length) return NextResponse.json({ error: "No available manufacturer introduction could be prepared." }, { status: 400 });
   const updated = addWorkspaceActivity({

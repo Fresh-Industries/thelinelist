@@ -1,9 +1,9 @@
 import { getPlantBySlug } from "@/lib/directory";
 import { getSourcingReadiness, MATCH_SHAPING_FIELDS } from "@/lib/sourcing/readiness";
-import { agentUpdateSchema, founderUpdateSchema, packageDesignUpdateSchema, selectionUpdateSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
+import { agentUpdateSchema, founderUpdateSchema, packageDesignUpdateSchema, selectionUpdateSchema, undoAgentChangeSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
 import { getAuthorizedWorkspace } from "@/lib/sourcing/access";
-import { applyAgentUpdates, applyFounderFieldUpdate, invalidateDraftApprovalsForFounderEmailChange, touch } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderFieldUpdate, applyPackageDesignUpdate, invalidateDraftApprovalsForFounderEmailChange, touch, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
@@ -35,7 +35,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   const founder = founderUpdateSchema.safeParse(body);
   const selection = selectionUpdateSchema.safeParse(body);
   const packageDesign = packageDesignUpdateSchema.safeParse(body);
-  const requestedRevision = agent.success ? agent.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : packageDesign.success ? packageDesign.data.revision : undefined;
+  const undo = undoAgentChangeSchema.safeParse(body);
+  const requestedRevision = agent.success ? agent.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : packageDesign.success ? packageDesign.data.revision : undo.success ? undo.data.revision : undefined;
   if (requestedRevision && requestedRevision !== workspace.revision) {
     return NextResponse.json({ error: "The workspace changed. Refresh and try again.", workspace }, { status: 409 });
   }
@@ -49,22 +50,11 @@ export async function PATCH(request: Request, context: RouteContext) {
     const valid = selection.data.selectedManufacturerSlugs.filter((slug) => getPlantBySlug(slug));
     updated = touch({ ...workspace, selectedManufacturerSlugs: [...new Set(valid)] });
   } else if (packageDesign.success) {
-    const packagingField = {
-      ...workspace.fields.packaging_format,
-      value: packageDesign.data.packageDesign.summary,
-      status: "confirmed" as const,
-      reason: null,
-      source: "Package mockup workbench",
-      explicitlyStated: true,
-      shareWithManufacturer: true,
-      updatedAt: new Date().toISOString(),
-      updatedBy: "founder" as const,
-    };
-    updated = touch({
-      ...workspace,
-      packageDesign: packageDesign.data.packageDesign,
-      fields: { ...workspace.fields, packaging_format: packagingField },
-    });
+    if (packageDesign.data.updatedBy === "agent" && !packageDesign.data.explicitlyStated) return error("The agent can only apply packaging choices the founder explicitly requested.", 400);
+    updated = applyPackageDesignUpdate(workspace, packageDesign.data.packageDesign, packageDesign.data.updatedBy);
+  } else if (undo.success) {
+    if (workspace.lastAgentChange?.id !== undo.data.undoAgentChangeId) return error("That agent change can no longer be undone.", 409);
+    updated = undoLastAgentChange(workspace, undo.data.undoAgentChangeId);
   } else {
     return error("Invalid workspace update.", 400);
   }
@@ -78,7 +68,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   const matchRelevantKeys = new Set(["product_name", "product_category", "product_format", "product_type", "product_description", ...MATCH_SHAPING_FIELDS]);
   const changesManufacturerFit = agent.success
     ? agent.data.proposedUpdates.some((update) => matchRelevantKeys.has(update.key))
-    : founder.success ? matchRelevantKeys.has(founder.data.fieldUpdate.key) : packageDesign.success;
+    : founder.success ? matchRelevantKeys.has(founder.data.fieldUpdate.key)
+      : packageDesign.success
+        ? true
+        : undo.success ? workspace.lastAgentChange?.changedKeys.some((key) => matchRelevantKeys.has(key)) ?? false : false;
   if (changesManufacturerFit) {
     updated = {
       ...updated,
