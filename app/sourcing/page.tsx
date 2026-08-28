@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata = {
   ...pageMetadata({
-    title: "Build your product plan with ChatGPT",
+    title: "Build your product plan with your agent",
     description: "Turn a food idea into a clear product plan, evidence-backed manufacturer matches, and an approved introduction.",
     path: "/sourcing",
   }),

@@ -1,5 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { FIELD_DEFINITION_BY_KEY, SOURCING_FIELD_DEFINITIONS } from "./fields";
+import { deriveProductDescriptorFromIdea, isOpenBrandAnswer } from "./product-identity";
 import type { AgentFieldUpdate, OutreachDraft, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
 
 function now(): string {
@@ -27,12 +28,24 @@ function blankField(key: SourcingFieldKey, timestamp: string): SourcingField {
 
 export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorkspace {
   const timestamp = workspace.updatedAt || now();
+  const legacyIdea = [workspace.fields?.product_description, workspace.fields?.product_type]
+    .find((field) => field?.source === "Founder starting idea" && field.value)?.value ?? null;
+  const originalIdea = workspace.originalIdea?.trim() || legacyIdea;
   const fields = Object.fromEntries(
     SOURCING_FIELD_DEFINITIONS.map(({ key }) => {
       const existing = workspace.fields?.[key];
       return [key, existing ? { ...blankField(key, timestamp), ...existing, evidence: existing.evidence ?? [] } : blankField(key, timestamp)];
     }),
   ) as Record<SourcingFieldKey, SourcingField>;
+  if (originalIdea) {
+    const descriptor = deriveProductDescriptorFromIdea(originalIdea);
+    if (fields.product_type.source === "Founder starting idea" && fields.product_type.value === originalIdea) {
+      fields.product_type = descriptor ? { ...fields.product_type, value: descriptor } : blankField("product_type", timestamp);
+    }
+    if (fields.product_description.source === "Founder starting idea" && fields.product_description.value === originalIdea) {
+      fields.product_description = blankField("product_description", timestamp);
+    }
+  }
   const outreachDrafts = (workspace.outreachDrafts ?? []).map((draft): OutreachDraft => ({
     ...draft,
     recipientEmail: draft.recipientEmail ?? draft.demoRecipient ?? null,
@@ -42,6 +55,10 @@ export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorksp
   }));
   return {
     ...workspace,
+    ownership: workspace.ownership ?? { userId: null, brandId: null },
+    originalIdea,
+    artwork: workspace.artwork ?? null,
+    packageDesign: workspace.packageDesign ?? null,
     fields,
     selectedManufacturerSlugs: workspace.selectedManufacturerSlugs ?? [],
     matches: workspace.matches ?? [],
@@ -59,6 +76,10 @@ export function createWorkspace(options: { demo?: boolean; idea?: string } = {})
 
   const workspace: SourcingWorkspace = {
     id: randomBytes(18).toString("base64url"),
+    ownership: { userId: null, brandId: null },
+    originalIdea: options.idea?.trim() || null,
+    artwork: null,
+    packageDesign: null,
     revision: 1,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -74,24 +95,29 @@ export function createWorkspace(options: { demo?: boolean; idea?: string } = {})
   const idea = options.idea?.trim();
   if (!options.demo) {
     if (!idea) return workspace;
-    const founderIdea = (key: "product_type" | "product_description"): SourcingField => ({
-      ...workspace.fields[key],
-      value: idea,
+    const descriptor = deriveProductDescriptorFromIdea(idea);
+    if (!descriptor) return workspace;
+    const founderProduct: SourcingField = {
+      ...workspace.fields.product_type,
+      value: descriptor,
       status: "confirmed",
       source: "Founder starting idea",
       explicitlyStated: true,
       shareWithManufacturer: true,
       updatedAt: timestamp,
       updatedBy: "founder",
-    });
+    };
     return touch({
       ...workspace,
-      fields: { ...workspace.fields, product_type: founderIdea("product_type"), product_description: founderIdea("product_description") },
+      fields: { ...workspace.fields, product_type: founderProduct },
       activity: [activity("founder_updated", "Your starting idea was added to the plan."), ...workspace.activity],
     }, timestamp);
   }
 
   return applyAgentUpdates(workspace, [
+    { key: "brand_name", value: "Fresh Energy", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
+    { key: "product_category", value: "Beverage", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
+    { key: "product_format", value: "12 oz drink", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
     { key: "product_type", value: "Healthier energy drink", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
     { key: "packaging_format", value: "Cans", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
     { key: "packaging_size", value: "12 oz", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
@@ -110,8 +136,10 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
   const fields = { ...workspace.fields };
   for (const update of updates) {
     const definition = FIELD_DEFINITION_BY_KEY[update.key];
-    const hasValue = typeof update.value === "string" && update.value.trim().length > 0;
-    const requestedStatus = update.status ?? (update.explicitlyStated ? "confirmed" : "proposed");
+    const brandStillOpen = update.key === "brand_name" && isOpenBrandAnswer(update.value);
+    const normalizedValue = brandStillOpen ? null : update.value;
+    const hasValue = typeof normalizedValue === "string" && normalizedValue.trim().length > 0;
+    const requestedStatus = brandStillOpen ? "needs_decision" : update.status ?? (update.explicitlyStated ? "confirmed" : "proposed");
     const status: SourcingFieldStatus = hasValue
       ? requestedStatus === "confirmed" && update.explicitlyStated !== true ? "proposed" : requestedStatus
       : "needs_decision";
@@ -124,7 +152,7 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
     }));
     fields[update.key] = {
       ...fields[update.key],
-      value: hasValue ? update.value!.trim() : null,
+      value: hasValue ? normalizedValue!.trim() : null,
       status,
       reason: update.reason?.trim() || null,
       source: update.source?.trim() || null,
@@ -137,15 +165,19 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
       evidence,
     };
   }
-  const suggestedCount = updates.filter((update) => update.value?.trim() && !update.explicitlyStated).length;
-  const detailCount = updates.filter((update) => update.value?.trim()).length;
+  const meaningfulUpdates = updates.filter((update) => update.value?.trim() && !(update.key === "brand_name" && isOpenBrandAnswer(update.value)));
+  const suggestedCount = meaningfulUpdates.filter((update) => !update.explicitlyStated).length;
+  const detailCount = meaningfulUpdates.length;
   const suggestionNote = suggestedCount
     ? ` ${suggestedCount} suggestion${suggestedCount === 1 ? " needs" : "s need"} your review.`
     : "";
+  const activityDetail = detailCount
+    ? `Your agent added ${detailCount} detail${detailCount === 1 ? "" : "s"} from your conversation.${suggestionNote}`
+    : "Your agent kept an open decision explicit so it will not block the product brief.";
   return touch({
     ...workspace,
     fields,
-    activity: addActivity(workspace.activity, activity("agent_proposed", `ChatGPT added ${detailCount} detail${detailCount === 1 ? "" : "s"} from your conversation.${suggestionNote}`)),
+    activity: addActivity(workspace.activity, activity("agent_proposed", activityDetail)),
   }, timestamp);
 }
 
@@ -155,8 +187,10 @@ export function applyFounderFieldUpdate(
 ): SourcingWorkspace {
   const timestamp = now();
   const definition = FIELD_DEFINITION_BY_KEY[input.key];
-  const value = input.value?.trim() || null;
-  const status = value ? input.status : input.status === "rejected" ? "rejected" : "unknown";
+  const brandStillOpen = input.key === "brand_name" && isOpenBrandAnswer(input.value);
+  const value = brandStillOpen ? null : input.value?.trim() || null;
+  const requestedStatus = brandStillOpen ? "needs_decision" : input.status;
+  const status = value ? requestedStatus : requestedStatus === "rejected" || requestedStatus === "needs_decision" ? requestedStatus : "unknown";
   const field: SourcingField = {
     ...workspace.fields[input.key],
     value,

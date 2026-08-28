@@ -11,6 +11,10 @@ export interface SourcingFieldDefinition {
 }
 
 export const SOURCING_FIELD_DEFINITIONS: SourcingFieldDefinition[] = [
+  { key: "brand_name", label: "Brand name", hint: "Leave this open if you have not decided yet", group: "founder", shareByDefault: true },
+  { key: "product_name", label: "Product name", hint: "A working name is fine", group: "product", shareByDefault: true },
+  { key: "product_category", label: "Product category", hint: "Bakery, beverage, sauce, snack, or another food category", group: "product", shareByDefault: true },
+  { key: "product_format", label: "Product format", hint: "Example: mini loaf, snack bar, or 12 oz drink", group: "product", shareByDefault: true },
   { key: "product_type", label: "Product", hint: "Example: healthier energy drink", group: "product", shareByDefault: true },
   { key: "product_description", label: "Product description", hint: "What it is and who it is for", group: "product", shareByDefault: true, multiline: true },
   { key: "formula_status", label: "Is your recipe ready?", hint: "Idea, draft, tested, or ready to make", group: "product", shareByDefault: true },
@@ -49,6 +53,9 @@ export const FIELD_DEFINITION_BY_KEY = Object.fromEntries(
 ) as Record<SourcingFieldKey, SourcingFieldDefinition>;
 
 export const PRIMARY_FIELD_KEYS: SourcingFieldKey[] = [
+  "product_name",
+  "product_category",
+  "product_format",
   "product_type",
   "product_description",
   "formula_status",

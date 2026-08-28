@@ -16,7 +16,7 @@ export interface LeadRecord {
 
 export interface StoreResult {
   ok: boolean;
-  adapter: "blob" | "email-archive" | "memory";
+  adapter: "postgres" | "email-archive" | "memory";
   id: string;
   duplicate?: boolean;
   error?: string;

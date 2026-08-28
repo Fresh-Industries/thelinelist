@@ -1,24 +1,44 @@
 # Environment checklist
 
-The Line List keeps conversion forms provider-neutral. Set what you have. Hide what you do not.
-
-Intro and claim forms always render. They store a lead and notify the owner when a store or email adapter is configured. If neither Blob nor email is set, leads persist only in function memory (preview/dev). Production should set at least one durable store and one notify adapter.
+The production app uses PostgreSQL for structured application state and Better Auth sessions. Vercel Blob is limited to binary product artwork.
 
 ## Site
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | No | Defaults to `https://www.thelinelist.com`. Used when composing source URLs. |
+| `NEXT_PUBLIC_SITE_URL` | Recommended | Canonical public origin. Defaults to `https://www.thelinelist.com` in site helpers. |
 
-## Leads store
+## PostgreSQL and authentication
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `BLOB_READ_WRITE_TOKEN` | Recommended | Vercel Blob. Lead JSON files use `leads/{intro\|claim}/{date}/{id}.json`; sourcing workspaces use private objects under `sourcing/`. |
+| `DATABASE_URL` | Production | PostgreSQL connection used by Prisma for Better Auth, product workspaces, packet metadata, activity, asset metadata, and lead submissions. |
+| `BETTER_AUTH_URL` | Production | Canonical auth origin, for example `https://www.thelinelist.com`. |
+| `BETTER_AUTH_SECRET` | Production | At least 32 characters of high-entropy secret material. Generate with `openssl rand -base64 32`. |
 
-If Blob is missing and email is configured, the notification email is the archive.
+Production fails closed when PostgreSQL or auth configuration is missing. Guest workspaces use PostgreSQL too; they are owned by a hashed, expiring credential stored in a secure HttpOnly cookie. Development may use temporary local workspace JSON only to support visual work when a local PostgreSQL service is not configured. That adapter is never selected in production.
 
-## Notify (owner email)
+Prisma commands must use a non-production connection:
+
+```bash
+npx prisma validate
+npx prisma generate
+npx prisma migrate dev --name <descriptive-name>
+```
+
+Never point local migration or test commands at the production database.
+
+## Binary artwork storage
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `BLOB_READ_WRITE_TOKEN` | Recommended | Private Vercel Blob storage for uploaded PNG, JPG, or WebP artwork bytes only. |
+| `BLOB_STORE_ID` | Optional OIDC path | Connected Vercel Blob store ID. |
+| `VERCEL_OIDC_TOKEN` | Optional local OIDC path | Explicit local OIDC credential for the connected Blob store. |
+
+Workspace JSON, packets, send locks, and lead JSON do not belong in Blob. Artwork ownership and safe file metadata live in PostgreSQL; Blob stores only the bytes. In development, artwork can use the operating-system temporary directory.
+
+## Owner notifications
 
 | Variable | Required | Notes |
 | --- | --- | --- |
@@ -26,43 +46,20 @@ If Blob is missing and email is configured, the notification email is the archiv
 | `RESEND_API_KEY` | One of Resend/Postmark | Resend REST adapter. |
 | `POSTMARK_SERVER_TOKEN` | One of Resend/Postmark | Postmark REST adapter. |
 | `POSTMARK_MESSAGE_STREAM` | No | Defaults to `outbound`. |
-| `NOTIFY_FROM_EMAIL` | Recommended | Verified from address. Defaults to `The Line List <notifications@mail.thelinelist.com>` for Resend and `The Line List <hello@thelinelist.com>` for Postmark. |
-| `NOTIFY_TO_EMAIL` | Recommended | Owner inbox. Defaults to `hello@thelinelist.com`. |
+| `NOTIFY_FROM_EMAIL` | Recommended | Verified from address. |
+| `NOTIFY_TO_EMAIL` | Recommended | Owner review inbox. |
 
-## Rate limit
+Lead submissions are durable PostgreSQL rows. Email is a notification channel, not the system of record. If PostgreSQL is unavailable outside production, an email-only archive or process-memory fallback may be used for existing public forms.
+
+## Rate limiting
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `UPSTASH_REDIS_REST_URL` | Recommended on Vercel | Shared limiter across instances. |
+| `UPSTASH_REDIS_REST_URL` | Recommended on Vercel | Shared rate limiter across instances. It is not a product-workspace store. |
 | `UPSTASH_REDIS_REST_TOKEN` | With the URL | |
 
 Without Upstash, a best-effort in-memory limiter still runs on the current instance.
 
-## Sourcing workspace store
+## Newsletter and analytics
 
-The `/sourcing` product-plan workflow requires a durable store in production. It prefers Upstash when both Redis variables above are set, then falls back to private Vercel Blob. Development uses local temporary JSON files.
-
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `UPSTASH_REDIS_REST_URL` | One durable-store option | Used with `UPSTASH_REDIS_REST_TOKEN` for workspace records and atomic send claims. |
-| `UPSTASH_REDIS_REST_TOKEN` | With the URL | |
-| `BLOB_READ_WRITE_TOKEN` | Alternative durable-store option | Reuses the Vercel Blob token from Leads store. |
-| `BLOB_STORE_ID` | OIDC alternative | A connected Vercel project can use this store ID with automatically refreshed OIDC credentials when no Blob read/write token is set. |
-| `VERCEL_OIDC_TOKEN` | Local OIDC use | Explicit Vercel-provided OIDC credential for private Blob access outside the deployed project runtime. |
-
-Without either durable backend, production returns `503` when a founder tries to create a workspace. It does not create a workspace link that may disappear between server instances.
-
-## Newsletter
-
-See `docs/env-newsletter.md`. If the newsletter provider env is missing, the signup UI is hidden.
-
-## Analytics
-
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | No | `plausible`, `posthog`, or `console`. Unset is a no-op (logs in development). |
-| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | For Plausible | Example: `thelinelist.com`. |
-| `NEXT_PUBLIC_POSTHOG_KEY` | For PostHog | Project key. |
-| `NEXT_PUBLIC_POSTHOG_HOST` | No | Defaults to `https://us.i.posthog.com`. |
-
-Canonical event names are documented in the pull request. The code uses the snake_case keys in `lib/analytics/events.ts`.
+See `docs/env-newsletter.md` for newsletter configuration. Analytics variables remain `NEXT_PUBLIC_ANALYTICS_PROVIDER`, `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`, `NEXT_PUBLIC_POSTHOG_KEY`, and `NEXT_PUBLIC_POSTHOG_HOST`.

@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { NEVER_SHARE_FIELD_KEYS } from "./fields";
 import { SOURCING_FIELD_KEYS } from "./types";
+import { PackageDesignSchema } from "./product-plan";
 
 export const workspaceIdSchema = z.string().min(20).max(64).regex(/^[A-Za-z0-9_-]+$/);
 export const fieldKeySchema = z.enum(SOURCING_FIELD_KEYS);
 export const fieldStatusSchema = z.enum(["confirmed", "proposed", "unknown", "needs_decision", "rejected"]);
-export const contactEmailSchema = z.string().trim().email().max(320);
-const publicHttpUrlSchema = z.string().url().max(2_000).refine((value) => {
+export const contactEmailSchema = z.email().trim().max(320);
+const publicHttpUrlSchema = z.url().max(2_000).refine((value) => {
   try {
     const protocol = new URL(value).protocol;
     return protocol === "http:" || protocol === "https:";
@@ -41,7 +42,7 @@ export const agentUpdateSchema = z.object({
       url: publicHttpUrlSchema,
       claim: z.string().trim().min(1).max(1_000),
       publisher: z.string().trim().max(200).optional(),
-      reviewedAt: z.string().datetime().optional(),
+      reviewedAt: z.iso.datetime().optional(),
     })).max(8).optional(),
   }).refine((update) => update.explicitlyStated !== undefined || update.status !== undefined, {
     message: "Each update needs a decision status.",
@@ -63,6 +64,11 @@ export const selectionUpdateSchema = z.object({
   selectedManufacturerSlugs: z.array(z.string().trim().min(1).max(120)).max(3),
 });
 
+export const packageDesignUpdateSchema = z.object({
+  revision: z.number().int().positive(),
+  packageDesign: PackageDesignSchema,
+});
+
 export const matchRequestSchema = z.object({
   geographyPreference: z.string().trim().max(100).optional(),
   resultLimit: z.number().int().min(1).max(10).default(5),
@@ -80,11 +86,4 @@ export const editDraftSchema = z.object({
   subject: z.string().trim().min(1).max(180),
   body: z.string().trim().min(1).max(12_000),
   includedFieldKeys: z.array(fieldKeySchema).max(MAX_SHAREABLE_FIELDS),
-});
-
-export const sendInquirySchema = z.object({
-  outreachDraftId: z.string().uuid(),
-  approvedContentVersion: z.number().int().positive(),
-  humanSendToken: z.string().min(32).max(200),
-  confirmation: z.literal("human_click"),
 });

@@ -6,19 +6,13 @@ import {
 } from "@/lib/notify/email";
 import { SITE_NAME } from "@/lib/site";
 import type { LeadRecord, LeadStore, StoreResult } from "./types";
+import type { Prisma } from "@/generated/prisma/client";
+import { databaseConfigured, prisma } from "@/lib/db/prisma";
 
 const memoryRecords = new Map<string, LeadRecord[]>();
 
-function read(name: string): string {
-  return process.env[name]?.trim() ?? "";
-}
-
-function blobReady(): boolean {
-  return Boolean(read("BLOB_READ_WRITE_TOKEN"));
-}
-
-export function getLeadStoreAdapterName(): "blob" | "email-archive" | "memory" {
-  if (blobReady()) return "blob";
+export function getLeadStoreAdapterName(): "postgres" | "email-archive" | "memory" {
+  if (databaseConfigured()) return "postgres";
   if (isNotifyConfigured()) return "email-archive";
   return "memory";
 }
@@ -26,18 +20,18 @@ export function getLeadStoreAdapterName(): "blob" | "email-archive" | "memory" {
 export function createLeadStore(): LeadStore {
   return {
     async save(record) {
-      if (blobReady()) {
-        const blob = await saveToBlob(record);
-        if (blob.ok) {
-          const notified = await notifyOwner(record, "blob");
+      if (databaseConfigured()) {
+        const stored = await saveToPostgres(record);
+        if (stored.ok) {
+          const notified = await notifyOwner(record, "postgres");
           if (!notified.ok) {
             return {
-              ...blob,
+              ...stored,
               ok: false,
               error: notifyError(notified),
             };
           }
-          return blob;
+          return stored;
         }
       }
 
@@ -55,44 +49,59 @@ export function createLeadStore(): LeadStore {
     async findRecentDuplicate(fingerprint, withinMs) {
       const local = findMemoryDuplicate(fingerprint, withinMs);
       if (local) return local;
-      if (blobReady()) {
-        return findBlobDuplicate(fingerprint, withinMs);
+      if (databaseConfigured()) {
+        return findPostgresDuplicate(fingerprint, withinMs);
       }
       return null;
     },
   };
 }
 
-async function saveToBlob(record: LeadRecord): Promise<StoreResult> {
-  const pathname = `leads/${record.kind}/${record.createdAt.slice(0, 10)}/${record.id}.json`;
-  const response = await fetch(`https://blob.vercel-storage.com/${pathname}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${read("BLOB_READ_WRITE_TOKEN")}`,
-      "x-api-version": "7",
-      "x-content-type": "application/json",
-    },
-    body: JSON.stringify(record, null, 2),
-  });
-
-  if (!response.ok) {
+async function saveToPostgres(record: LeadRecord): Promise<StoreResult> {
+  try {
+    await prisma.leadSubmission.create({ data: {
+      id: record.id,
+      kind: record.kind,
+      manufacturerSlug: record.manufacturerSlug,
+      manufacturerName: record.manufacturerName,
+      sourceUrl: record.sourceUrl,
+      utm: record.utm as unknown as Prisma.InputJsonValue,
+      payload: record.payload as Prisma.InputJsonValue,
+      fingerprint: record.fingerprint,
+      createdAt: new Date(record.createdAt),
+    } });
+  } catch (error) {
     return {
       ok: false,
-      adapter: "blob",
+      adapter: "postgres",
       id: record.id,
-      error: `Blob HTTP ${response.status}`,
+      error: error instanceof Error ? error.message : "PostgreSQL write failed",
     };
   }
-
   remember(record);
-  return { ok: true, adapter: "blob", id: record.id };
+  return { ok: true, adapter: "postgres", id: record.id };
 }
 
-async function findBlobDuplicate(
+async function findPostgresDuplicate(
   fingerprint: string,
   withinMs: number,
 ): Promise<LeadRecord | null> {
-  return findMemoryDuplicate(fingerprint, withinMs);
+  const row = await prisma.leadSubmission.findFirst({
+    where: { fingerprint, createdAt: { gte: new Date(Date.now() - withinMs) } },
+    orderBy: { createdAt: "desc" },
+  });
+  if (!row) return null;
+  return {
+    id: row.id,
+    kind: row.kind as LeadRecord["kind"],
+    manufacturerSlug: row.manufacturerSlug,
+    manufacturerName: row.manufacturerName,
+    sourceUrl: row.sourceUrl,
+    createdAt: row.createdAt.toISOString(),
+    utm: row.utm as unknown as LeadRecord["utm"],
+    payload: row.payload as LeadRecord["payload"],
+    fingerprint: row.fingerprint,
+  };
 }
 
 async function saveToEmailArchive(record: LeadRecord): Promise<StoreResult> {

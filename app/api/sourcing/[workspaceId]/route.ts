@@ -1,7 +1,8 @@
 import { getPlantBySlug } from "@/lib/directory";
 import { getSourcingReadiness, MATCH_SHAPING_FIELDS } from "@/lib/sourcing/readiness";
-import { agentUpdateSchema, founderUpdateSchema, selectionUpdateSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
+import { agentUpdateSchema, founderUpdateSchema, packageDesignUpdateSchema, selectionUpdateSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
+import { getAuthorizedWorkspace } from "@/lib/sourcing/access";
 import { applyAgentUpdates, applyFounderFieldUpdate, invalidateDraftApprovalsForFounderEmailChange, touch } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
@@ -14,16 +15,17 @@ interface RouteContext { params: Promise<{ workspaceId: string }> }
 export async function GET(_request: Request, context: RouteContext) {
   const { workspaceId } = await context.params;
   if (!workspaceIdSchema.safeParse(workspaceId).success) return error("Workspace not found.", 404);
-  const workspace = await getSourcingWorkspace(workspaceId);
-  if (!workspace) return error("Workspace not found.", 404);
-  return NextResponse.json({ workspace, readiness: getSourcingReadiness(workspace), storageAdapter: sourcingStoreAdapter() });
+  const authorized = await getAuthorizedWorkspace(workspaceId);
+  if (!authorized) return error("Workspace not found.", 404);
+  return NextResponse.json({ workspace: authorized.workspace, readiness: getSourcingReadiness(authorized.workspace), storageAdapter: sourcingStoreAdapter(), ownership: authorized.access });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
   const { workspaceId } = await context.params;
   if (!workspaceIdSchema.safeParse(workspaceId).success) return error("Workspace not found.", 404);
-  const workspace = await getSourcingWorkspace(workspaceId);
-  if (!workspace) return error("Workspace not found.", 404);
+  const authorized = await getAuthorizedWorkspace(workspaceId);
+  if (!authorized) return error("Workspace not found.", 404);
+  const workspace = authorized.workspace;
   const requestContext = await getRequestContext();
   const limited = await rateLimit({ key: `sourcing-update:${requestContext.ipHash}:${workspaceId}`, limit: 120, windowSec: 60 * 60 });
   if (!limited.ok) return error("Workspace update limit reached. Try again later.", 429);
@@ -32,7 +34,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   const agent = agentUpdateSchema.safeParse(body);
   const founder = founderUpdateSchema.safeParse(body);
   const selection = selectionUpdateSchema.safeParse(body);
-  const requestedRevision = agent.success ? agent.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : undefined;
+  const packageDesign = packageDesignUpdateSchema.safeParse(body);
+  const requestedRevision = agent.success ? agent.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : packageDesign.success ? packageDesign.data.revision : undefined;
   if (requestedRevision && requestedRevision !== workspace.revision) {
     return NextResponse.json({ error: "The workspace changed. Refresh and try again.", workspace }, { status: 409 });
   }
@@ -45,6 +48,23 @@ export async function PATCH(request: Request, context: RouteContext) {
   } else if (selection.success) {
     const valid = selection.data.selectedManufacturerSlugs.filter((slug) => getPlantBySlug(slug));
     updated = touch({ ...workspace, selectedManufacturerSlugs: [...new Set(valid)] });
+  } else if (packageDesign.success) {
+    const packagingField = {
+      ...workspace.fields.packaging_format,
+      value: packageDesign.data.packageDesign.summary,
+      status: "confirmed" as const,
+      reason: null,
+      source: "Package mockup workbench",
+      explicitlyStated: true,
+      shareWithManufacturer: true,
+      updatedAt: new Date().toISOString(),
+      updatedBy: "founder" as const,
+    };
+    updated = touch({
+      ...workspace,
+      packageDesign: packageDesign.data.packageDesign,
+      fields: { ...workspace.fields, packaging_format: packagingField },
+    });
   } else {
     return error("Invalid workspace update.", 400);
   }
@@ -55,10 +75,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     updated = invalidateDraftApprovalsForFounderEmailChange(updated);
   }
 
-  const matchRelevantKeys = new Set(["product_type", "product_description", ...MATCH_SHAPING_FIELDS]);
+  const matchRelevantKeys = new Set(["product_name", "product_category", "product_format", "product_type", "product_description", ...MATCH_SHAPING_FIELDS]);
   const changesManufacturerFit = agent.success
     ? agent.data.proposedUpdates.some((update) => matchRelevantKeys.has(update.key))
-    : founder.success ? matchRelevantKeys.has(founder.data.fieldUpdate.key) : false;
+    : founder.success ? matchRelevantKeys.has(founder.data.fieldUpdate.key) : packageDesign.success;
   if (changesManufacturerFit) {
     updated = {
       ...updated,

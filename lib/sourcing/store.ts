@@ -1,8 +1,15 @@
-import { BlobNotFoundError, BlobPreconditionFailedError, del, get, head, put } from "@vercel/blob";
-import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import "server-only";
+
+import { BlobNotFoundError, get, put } from "@vercel/blob";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { SourcingWorkspace } from "./types";
+import type { Prisma } from "@/generated/prisma/client";
+import { databaseConfigured, prisma } from "@/lib/db/prisma";
+import { ProductPlanSchema, productPlanFromWorkspace } from "./product-plan";
+import { getProductName } from "./product-catalog";
+import type { SourcingWorkspace, WorkspaceActivity } from "./types";
 import { normalizeWorkspace } from "./workspace";
 
 const localStoreDirectory = join(tmpdir(), "thelinelist-sourcing-workspaces");
@@ -11,39 +18,23 @@ function read(name: string): string {
   return process.env[name]?.trim() ?? "";
 }
 
-function redisReady(): boolean {
-  return Boolean(read("UPSTASH_REDIS_REST_URL") && read("UPSTASH_REDIS_REST_TOKEN"));
-}
-
 function blobReady(): boolean {
   return Boolean(
     read("BLOB_READ_WRITE_TOKEN") ||
-    (read("BLOB_STORE_ID") && (read("VERCEL_OIDC_TOKEN") || read("VERCEL") === "1")),
+      (read("BLOB_STORE_ID") && (read("VERCEL_OIDC_TOKEN") || read("VERCEL") === "1")),
   );
-}
-
-function workspaceKey(id: string): string {
-  return `sourcing:workspace:${id}`;
-}
-
-function packetKey(token: string): string {
-  return `sourcing:packet:${token}`;
-}
-
-function blobWorkspacePath(id: string): string {
-  return `sourcing/workspaces/${id}.json`;
-}
-
-function blobPacketPath(token: string): string {
-  return `sourcing/packets/${token}.txt`;
-}
-
-function blobSendClaimPath(draftId: string): string {
-  return `sourcing/send-claims/${draftId}.lock`;
 }
 
 function fileStoreReady(): boolean {
   return process.env.NODE_ENV !== "production";
+}
+
+function blobArtworkPath(workspaceId: string, artworkId: string): string {
+  return `sourcing/artwork/${workspaceId}/${artworkId}`;
+}
+
+export function hashOpaqueToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
 }
 
 export class SourcingStoreUnavailableError extends Error {
@@ -60,35 +51,110 @@ export class SourcingWorkspaceConflictError extends Error {
   }
 }
 
-export function sourcingStoreAdapter(): "upstash" | "blob" | "filesystem" | "unavailable" {
-  if (redisReady()) return "upstash";
-  if (blobReady()) return "blob";
+export function sourcingStoreAdapter(): "postgres" | "filesystem" | "unavailable" {
+  if (databaseConfigured()) return "postgres";
   if (fileStoreReady()) return "filesystem";
   return "unavailable";
+}
+
+export function artworkStoreReady(): boolean {
+  return blobReady() || fileStoreReady();
+}
+
+export async function saveProductArtwork(
+  workspaceId: string,
+  artworkId: string,
+  bytes: Uint8Array,
+  contentType: string,
+): Promise<string> {
+  const pathname = blobArtworkPath(workspaceId, artworkId);
+  if (blobReady()) {
+    await put(pathname, Buffer.from(bytes), {
+      access: "private",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      cacheControlMaxAge: 60,
+      contentType,
+    });
+    return pathname;
+  }
+  if (fileStoreReady()) {
+    await mkdir(join(localStoreDirectory, "artwork", workspaceId), { recursive: true });
+    await writeFile(join(localStoreDirectory, "artwork", workspaceId, artworkId), bytes, { mode: 0o600 });
+    return pathname;
+  }
+  throw new SourcingStoreUnavailableError();
+}
+
+export async function getProductArtwork(workspaceId: string, artworkId: string): Promise<Uint8Array | null> {
+  if (blobReady()) {
+    try {
+      const result = await get(blobArtworkPath(workspaceId, artworkId), { access: "private", useCache: false });
+      if (!result || result.statusCode !== 200 || !result.stream) return null;
+      return new Uint8Array(await new Response(result.stream).arrayBuffer());
+    } catch (error) {
+      if (error instanceof BlobNotFoundError || (error instanceof Error && error.name === "BlobNotFoundError")) return null;
+      throw error;
+    }
+  }
+  if (fileStoreReady()) {
+    try {
+      return new Uint8Array(await readFile(join(localStoreDirectory, "artwork", workspaceId, artworkId)));
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
 export function packetIsActive(packet: { expiresAt: string; revokedAt: string | null }): boolean {
   return !packet.revokedAt && Date.parse(packet.expiresAt) > Date.now();
 }
 
+function actorForActivity(kind: WorkspaceActivity["kind"]): "FOUNDER" | "AGENT" | "SYSTEM" {
+  if (kind === "founder_updated" || kind === "approved") return "FOUNDER";
+  if (kind === "agent_proposed" || kind === "matched" || kind === "drafted") return "AGENT";
+  return "SYSTEM";
+}
+
+function displayName(workspace: SourcingWorkspace): string {
+  return getProductName(workspace);
+}
+
+function rowToWorkspace(row: {
+  id: string;
+  userId: string | null;
+  revision: number;
+  createdAt: Date;
+  updatedAt: Date;
+  plan: unknown;
+  activities: Array<{ id: string; kind: string; summary: string; createdAt: Date }>;
+}): SourcingWorkspace | null {
+  const parsed = ProductPlanSchema.safeParse(row.plan);
+  if (!parsed.success) return null;
+  return normalizeWorkspace({
+    id: row.id,
+    ownership: { userId: row.userId, brandId: null },
+    revision: row.revision,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    ...parsed.data,
+    activity: row.activities.map((item) => ({
+      id: item.id,
+      kind: item.kind as WorkspaceActivity["kind"],
+      message: item.summary,
+      at: item.createdAt.toISOString(),
+    })),
+  });
+}
+
 export async function getSourcingWorkspace(id: string): Promise<SourcingWorkspace | null> {
-  if (redisReady()) {
-    const value = await redisCommand<string | null>(["GET", workspaceKey(id)]);
-    if (!value) return null;
-    try {
-      return normalizeWorkspace(JSON.parse(value) as SourcingWorkspace);
-    } catch {
-      return null;
-    }
-  }
-  if (blobReady()) {
-    const value = await readBlob(blobWorkspacePath(id));
-    if (!value) return null;
-    try {
-      return normalizeWorkspace(JSON.parse(value) as SourcingWorkspace);
-    } catch {
-      return null;
-    }
+  if (databaseConfigured()) {
+    const row = await prisma.productWorkspace.findUnique({
+      where: { id },
+      include: { activities: { orderBy: { createdAt: "desc" }, take: 20 } },
+    });
+    return row ? rowToWorkspace(row) : null;
   }
   if (fileStoreReady()) {
     try {
@@ -100,167 +166,120 @@ export async function getSourcingWorkspace(id: string): Promise<SourcingWorkspac
   return null;
 }
 
-export async function saveSourcingWorkspace(workspace: SourcingWorkspace, expectedRevision: number | null): Promise<void> {
-  if (redisReady()) {
-    const saved = await redisCommand<number>([
-      "EVAL",
-      "local current=redis.call('GET',KEYS[1]); if ARGV[1]=='create' then if current then return 0 end; redis.call('SET',KEYS[1],ARGV[2]); return 1 end; if not current then return 0 end; local decoded=cjson.decode(current); if tonumber(decoded.revision)~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2]); return 1",
-      "1",
-      workspaceKey(workspace.id),
-      expectedRevision === null ? "create" : String(expectedRevision),
-      JSON.stringify(workspace),
-    ]);
-    if (saved !== 1) throw new SourcingWorkspaceConflictError();
-    for (const draft of workspace.outreachDrafts) {
-      await redisCommand(["SET", packetKey(draft.packet.token), workspace.id, "EX", String(60 * 60 * 24 * 31)]);
-    }
-    return;
-  }
-  if (blobReady()) {
-    const pathname = blobWorkspacePath(workspace.id);
-    try {
+export async function getWorkspaceOwnership(id: string): Promise<{
+  userId: string | null;
+  guestTokenHash: string | null;
+  expiresAt: Date | null;
+} | null> {
+  if (!databaseConfigured()) return fileStoreReady() ? { userId: null, guestTokenHash: null, expiresAt: null } : null;
+  return prisma.productWorkspace.findUnique({
+    where: { id },
+    select: { userId: true, guestTokenHash: true, expiresAt: true },
+  });
+}
+
+export async function saveSourcingWorkspace(
+  workspace: SourcingWorkspace,
+  expectedRevision: number | null,
+  ownership?: { userId?: string | null; guestTokenHash?: string | null; expiresAt?: Date | null },
+): Promise<void> {
+  const normalized = normalizeWorkspace(workspace);
+  const plan = productPlanFromWorkspace(normalized) as unknown as Prisma.InputJsonValue;
+  if (databaseConfigured()) {
+    await prisma.$transaction(async (tx) => {
       if (expectedRevision === null) {
-        await writeBlob(pathname, JSON.stringify(workspace), false, "application/json");
+        await tx.productWorkspace.create({
+          data: {
+            id: normalized.id,
+            userId: ownership?.userId ?? normalized.ownership.userId,
+            guestTokenHash: ownership?.guestTokenHash ?? null,
+            expiresAt: ownership?.expiresAt ?? null,
+            revision: normalized.revision,
+            name: displayName(normalized),
+            category: normalized.fields.product_category.value,
+            plan,
+          },
+        });
       } else {
-        const current = await readBlobRecord(pathname);
-        if (!current) throw new SourcingWorkspaceConflictError();
-        let currentRevision: number;
-        try {
-          currentRevision = (JSON.parse(current.body) as SourcingWorkspace).revision;
-        } catch {
-          throw new SourcingWorkspaceConflictError();
-        }
-        if (currentRevision !== expectedRevision) throw new SourcingWorkspaceConflictError();
-        await writeBlob(pathname, JSON.stringify(workspace), true, "application/json", current.etag);
+        const updated = await tx.productWorkspace.updateMany({
+          where: { id: normalized.id, revision: expectedRevision },
+          data: {
+            revision: normalized.revision,
+            name: displayName(normalized),
+            category: normalized.fields.product_category.value,
+            plan,
+          },
+        });
+        if (updated.count !== 1) throw new SourcingWorkspaceConflictError();
       }
-    } catch (error) {
-      if (error instanceof SourcingWorkspaceConflictError) throw error;
-      if (error instanceof BlobPreconditionFailedError || (error instanceof Error && error.name === "BlobPreconditionFailedError")) {
-        throw new SourcingWorkspaceConflictError();
-      }
-      throw error;
-    }
-    for (const draft of workspace.outreachDrafts) {
-      await writeBlob(blobPacketPath(draft.packet.token), workspace.id, true, "text/plain");
-    }
+
+      await tx.workspaceActivity.createMany({
+        data: normalized.activity.map((item) => ({
+          id: item.id,
+          workspaceId: normalized.id,
+          actor: actorForActivity(item.kind),
+          kind: item.kind,
+          summary: item.message,
+          createdAt: new Date(item.at),
+        })),
+        skipDuplicates: true,
+      });
+
+      await Promise.all(normalized.outreachDrafts.map((draft) => {
+        const packet = draft.packet;
+        const packetTokenHash = hashOpaqueToken(packet.token);
+        return tx.manufacturerPacket.upsert({
+          where: { tokenHash: packetTokenHash },
+          create: {
+            workspaceId: normalized.id,
+            tokenHash: packetTokenHash,
+            snapshot: packet as unknown as Prisma.InputJsonValue,
+            expiresAt: new Date(packet.expiresAt),
+            revokedAt: packet.revokedAt ? new Date(packet.revokedAt) : null,
+          },
+          update: {
+            snapshot: packet as unknown as Prisma.InputJsonValue,
+            expiresAt: new Date(packet.expiresAt),
+            revokedAt: packet.revokedAt ? new Date(packet.revokedAt) : null,
+          },
+        });
+      }));
+    });
     return;
   }
   if (fileStoreReady()) {
     await mkdir(localStoreDirectory, { recursive: true });
-    const workspacePath = join(localStoreDirectory, `${workspace.id}.json`);
-    try {
-      const current = JSON.parse(await readFile(workspacePath, "utf8")) as SourcingWorkspace;
-      if (expectedRevision === null || current.revision !== expectedRevision) throw new SourcingWorkspaceConflictError();
-    } catch (error) {
-      if (error instanceof SourcingWorkspaceConflictError) throw error;
-      if (expectedRevision !== null) throw new SourcingWorkspaceConflictError();
+    const workspacePath = join(localStoreDirectory, `${normalized.id}.json`);
+    if (expectedRevision !== null) {
+      try {
+        const current = JSON.parse(await readFile(workspacePath, "utf8")) as SourcingWorkspace;
+        if (current.revision !== expectedRevision) throw new SourcingWorkspaceConflictError();
+      } catch (error) {
+        if (error instanceof SourcingWorkspaceConflictError) throw error;
+        throw new SourcingWorkspaceConflictError();
+      }
     }
-    await writeFile(workspacePath, JSON.stringify(workspace), { encoding: "utf8", mode: 0o600 });
-    for (const draft of workspace.outreachDrafts) {
-      await writeFile(join(localStoreDirectory, `packet-${draft.packet.token}.txt`), workspace.id, { encoding: "utf8", mode: 0o600 });
-    }
+    await writeFile(workspacePath, JSON.stringify(normalized), { encoding: "utf8", mode: 0o600 });
     return;
   }
   throw new SourcingStoreUnavailableError();
 }
 
 export async function getWorkspaceByPacketToken(token: string): Promise<SourcingWorkspace | null> {
-  let workspaceId: string | null;
-  if (redisReady()) workspaceId = await redisCommand<string | null>(["GET", packetKey(token)]);
-  else if (blobReady()) workspaceId = await readBlob(blobPacketPath(token));
-  else if (fileStoreReady()) {
-    try { workspaceId = (await readFile(join(localStoreDirectory, `packet-${token}.txt`), "utf8")).trim(); }
-    catch { workspaceId = null; }
-  } else workspaceId = null;
-  return workspaceId ? getSourcingWorkspace(workspaceId) : null;
-}
-
-export async function claimInquirySend(draftId: string): Promise<boolean> {
-  const key = `sourcing:send:${draftId}`;
-  if (redisReady()) {
-    const result = await redisCommand<string | null>(["SET", key, "claimed", "NX", "EX", String(60 * 60 * 24 * 365)]);
-    return result === "OK";
+  if (databaseConfigured()) {
+    const packet = await prisma.manufacturerPacket.findUnique({
+      where: { tokenHash: hashOpaqueToken(token) },
+      select: { workspaceId: true, expiresAt: true, revokedAt: true },
+    });
+    if (!packet || packet.revokedAt || packet.expiresAt <= new Date()) return null;
+    return getSourcingWorkspace(packet.workspaceId);
   }
-  if (blobReady()) {
-    try {
-      await writeBlob(blobSendClaimPath(draftId), "claimed", false, "text/plain");
-      return true;
-    } catch (error) {
-      if (error instanceof BlobPreconditionFailedError || (error instanceof Error && error.name === "BlobPreconditionFailedError")) return false;
-      throw error;
-    }
+  if (!fileStoreReady()) return null;
+  const entries = await readdir(localStoreDirectory).catch(() => []);
+  for (const entry of entries) {
+    if (!entry.endsWith(".json")) continue;
+    const workspace = await getSourcingWorkspace(entry.slice(0, -5));
+    if (workspace?.outreachDrafts.some((draft) => draft.packet.token === token)) return workspace;
   }
-  if (fileStoreReady()) {
-    await mkdir(localStoreDirectory, { recursive: true });
-    try {
-      await writeFile(join(localStoreDirectory, `${key.replaceAll(":", "-")}.lock`), "claimed", { flag: "wx", mode: 0o600 });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-  throw new SourcingStoreUnavailableError();
-}
-
-export async function releaseInquirySend(draftId: string): Promise<void> {
-  const key = `sourcing:send:${draftId}`;
-  if (redisReady()) {
-    await redisCommand(["DEL", key]);
-    return;
-  }
-  if (blobReady()) {
-    await del(blobSendClaimPath(draftId));
-    return;
-  }
-  if (fileStoreReady()) {
-    await unlink(join(localStoreDirectory, `${key.replaceAll(":", "-")}.lock`)).catch(() => undefined);
-    return;
-  }
-  throw new SourcingStoreUnavailableError();
-}
-
-async function readBlob(pathname: string): Promise<string | null> {
-  return (await readBlobRecord(pathname))?.body ?? null;
-}
-
-async function readBlobRecord(pathname: string): Promise<{ body: string; etag: string } | null> {
-  try {
-    // Private Blob downloads can expose a weak HTTP ETag (W/"..."). Conditional
-    // writes require the strong Blob ETag returned by the metadata API.
-    const metadata = await head(pathname);
-    const result = await get(pathname, { access: "private", useCache: false });
-    if (!result || result.statusCode !== 200 || !result.stream) return null;
-    return { body: await new Response(result.stream).text(), etag: metadata.etag };
-  } catch (error) {
-    if (error instanceof BlobNotFoundError || (error instanceof Error && error.name === "BlobNotFoundError")) return null;
-    throw error;
-  }
-}
-
-async function writeBlob(pathname: string, body: string, allowOverwrite: boolean, contentType: string, ifMatch?: string): Promise<void> {
-  await put(pathname, body, {
-    access: "private",
-    addRandomSuffix: false,
-    allowOverwrite,
-    cacheControlMaxAge: 60,
-    contentType,
-    ...(ifMatch ? { ifMatch } : {}),
-  });
-}
-
-async function redisCommand<T = unknown>(command: Array<string>): Promise<T> {
-  const url = read("UPSTASH_REDIS_REST_URL").replace(/\/$/, "");
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${read("UPSTASH_REDIS_REST_TOKEN")}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify([command]),
-    cache: "no-store",
-  });
-  if (!response.ok) throw new Error(`Sourcing store HTTP ${response.status}`);
-  const payload = await response.json() as { result?: Array<{ result?: T } | T> };
-  const first = payload.result?.[0];
-  return (typeof first === "object" && first !== null && "result" in first ? first.result : first) as T;
+  return null;
 }

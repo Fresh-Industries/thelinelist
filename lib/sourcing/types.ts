@@ -1,4 +1,8 @@
 export const SOURCING_FIELD_KEYS = [
+  "brand_name",
+  "product_name",
+  "product_category",
+  "product_format",
   "product_type",
   "product_description",
   "formula_status",
@@ -139,13 +143,43 @@ export interface ManufacturerInquiry {
 
 export interface WorkspaceActivity {
   id: string;
-  kind: "created" | "agent_proposed" | "founder_updated" | "matched" | "drafted" | "approved" | "sent" | "send_failed";
+  kind: "created" | "claimed" | "agent_proposed" | "founder_updated" | "artwork_attached" | "matched" | "drafted" | "approved" | "sent" | "send_failed";
   message: string;
   at: string;
 }
 
+export interface ProductArtwork {
+  id: string;
+  fileName: string;
+  contentType: "image/png" | "image/jpeg" | "image/webp";
+  byteSize: number;
+  createdAt: string;
+}
+
+export interface PackageDesign {
+  packagingType: "slim-can" | "bottle" | "jar" | "stand-up-pouch";
+  finish: "colored" | "clear";
+  baseColor: string;
+  labelColor: string;
+  artworkId: string | null;
+  logoAspect: number;
+  logoScale: number;
+  logoPosition: { x: number; y: number };
+  dimensions: { width: number | null; height: number | null; depth: number | null };
+  summary: string;
+}
+
+export interface WorkspaceOwnership {
+  userId: string | null;
+  brandId: string | null;
+}
+
 export interface SourcingWorkspace {
   id: string;
+  ownership: WorkspaceOwnership;
+  originalIdea: string | null;
+  artwork: ProductArtwork | null;
+  packageDesign: PackageDesign | null;
   revision: number;
   createdAt: string;
   updatedAt: string;

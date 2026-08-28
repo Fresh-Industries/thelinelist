@@ -2,6 +2,7 @@ import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
 
 export const MATCH_SHAPING_FIELDS: SourcingFieldKey[] = [
+  "product_format",
   "packaging_format",
   "packaging_size",
   "carbonation",
@@ -30,6 +31,7 @@ export interface SourcingReadiness {
 }
 
 const WHY_IT_MATTERS: Partial<Record<SourcingFieldKey, string>> = {
+  brand_name: "A brand name helps identify the brief, but it can stay open while you make manufacturing decisions.",
   product_type: "This sets the manufacturing category and the questions that come next.",
   packaging_format: "Manufacturers need equipment that can form, fill, seal, or wrap your exact package.",
   packaging_size: "Size affects line compatibility, portion economics, labels, and case packing.",
@@ -47,12 +49,12 @@ function isUsefulConfirmedValue(workspace: SourcingWorkspace, key: SourcingField
 }
 
 function productText(workspace: SourcingWorkspace): string {
-  return `${workspace.fields.product_type?.value ?? ""} ${workspace.fields.product_description?.value ?? ""}`.toLowerCase();
+  return `${workspace.fields.product_name?.value ?? ""} ${workspace.fields.product_category?.value ?? ""} ${workspace.fields.product_format?.value ?? ""} ${workspace.fields.product_type?.value ?? ""} ${workspace.fields.product_description?.value ?? ""}`.toLowerCase();
 }
 
 export function requiredMatchingFields(workspace: SourcingWorkspace): SourcingFieldKey[] {
   const product = productText(workspace);
-  const required: SourcingFieldKey[] = ["product_type", "packaging_format", "storage_distribution", "production_volume"];
+  const required: SourcingFieldKey[] = ["product_type", "product_format", "packaging_format", "storage_distribution", "production_volume"];
   if (!isUsefulConfirmedValue(workspace, "formula_status") && !isUsefulConfirmedValue(workspace, "formulation_assistance")) {
     required.push("formula_status");
   }
@@ -65,13 +67,18 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const required = requiredMatchingFields(workspace);
   const confirmed = required.filter((key) => isUsefulConfirmedValue(workspace, key));
   const proposed = required.filter((key) => workspace.fields[key]?.status === "proposed");
-  const missing = required.filter((key) => !confirmed.includes(key) && !proposed.includes(key));
-  const nextQuestionKey = proposed[0] ?? missing[0] ?? null;
-  const matchingReady = confirmed.length === required.length;
-  const percent = Math.round((confirmed.length / Math.max(required.length, 1)) * 100);
+  const confirmedSet = new Set(confirmed);
+  const proposedSet = new Set(proposed);
+  const missing = required.filter((key) => !confirmedSet.has(key) && !proposedSet.has(key));
+  const brandField = workspace.fields.brand_name;
+  const brandQuestionPending = brandField.status === "unknown" || brandField.status === "proposed";
   const hasProduct = isUsefulConfirmedValue(workspace, "product_type");
-  const hasProductDefinition = hasProduct && confirmed.some((key) => ["packaging_format", "packaging_size", "storage_distribution"].includes(key));
-  const milestone = workspace.inquiries.length ? "introduction"
+  const matchingReady = confirmed.length === required.length;
+  const nextQuestionKey = !matchingReady && hasProduct && brandQuestionPending ? "brand_name" : proposed[0] ?? missing[0] ?? null;
+  const percent = Math.round((confirmed.length / Math.max(required.length, 1)) * 100);
+  const hasProductDefinition = hasProduct && confirmed.some((key) => ["product_format", "packaging_format", "packaging_size", "storage_distribution"].includes(key));
+  const hasPreparedIntroduction = workspace.outreachDrafts.some((draft) => draft.approvedVersion !== null);
+  const milestone = (workspace.inquiries.length || hasPreparedIntroduction) ? "introduction"
     : workspace.matches.length ? "match"
     : matchingReady ? "commercial"
     : hasProductDefinition ? "product"
@@ -81,7 +88,7 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
     product: "Define the product",
     commercial: "Ready to research",
     match: "Compare manufacturers",
-    introduction: "Introduction sent",
+    introduction: "Introduction prepared",
   } as const)[milestone];
   const remaining = required.length - confirmed.length;
   const summary = matchingReady

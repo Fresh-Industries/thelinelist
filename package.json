@@ -11,25 +11,38 @@
     "test": "npm run test:unit",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
+    "test:workspace-smoke": "node scripts/smoke-product-workspace.mjs",
     "test:seo": "npm run build && node scripts/check-seo.mjs",
     "manufacturers:import": "node scripts/import-manufacturers.mjs",
     "manufacturers:check": "node scripts/import-manufacturers.mjs --check",
     "report:weekly": "node scripts/weekly-directory-report.mjs"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "@vercel/blob": "^2.8.0",
+    "better-auth": "^1.7.2",
     "next": "16.3.2",
+    "pg": "^8.16.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "server-only": "^0.0.1",
+    "three": "0.182.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@types/node": "^20",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
+    "prisma": "^7.10.0",
     "typescript": "^5",
     "vitest": "^4.1.11"
   }

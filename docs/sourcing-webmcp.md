@@ -1,134 +1,109 @@
-# Guided product plan and WebMCP prototype
+# Product Workspace and WebMCP
 
-The prototype turns The Line List into a shared founder-and-ChatGPT product-planning experience:
+This document describes the production Product Workspace integration. Product and design authority remains [`UX.md`](../UX.md) and [`docs/product-workspace-design-constraints.md`](product-workspace-design-constraints.md).
 
-`product idea → confirmed brief → missing decisions → sourced matches → approved packet → safe demo introduction`
+## Founder journey
 
-The founder interface progressively reveals three stages: **Your plan**, **Matches**, and **Contact**. Only the current stage is rendered. The structured 26-field model remains available to WebMCP and behind **Review all details**, while the default plan asks one plain-language question at a time.
+`/sourcing` has one entry path: the founder describes the product they want to make. The server creates a private guest workspace and sends the founder to `/sourcing/[workspaceId]`.
 
-The `/sourcing` landing page makes **Use with ChatGPT** the primary path. It creates a personalized prompt from the founder’s exact idea and opens ChatGPT normally in a new tab. It does not claim a verified connection or use a prompt-prefill URL; the product-plan page remains the WebMCP tool surface in supported environments.
+The workspace is one living product brief. Its canonical ProductPlan keeps the founder's raw `originalIdea`, optional `brand_name`, and concise `product_type` descriptor separate. The product collaborator asks about an existing brand early without making it a readiness requirement. Direct founder corrections edit that same document inline. Packaging opens as a focused 3D workbench using the production jar, bottle, slim-can, and stand-up-pouch models. Its selected direction writes back into the same ProductPlan, and the brief renders a restrained preview from that exact saved configuration. Manufacturer matching and introduction preparation continue below the document when ready.
 
-The canonical founder route is `/sourcing`. A new workspace receives a 144-bit unguessable identifier and lives at `/sourcing/[workspaceId]`. Manufacturer packets use a separate 192-bit token at `/packet/[token]`; packets expire after 30 days and already carry a `revokedAt` seam for later revocation.
+The page does not open an external AI website or present a manual prompt handoff. WebMCP is exposed to the Codex app through the model-context API; the normal HTML workspace remains fully usable when that API is unavailable.
 
-## Architecture
+## Canonical state and persistence
 
-- Framework: Next.js 16 App Router, React 19, TypeScript, Zod.
-- Manufacturer data: the existing `Plant` catalog behind `lib/directory/query.ts`.
-- Persistent workspace store: Upstash Redis is preferred in production, with private Vercel Blob as the fallback. Development uses owner-only JSON files under the operating system temp directory so route handlers and Server Components share state. An unconfigured production instance refuses to create a workspace and returns `503` instead of issuing a link that another server instance cannot read.
-- Authentication: the current site has no account system. The prototype uses unguessable capability URLs. Anyone with a workspace URL can edit it, so treat it like a private shared document. Adding account ownership can wrap the same store API later.
-- Email: the existing Resend/Postmark adapter. Sourcing inquiries never use a manufacturer email address; delivery is redirected to `SOURCING_DEMO_RECIPIENT`.
-- Consequential-action safety: the send route requires the persisted founder-approved content version, uses an atomic idempotency claim, rate limits attempts, and records Contacted only after the email provider succeeds.
-- Concurrent updates: each workspace write checks the revision it originally read. A stale write returns `409` and asks the founder to refresh instead of overwriting a newer change.
+- `lib/sourcing/product-plan.ts` owns the versioned Zod `ProductPlanSchema`.
+- UI routes, WebMCP tools, matching, outreach, and persistence use this same model.
+- PostgreSQL is the production system of record through Prisma.
+- `ProductWorkspace.plan` contains the evolving plan JSON. Row columns own access, lifecycle, revision, and list/query metadata.
+- `WorkspaceActivity` is append-only history.
+- `WorkspaceAsset` links a workspace to private Blob artwork bytes.
+- `ManufacturerPacket` owns expiring packet-token metadata and snapshots.
+- Writes use optimistic revision checks; stale writes return `409` instead of overwriting newer changes.
 
-No database migration is required. Upstash keys use these prefixes:
+Vercel Blob is not a workspace store. It is used only for uploaded artwork bytes.
 
-- `sourcing:workspace:{unguessableWorkspaceId}`
-- `sourcing:packet:{unguessablePacketToken}`
-- `sourcing:send:{draftUuid}`
+## Guest and authenticated ownership
 
-Vercel Blob stores the same records as private, deterministic objects:
+Guests can use the full product flow before signing in.
 
-- `sourcing/workspaces/{unguessableWorkspaceId}.json`
-- `sourcing/packets/{unguessablePacketToken}.txt`
-- `sourcing/send-claims/{draftUuid}.lock`
+1. Workspace creation generates a 256-bit random guest credential.
+2. PostgreSQL stores only the SHA-256 hash and a 30-day expiry.
+3. The browser receives the raw credential in a `Secure` (production), `HttpOnly`, `SameSite=Lax` cookie.
+4. Every workspace read and mutation checks either Better Auth user ownership or the exact guest credential hash on the server.
+5. Save opens `/auth?workspaceId=...` for email/password signup or login.
+6. The claim route transactionally assigns the existing row to the authenticated user, clears the guest credential and expiry, and appends activity.
+7. `/products` lists only rows owned by the current authenticated user.
 
-## Current WebMCP contract
+Workspace IDs are identifiers, not authorization credentials. Client-provided user IDs are ignored because no sourcing schema accepts one.
 
-The implementation follows the current W3C WebMCP draft and Chrome implementation guidance:
+## Registered WebMCP tools
 
-- https://webmachinelearning.github.io/webmcp/
-- https://developer.chrome.com/docs/ai/webmcp
+Five tools register only on an authorized workspace page:
 
-Tools register on `document.modelContext` with the deprecated `navigator.modelContext` location used only as a compatibility fallback. Registration uses an `AbortSignal` for lifecycle cleanup. Tool callbacks return structured values that the browser serializes for the agent, and the normal website remains fully usable when the API is unavailable.
+1. `get_sourcing_workspace` — reads the canonical plan, readiness, product journey, package direction, matches, and outreach state.
+2. `update_sourcing_workspace` — applies explicit founder statements as confirmed and keeps inference/research as proposed or needs-decision. It uses the current server revision.
+3. `match_manufacturers` — runs only after readiness and returns supported facts, conflicts, unknowns, URLs, and review dates. Unknown never means match.
+4. `prepare_manufacturer_outreach` — prepares separate drafts for one to three selected manufacturers from confirmed, share-enabled fields.
+5. `open_manufacturer_introduction_review` — scrolls the founder to visible recipient/message/sharing review.
 
-Five tools are registered only on a private workspace page:
+There is no agent-callable send tool. The legacy HTTP send route is retired with `410 Gone`. Draft approval and any later external contact are separate states, and external contact remains a visible founder-controlled action.
 
-1. `get_sourcing_workspace` — read-only snapshot for the current private workspace.
-2. `update_sourcing_workspace` — batch structured updates. Explicit founder statements become confirmed; inferences stay proposed; missing values become founder decisions.
-3. `match_manufacturers` — reads confirmed requirements and returns supported facts, possible mismatches, unknowns, field or record sources, and review dates.
-4. `prepare_manufacturer_outreach` — creates manufacturer-specific draft and packet state but never sends.
-5. `send_manufacturer_inquiry` — sends only an already approved version to the safe demo recipient and rejects duplicates or changed/unapproved drafts.
+Tool guidance tells the agent to:
 
-The write tools update the same server record used by the React UI. Successful tool calls immediately replace the visible client state. Manual UI changes persist through the same API and are returned by the next read tool call.
+- read before writing;
+- drive one unresolved decision at a time;
+- preserve confirmed founder decisions;
+- keep “I’m not sure” explicit;
+- direct visual packaging decisions to the real page workbench;
+- match only from supported evidence;
+- prepare up to three recipient-specific drafts;
+- open founder review and stop before external contact.
 
-## Trust rules
+## Security and operational limits
 
-- Matching uses confirmed fields only.
-- Matching requires a confirmed product plus at least one useful match-shaping detail and no unresolved match-shaping suggestion.
-- Product candidates require explicit category or reviewed product-language support. Energy-drink matching does not fall back to every beverage record.
-- Results are capped at three and are never padded with weak manufacturers.
-- An agent inference is `proposed` until a founder confirms it in the site.
-- Missing manufacturer data never means the capability is absent.
-- A supported match requires an explicit structured catalog value or reviewed text.
-- `Verified` is shown when the record has field-specific reviewed evidence or belongs to the hand-curated catalog.
-- `Public source listing` is shown when the catalog has a reviewed record-level source but no field-specific source URL.
-- `Not publicly listed` is used when a reviewed record does not establish a requested detail.
-- A known geography or line mismatch is displayed as a possible mismatch, not as conflicting source information.
-- Internal notes, rankings, comparisons, private concerns, missing-decision notes, and unconfirmed proposals cannot enter a packet.
-- Budget is confirmed from a founder statement but excluded by default. Selecting it on the approval screen is the explicit sharing decision.
+- All route inputs are validated with Zod and bounded for length/count.
+- Workspace creation rejects oversized request bodies.
+- Artwork accepts signature-checked PNG, JPG, or WebP files with a 2 MB limit.
+- Create, update, artwork, match, draft, approval, and claim routes are rate limited.
+- Server authorization occurs at the resource boundary on every route, not only at page rendering.
+- Auth and database-dependent operations fail closed when production configuration is missing.
+- Manufacturer packet pages expose only the packet’s selected confirmed fields; internal notes, rankings, comparisons, and unconfirmed proposals stay private.
 
-## Environment
+## Required production environment
 
 ```bash
-# Durable workspace and atomic send idempotency in deployed environments
+DATABASE_URL=
+BETTER_AUTH_URL=https://www.thelinelist.com
+BETTER_AUTH_SECRET=
+BLOB_READ_WRITE_TOKEN=
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
-
-# Or use private Vercel Blob when Upstash is not configured
-BLOB_READ_WRITE_TOKEN=
-
-# Vercel OIDC can replace BLOB_READ_WRITE_TOKEN when both values are present
-BLOB_STORE_ID=
-VERCEL_OIDC_TOKEN=
-
-# Existing email provider configuration
-EMAIL_PROVIDER=resend
-RESEND_API_KEY=
-NOTIFY_FROM_EMAIL="The Line List <notifications@mail.thelinelist.com>"
-
-# Required safe inbox for this prototype
-SOURCING_DEMO_RECIPIENT=your-safe-demo-inbox@example.com
-
-# Used to build packet links in email
-NEXT_PUBLIC_SITE_URL=https://www.thelinelist.com
 ```
 
-Configure one durable store: both Upstash variables, `BLOB_READ_WRITE_TOKEN`, or the `BLOB_STORE_ID` plus `VERCEL_OIDC_TOKEN` pair. When more than one is present, Upstash is used first.
+`BLOB_READ_WRITE_TOKEN` is needed only for durable artwork uploads. Upstash is used only for shared rate limiting.
 
-If the safe recipient or email provider is missing, the approval UI remains complete but send stays disabled and the API returns a truthful configuration error. It never reports a delivery or Contacted status.
+## Acceptance flow
 
-## Under-three-minute demo
+1. Open `/sourcing`, optionally seed the same idea field with a broad prompt starter, and enter a product idea.
+2. Confirm the resulting page has one living brief and the agent asks one next question.
+3. Answer naturally and confirm the same document updates without navigation.
+4. Say “I’m not sure” and confirm the field remains open rather than becoming a match requirement.
+5. Open the package workbench, exercise jar/bottle/can/bag, upload safe artwork, save a direction, and confirm the brief preview reflects the same type, color, finish, artwork placement, and dimension state.
+6. Complete required decisions, find matches, and verify supported/unknown evidence boundaries.
+7. Select two or three manufacturers and prepare separate drafts.
+8. Review and approve each exact draft; verify nothing is sent.
+9. Choose Save, create or sign into an account, and confirm the same workspace ID remains.
+10. Open `/products` and return to the saved product.
 
-1. Open `/sourcing`, point out the ChatGPT promise, and choose **Use with ChatGPT** (15 seconds).
-2. Enter the energy-drink idea, create the personalized prompt, and choose **Copy and continue in ChatGPT** (25 seconds).
-3. Return to The Line List or open the ready-made demo. Show the compact plan and one suggested Carbonation decision (20 seconds).
-4. Choose **Yes, keep this**, then show “ready enough” and choose **Find my best matches** (20 seconds).
-5. Open **Why this match?** to show plain-language fit, unknowns, sources, and review dates (30 seconds).
-6. Choose **Add to shortlist**, then **Draft my introduction** (20 seconds).
-7. Review the message, product brief, private information, and Budget excluded by default (30 seconds).
-8. With `SOURCING_DEMO_RECIPIENT` configured, choose **Approve and send introduction**, then show Introduction sent and open the product brief (20 seconds).
-
-## Verification
+Focused local verification:
 
 ```bash
 npm run typecheck
 npm run lint
 npm run test:unit
-npx playwright test tests/e2e/sourcing.spec.ts --project=chrome --workers=1
 npm run build
+npx playwright test tests/e2e/sourcing.spec.ts --project=chrome --workers=1
 ```
 
-The browser suite directly invokes all five registered tools through a model-context harness. Its send invocation intentionally uses an unapproved version and verifies the safety rejection without sending email.
-
-Screenshots are stored in `docs/screenshots/` after running:
-
-```bash
-UPDATE_SOURCING_SCREENSHOTS=1 npx playwright test tests/e2e/sourcing-screenshots.spec.ts --project=chrome --workers=1
-```
-
-## Prototype limitations
-
-- Capability-link access replaces accounts for this hackathon prototype; there is no user-level authorization or workspace list.
-- Matching is deterministic and evidence-bound. It does not use an LLM to manufacture claims or to interpret arbitrary unsupported product categories.
-- Packet revocation and expiry are represented in the model, but only expiry is enforced through the current UI.
-- There is no manufacturer dashboard, reply tracking, bulk outreach, follow-up automation, arbitrary external-form automation, or PDF generator.
+A persistence/auth smoke additionally requires a non-production PostgreSQL database with the checked-in Prisma migration applied. A native-browser harness can test WebMCP registration locally, but the supported agent integration is the Codex app rather than a cross-tab ChatGPT handoff.

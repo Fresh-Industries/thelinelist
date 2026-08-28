@@ -2,7 +2,9 @@
 
 import { useEffect } from "react";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
-import type { SourcingWorkspace } from "@/lib/sourcing/types";
+import { getBrandName, getPackagingOptions, getProductCategory, getProductDescriptor, getProductName } from "@/lib/sourcing/product-catalog";
+import { getProductJourney } from "@/lib/sourcing/product-journey";
+import { SOURCING_FIELD_KEYS, type SourcingWorkspace } from "@/lib/sourcing/types";
 
 interface ToolResponse { workspace?: SourcingWorkspace; error?: string; [key: string]: unknown }
 
@@ -30,20 +32,32 @@ export function WebMcpSourcingTools({
     const modelContext = document.modelContext ?? navigator.modelContext;
     if (!modelContext) return;
     const controller = new AbortController();
-    const fieldKeys = [
-      "product_type", "product_description", "formula_status", "formulation_assistance", "carbonation", "manufacturing_process",
-      "packaging_format", "packaging_size", "production_volume", "budget", "certifications", "preferred_geography", "target_launch_date",
-      "ingredient_sourcing", "packaging_sourcing", "storage_distribution", "confirmed_decisions", "proposed_assumptions", "missing_information",
-      "internal_notes", "manufacturer_information", "founder_name", "company_name", "company_introduction", "contact_email", "contact_phone",
-      "retail_channel", "target_retail_price", "target_unit_cost", "allergens", "case_pack",
-    ];
+    const fieldKeys = [...SOURCING_FIELD_KEYS];
     const withGuidance = (body: ToolResponse) => {
       if (body.workspace) onWorkspaceChanged(body.workspace);
       return body.workspace ? {
         ...body,
         readiness: getSourcingReadiness(body.workspace),
+        product: {
+          name: getProductName(body.workspace),
+          brandName: getBrandName(body.workspace),
+          descriptor: getProductDescriptor(body.workspace),
+          category: getProductCategory(body.workspace),
+          artwork: body.workspace.artwork,
+        },
+        journey: getProductJourney(body.workspace),
+        relevantPackagingOptions: getPackagingOptions(body.workspace).map(({ id, label, value, description }) => ({ id, label, value, description })),
         whatChanged: body.workspace.activity[0]?.message ?? null,
-        finalSendRequiresHumanClick: true,
+        canonicalPlan: {
+          schemaVersion: 2,
+          originalIdea: body.workspace.originalIdea,
+          fields: body.workspace.fields,
+          packageDesign: body.workspace.packageDesign,
+          matches: body.workspace.matches,
+          selectedManufacturerSlugs: body.workspace.selectedManufacturerSlugs,
+          outreachDrafts: body.workspace.outreachDrafts,
+        },
+        externalContactRequiresFounderAction: true,
       } : body;
     };
 
@@ -51,7 +65,7 @@ export function WebMcpSourcingTools({
       {
         name: "get_sourcing_workspace",
         title: "Read sourcing workspace",
-        description: "Read the product plan on the current page, including confirmed and proposed decisions, source evidence, readiness, the single best next question, manufacturer matches, private sharing choices, and introduction status. Never ask the founder for a workspace ID.",
+        description: "Read the canonical ProductPlan on the current page. Treat originalIdea as source context, brand_name as the founder's brand identity, and product_type as the concise product being manufactured. Use readiness.nextQuestionKey to drive one useful question at a time. If brand_name is open, ask whether the founder already has a brand; no or not yet is valid and does not block manufacturing progress. Preserve confirmed founder decisions, keep uncertainty explicit, and never ask for a workspace ID.",
         inputSchema: { type: "object", properties: {}, additionalProperties: false },
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
@@ -62,7 +76,7 @@ export function WebMcpSourcingTools({
       {
         name: "update_sourcing_workspace",
         title: "Propose sourcing brief updates",
-        description: "Update the current product plan from the conversation. Mark a value confirmed only when the founder stated it clearly. Uncertain statements and research-backed recommendations must remain proposed or needs_decision, with source links when research informed the suggestion. Ask one simple question at a time after updating.",
+        description: "Update the canonical ProductPlan from the conversation. Keep originalIdea, brand_name, and product_type distinct. For no brand, not yet, or uncertainty, write brand_name as null with needs_decision and continue; never invent a brand. Mark a value confirmed only when the founder stated it clearly. Research-backed recommendations remain proposed with sources. After updating, read readiness and ask its single next useful question. When packaging needs visual judgment, ask the founder to open the page's real 3D packaging workbench.",
         inputSchema: {
           type: "object",
           properties: {
@@ -103,7 +117,9 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
           const args = input as Record<string, unknown>;
-          const body = await api(`/api/sourcing/${workspaceId}`, { method: "PATCH", body: JSON.stringify({ proposedUpdates: args.proposedUpdates }) });
+          const current = await api(`/api/sourcing/${workspaceId}`);
+          if (!current.workspace) throw new Error("The current ProductPlan could not be read.");
+          const body = await api(`/api/sourcing/${workspaceId}`, { method: "PATCH", body: JSON.stringify({ revision: current.workspace.revision, proposedUpdates: args.proposedUpdates }) });
           return withGuidance(body);
         },
       },
@@ -131,13 +147,13 @@ export function WebMcpSourcingTools({
       {
         name: "prepare_manufacturer_outreach",
         title: "Prepare manufacturer outreach",
-        description: "Create manufacturer-specific outreach drafts and private packet previews from confirmed, share-enabled fields. This creates draft state only and never sends a message.",
+        description: "Create up to three manufacturer-specific introduction drafts and private packet previews from confirmed, share-enabled fields. This creates draft state only and never sends or contacts anyone.",
         inputSchema: {
           type: "object",
           properties: {
             selectedManufacturerIds: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 3 },
             founderInstructions: { type: "string" },
-            proposedSharedFields: { type: "array", items: { type: "string", enum: fieldKeys }, maxItems: 26 },
+            proposedSharedFields: { type: "array", items: { type: "string", enum: fieldKeys }, maxItems: fieldKeys.length },
           },
           required: ["selectedManufacturerIds"], additionalProperties: false,
         },
@@ -150,8 +166,8 @@ export function WebMcpSourcingTools({
       },
       {
         name: "open_manufacturer_introduction_review",
-        title: "Open final introduction review",
-        description: "Open the current page's final introduction review so the founder can inspect the recipient, exact message, shared product details, and private fields. This never sends anything. The final send can only happen when the founder personally clicks the website's named send button.",
+        title: "Open founder introduction review",
+        description: "Open the current page's introduction review so the founder can inspect every recipient, exact message, shared product details, and private fields. This never sends or contacts anyone. Approval and any later human contact are separate states.",
         inputSchema: { type: "object", properties: {}, additionalProperties: false },
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
@@ -159,7 +175,7 @@ export function WebMcpSourcingTools({
           const body = await api(`/api/sourcing/${workspaceId}`);
           if (!body.workspace?.outreachDrafts.length) throw new Error("Prepare an introduction draft before opening final review.");
           onOpenIntroductionReview();
-          return withGuidance({ ...body, reviewOpened: true, humanActionRequired: "The founder must review and click the final send button on The Line List." });
+          return withGuidance({ ...body, reviewOpened: true, humanActionRequired: "The founder must review each draft and later choose a visible human-controlled contact channel. Nothing can be sent by this tool." });
         },
       },
     ];

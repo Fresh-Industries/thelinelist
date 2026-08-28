@@ -1,19 +1,21 @@
 import { matchManufacturers } from "@/lib/sourcing/matching";
 import { getSourcingReadiness, hasMinimumMatchingInfo } from "@/lib/sourcing/readiness";
 import { matchRequestSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
-import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
+import { SourcingWorkspaceConflictError, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
+import { getAuthorizedWorkspace } from "@/lib/sourcing/access";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request, { params }: { params: Promise<{ workspaceId: string }> }) {
   const { workspaceId } = await params;
   if (!workspaceIdSchema.safeParse(workspaceId).success) return NextResponse.json({ error: "Workspace not found." }, { status: 404 });
-  const workspace = await getSourcingWorkspace(workspaceId);
-  if (!workspace) return NextResponse.json({ error: "Workspace not found." }, { status: 404 });
+  const authorized = await getAuthorizedWorkspace(workspaceId);
+  if (!authorized) return NextResponse.json({ error: "Workspace not found." }, { status: 404 });
+  const workspace = authorized.workspace;
   const context = await getRequestContext();
   const limited = await rateLimit({ key: `sourcing-match:${context.ipHash}:${workspaceId}`, limit: 60, windowSec: 60 * 60 });
   if (!limited.ok) return NextResponse.json({ error: "Matching limit reached. Try again later." }, { status: 429 });

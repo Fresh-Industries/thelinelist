@@ -34,7 +34,7 @@ Wants to claim or correct a listing. This supply-side workflow must stay outside
 - Newsletter: optional educational subscription.
 - About, Privacy, and Terms: organization and policy context.
 - Claim or submit: manufacturer-side listing workflow.
-- Your product plan: guided founder-and-ChatGPT workflow from a plain-language product idea through an approved introduction.
+- Your product plan: guided founder-and-agent workflow from a plain-language product idea through an approved introduction.
 - Sourcing packet: separate, expiring manufacturer-facing view containing only founder-approved fields.
 
 ## Page responsibilities
@@ -65,11 +65,11 @@ Owns plant-side corrections and submissions. It is not embedded as a large form 
 
 ### Sourcing workspace
 
-Owns the shared product plan, founder decisions, evidence-backed matches, manufacturer selection, introduction draft, sharing controls, and approval state. ChatGPT suggestions never silently become founder-confirmed facts. The workspace uses three real screens—Your plan, Matches, and Contact—and renders only the current screen. The default plan view asks one question at a time; the full structured model lives behind Review all details.
+Owns the agent-assisted living product brief, founder decisions, evidence-backed candidates, manufacturer selection, introduction drafts, sharing controls, and approval state. The Codex agent and direct inline editing act on one canonical product state; an explicit founder statement may be confirmed immediately, while inference and research remain proposed. A founder can use the full flow as a secure expiring guest, then create or enter an account to claim the same workspace without copying it. Product Workspace design and implementation must also follow [`docs/product-workspace-design-constraints.md`](docs/product-workspace-design-constraints.md).
 
 ### Sourcing landing
 
-Owns the promise and first action: tell ChatGPT what you want to make, then watch the product plan take shape on The Line List. “Use with ChatGPT” is primary, the manual path remains secondary, and example ideas accelerate onboarding. It may explain the relationship with a static conversation-to-plan visual, but it never claims a verified connection or embeds a fake chatbot.
+Owns the promise and single first action: describe what you want to make and create one product plan that the Codex agent and direct inline editing can both update. A small set of broad visual prompt starters may seed and focus the same idea field; they never navigate, constrain the product category, or become a second creation mode. It does not open an external AI website, add recent-product cards, create demo branches, or introduce a second manual-builder path.
 
 ### Manufacturer-facing sourcing packet
 
@@ -96,16 +96,16 @@ Owns the portable, manufacturer-safe project summary. It never contains internal
 1. Open Claim or submit from the footer, verification page, or a compact profile link.
 2. Submit attributable corrections for manual review.
 
-### Prepare and send a manufacturer introduction
+### Prepare manufacturer introductions
 
-1. Start with ChatGPT onboarding or the manual path and create a private product plan.
-2. Answer one plain-language question at a time and confirm important ChatGPT suggestions.
-3. Move to Matches only when the product and at least one match-shaping requirement are confirmed.
-4. Show at most three explicit product fits; never pad the list with generic manufacturers.
-5. Add one manufacturer to the shortlist and draft a personalized introduction without sending it.
+1. Create one private product plan from a plain-language idea, whether the idea is supplied through the Codex agent or directly in the workspace.
+2. Answer one useful question at a time; explicit founder statements may be confirmed immediately, while agent inference and research require review.
+3. Allow evidence-backed candidate discovery with explicit unknowns once enough category-specific information exists to exclude obvious mismatches. Explain which answers would narrow the results.
+4. Show a small set of evidence-backed possibilities; never pad the list or claim confirmed capability from missing public information.
+5. Select up to three manufacturers and prepare a separate personalized introduction for each without sending anything.
 6. Review the exact shared fields and product-brief preview; budget remains private unless explicitly selected.
-7. Approve the visible message and product brief, then send only to the configured safe demo inbox.
-8. Mark the manufacturer Contacted only after successful delivery.
+7. For v1, approve the visible message and product brief, then let the founder copy the exact approved draft or continue through a visible human-controlled contact channel. Never silently send.
+8. Do not infer or record Contacted from approval alone; an external consequence requires separate founder action and evidence.
 
 ## Design patterns
 
@@ -117,7 +117,9 @@ Owns the portable, manufacturer-safe project summary. It never contains internal
 - Prefer compact corner radii and visibly physical press states over pills on primary controls. Pills remain appropriate only for small tags or filters.
 - On mobile, remove decorative transforms and reduce offset shadows before reducing text size or tap targets.
 - Progressive disclosure for wizard and introduction flows.
-- Product-plan workflows use one dominant question or action at a time, a compact live-plan summary on desktop, and a collapsible plan summary on mobile. Future stages are disabled or hidden until useful.
+- Product-plan workflows are organized around an agent-assisted living brief and one dominant next decision, without locking direct editing elsewhere. The document remains primary. 3D appears only when it materially helps compare or choose a supported package; it recedes when it is not useful and never makes an unconfirmed choice look resolved. Readiness uses human language rather than a percentage. Matching may begin with explicit unknowns and become narrower as relevant decisions are confirmed.
+- Product identity keeps three concepts separate in the canonical plan: the raw original idea as quiet source context, an optional founder-controlled brand name as identity, and a concise product descriptor for what will be manufactured. The brief header is the single visual owner of brand and product identity; do not repeat the same identity in a workspace bar or in the product field grid. Never promote the raw prompt into the document title. An unresolved brand stays optional and does not block manufacturing decisions.
+- A confirmed packaging direction may show a small, non-interactive preview rendered from the same canonical package configuration as the workbench. It reflects the saved package type, finish, color, artwork placement, and dimensions state without becoming a second editor or a product hero.
 - Tappable product cards with clear selected and focus states.
 - Evidence labels for verified capabilities and neutral labels for unknown fields.
 - Directory result cards use compact decision summaries: name, primary location, source-backed product and capability chips, a concise public-product fallback only when structured product tags are absent, compact minimum order copy, a few useful certification badges, compare, and one profile link. Do not generate "Best for" by pairing independent product and process fields; show it only if a future source record supports that exact summary. Hide unknown process, packaging, and operating-model fields rather than repeating empty labels. Do not repeat sources, reviewed dates, disclaimers, or every database field on each card.

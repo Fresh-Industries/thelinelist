@@ -1,12 +1,28 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import path from "node:path";
+import sharp from "sharp";
 
-async function openDemo(page: import("@playwright/test").Page) {
+async function visualVariationRatio(image: Buffer) {
+  const rendered = await sharp(image).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const background = [rendered.data[0], rendered.data[1], rendered.data[2]];
+  let variedPixels = 0;
+  for (let index = 0; index < rendered.data.length; index += rendered.info.channels) {
+    const difference = Math.abs(rendered.data[index] - background[0])
+      + Math.abs(rendered.data[index + 1] - background[1])
+      + Math.abs(rendered.data[index + 2] - background[2]);
+    if (difference > 35) variedPixels += 1;
+  }
+  return variedPixels / (rendered.info.width * rendered.info.height);
+}
+
+async function startProduct(page: Page, idea = "A packaged banana bread mini loaf for individual sale in coffee shops") {
   await page.goto("/sourcing");
-  await page.getByRole("button", { name: "Or explore the ready-made energy drink demo" }).click();
+  await page.getByLabel("What do you want to make?").fill(idea);
+  await page.getByRole("button", { name: "Build with your agent" }).click();
   await expect(page).toHaveURL(/\/sourcing\/[A-Za-z0-9_-]+$/, { timeout: 20_000 });
 }
 
-async function installWebMcpHarness(page: import("@playwright/test").Page) {
+async function installWebMcpHarness(page: Page) {
   await page.addInitScript(() => {
     const tools = new Map<string, { execute(input: unknown): Promise<unknown> | unknown }>();
     const context = {
@@ -20,91 +36,121 @@ async function installWebMcpHarness(page: import("@playwright/test").Page) {
   });
 }
 
-test("ChatGPT onboarding creates a personalized prompt while the manual path stays available", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+test("single sourcing entry creates the agent-led living document", async ({ page }) => {
   await page.goto("/sourcing");
-  await expect(page.getByRole("heading", { name: "Turn your food idea into a plan manufacturers can use." })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Use with ChatGPT" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Build it myself" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with the product in your head." })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Build with your agent" })).toHaveCount(1);
+  for (const starter of ["Drink", "Sauce or condiment", "Baked good", "Snack", "Prepared food", "Something else"]) {
+    await expect(page.getByRole("button", { name: starter })).toBeVisible();
+  }
+  const idea = page.getByLabel("What do you want to make?");
+  await page.getByRole("button", { name: "Baked good" }).click();
+  await expect(idea).toHaveValue("I want to package a baked good...");
+  await expect(idea).toBeFocused();
+  await expect(page).toHaveURL(/\/sourcing$/);
+  await page.getByRole("button", { name: "Something else" }).click();
+  await expect(idea).toHaveValue("I have an idea for a food or beverage product...");
+  await expect(page.getByText("Build it myself")).toHaveCount(0);
+  await expect(page.getByText("ready-made energy drink demo")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Use with ChatGPT" }).click();
-  const dialog = page.getByRole("dialog", { name: "Build your product plan with ChatGPT" });
+  await startProduct(page);
+  await expect(page.getByText("Product brief", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Packaged banana bread mini loaf" })).toBeVisible();
+  await expect(page.getByText("Brand name still open").first()).toBeVisible();
+  await expect(page.getByText("Product collaborator", { exact: true }).last()).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Do you already have a brand name/ })).toBeVisible();
+  await expect(page.getByText("Development workspace")).toHaveCount(0);
+  await expect(page.getByText(/local development/i)).toHaveCount(0);
+  await expect(page.getByText(/Started from:/i)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /open ChatGPT/i })).toHaveCount(0);
+  await expect(page.locator('a[href*="chatgpt.com"]')).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "A packaged banana bread mini loaf for individual sale in coffee shops" })).toHaveCount(0);
+});
+
+test("the collaborator drives one decision and keeps uncertainty open", async ({ page }) => {
+  await startProduct(page);
+  await page.getByPlaceholder(/Answer naturally/).fill("Not yet");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByText(/brand name can stay open/i)).toBeVisible();
+  await expect(page.getByRole("heading", { name: /How will one customer receive/ })).toBeVisible();
+  await page.getByPlaceholder(/Answer naturally/).fill("Mini loaf");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByText(/I added product format to the brief/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: /What package are you leaning toward/ })).toBeVisible();
+  await page.getByPlaceholder(/Answer naturally/).fill("I'm not sure");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByText(/That can stay open/)).toBeVisible();
+  await expect(page.getByText("Intentionally left open")).toBeVisible();
+});
+
+test("brand identity updates the document without duplicating the product identity", async ({ page }) => {
+  const originalIdea = "I want to make a packaged sauce that is really spicy and sell it in grocery stores.";
+  await startProduct(page, originalIdea);
+  await expect(page.getByRole("heading", { level: 1, name: "Packaged sauce" })).toBeVisible();
+  await page.getByPlaceholder(/Answer naturally/).fill("Fireline Foods");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Fireline Foods" })).toBeVisible();
+  await expect(page.locator(".document-identity").getByText("Packaged sauce", { exact: true })).toBeVisible();
+  await expect(page.locator(".product-anchor")).toHaveCount(0);
+  await expect(page.locator(".document-identity").getByText("Fireline Foods", { exact: true })).toHaveCount(1);
+  await expect(page.locator(".document-identity").getByText("Packaged sauce", { exact: true })).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Edit brand name: Fireline Foods" }).click();
+  await page.getByRole("textbox", { name: "Brand name" }).fill("Fireline Kitchen");
+  await page.getByRole("button", { name: "Save brand" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Fireline Kitchen" })).toBeVisible();
+
+  const stored = await page.evaluate(async () => fetch(location.pathname.replace("/sourcing/", "/api/sourcing/")).then((response) => response.json())) as { workspace: { originalIdea: string; fields: { brand_name: { value: string }; product_type: { value: string } } } };
+  expect(stored.workspace.originalIdea).toBe(originalIdea);
+  expect(stored.workspace.fields.brand_name.value).toBe("Fireline Kitchen");
+  expect(stored.workspace.fields.product_type.value).toBe("Packaged sauce");
+});
+
+test("the focused package workbench uses all four production 3D models and writes back", async ({ page }) => {
+  await startProduct(page);
+  await page.getByRole("button", { name: "Open 3D workbench" }).click();
+  const dialog = page.getByRole("dialog", { name: "Make the package direction tangible." });
   await expect(dialog).toBeVisible();
-  await dialog.getByLabel("What do you want to make?").fill("a packaged banana bread I can sell in grocery stores");
-  await dialog.getByRole("button", { name: "Create my starter prompt" }).click();
-  const promptDialog = page.getByRole("dialog");
-  const prompt = promptDialog.getByLabel("Personalized starter prompt");
-  await expect(prompt).toHaveValue(/a packaged banana bread I can sell in grocery stores/);
-  await expect(prompt).toHaveValue(/Ask me one simple question at a time/);
-  await expect(prompt).toHaveValue(/only I can click the final send button/);
-  await expect(promptDialog.getByText("this is not a connection indicator", { exact: false })).toBeVisible();
-
-  const popupPromise = page.waitForEvent("popup");
-  await promptDialog.getByRole("button", { name: "Copy and continue in ChatGPT" }).click();
-  const popup = await popupPromise;
-  await popup.close();
-  await expect(page).toHaveURL(/\/sourcing\/[A-Za-z0-9_-]+\?chatgpt=ready$/, { timeout: 20_000 });
-  await expect(page.getByText("Copied. Paste the prompt into ChatGPT to begin.")).toBeVisible();
-  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain("packaged banana bread");
+  for (const label of ["Slim Can", "Bottle", "Jar", "Bag / pouch"]) {
+    await expect(dialog.getByRole("button", { name: label })).toBeVisible();
+  }
+  await dialog.getByRole("button", { name: "Bag / pouch" }).click();
+  await dialog.locator('input[type="file"]').setInputFiles(path.join(process.cwd(), "public/brand/line-list-mark.png"));
+  await dialog.getByLabel("Logo size").fill("1.1");
+  await dialog.getByRole("button", { name: "Use this package direction" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByText("Bag / pouch · dimensions still open").first()).toBeVisible();
+  const preview = page.locator(".package-direction-preview");
+  await expect(preview).toHaveAttribute("data-packaging-type", "stand-up-pouch");
+  await expect(preview).toHaveAttribute("data-base-color", "#b64d2c");
+  await expect(preview).toHaveAttribute("data-artwork-state", "applied");
+  await expect(page.getByText("Terracotta · custom artwork added")).toBeVisible();
+  await expect(page.getByText(/line-list-mark\.png/i)).toHaveCount(0);
+  const previewCanvas = preview.locator("canvas");
+  await expect(previewCanvas).toBeVisible({ timeout: 15_000 });
+  const previewResolution = await previewCanvas.evaluate((element) => {
+    const canvas = element as HTMLCanvasElement;
+    return {
+      pixelWidth: canvas.width,
+      pixelHeight: canvas.height,
+      displayWidth: canvas.getBoundingClientRect().width,
+      displayHeight: canvas.getBoundingClientRect().height,
+    };
+  });
+  expect(previewResolution.pixelWidth / previewResolution.displayWidth).toBeGreaterThanOrEqual(1.45);
+  expect(previewResolution.pixelHeight / previewResolution.displayHeight).toBeGreaterThanOrEqual(1.45);
+  await expect.poll(async () => visualVariationRatio(await previewCanvas.screenshot()), { timeout: 15_000 }).toBeGreaterThan(0.05);
+  await expect(page.locator(".package-glyph")).toHaveCount(0);
+  await page.getByRole("button", { name: "Refine saved package direction in 3D" }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Bag / pouch" })).toHaveClass(/selected/);
+  await expect(dialog.getByLabel("Package color")).toHaveValue("#b64d2c");
+  await expect(dialog.getByLabel("Logo size")).toHaveValue("1.1");
 });
 
-test("manual blank plan asks one question and does not reveal premature matches", async ({ page }) => {
-  await page.goto("/sourcing");
-  await page.getByRole("button", { name: "Build it myself" }).click();
-  await expect(page).toHaveURL(/\/sourcing\/[A-Za-z0-9_-]+$/, { timeout: 20_000 });
-  await expect(page.getByRole("heading", { name: "What do you want to make?" })).toBeVisible();
-  await expect(page.locator(".guided-stage")).toHaveCount(1);
-  await expect(page.locator(".match-card")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Matches" })).toBeDisabled();
-  await expect(page.locator(".review-details")).not.toHaveAttribute("open", "");
-});
-
-test("founder moves through one guided stage at a time to an approved private brief", async ({ page }) => {
-  await openDemo(page);
-  await expect(page.getByRole("heading", { level: 1, name: "Healthier energy drink" })).toBeVisible();
-  await expect(page.getByText("Carbonated", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("Suggested", { exact: true }).first()).toBeVisible();
-  await expect(page.locator(".match-card")).toHaveCount(0);
-  await expect(page.locator(".guided-stage")).toHaveCount(1);
-
-  await page.getByRole("button", { name: "Yes, keep this" }).click();
-  await expect(page.getByText("Your core manufacturing decisions are confirmed.")).toBeVisible();
-  await page.getByRole("button", { name: "Find my best matches" }).click();
-  await expect(page.getByRole("heading", { name: "Here are the strongest possible matches based on what we know." })).toBeVisible();
-  await expect(page.locator(".match-card")).toHaveCount(3);
-  await expect(page.getByRole("heading", { name: /Got it/ })).toHaveCount(0);
-
-  const firstMatch = page.locator(".match-card").first();
-  await firstMatch.getByText("Why this match?").click();
-  await expect(firstMatch.getByText("Missing information is not treated as a “no.”")).toBeVisible();
-  await firstMatch.getByRole("button", { name: "Add to shortlist" }).click();
-  await expect(page.getByRole("heading", { name: /Let’s prepare your introduction/ })).toBeVisible();
-  await page.getByRole("button", { name: "Draft my introduction" }).click();
-  await expect(page.getByRole("heading", { name: "What the manufacturer will see" })).toBeVisible();
-  await expect(page.getByText("Budget", { exact: true }).last()).toBeVisible();
-
-  const packetLink = page.getByRole("link", { name: /Preview product brief/ });
-  const packetHref = await packetLink.getAttribute("href");
-  expect(packetHref).toMatch(/^\/packet\//);
-  const packetPage = await page.context().newPage();
-  await packetPage.goto(packetHref!);
-  await expect(packetPage.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
-  await expect(packetPage.getByRole("heading", { name: /Product brief for/ })).toBeVisible();
-  await expect(packetPage.getByText("About $15,000")).toHaveCount(0);
-  await packetPage.close();
-
-  await page.getByLabel("Email address").fill("founder@example.com");
-  await page.getByRole("button", { name: "Save my email" }).click();
-  await expect(page.getByText("The manufacturer needs a confirmed reply address.")).toHaveCount(0);
-  await page.getByRole("button", { name: "Continue to final review" }).click();
-  await expect(page.getByRole("heading", { name: "Only you can send this introduction." })).toBeVisible();
-  await expect(page.getByText("ChatGPT and WebMCP cannot press this button for you.")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Send introduction to|Sending is not configured/ })).toBeVisible();
-});
-
-test("all five WebMCP tools share visible state but expose no agent send action", async ({ page }) => {
+test("five WebMCP tools share canonical state and expose no send action", async ({ page }) => {
   await installWebMcpHarness(page);
-  await openDemo(page);
+  await startProduct(page, "A sparkling beverage in slim cans");
   const invoke = async (name: string, input: Record<string, unknown>) => page.evaluate(async ({ name, input }) => {
     const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
     const tool = tools.get(name);
@@ -113,38 +159,55 @@ test("all five WebMCP tools share visible state but expose no agent send action"
   }, { name, input });
 
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(5);
-  await page.getByRole("button", { name: "Yes, keep this" }).click();
-  await expect(page.getByText("Your core manufacturing decisions are confirmed.")).toBeVisible();
-  const afterFounderDecision = await invoke("get_sourcing_workspace", {}) as { workspace: { fields: { carbonation: { status: string; updatedBy: string } } }; finalSendRequiresHumanClick: boolean };
-  expect(afterFounderDecision.workspace.fields.carbonation).toMatchObject({ status: "confirmed", updatedBy: "founder" });
-  expect(afterFounderDecision.finalSendRequiresHumanClick).toBe(true);
-  await invoke("update_sourcing_workspace", { proposedUpdates: [
-    { key: "product_description", value: "A lower-sugar energy drink for afternoon focus", status: "confirmed", explicitlyStated: true, source: "Founder statement", suggestedSharing: true },
-    { key: "formula_status", value: "I have a recipe, but it needs work", status: "confirmed", explicitlyStated: true, source: "Founder statement", suggestedSharing: true },
-  ] });
-  await expect(page.getByText("A lower-sugar energy drink for afternoon focus").first()).toBeVisible();
-  await expect(page.getByText(/ChatGPT added 2 details/)).toBeVisible();
-
-  const matched = await invoke("match_manufacturers", { resultLimit: 10 }) as { matches: Array<{ manufacturerSlug: string }> };
-  expect(matched.matches.length).toBeGreaterThan(0);
-  expect(matched.matches.length).toBeLessThanOrEqual(3);
-  await expect(page.locator(".match-card")).toHaveCount(matched.matches.length);
-
-  const prepared = await invoke("prepare_manufacturer_outreach", { selectedManufacturerIds: [matched.matches[0].manufacturerSlug] }) as { drafts: Array<{ id: string }> };
-  expect(prepared.drafts).toHaveLength(1);
-  await invoke("open_manufacturer_introduction_review", {});
-  await expect(page.getByRole("heading", { name: "What the manufacturer will see" })).toBeVisible();
-  const hasAgentSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
-  expect(hasAgentSendTool).toBe(false);
+  const current = await invoke("get_sourcing_workspace", {}) as { canonicalPlan: { schemaVersion: number; originalIdea: string }; product: { brandName: string | null; descriptor: string }; externalContactRequiresFounderAction: boolean };
+  expect(current.canonicalPlan.schemaVersion).toBe(2);
+  expect(current.canonicalPlan.originalIdea).toBe("A sparkling beverage in slim cans");
+  expect(current.product).toMatchObject({ brandName: null, descriptor: "Sparkling beverage" });
+  expect(current.externalContactRequiresFounderAction).toBe(true);
+  await invoke("update_sourcing_workspace", { proposedUpdates: [{ key: "product_type", value: "Sparkling beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true }] });
+  await expect(page.getByText("Sparkling beverage", { exact: true }).first()).toBeVisible();
+  const hasSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
+  expect(hasSendTool).toBe(false);
 });
 
-test("mobile keeps the current action and collapsible plan inside the viewport", async ({ page }) => {
+test("multiple manufacturers receive separate reviewable drafts", async ({ page }) => {
+  await startProduct(page, "A healthier sparkling energy drink in 12 oz cans");
+  await page.evaluate(async () => {
+    const workspaceId = location.pathname.split("/").pop();
+    const current = await fetch(`/api/sourcing/${workspaceId}`).then((response) => response.json());
+    await fetch(`/api/sourcing/${workspaceId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ revision: current.workspace.revision, proposedUpdates: [
+        { key: "brand_name", value: "Fresh Energy", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "product_type", value: "Sparkling energy drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "product_format", value: "12 oz drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "packaging_format", value: "12 oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "storage_distribution", value: "Shelf stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "production_volume", value: "1,000 to 5,000 units", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "formula_status", value: "Tested recipe", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "carbonation", value: "Carbonated", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      ] }),
+    });
+    location.reload();
+  });
+  await expect(page.getByRole("button", { name: "Find evidence-backed manufacturers" })).toBeVisible();
+  await page.getByRole("button", { name: "Find evidence-backed manufacturers" }).click();
+  const rows = page.locator(".match-row");
+  await expect(rows.first()).toBeVisible();
+  const count = await rows.count();
+  expect(count).toBeGreaterThanOrEqual(2);
+  await rows.nth(0).getByRole("button", { name: "Select" }).click();
+  await rows.nth(1).getByRole("button", { name: "Select" }).click();
+  await page.getByRole("button", { name: "Prepare 2 introductions" }).click();
+  await expect(page.locator(".introduction-card")).toHaveCount(2);
+  await expect(page.getByText("Nothing has been sent")).toBeVisible();
+});
+
+test("mobile keeps the living document inside the viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openDemo(page);
-  await expect(page.getByRole("button", { name: "Yes, keep this" })).toBeVisible();
-  await expect(page.getByText("My product plan", { exact: true })).toBeVisible();
+  await startProduct(page);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   const geometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
   expect(geometry.document).toBeLessThanOrEqual(geometry.viewport);
-  await page.getByRole("button", { name: "Yes, keep this" }).click();
-  await expect(page.getByRole("button", { name: "Find my best matches" })).toBeVisible();
 });

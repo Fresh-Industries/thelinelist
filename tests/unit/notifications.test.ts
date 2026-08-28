@@ -146,18 +146,11 @@ describe("owner email notifications", () => {
     expect(result.error).toContain("Sender domain is not authorized");
   });
 
-  it("does not report a stored lead as successful when its owner email fails", async () => {
+  it("does not report an email-archived lead as successful when its owner email fails", async () => {
     configureResend();
-    vi.stubEnv("BLOB_READ_WRITE_TOKEN", "blob_test");
     vi.stubGlobal(
       "fetch",
-      vi.fn(async (input: string | URL | Request) => {
-        const url = String(input);
-        if (url.startsWith("https://blob.vercel-storage.com/")) {
-          return new Response(null, { status: 200 });
-        }
-        return new Response("Sender domain is not authorized.", { status: 403 });
-      }),
+      vi.fn(async () => new Response("Sender domain is not authorized.", { status: 403 })),
     );
 
     const result = await createLeadStore().save({
@@ -174,7 +167,7 @@ describe("owner email notifications", () => {
 
     expect(result).toMatchObject({
       ok: false,
-      adapter: "blob",
+      adapter: "email-archive",
       id: "lead_123",
     });
     expect(result.error).toContain("Owner notification failed via resend");

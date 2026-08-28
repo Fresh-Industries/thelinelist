@@ -1,18 +1,60 @@
 import { FIELD_DEFINITION_BY_KEY, NEVER_SHARE_FIELD_KEYS } from "@/lib/sourcing/fields";
 import { matchManufacturers } from "@/lib/sourcing/matching";
-import { editAndApproveDraft, prepareOutreachDrafts, resolveApprovedDeliveryRecipient, validateHumanSendToken } from "@/lib/sourcing/outreach";
+import { editAndApproveDraft, prepareOutreachDrafts } from "@/lib/sourcing/outreach";
+import { getPackagingOptions, getProductCategory, resolveProductVisualAsset } from "@/lib/sourcing/product-catalog";
+import { deriveProductDescriptorFromIdea, getProductIdentity } from "@/lib/sourcing/product-identity";
+import { getProductJourney } from "@/lib/sourcing/product-journey";
+import { PackageDesignSchema, ProductPlanSchema, productPlanFromWorkspace } from "@/lib/sourcing/product-plan";
+import { getPackageColorName, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, editDraftSchema, founderUpdateSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
 import { applyAgentUpdates, applyFounderFieldUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange } from "@/lib/sourcing/workspace";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("sourcing workspace trust rules", () => {
   it("stores a landing-page idea as an explicit founder statement", () => {
     const workspace = createWorkspace({ idea: "A packaged banana bread for grocery stores" });
     expect(workspace.fields.product_type).toMatchObject({ status: "confirmed", updatedBy: "founder", explicitlyStated: true });
-    expect(workspace.fields.product_description.value).toBe("A packaged banana bread for grocery stores");
+    expect(workspace.originalIdea).toBe("A packaged banana bread for grocery stores");
+    expect(workspace.fields.product_type.value).toBe("Packaged banana bread");
+    expect(workspace.fields.product_description.value).toBeNull();
+    expect(getSourcingReadiness(workspace).nextQuestionKey).toBe("brand_name");
     expect(workspace.matches).toEqual([]);
+  });
+
+  it("keeps brand, product, and original idea distinct while allowing the brand to stay open", () => {
+    const initial = createWorkspace({ idea: "I want to make a packaged sauce that is really spicy and sell it in grocery stores." });
+    expect(initial.originalIdea).toBe("I want to make a packaged sauce that is really spicy and sell it in grocery stores.");
+    expect(getProductIdentity(initial)).toEqual({ brandName: null, productDescriptor: "Packaged sauce" });
+
+    const openBrand = applyFounderFieldUpdate(initial, { key: "brand_name", value: "Not yet", status: "confirmed", shareWithManufacturer: true });
+    expect(openBrand.fields.brand_name).toMatchObject({ value: null, status: "needs_decision", shareWithManufacturer: false });
+    expect(getSourcingReadiness(openBrand).nextQuestionKey).toBe("product_format");
+
+    const branded = applyFounderFieldUpdate(openBrand, { key: "brand_name", value: "Fireline Foods", status: "confirmed", shareWithManufacturer: true });
+    expect(getProductIdentity(branded)).toEqual({ brandName: "Fireline Foods", productDescriptor: "Packaged sauce" });
+    expect(branded.originalIdea).toBe(initial.originalIdea);
+  });
+
+  it("derives restrained product descriptors instead of promoting raw prompts", () => {
+    expect(deriveProductDescriptorFromIdea("I make banana bread and want to sell it in stores.")).toBe("Banana bread");
+    expect(deriveProductDescriptorFromIdea("I want to make a packaged sauce that is really spicy and sell it in grocery stores.")).toBe("Packaged sauce");
+    expect(deriveProductDescriptorFromIdea("A healthier sparkling energy drink in 12 oz cans")).toBe("Healthier sparkling energy drink");
+  });
+
+  it("migrates a version-one plan without losing its original idea", () => {
+    const workspace = createWorkspace({ idea: "I want to make a packaged sauce..." });
+    const current = productPlanFromWorkspace(workspace);
+    const legacyFields = Object.fromEntries(Object.entries(current.fields).filter(([key]) => key !== "brand_name"));
+    const originalIdea = workspace.originalIdea!;
+    legacyFields.product_type = { ...legacyFields.product_type, value: originalIdea };
+    legacyFields.product_description = { ...legacyFields.product_description, value: originalIdea, status: "confirmed", source: "Founder starting idea", explicitlyStated: true, shareWithManufacturer: true, updatedBy: "founder" };
+
+    const migrated = ProductPlanSchema.parse({ ...current, schemaVersion: 1, originalIdea: undefined, fields: legacyFields });
+    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.originalIdea).toBe(originalIdea);
+    expect(migrated.fields.brand_name).toMatchObject({ value: null, status: "unknown" });
   });
 
   it("keeps agent inferences proposed and explicit founder statements confirmed", () => {
@@ -99,12 +141,13 @@ describe("sourcing workspace trust rules", () => {
   it("returns only source-backed bakery possibilities while leaving package fit unknown", () => {
     let workspace = createWorkspace({ idea: "Packaged banana bread for grocery stores" });
     for (const update of [
+      { key: "product_format", value: "Mini loaf" },
       { key: "packaging_format", value: "Individually wrapped slices" },
       { key: "packaging_size", value: "4 oz slice" },
       { key: "formula_status", value: "Recipe is ready" },
       { key: "storage_distribution", value: "Room temperature" },
       { key: "production_volume", value: "1,000 to 5,000 units" },
-    ] as Array<{ key: "packaging_format" | "packaging_size" | "formula_status" | "storage_distribution" | "production_volume"; value: string }>) {
+    ] as Array<{ key: "product_format" | "packaging_format" | "packaging_size" | "formula_status" | "storage_distribution" | "production_volume"; value: string }>) {
       workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
     }
     const matches = matchManufacturers(workspace, { resultLimit: 5 });
@@ -161,8 +204,59 @@ describe("sourcing workspace trust rules", () => {
 
   it("allows every shareable field in a final approval", () => {
     const shareableKeys = SOURCING_FIELD_KEYS.filter((key) => !NEVER_SHARE_FIELD_KEYS.has(key));
-    expect(shareableKeys).toHaveLength(24);
+    expect(shareableKeys).toHaveLength(28);
     expect(editDraftSchema.safeParse({ subject: "Introduction", body: "Approved body", includedFieldKeys: shareableKeys }).success).toBe(true);
+  });
+
+  it("maps a mini-loaf workspace to the reusable transparent bakery package library", () => {
+    let workspace = createWorkspace({ idea: "Mya's packaged banana bread" });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_format", value: "Mini loaf", status: "confirmed", shareWithManufacturer: true });
+    workspace = applyFounderFieldUpdate(workspace, { key: "packaging_format", value: "Flow wrap", status: "confirmed", shareWithManufacturer: true });
+
+    expect(getProductCategory(workspace)).toBe("bakery");
+    expect(getPackagingOptions(workspace).map((option) => option.value)).toEqual(["Flow wrap", "Bakery bag", "Clamshell", "Tray and film"]);
+    expect(resolveProductVisualAsset({ category: "bakery", packagingType: "Flow wrap" })).toMatchObject({ imageSrc: "/images/clay-v2/packaging/flow-wrap-mini-loaf.png" });
+    expect(getProductJourney(workspace).map((step) => step.status)).toEqual(["complete", "complete", "complete", "current", "future"]);
+  });
+
+  it("backfills canonical artwork placement metadata for older package directions", () => {
+    const design = PackageDesignSchema.parse({
+      packagingType: "jar",
+      finish: "clear",
+      baseColor: "#b64d2c",
+      labelColor: "#f2e8d5",
+      logoScale: 1,
+      logoPosition: { x: 0, y: 0 },
+      dimensions: { width: null, height: null, depth: null },
+      summary: "clear jar · final dimensions open",
+    });
+
+    expect(design.artworkId).toBeNull();
+    expect(design.logoAspect).toBeCloseTo(1345 / 662);
+  });
+
+  it("presents canonical package state without exposing hex values or artwork filenames", () => {
+    const design = PackageDesignSchema.parse({
+      packagingType: "slim-can",
+      finish: "colored",
+      baseColor: "#CCAEF9",
+      labelColor: "#f2e8d5",
+      artworkId: "artwork-1",
+      logoAspect: 1,
+      logoScale: 1,
+      logoPosition: { x: 0, y: 0 },
+      dimensions: { width: null, height: null, depth: null },
+      summary: "legacy implementation summary",
+    });
+    const artwork = { id: "artwork-1", fileName: "ChatGPT Image Aug 22.png", contentType: "image/png" as const, byteSize: 42, createdAt: new Date().toISOString() };
+
+    expect(getPackageDesignPresentation(design, artwork)).toEqual({
+      direction: "Slim can · dimensions still open",
+      appearance: "Lavender · custom artwork added",
+      validation: "Mockup for planning; final packaging requires manufacturer validation.",
+    });
+    expect(getPackageColorName("#B64D2C")).toBe("Terracotta");
+    expect(getPackageColorName("#123456")).toBe("Custom color");
   });
 
   it("keeps researched suggestions proposed and preserves structured source evidence", () => {
@@ -196,7 +290,7 @@ describe("sourcing workspace trust rules", () => {
     expect(packetLifetime).toBe(30 * 24 * 60 * 60 * 1000);
     expect(draft.packet.revokedAt).toBeNull();
 
-    const { draft: approved, humanSendToken } = editAndApproveDraft(draft, workspace, {
+    const { draft: approved } = editAndApproveDraft(draft, workspace, {
       subject: draft.subject,
       body: draft.body,
       includedFieldKeys: [...draft.includedFieldKeys, "budget", "internal_notes"],
@@ -205,22 +299,16 @@ describe("sourcing workspace trust rules", () => {
     expect(approved.includedFieldKeys).not.toContain("internal_notes");
     expect(approved.packet.fieldValues.budget).toBe("About $15,000");
     expect(approved.approvedVersion).toBe(approved.version);
-    expect(validateHumanSendToken(approved, humanSendToken)).toBe(true);
-    expect(validateHumanSendToken(approved, "not-the-founder-token")).toBe(false);
-
-    const expiredApproval = {
-      ...approved,
-      humanSendTokenExpiresAt: new Date(Date.now() - 1_000).toISOString(),
-    };
-    expect(validateHumanSendToken(expiredApproval, humanSendToken)).toBe(false);
+    expect(approved.humanSendTokenHash).toBeNull();
+    expect(approved.humanSendTokenExpiresAt).toBeNull();
 
     const reapproved = editAndApproveDraft(approved, workspace, {
       subject: `${approved.subject} (updated)`,
       body: approved.body,
       includedFieldKeys: approved.includedFieldKeys,
     });
-    expect(validateHumanSendToken(reapproved.draft, humanSendToken)).toBe(false);
-    expect(validateHumanSendToken(reapproved.draft, reapproved.humanSendToken)).toBe(true);
+    expect(reapproved.draft.version).toBe(approved.version + 1);
+    expect(reapproved.draft.approvedVersion).toBe(reapproved.draft.version);
 
     const renewed = editAndApproveDraft({
       ...approved,
@@ -242,38 +330,17 @@ describe("sourcing workspace trust rules", () => {
       humanSendTokenExpiresAt: null,
       deliveryStatus: "draft",
     });
-    expect(validateHumanSendToken(invalidatedWorkspace.outreachDrafts[0], reapproved.humanSendToken)).toBe(false);
   });
 
-  it("uses a sourced manufacturer email only in live mode and keeps the founder copied", () => {
-    vi.stubEnv("SOURCING_DELIVERY_MODE", "live");
-    vi.stubEnv("SOURCING_DEMO_RECIPIENT", "demo@example.com");
-    try {
-      let workspace = createWorkspace({ demo: true });
-      workspace = applyFounderFieldUpdate(workspace, {
-        key: "contact_email",
-        value: "founder@example.com",
-        status: "confirmed",
-        shareWithManufacturer: false,
-      });
-      workspace = { ...workspace, matches: matchManufacturers(workspace, { resultLimit: 5 }) };
-
-      const [draft] = prepareOutreachDrafts(workspace, { selectedManufacturerIds: ["better-beverage-company"] });
-
-      expect(draft.availableDeliveryMethod).toBe("line_list_introduction");
-      expect(draft.recipientEmail).toBe("Wade@BetterBeverageCompany.com");
-      expect(draft.demoRecipient).toBeNull();
-      expect(draft.founderCopyEmail).toBe("founder@example.com");
-      expect(resolveApprovedDeliveryRecipient(draft)).toEqual({ ok: true, recipient: "Wade@BetterBeverageCompany.com" });
-
-      vi.stubEnv("SOURCING_DELIVERY_MODE", "off");
-      expect(resolveApprovedDeliveryRecipient(draft)).toMatchObject({ ok: false, status: 503 });
-
-      vi.stubEnv("SOURCING_DELIVERY_MODE", "live");
-      expect(resolveApprovedDeliveryRecipient({ ...draft, recipientEmail: "stale@example.com" })).toMatchObject({ ok: false, status: 409 });
-    } finally {
-      vi.unstubAllEnvs();
-    }
+  it("prepares separate drafts for multiple manufacturers without configuring a recipient or send path", () => {
+    let workspace = createWorkspace({ demo: true });
+    workspace = { ...workspace, matches: matchManufacturers(workspace, { resultLimit: 5 }) };
+    const slugs = workspace.matches.slice(0, 3).map((match) => match.manufacturerSlug);
+    const drafts = prepareOutreachDrafts(workspace, { selectedManufacturerIds: slugs });
+    expect(drafts).toHaveLength(slugs.length);
+    expect(new Set(drafts.map((draft) => draft.manufacturerSlug)).size).toBe(slugs.length);
+    expect(drafts.every((draft) => draft.packet.fieldValues.brand_name === "Fresh Energy" && draft.body.includes("Fresh Energy"))).toBe(true);
+    expect(drafts.every((draft) => draft.availableDeliveryMethod === "not_configured" && draft.recipientEmail === null)).toBe(true);
   });
 
   it("keeps internal fields marked private by default", () => {
