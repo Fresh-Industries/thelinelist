@@ -15,7 +15,6 @@ The production app uses PostgreSQL for structured application state and Better A
 | `DATABASE_URL` | Production | PostgreSQL connection used by Prisma for Better Auth, product workspaces, packet metadata, activity, asset metadata, and lead submissions. |
 | `BETTER_AUTH_URL` | Production | Canonical auth origin, for example `https://www.thelinelist.com`. |
 | `BETTER_AUTH_SECRET` | Production | At least 32 characters of high-entropy secret material. Generate with `openssl rand -base64 32`. |
-| `VERCEL_RUN_MIGRATIONS` | Production deployment | Set to `1` to apply committed migrations before the production Vercel build. Preview and local builds always skip migrations. |
 
 Production fails closed when PostgreSQL or auth configuration is missing. Guest workspaces use PostgreSQL too; they are owned by a hashed, expiring credential stored in a secure HttpOnly cookie. Development may use temporary local workspace JSON only to support visual work when a local PostgreSQL service is not configured. That adapter is never selected in production.
 
@@ -29,7 +28,7 @@ npx prisma migrate dev --name <descriptive-name>
 
 Never point local migration or test commands at the production database.
 
-Production Vercel deployments use the checked-in build runner. It runs `prisma migrate deploy` only when both `VERCEL_ENV=production` and `VERCEL_RUN_MIGRATIONS=1`, then runs the normal Next.js build. Keep the flag disabled until the committed migration SQL has been reviewed.
+Vercel runs `prisma generate`, applies committed migrations with `prisma migrate deploy`, and then runs the Next.js build. The migration targets the `DATABASE_URL` scoped to that Vercel environment. Configure a separate Preview database before enabling preview deployments; a preview must never migrate the production database.
 
 ## Binary artwork storage
 
