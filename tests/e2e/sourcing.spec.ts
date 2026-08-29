@@ -39,6 +39,33 @@ async function installWebMcpHarness(page: Page) {
   });
 }
 
+async function installSynchronousWebMcpHarness(page: Page) {
+  await page.addInitScript(() => {
+    const tools = new Map<string, { execute(input: unknown): Promise<unknown> | unknown }>();
+    const context = {
+      registerTool(tool: { name: string; execute(input: unknown): Promise<unknown> | unknown }, options?: { signal?: AbortSignal }) {
+        tools.set(tool.name, tool);
+        options?.signal?.addEventListener("abort", () => tools.delete(tool.name), { once: true });
+      },
+    };
+    Object.defineProperty(Document.prototype, "modelContext", { configurable: true, get: () => context });
+    Object.assign(window, { __webMcpTools: tools });
+  });
+}
+
+test("keeps the sourcing entry usable when WebMCP registers synchronously", async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  await installSynchronousWebMcpHarness(page);
+
+  await page.goto("/sourcing");
+
+  await expect(page.getByRole("heading", { name: "Tell your agent what you want to make." })).toBeVisible();
+  await expect(page.getByText("Agent connected", { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  expect(pageErrors).toEqual([]);
+});
+
 test("single sourcing entry creates the agent-led living document", async ({ page }) => {
   await page.goto("/sourcing");
   await expect(page.getByRole("heading", { name: "Tell your agent what you want to make." })).toBeVisible();

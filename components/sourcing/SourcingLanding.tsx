@@ -90,11 +90,15 @@ export function SourcingLanding() {
         return { workspace, workspaceUrl: `/sourcing/${workspace.id}`, nextAction: "Open the new workspace and ask its single next useful question.", externalContactRequiresFounderAction: true };
       },
     };
-    void modelContext.registerTool(tool, { signal: controller.signal })
-      .then(() => { if (!controller.signal.aborted) setAgentConnected(true); })
-      .catch((caught) => {
-        if (!controller.signal.aborted) console.warn("[webmcp] sourcing entry unavailable", caught);
-      });
+    try {
+      void Promise.resolve(modelContext.registerTool(tool, { signal: controller.signal }))
+        .then(() => { if (!controller.signal.aborted) setAgentConnected(true); })
+        .catch((caught) => {
+          if (!controller.signal.aborted) console.warn("[webmcp] sourcing entry unavailable", caught);
+        });
+    } catch (caught) {
+      if (!controller.signal.aborted) console.warn("[webmcp] sourcing entry unavailable", caught);
+    }
     return () => controller.abort();
   }, [createWorkspace]);
 

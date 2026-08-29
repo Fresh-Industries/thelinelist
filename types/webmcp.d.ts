@@ -11,7 +11,7 @@ interface WebMcpToolDefinition {
 }
 
 interface WebMcpModelContext {
-  registerTool(tool: WebMcpToolDefinition, options?: { signal?: AbortSignal; exposedTo?: string[] }): Promise<void>;
+  registerTool(tool: WebMcpToolDefinition, options?: { signal?: AbortSignal; exposedTo?: string[] }): void | PromiseLike<void>;
   getTools?(): Promise<unknown[]>;
 }
 
