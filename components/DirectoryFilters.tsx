@@ -3,11 +3,13 @@
 import { trackFilter } from "@/lib/analytics/client";
 import {
   PROCESS_OPTIONS,
-  PRODUCT_CATEGORIES,
   OPERATION_TYPE_LABELS,
+  PACKAGING_LABELS,
   getProductCategory,
+  productComboboxSuggestions,
   productLabel,
   queryToSearchParams,
+  selectionAppliesCurrentFilters,
   stateLabel,
   type CertificationFilter,
   type DirectoryFacetCounts,
@@ -17,6 +19,8 @@ import {
   type OperationType,
   type PackagingFilter,
   type ProductCategorySlug,
+  type ProductComboboxSelection,
+  type ProductComboboxSuggestion,
   type VerificationDateFilter,
 } from "@/lib/directory";
 import Link from "next/link";
@@ -31,14 +35,6 @@ import {
   useTransition,
 } from "react";
 
-const PACKAGING_LABELS: Record<PackagingFilter, string> = {
-  can: "Cans",
-  bottle: "Bottles",
-  jar: "Jars",
-  pouch: "Pouches or sachets",
-  other: "Other listed formats",
-};
-
 const CERTIFICATION_LABELS: Record<CertificationFilter, string> = {
   organic: "Organic",
   kosher: "Kosher",
@@ -47,31 +43,6 @@ const CERTIFICATION_LABELS: Record<CertificationFilter, string> = {
   "non-gmo": "Non-GMO",
   sqf: "SQF",
 };
-
-const CATEGORY_SEARCH_ALIASES: Partial<Record<ProductCategorySlug, string>> = {
-  "sports-hydration": "energy electrolyte sports drink sports beverage",
-  "functional-beverages": "energy functional beverage wellness benefit shot",
-  salsa: "sauce tomato dip",
-  "dressings-marinades": "sauce condiment vinaigrette",
-  "dips-hummus": "spread refrigerated dip",
-  "prepared-refrigerated-foods": "ready to eat meal soup salad side",
-  "rtd-coffee-tea": "ready to drink cold brew",
-};
-
-const PRODUCT_COMBOBOX_OPTIONS = [
-  {
-    value: "" as const,
-    label: "Any food or drink product",
-    description: "Browse every listed manufacturer",
-    searchText: "any all food drink product",
-  },
-  ...PRODUCT_CATEGORIES.map((category) => ({
-    value: category.slug,
-    label: category.label,
-    description: category.description,
-    searchText: `${category.label} ${category.slug} ${category.description} ${CATEGORY_SEARCH_ALIASES[category.slug] ?? ""}`.toLowerCase(),
-  })),
-];
 
 const QUICK_CATEGORY_SLUGS = ["energy-drink", "sauce", "snacks", "bakery", "supplements"] as const satisfies readonly ProductCategorySlug[];
 const QUICK_CATEGORIES = QUICK_CATEGORY_SLUGS.map((slug) => {
@@ -166,35 +137,64 @@ function getActiveFilters(initial: DirectoryQuery): ActiveFilter[] {
   ].filter((filter): filter is ActiveFilter => filter !== null);
 }
 
+function suggestionCount(suggestion: ProductComboboxSuggestion, facetCounts: DirectoryFacetCounts): number | null {
+  switch (suggestion.selection.kind) {
+    case "category":
+      return suggestion.selection.value ? facetCounts.categories[suggestion.selection.value] : null;
+    case "packaging":
+      return facetCounts.packaging[suggestion.selection.value];
+    case "process":
+      return facetCounts.processes[suggestion.selection.value];
+    case "operationType":
+      return facetCounts.operationTypes[suggestion.selection.value];
+    default: {
+      const exhaustive: never = suggestion.selection;
+      throw new Error(`Unhandled combobox selection: ${JSON.stringify(exhaustive)}`);
+    }
+  }
+}
+
 function ProductCombobox({
   id,
-  value,
-  onChange,
+  category,
+  packaging,
+  process,
+  operationType,
+  onSelect,
   facetCounts,
 }: {
   id: string;
-  value: string;
-  onChange: (value: string) => void;
-  facetCounts: DirectoryFacetCounts["categories"];
+  category: string;
+  packaging: string;
+  process: string;
+  operationType: string;
+  onSelect: (selection: ProductComboboxSelection) => void;
+  facetCounts: DirectoryFacetCounts;
 }) {
   const listboxId = `${id}-listbox`;
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const selected = value ? getProductCategory(value) : undefined;
+  const selected = category ? getProductCategory(category) : undefined;
+  const currentFilters = { category, packaging, process, operationType };
   const [inputValue, setInputValue] = useState(selected?.label ?? "");
   const [isTyping, setIsTyping] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const options = useMemo(() => {
-    const query = inputValue.trim().toLowerCase();
-    if (!isTyping || !query) return PRODUCT_COMBOBOX_OPTIONS;
-    return PRODUCT_COMBOBOX_OPTIONS.filter((option) => option.searchText.includes(query));
-  }, [inputValue, isTyping]);
+  const options = useMemo(() => productComboboxSuggestions(inputValue, {
+    isTyping,
+    counts: {
+      categories: facetCounts.categories,
+      packaging: facetCounts.packaging,
+      processes: facetCounts.processes,
+      operationTypes: facetCounts.operationTypes,
+    },
+  }), [facetCounts, inputValue, isTyping]);
 
-  function optionIsAvailable(option: (typeof PRODUCT_COMBOBOX_OPTIONS)[number]): boolean {
-    return !option.value || facetCounts[option.value] > 0 || value === option.value;
+  function optionIsAvailable(option: ProductComboboxSuggestion): boolean {
+    const count = suggestionCount(option, facetCounts);
+    return count === null || count > 0 || selectionAppliesCurrentFilters(option, currentFilters);
   }
 
   useEffect(() => {
@@ -213,10 +213,10 @@ function ProductCombobox({
     if (!isTyping) return;
 
     const query = inputValue.trim().toLowerCase();
-    const exactMatch = PRODUCT_COMBOBOX_OPTIONS.find((option) => option.label.toLowerCase() === query);
+    const exactMatch = options.find((option) => option.label.toLowerCase() === query);
     if (exactMatch) {
-      onChange(exactMatch.value);
-      setInputValue(exactMatch.value ? exactMatch.label : "");
+      onSelect(exactMatch.selection);
+      setInputValue(exactMatch.selection.kind === "category" && !exactMatch.selection.value ? "" : exactMatch.label);
     } else {
       setInputValue(selected?.label ?? "");
     }
@@ -224,15 +224,15 @@ function ProductCombobox({
   }
 
   function openOptions() {
-    const selectedIndex = PRODUCT_COMBOBOX_OPTIONS.findIndex((option) => option.value === value);
+    const selectedIndex = options.findIndex((option) => selectionAppliesCurrentFilters(option, currentFilters));
     setIsTyping(false);
     setActiveIndex(Math.max(0, selectedIndex));
     setOpen(true);
   }
 
-  function chooseOption(option: (typeof PRODUCT_COMBOBOX_OPTIONS)[number]) {
-    onChange(option.value);
-    setInputValue(option.value ? option.label : "");
+  function chooseOption(option: ProductComboboxSuggestion) {
+    onSelect(option.selection);
+    setInputValue(option.selection.kind === "category" && !option.selection.value ? "" : option.label);
     setIsTyping(false);
     setOpen(false);
     inputRef.current?.focus();
@@ -260,7 +260,7 @@ function ProductCombobox({
     if (event.key === "Enter" && open) {
       const query = inputValue.trim().toLowerCase();
       const exactMatch = isTyping
-        ? PRODUCT_COMBOBOX_OPTIONS.find((option) => option.label.toLowerCase() === query)
+        ? options.find((option) => option.label.toLowerCase() === query)
         : undefined;
       const option = exactMatch ?? options[activeIndex];
       event.preventDefault();
@@ -293,7 +293,7 @@ function ProductCombobox({
           aria-autocomplete="list"
           aria-expanded={open}
           aria-controls={listboxId}
-          aria-activedescendant={open && options[activeIndex] ? `${listboxId}-${options[activeIndex].value || "any"}` : undefined}
+          aria-activedescendant={open && options[activeIndex] ? `${listboxId}-${options[activeIndex].id}` : undefined}
           autoComplete="off"
           placeholder="Search food or drink products"
           value={inputValue}
@@ -329,31 +329,35 @@ function ProductCombobox({
       {open ? (
         <div className="product-combobox-menu">
           <div id={listboxId} role="listbox" aria-label="Product categories">
-            {options.map((option, index) => (
-              <button
-                id={`${listboxId}-${option.value || "any"}`}
-                key={option.value || "any"}
-                ref={(element) => { optionRefs.current[index] = element; }}
-                type="button"
-                role="option"
-                tabIndex={-1}
-                disabled={Boolean(option.value && facetCounts[option.value] === 0 && value !== option.value)}
-                aria-selected={value === option.value}
-                className={index === activeIndex ? "active" : undefined}
-                onMouseDown={(event) => event.preventDefault()}
-                onMouseEnter={() => { if (optionIsAvailable(option)) setActiveIndex(index); }}
-                onClick={() => { if (optionIsAvailable(option)) chooseOption(option); }}
-              >
-                <span>
-                  <strong>{option.label}</strong>
-                  <small>
-                    {option.description}
-                    {option.value ? ` · ${manufacturerCountLabel(facetCounts[option.value])}` : ""}
-                  </small>
-                </span>
-                {value === option.value ? <span className="product-option-check" aria-hidden="true">✓</span> : null}
-              </button>
-            ))}
+            {options.map((option, index) => {
+              const count = suggestionCount(option, facetCounts);
+              const selectedOption = selectionAppliesCurrentFilters(option, currentFilters);
+              return (
+                <button
+                  id={`${listboxId}-${option.id}`}
+                  key={option.id}
+                  ref={(element) => { optionRefs.current[index] = element; }}
+                  type="button"
+                  role="option"
+                  tabIndex={-1}
+                  disabled={!optionIsAvailable(option)}
+                  aria-selected={selectedOption}
+                  className={index === activeIndex ? "active" : undefined}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => { if (optionIsAvailable(option)) chooseOption(option); }}
+                  onMouseEnter={() => { if (optionIsAvailable(option)) setActiveIndex(index); }}
+                >
+                  <span>
+                    <strong>{option.label}</strong>
+                    <small>
+                      {option.description}
+                      {count !== null ? ` · ${manufacturerCountLabel(count)}` : ""}
+                    </small>
+                  </span>
+                  {selectedOption ? <span className="product-option-check" aria-hidden="true">✓</span> : null}
+                </button>
+              );
+            })}
           </div>
           {options.length === 0 ? <p role="status">No product categories match “{inputValue}”.</p> : null}
         </div>
@@ -391,6 +395,33 @@ export function DirectoryFilters({
   const productInputId = `${id}-category`;
   const showVerificationFilter = Boolean(verified) || Object.values(facetCounts.verified).some((count) => count !== facetCounts.verifiedAny);
 
+  function applyComboboxSelection(selection: ProductComboboxSelection) {
+    switch (selection.kind) {
+      case "category":
+        setCategory(selection.value);
+        return;
+      case "packaging":
+        setCategory("");
+        setPackaging(selection.value);
+        setAdvancedOpen(true);
+        return;
+      case "process":
+        setCategory("");
+        setProcess(selection.value);
+        setAdvancedOpen(true);
+        return;
+      case "operationType":
+        setCategory("");
+        setOperationType(selection.value);
+        setAdvancedOpen(true);
+        return;
+      default: {
+        const exhaustive: never = selection;
+        throw new Error(`Unhandled combobox selection: ${JSON.stringify(exhaustive)}`);
+      }
+    }
+  }
+
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const query: DirectoryQuery = {
@@ -425,7 +456,15 @@ export function DirectoryFilters({
       <div className="directory-search-primary">
         <div className="field">
           <label htmlFor={productInputId}>What are you making?</label>
-          <ProductCombobox id={productInputId} value={category} onChange={setCategory} facetCounts={facetCounts.categories} />
+          <ProductCombobox
+            id={productInputId}
+            category={category}
+            packaging={packaging}
+            process={process}
+            operationType={operationType}
+            onSelect={applyComboboxSelection}
+            facetCounts={facetCounts}
+          />
         </div>
         <div className="field">
           <label htmlFor={`${id}-state`}>Where?</label>
