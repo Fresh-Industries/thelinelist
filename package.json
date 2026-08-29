@@ -15,7 +15,8 @@
     "test:e2e": "playwright test",
     "test:workspace-smoke": "node scripts/smoke-product-workspace.mjs",
     "test:seo": "npm run build && node scripts/check-seo.mjs",
-    "manufacturers:import": "node scripts/import-manufacturers.mjs",
+    "manufacturers:dry-run": "node scripts/import-manufacturers.mjs --dry-run",
+    "manufacturers:import": "node scripts/import-manufacturers.mjs --apply",
     "manufacturers:check": "node scripts/import-manufacturers.mjs --check",
     "report:weekly": "node scripts/weekly-directory-report.mjs"
   },

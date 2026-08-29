@@ -87,6 +87,11 @@ export interface Plant {
   moqDisplay: string | null;
   /** True when the plant’s own site printed a numeric or stated MOQ. Not the small-MOQ guide membership. */
   publishedSmallMoq: boolean;
+  /** A public source explicitly states an MOQ, first-run, test-run, pilot-run, or small-run signal. */
+  smallRunSignal?: {
+    evidence: string;
+    sourceUrls: string[];
+  };
   certs: string[];
   lastVerified: string;
   /** Legacy curated records default to VERIFIED when this is absent. */
@@ -121,6 +126,7 @@ export interface DirectoryQuery {
   category?: import("./categories").ProductCategorySlug;
   process?: FinderProcess;
   smallMoq?: boolean;
+  smallRunSignal?: boolean;
   moqDisclosed?: boolean;
   packaging?: PackagingFilter;
   certification?: CertificationFilter;

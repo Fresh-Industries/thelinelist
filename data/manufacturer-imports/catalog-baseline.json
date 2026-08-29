@@ -1,0 +1,4988 @@
+{
+  "description": "Public catalog fields preserved from the 104-record production baseline before the full cleaned-batch import.",
+  "records": [
+    {
+      "masterDedupeKey": "acecopack|pomona|CA",
+      "plant": {
+        "slug": "acecopack",
+        "name": "AceCoPack",
+        "sites": [
+          {
+            "city": "Pomona",
+            "state": "CA"
+          }
+        ],
+        "locationDisplay": "Pomona, CA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "snacks"
+        ],
+        "packaging": "Pillow pouches 0.5-5 oz; stand-up pouches 2-10 oz; foodservice/bulk bags 3-7 lb",
+        "productTypesPublished": "Ready-to-eat popcorn; seasoned popcorn; caramel/gourmet popcorn",
+        "manufacturingCapabilitiesPublished": "Popcorn co-packing; private label; product development/test batching; storage and fulfillment (linked)",
+        "rawProductTags": [
+          "Ready-to-eat popcorn",
+          "seasoned popcorn",
+          "caramel/gourmet popcorn"
+        ],
+        "rawCapabilityTags": [
+          "Popcorn co-packing",
+          "private label",
+          "product development/test batching",
+          "storage and fulfillment (linked)"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://acecopack.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Specialty Food Resource listing",
+            "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+          }
+        ],
+        "phone": "310-564-6764",
+        "publicEmail": "jason@acecopack.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Ready-to-eat popcorn; seasoned popcorn; caramel/gourmet popcorn.",
+          "Public sources describe these capabilities: Popcorn co-packing; private label; product development/test batching; storage and fulfillment (linked)."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "actus nutrition|wautoma|WI",
+      "plant": {
+        "slug": "actus-nutrition",
+        "name": "Actus Nutrition",
+        "sites": [
+          {
+            "city": "Wautoma",
+            "state": "WI"
+          }
+        ],
+        "locationDisplay": "Wautoma, WI",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "supplements"
+        ],
+        "packaging": "Powder bottles and ready-to-mix formats; exact formats must be confirmed",
+        "productTypesPublished": "Protein powders; ready-to-mix beverages; sports nutrition; nutritional powders",
+        "manufacturingCapabilitiesPublished": "Custom formulation; private-label powder manufacturing; blending; powder bottling; application testing; commercial trials",
+        "rawProductTags": [
+          "Protein powders",
+          "ready-to-mix beverages",
+          "sports nutrition",
+          "nutritional powders"
+        ],
+        "rawCapabilityTags": [
+          "Custom formulation",
+          "private-label powder manufacturing",
+          "blending",
+          "powder bottling",
+          "application testing",
+          "commercial trials"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://actus.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "About",
+            "href": "https://actus.com/about/"
+          },
+          {
+            "label": "Private Label",
+            "href": "https://actus.com/private-label/"
+          },
+          {
+            "label": "Private Label Ready To Mix",
+            "href": "https://actus.com/private-label/private-label-ready-to-mix/"
+          }
+        ],
+        "phone": null,
+        "publicEmail": null,
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label-producer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://actus.com/about/",
+            "https://actus.com/private-label/",
+            "https://actus.com/private-label/private-label-ready-to-mix/"
+          ],
+          "processes": [
+            "https://actus.com/about/",
+            "https://actus.com/private-label/",
+            "https://actus.com/private-label/private-label-ready-to-mix/"
+          ],
+          "packaging": [
+            "https://actus.com/about/",
+            "https://actus.com/private-label/",
+            "https://actus.com/private-label/private-label-ready-to-mix/"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Protein powders; ready-to-mix beverages; sports nutrition; nutritional powders.",
+          "Public sources describe these capabilities: Custom formulation; private-label powder manufacturing; blending; powder bottling; application testing; commercial trials."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "alpenrose/smith brothers farm|clackamas|OR",
+      "plant": {
+        "slug": "alpenrose-dairy-smith-brothers-farm",
+        "name": "Alpenrose Dairy (Smith Brothers Farm)",
+        "sites": [
+          {
+            "city": "Clackamas",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Clackamas, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "dairy"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Milk; butter; sour cream; cottage cheese; ice cream mix; other dairy; private label/store brand",
+        "manufacturingCapabilitiesPublished": "Private label and store-brand dairy co-packaging",
+        "rawProductTags": [
+          "Milk",
+          "butter",
+          "sour cream",
+          "cottage cheese",
+          "ice cream mix",
+          "other dairy",
+          "private label/store brand"
+        ],
+        "rawCapabilityTags": [
+          "Private label and store-brand dairy co-packaging"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-24",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://alpenrose.com/co-package/"
+        },
+        "extraLinks": [
+          {
+            "label": "Company overview",
+            "href": "https://alpenrose.com/"
+          },
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          },
+          {
+            "label": "Ownership change announcement",
+            "href": "https://www.businesswire.com/news/home/20260414001359/en/Harry-Davis-Company-Facilitates-Sale-of-Alpenrose-Butter-Operations-to-Plant-Based-Innovations"
+          }
+        ],
+        "phone": "503-244-1133",
+        "publicEmail": "wholesale@alpenrose.com",
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label producer",
+        "needsCurrentOwnershipVerification": true,
+        "introductionsPaused": true,
+        "verificationNotice": "Current ownership or operating details need verification. Contact help is paused until the active operating entity, capabilities, and public contact details are confirmed.",
+        "overview": [
+          "Public sources list these products: Milk; butter; sour cream; cottage cheese; ice cream mix; other dairy; private label/store brand.",
+          "Public sources describe these capabilities: Private label and store-brand dairy co-packaging."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "american noodle inc.|portland|OR",
+      "plant": {
+        "slug": "america-s-foods-inc-american-noodle-inc",
+        "name": "America's Foods, Inc. (American Noodle Inc.)",
+        "sites": [
+          {
+            "city": "Portland",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Portland, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "spices-dry-mixes"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Tea; spices; sauces; dry and liquid products; noodles/meats (brand catalog)",
+        "manufacturingCapabilitiesPublished": "Co-packing; cold packing; hot packing; formulation; bottling; labeling",
+        "rawProductTags": [
+          "Tea",
+          "spices",
+          "sauces",
+          "dry and liquid products",
+          "noodles/meats (brand catalog)"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing",
+          "cold packing",
+          "hot packing",
+          "formulation",
+          "bottling",
+          "labeling"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.americasfoodsinc.com/services.php"
+        },
+        "extraLinks": [
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "503-284-6818",
+        "publicEmail": "rayfew@gmail.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Tea; spices; sauces; dry and liquid products; noodles/meats (brand catalog).",
+          "Public sources describe these capabilities: Co-packing; cold packing; hot packing; formulation; bottling; labeling."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "arty's premium beverages|clintonville|WI",
+      "plant": {
+        "slug": "arty-s-premium-beverages-flooid",
+        "name": "Arty's Premium Beverages / FLOOID",
+        "sites": [
+          {
+            "city": "Clintonville",
+            "state": "WI"
+          }
+        ],
+        "locationDisplay": "Clintonville, WI",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [],
+        "packaging": "Bottles; cans",
+        "productTypesPublished": "Beverages (bottles and cans); small to medium brand beverage runs",
+        "manufacturingCapabilitiesPublished": "Beverage co-packing; recipe scaling; brand development; Co-Source dedicated lines; Steady State inventory/production management",
+        "rawProductTags": [
+          "Beverages (bottles and cans)",
+          "small to medium brand beverage runs"
+        ],
+        "rawCapabilityTags": [
+          "Beverage co-packing",
+          "recipe scaling",
+          "brand development",
+          "Co-Source dedicated lines",
+          "Steady State inventory/production management"
+        ],
+        "moqDisplay": "The company promotes ‘On The Money Minimums’ but does not publish a numeric minimum.",
+        "publishedSmallMoq": false,
+        "certs": [
+          "GMP food-grade facilities (claimed on solutions page)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.drinkartys.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Solutions",
+            "href": "https://www.drinkartys.com/solutions"
+          },
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.drinkartys.com/services-1"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Wisconsin.php"
+          }
+        ],
+        "phone": "(920) 527-1092",
+        "publicEmail": "customerservice@drinkartys.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Beverages (bottles and cans); small to medium brand beverage runs.",
+          "Public sources describe these capabilities: Beverage co-packing; recipe scaling; brand development; Co-Source dedicated lines; Steady State inventory/production management."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "assemblers inc|chicago|IL",
+      "plant": {
+        "slug": "assemblers-inc",
+        "name": "Assemblers, Inc.",
+        "sites": [
+          {
+            "city": "Chicago",
+            "state": "IL"
+          }
+        ],
+        "locationDisplay": "Chicago, IL",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "snacks",
+          "bakery",
+          "confectionery",
+          "spices-dry-mixes"
+        ],
+        "packaging": "Bottles; pouches; VFFS; HFFS; rigid containers; vacuum; shrink; tray seal; clamshell",
+        "productTypesPublished": "Energy and protein bars; popcorn and snacks; baked goods; liquids; confections; shelf-stable meat packing; spices/condiments",
+        "manufacturingCapabilitiesPublished": "Primary food manufacturing; co-pack and co-manufacture; liquid filling; secondary packaging and POP assembly",
+        "rawProductTags": [
+          "Energy and protein bars",
+          "popcorn and snacks",
+          "baked goods",
+          "liquids",
+          "confections",
+          "shelf-stable meat packing",
+          "spices/condiments"
+        ],
+        "rawCapabilityTags": [
+          "Primary food manufacturing",
+          "co-pack and co-manufacture",
+          "liquid filling",
+          "secondary packaging and POP assembly"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF",
+          "organic certified handling",
+          "kosher",
+          "Non-GMO",
+          "FDA registered",
+          "FSMA",
+          "USDA",
+          "alcohol handling licensed"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://assemblers.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Specialty Food Resource listing",
+            "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+          }
+        ],
+        "phone": "773-378-3000",
+        "publicEmail": "jed@assemblers.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Energy and protein bars; popcorn and snacks; baked goods; liquids; confections; shelf-stable meat packing; spices/condiments.",
+          "Public sources describe these capabilities: Primary food manufacturing; co-pack and co-manufacture; liquid filling; secondary packaging and POP assembly."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "at last! gourmet foods|minneapolis|MN",
+      "plant": {
+        "slug": "at-last-gourmet-foods",
+        "name": "At Last! Gourmet Foods",
+        "sites": [
+          {
+            "city": "Minneapolis",
+            "state": "MN"
+          }
+        ],
+        "locationDisplay": "Minneapolis, MN",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades",
+          "dips-hummus",
+          "soups-broths-entrees"
+        ],
+        "packaging": "Heat-and-serve pouches 8 oz to 10 lb; cups; retail pouches",
+        "productTypesPublished": "Soups; sauces; marinades; dips; spreads; bone broths; stocks; hummus; braised meats; pies",
+        "manufacturingCapabilitiesPublished": "Private label production; co-manufacturing; custom formulation; product development; ingredient sourcing; flexible batch sizes",
+        "rawProductTags": [
+          "Soups",
+          "sauces",
+          "marinades",
+          "dips",
+          "spreads",
+          "bone broths",
+          "stocks",
+          "hummus",
+          "braised meats",
+          "pies"
+        ],
+        "rawCapabilityTags": [
+          "Private label production",
+          "co-manufacturing",
+          "custom formulation",
+          "product development",
+          "ingredient sourcing",
+          "flexible batch sizes"
+        ],
+        "moqDisplay": "The Minnesota Department of Agriculture co-packer directory lists a one-pallet minimum (1,200 pounds).",
+        "publishedSmallMoq": true,
+        "certs": [
+          "USDA inspected",
+          "USDA certified organic",
+          "SQF Level II"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.atlastgourmetfoods.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.atlastgourmetfoods.com/products"
+          },
+          {
+            "label": "Solutions",
+            "href": "https://www.atlastgourmetfoods.com/solutions"
+          },
+          {
+            "label": "mda.state.mn.us — Minnesota Co Packer Directory",
+            "href": "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+          }
+        ],
+        "phone": "(612) 724-1634",
+        "publicEmail": "info@atlastgourmetfoods.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Soups; sauces; marinades; dips; spreads; bone broths; stocks; hummus; braised meats; pies.",
+          "Public sources describe these capabilities: Private label production; co-manufacturing; custom formulation; product development; ingredient sourcing; flexible batch sizes."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "bake & joy foods, inc.|north andover|MA",
+      "plant": {
+        "slug": "bake-n-joy-foods-inc",
+        "name": "Bake'n Joy Foods, Inc.",
+        "sites": [
+          {
+            "city": "North Andover",
+            "state": "MA"
+          }
+        ],
+        "locationDisplay": "North Andover, MA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "bakery",
+          "frozen-foods"
+        ],
+        "packaging": "Predeposited frozen formats; freezer-to-oven; scoop-and-bake; mixes; private label coffee cakes and retail thaw-serve",
+        "productTypesPublished": "Frozen muffin/cornbread/loaf batters; mixes and bases; thaw-and-serve cupcakes/whoopie shells/coffee cakes; fillings; icings; cookies",
+        "manufacturingCapabilitiesPublished": "Bakery manufacturing; private label product development; exclusive formula development for retail/QSR/foodservice; R&D and QC labs",
+        "rawProductTags": [
+          "Frozen muffin/cornbread/loaf batters",
+          "mixes and bases",
+          "thaw-and-serve cupcakes/whoopie shells/coffee cakes",
+          "fillings",
+          "icings",
+          "cookies"
+        ],
+        "rawCapabilityTags": [
+          "Bakery manufacturing",
+          "private label product development",
+          "exclusive formula development for retail/QSR/foodservice",
+          "R&D and QC labs"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF certified",
+          "full HACCP program (claimed on Manufacturing page)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.bakenjoy.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.bakenjoy.com/about/manufacturing/"
+          }
+        ],
+        "phone": "978-683-1414",
+        "publicEmail": "productinfo@bakenjoy.com",
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label producer",
+        "overview": [
+          "Public sources list these products: Frozen muffin/cornbread/loaf batters; mixes and bases; thaw-and-serve cupcakes/whoopie shells/coffee cakes; fillings; icings; cookies.",
+          "Public sources describe these capabilities: Bakery manufacturing; private label product development; exclusive formula development for retail/QSR/foodservice; R&D and QC labs."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "bally plus|garland|TX",
+      "plant": {
+        "slug": "bally-plus-food-solutions-garland-ventures",
+        "name": "Bally Plus Food Solutions (Garland Ventures)",
+        "sites": [
+          {
+            "city": "Garland",
+            "state": "TX"
+          }
+        ],
+        "locationDisplay": "Garland, TX",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "soups-broths-entrees"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Sauces; soups; grab-and-go meals; meal kits",
+        "manufacturingCapabilitiesPublished": "Sauce and food manufacturing; co-packing; recipe development; ingredient sourcing",
+        "rawProductTags": [
+          "Sauces",
+          "soups",
+          "grab-and-go meals",
+          "meal kits"
+        ],
+        "rawCapabilityTags": [
+          "Sauce and food manufacturing",
+          "co-packing",
+          "recipe development",
+          "ingredient sourcing"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "USDA",
+          "FDA",
+          "SQF Level 2 (claimed on site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://ballyplus.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "About",
+            "href": "https://ballyplus.com/about/"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Texas.php"
+          }
+        ],
+        "phone": "(972) 485-8878",
+        "publicEmail": "garymurphy@ballyplus.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Sauces; soups; grab-and-go meals; meal kits.",
+          "Public sources describe these capabilities: Sauce and food manufacturing; co-packing; recipe development; ingredient sourcing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "barhyte foods, inc.|pendleton|OR",
+      "plant": {
+        "slug": "barhyte-specialty-foods-suzie-s-organics",
+        "name": "Barhyte Specialty Foods (Suzie's Organics)",
+        "sites": [
+          {
+            "city": "Pendleton",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Pendleton, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Condiments; mustards; salad dressings; wing sauces; shelf-stable non-cooked products",
+        "manufacturingCapabilitiesPublished": "Private label; name-drop program; co-packing of client condiment recipes",
+        "rawProductTags": [
+          "Condiments",
+          "mustards",
+          "salad dressings",
+          "wing sauces",
+          "shelf-stable non-cooked products"
+        ],
+        "rawCapabilityTags": [
+          "Private label",
+          "name-drop program",
+          "co-packing of client condiment recipes"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.suziesorganics.com/program-opportunities"
+        },
+        "extraLinks": [
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "503-691-7858",
+        "publicEmail": "sales@barhyte.com",
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label producer",
+        "overview": [
+          "Public sources list these products: Condiments; mustards; salad dressings; wing sauces; shelf-stable non-cooked products.",
+          "Public sources describe these capabilities: Private label; name-drop program; co-packing of client condiment recipes."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "beaverton foods, inc.|hillsboro|OR",
+      "plant": {
+        "slug": "beaverton-foods-inc",
+        "name": "Beaverton Foods, Inc.",
+        "sites": [
+          {
+            "city": "Hillsboro",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Hillsboro, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "salsa"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Mustards; horseradish; specialty condiments; sauces; salsas",
+        "manufacturingCapabilitiesPublished": "Co-packing opportunities; private label (third-party profiles); specialty condiment manufacturing",
+        "rawProductTags": [
+          "Mustards",
+          "horseradish",
+          "specialty condiments",
+          "sauces",
+          "salsas"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing opportunities",
+          "private label (third-party profiles)",
+          "specialty condiment manufacturing"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://beavertonfoods.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Contact",
+            "href": "https://beavertonfoods.com/contact/"
+          },
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "(503) 646-8138",
+        "publicEmail": "customerservice@beavertonfoods.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Mustards; horseradish; specialty condiments; sauces; salsas.",
+          "Public sources describe these capabilities: Co-packing opportunities; private label (third-party profiles); specialty condiment manufacturing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "bec copackers|slidell|LA",
+      "plant": {
+        "slug": "bec-copackers-bec-beverage-llc",
+        "name": "BEC CoPackers (BEC Beverage, LLC)",
+        "sites": [
+          {
+            "city": "Slidell",
+            "state": "LA"
+          }
+        ],
+        "locationDisplay": "Slidell, LA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "sports-hydration",
+          "juice"
+        ],
+        "packaging": "PET bottles 12 to 34 oz with 38 mm caps",
+        "productTypesPublished": "Hydration and sports drinks; specialty teas and juices; flavored waters; beverages",
+        "manufacturingCapabilitiesPublished": "Beverage formulation; co-packing; PET bottle filling; R&D and test kitchen; QA",
+        "rawProductTags": [
+          "Hydration and sports drinks",
+          "specialty teas and juices",
+          "flavored waters",
+          "beverages"
+        ],
+        "rawCapabilityTags": [
+          "Beverage formulation",
+          "co-packing",
+          "PET bottle filling",
+          "R&D and test kitchen",
+          "QA"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "BRCGS (site states AA+ annual audit rating)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.beccopackers.com"
+        },
+        "extraLinks": [
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Louisiana.php"
+          }
+        ],
+        "phone": "(985) 326-8385",
+        "publicEmail": "michelle@beccopackers.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Hydration and sports drinks; specialty teas and juices; flavored waters; beverages.",
+          "Public sources describe these capabilities: Beverage formulation; co-packing; PET bottle filling; R&D and test kitchen; QA."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "better beverage company|bend|OR",
+      "plant": {
+        "slug": "better-beverage-company",
+        "name": "Better Beverage Company",
+        "sites": [
+          {
+            "city": "Bend",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Bend, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "soda",
+          "energy-drink",
+          "sports-hydration",
+          "functional-beverages",
+          "juice",
+          "fermented-foods"
+        ],
+        "packaging": "Kegs; glass bottles; cans; trays; paperboard cartons; corrugated boxes; variety packs",
+        "productTypesPublished": "Fermented beverages; non-fermented beverages; energy drinks; functional beverages; hydration drinks; juice-based drinks; hard cider; tea; kombucha; seltzer; soda",
+        "manufacturingCapabilitiesPublished": "Custom fermentation; carbonation; mixing; blending; flavoring; product development; pilot runs; pasteurization; warehousing; fulfillment",
+        "rawProductTags": [
+          "Fermented beverages",
+          "non-fermented beverages",
+          "energy drinks",
+          "functional beverages",
+          "hydration drinks",
+          "juice-based drinks",
+          "hard cider",
+          "tea",
+          "kombucha",
+          "seltzer",
+          "soda"
+        ],
+        "rawCapabilityTags": [
+          "Custom fermentation",
+          "carbonation",
+          "mixing",
+          "blending",
+          "flavoring",
+          "product development",
+          "pilot runs",
+          "pasteurization",
+          "warehousing",
+          "fulfillment"
+        ],
+        "moqDisplay": "Small and large batch runs; no numeric minimum published",
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF certified",
+          "FDA registered facility",
+          "certified organic by Oregon Tilth",
+          "allergen-free facility"
+        ],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://betterbeveragecompany.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "About Us",
+            "href": "https://betterbeveragecompany.com/about-us/"
+          },
+          {
+            "label": "Services and capabilities",
+            "href": "https://betterbeveragecompany.com/capabilities/"
+          }
+        ],
+        "phone": null,
+        "publicEmail": "Wade@BetterBeverageCompany.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://betterbeveragecompany.com/about-us/",
+            "https://betterbeveragecompany.com/capabilities/"
+          ],
+          "processes": [
+            "https://betterbeveragecompany.com/about-us/",
+            "https://betterbeveragecompany.com/capabilities/"
+          ],
+          "packaging": [
+            "https://betterbeveragecompany.com/about-us/",
+            "https://betterbeveragecompany.com/capabilities/"
+          ],
+          "minimums": [
+            "https://betterbeveragecompany.com/about-us/",
+            "https://betterbeveragecompany.com/capabilities/"
+          ],
+          "certifications": [
+            "https://betterbeveragecompany.com/about-us/",
+            "https://betterbeveragecompany.com/capabilities/"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Fermented beverages; non-fermented beverages; energy drinks; functional beverages; hydration drinks; juice-based drinks; hard cider; tea; kombucha; seltzer; soda.",
+          "Public sources describe these capabilities: Custom fermentation; carbonation; mixing; blending; flavoring; product development; pilot runs; pasteurization; warehousing; fulfillment."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "beer dudes canning|denton|TX",
+      "plant": {
+        "slug": "bevpro-solutions-formerly-beer-dudes-canning",
+        "name": "BevPro Solutions (formerly Beer Dudes Canning)",
+        "sites": [
+          {
+            "city": "Denton",
+            "state": "TX"
+          }
+        ],
+        "locationDisplay": "Denton, TX",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "functional-beverages"
+        ],
+        "packaging": "Standard cans; sleek cans; disposable kegs; digital printed cans",
+        "productTypesPublished": "Alcohol; wine-based; spirit-based; THC and hemp-derived beverages; RTD; functional beverages",
+        "manufacturingCapabilitiesPublished": "Beverage co-packing; batching and blending; filling and canning; testing/compliance; packaging and shipping",
+        "rawProductTags": [
+          "Alcohol",
+          "wine-based",
+          "spirit-based",
+          "THC and hemp-derived beverages",
+          "RTD",
+          "functional beverages"
+        ],
+        "rawCapabilityTags": [
+          "Beverage co-packing",
+          "batching and blending",
+          "filling and canning",
+          "testing/compliance",
+          "packaging and shipping"
+        ],
+        "moqDisplay": "The company states that its standard batch size is 2,000 gallons.",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.bevprosolutions.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "beerdudescanning.com company overview",
+            "href": "https://www.beerdudescanning.com"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Texas.php"
+          }
+        ],
+        "phone": "(972) 454-4191",
+        "publicEmail": "info@bevprosolutions.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Alcohol; wine-based; spirit-based; THC and hemp-derived beverages; RTD; functional beverages.",
+          "Public sources describe these capabilities: Beverage co-packing; batching and blending; filling and canning; testing/compliance; packaging and shipping."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "boulder organic foods|niwot|CO",
+      "plant": {
+        "slug": "boulder-organic-foods-bolder-foods",
+        "name": "Boulder Organic Foods (Bolder Foods)",
+        "sites": [
+          {
+            "city": "Niwot",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Niwot, CO",
+        "processes": [
+          "kettle"
+        ],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "dips-hummus",
+          "prepared-refrigerated-foods",
+          "soups-broths-entrees"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Fresh soups; sauces; dips; gravies; kettle-cooked refrigerated foods",
+        "manufacturingCapabilitiesPublished": "Open-kettle cooking; co-manufacturing / manufacturing partner for other brands; product development",
+        "rawProductTags": [
+          "Fresh soups",
+          "sauces",
+          "dips",
+          "gravies",
+          "kettle-cooked refrigerated foods"
+        ],
+        "rawCapabilityTags": [
+          "Open-kettle cooking",
+          "co-manufacturing / manufacturing partner for other brands",
+          "product development"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "Certified organic",
+          "gluten-free",
+          "GFSI-audited"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://boulderorganicfoods.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "bolderfoods.com — About Us",
+            "href": "https://www.bolderfoods.com/about-us"
+          },
+          {
+            "label": "Published co-packer directory",
+            "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
+          }
+        ],
+        "phone": "303-530-0470",
+        "publicEmail": "greg@boulderorganicfoods.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Fresh soups; sauces; dips; gravies; kettle-cooked refrigerated foods.",
+          "Public sources describe these capabilities: Open-kettle cooking; co-manufacturing / manufacturing partner for other brands; product development."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "california spice basket, inc.|burlingame|CA",
+      "plant": {
+        "slug": "california-spice-basket-inc",
+        "name": "California Spice Basket, Inc.",
+        "sites": [
+          {
+            "city": "Burlingame",
+            "state": "CA"
+          }
+        ],
+        "locationDisplay": "Burlingame, CA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "spices-dry-mixes",
+          "supplements"
+        ],
+        "packaging": "Dry food packaging (formats not itemized beyond dry packaging services)",
+        "productTypesPublished": "Custom spice blends; herbs and spices; dry mixes (cake/brownie/soup); powdered drink mixes; salt blends; coffee/chocolate/tea blends; cereals and rice mixes; dietary supplements (dry)",
+        "manufacturingCapabilitiesPublished": "Spice blending; dry-food co-packing; product scale-up for small local producers",
+        "rawProductTags": [
+          "Custom spice blends",
+          "herbs and spices",
+          "dry mixes (cake/brownie/soup)",
+          "powdered drink mixes",
+          "salt blends",
+          "coffee/chocolate/tea blends",
+          "cereals and rice mixes",
+          "dietary supplements (dry)"
+        ],
+        "rawCapabilityTags": [
+          "Spice blending",
+          "dry-food co-packing",
+          "product scale-up for small local producers"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "HACCP",
+          "Allergen Program",
+          "FDA Compliance",
+          "GMP",
+          "Kosher certified by local agency on request (claimed on certification page)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.caspicebasket.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.caspicebasket.com/co-packing.html"
+          },
+          {
+            "label": "Certifications and quality",
+            "href": "https://www.caspicebasket.com/safety-quality-certification.html"
+          },
+          {
+            "label": "Contact",
+            "href": "https://www.caspicebasket.com/contact.html"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-California.php"
+          }
+        ],
+        "phone": "(650) 771-6100",
+        "publicEmail": "dana@caspicebasket.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Custom spice blends; herbs and spices; dry mixes (cake/brownie/soup); powdered drink mixes; salt blends; coffee/chocolate/tea blends; cereals and rice mixes; dietary supplements (dry).",
+          "Public sources describe these capabilities: Spice blending; dry-food co-packing; product scale-up for small local producers."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "chesapeake bay snacks|baltimore|MD",
+      "plant": {
+        "slug": "chesapeake-bay-snacks",
+        "name": "Chesapeake Bay Snacks",
+        "sites": [
+          {
+            "city": "Baltimore",
+            "state": "MD"
+          }
+        ],
+        "locationDisplay": "Baltimore, MD",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "snacks"
+        ],
+        "packaging": "Round glass or plastic bottles; 4 oz to 1 gallon",
+        "productTypesPublished": "Syrups; sauces; ice cream toppings; similar shelf-stable liquids; popcorn/snacks via related brands",
+        "manufacturingCapabilitiesPublished": "Co-packing and private label for liquid products; tolling; cost-plus purchasing; dropshipping",
+        "rawProductTags": [
+          "Syrups",
+          "sauces",
+          "ice cream toppings",
+          "similar shelf-stable liquids",
+          "popcorn/snacks via related brands"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing and private label for liquid products",
+          "tolling",
+          "cost-plus purchasing",
+          "dropshipping"
+        ],
+        "moqDisplay": "Exact minimum not published. The company’s co-packing page states batch sizes from 50 to 500 gallons.",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.chesapeakebaysnacks.com"
+        },
+        "extraLinks": [
+          {
+            "label": "koldkiss.com — Co Packing",
+            "href": "https://koldkiss.com/pages/co-packing"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Maryland.php"
+          }
+        ],
+        "phone": "(410) 675-6675",
+        "publicEmail": "thad@chesapeakebaysnacks.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Syrups; sauces; ice cream toppings; similar shelf-stable liquids; popcorn/snacks via related brands.",
+          "Public sources describe these capabilities: Co-packing and private label for liquid products; tolling; cost-plus purchasing; dropshipping."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "colorado copacking company|longmont|CO",
+      "plant": {
+        "slug": "colorado-copacking-company",
+        "name": "Colorado Copacking Company",
+        "sites": [
+          {
+            "city": "Longmont",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Longmont, CO",
+        "processes": [
+          "kettle"
+        ],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Sauces; condiments; drinks; beverage mixes",
+        "manufacturingCapabilitiesPublished": "Co-packing; FDA facility; recipe development; test batches; ingredient sourcing; consulting; kettle cooking; emulsion/shear mixing; filling and labeling",
+        "rawProductTags": [
+          "Sauces",
+          "condiments",
+          "drinks",
+          "beverage mixes"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing",
+          "FDA facility",
+          "recipe development",
+          "test batches",
+          "ingredient sourcing",
+          "consulting",
+          "kettle cooking",
+          "emulsion/shear mixing",
+          "filling and labeling"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://coloradocopacker.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Published co-packer directory",
+            "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
+          }
+        ],
+        "phone": "303-834-8313",
+        "publicEmail": "info@coloradocopacker.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Sauces; condiments; drinks; beverage mixes.",
+          "Public sources describe these capabilities: Co-packing; FDA facility; recipe development; test batches; ingredient sourcing; consulting; kettle cooking; emulsion/shear mixing; filling and labeling."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "complete copack|sunrise|FL",
+      "plant": {
+        "slug": "complete-copack-kcupcopack",
+        "name": "Complete CoPack (Kcupcopack)",
+        "sites": [
+          {
+            "city": "Sunrise",
+            "state": "FL"
+          }
+        ],
+        "locationDisplay": "Sunrise, FL",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "dry-coffee-tea"
+        ],
+        "packaging": "Keurig-compatible K-Cups; tea pods; bags; pouches; stick packs; custom lids and retail cartons",
+        "productTypesPublished": "Coffee; tea; functional beverage pods; mushroom and fortified pods; dry ingredients",
+        "manufacturingCapabilitiesPublished": "K-Cup / single-serve co-packing; private label; nitrogen-flushed filling; pouch and related dry packing (per site)",
+        "rawProductTags": [
+          "Coffee",
+          "tea",
+          "functional beverage pods",
+          "mushroom and fortified pods",
+          "dry ingredients"
+        ],
+        "rawCapabilityTags": [
+          "K-Cup / single-serve co-packing",
+          "private label",
+          "nitrogen-flushed filling",
+          "pouch and related dry packing (per site)"
+        ],
+        "moqDisplay": "The company says minimums start at about 5,000 pods per SKU.",
+        "publishedSmallMoq": true,
+        "certs": [
+          "USDA certified organic facility"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://kcupcopack.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Specialty Food Resource listing",
+            "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+          }
+        ],
+        "phone": "888-585-5034",
+        "publicEmail": "info@kcupcopack.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Coffee; tea; functional beverage pods; mushroom and fortified pods; dry ingredients.",
+          "Public sources describe these capabilities: K-Cup / single-serve co-packing; private label; nitrogen-flushed filling; pouch and related dry packing (per site)."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "cornaby's specialty foods & co-packing|payson|UT",
+      "plant": {
+        "slug": "cornaby-s-specialty-foods-and-co-packing",
+        "name": "Cornaby's Specialty Foods & Co-Packing",
+        "sites": [
+          {
+            "city": "Payson",
+            "state": "UT"
+          }
+        ],
+        "locationDisplay": "Payson, UT",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "bakery",
+          "spices-dry-mixes",
+          "soups-broths-entrees"
+        ],
+        "packaging": "Glass and plastic jars/bottles; pouches; bulk; woozy bottles for hot sauce",
+        "productTypesPublished": "Jams; jellies; syrups; nut butters; bakery fillings; BBQ/hot/steak/oriental sauces; soups; dry mixes",
+        "manufacturingCapabilitiesPublished": "Food co-packing; private labeling; kettle cook; jar fill/cap; quick-cool soups; dry mix blending",
+        "rawProductTags": [
+          "Jams",
+          "jellies",
+          "syrups",
+          "nut butters",
+          "bakery fillings",
+          "BBQ/hot/steak/oriental sauces",
+          "soups",
+          "dry mixes"
+        ],
+        "rawCapabilityTags": [
+          "Food co-packing",
+          "private labeling",
+          "kettle cook",
+          "jar fill/cap",
+          "quick-cool soups",
+          "dry mix blending"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.cornabys.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://cornabys.com/food-co-packing-services/"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Utah.php"
+          }
+        ],
+        "phone": "(801) 754-4968",
+        "publicEmail": "sales@cornabys.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Jams; jellies; syrups; nut butters; bakery fillings; BBQ/hot/steak/oriental sauces; soups; dry mixes.",
+          "Public sources describe these capabilities: Food co-packing; private labeling; kettle cook; jar fill/cap; quick-cool soups; dry mix blending."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "craft cannery|bergen|NY",
+      "plant": {
+        "slug": "craft-cannery",
+        "name": "Craft Cannery",
+        "sites": [
+          {
+            "city": "Bergen",
+            "state": "NY"
+          }
+        ],
+        "locationDisplay": "Bergen, NY",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades"
+        ],
+        "packaging": "Bottling line (formats not itemized beyond bottling)",
+        "productTypesPublished": "Sauces; dressings; marinades; formulated acid and acidified foods",
+        "manufacturingCapabilitiesPublished": "Contract manufacturing; private labeling; co-packing; pilot/prototype; R&D; thermal processing; pH testing; small to mid-size batches",
+        "rawProductTags": [
+          "Sauces",
+          "dressings",
+          "marinades",
+          "formulated acid and acidified foods"
+        ],
+        "rawCapabilityTags": [
+          "Contract manufacturing",
+          "private labeling",
+          "co-packing",
+          "pilot/prototype",
+          "R&D",
+          "thermal processing",
+          "pH testing",
+          "small to mid-size batches"
+        ],
+        "moqDisplay": "No minimum is published. The company lists 40-gallon kettles for small or trial batches.",
+        "publishedSmallMoq": false,
+        "certs": [
+          "FDA",
+          "NY Ag & Markets",
+          "USDA",
+          "SQF (GFSI)",
+          "OK Kosher",
+          "Non-GMO",
+          "USDA Organic coming Jan 2026 (claimed)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.craftcannery.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "cals.cornell.edu university source",
+            "href": "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+          }
+        ],
+        "phone": "585-350-5788",
+        "publicEmail": "paul@craftcannery.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Sauces; dressings; marinades; formulated acid and acidified foods.",
+          "Public sources describe these capabilities: Contract manufacturing; private labeling; co-packing; pilot/prototype; R&D; thermal processing; pH testing; small to mid-size batches."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "crave copacking|verona|PA",
+      "plant": {
+        "slug": "crave-copacking",
+        "name": "Crave Copacking",
+        "sites": [
+          {
+            "city": "Verona",
+            "state": "PA"
+          }
+        ],
+        "locationDisplay": "Verona, PA",
+        "processes": [
+          "hot-fill",
+          "cold-fill",
+          "acidified"
+        ],
+        "finderProcesses": [
+          "hot-fill",
+          "cold-fill",
+          "acidified"
+        ],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "salsa",
+          "dressings-marinades"
+        ],
+        "packaging": "Jars; bottles",
+        "productTypesPublished": "Pickles; sauces; dressings; beverage mixes; salsas; jams; fillings; jarred foods",
+        "manufacturingCapabilitiesPublished": "Co-packing; recipe development; ingredient sourcing; acidified; cold fill; hot fill; shelf stable; sales/fulfillment support",
+        "rawProductTags": [
+          "Pickles",
+          "sauces",
+          "dressings",
+          "beverage mixes",
+          "salsas",
+          "jams",
+          "fillings",
+          "jarred foods"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing",
+          "recipe development",
+          "ingredient sourcing",
+          "acidified",
+          "cold fill",
+          "hot fill",
+          "shelf stable",
+          "sales/fulfillment support"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://cravecp.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "extension.psu.edu university source",
+            "href": "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+          },
+          {
+            "label": "cals.cornell.edu university source",
+            "href": "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+          }
+        ],
+        "phone": "925-808-1548",
+        "publicEmail": "trever@cravecp.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Pickles; sauces; dressings; beverage mixes; salsas; jams; fillings; jarred foods.",
+          "Public sources describe these capabilities: Co-packing; recipe development; ingredient sourcing; acidified; cold fill; hot fill; shelf stable; sales/fulfillment support."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "cross roots group|san diego|CA",
+      "plant": {
+        "slug": "cross-roots-group",
+        "name": "Cross Roots Group",
+        "sites": [
+          {
+            "city": "San Diego",
+            "state": "CA"
+          }
+        ],
+        "locationDisplay": "San Diego, CA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage",
+          "sauce"
+        ],
+        "categories": [
+          "cold-pressed-juice",
+          "juice",
+          "sauce"
+        ],
+        "packaging": "Glass bottles; jars and other formats subject to line review",
+        "productTypesPublished": "Cold-pressed juice; wellness tonics; honey; sauces",
+        "manufacturingCapabilitiesPublished": "Small-batch and mid-scale co-packing; white label; cold-press processing; formulation; ingredient sourcing; refrigerated storage; shipping support",
+        "rawProductTags": [
+          "Cold-pressed juice",
+          "wellness tonics",
+          "honey",
+          "sauces"
+        ],
+        "rawCapabilityTags": [
+          "Small-batch and mid-scale co-packing",
+          "white label",
+          "cold-press processing",
+          "formulation",
+          "ingredient sourcing",
+          "refrigerated storage",
+          "shipping support"
+        ],
+        "moqDisplay": "Flexible order quantities claimed; no numeric minimum published",
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.crossrootsgroup.com/"
+        },
+        "extraLinks": [],
+        "phone": "(858) 245-1678",
+        "publicEmail": "adam@crossrootsjuice.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://www.crossrootsgroup.com/"
+          ],
+          "processes": [
+            "https://www.crossrootsgroup.com/"
+          ],
+          "packaging": [
+            "https://www.crossrootsgroup.com/"
+          ],
+          "minimums": [
+            "https://www.crossrootsgroup.com/"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Cold-pressed juice; wellness tonics; honey; sauces.",
+          "Public sources describe these capabilities: Small-batch and mid-scale co-packing; white label; cold-press processing; formulation; ingredient sourcing; refrigerated storage; shipping support."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "curio sweets|houston|TX",
+      "plant": {
+        "slug": "curio-sweets",
+        "name": "Curio Sweets",
+        "sites": [
+          {
+            "city": "Houston",
+            "state": "TX"
+          }
+        ],
+        "locationDisplay": "Houston, TX",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "snacks",
+          "bakery",
+          "spices-dry-mixes"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Bars and bites; baked goods; granolas; dry mixes; human-grade pet treats (shelf-stable only)",
+        "manufacturingCapabilitiesPublished": "Product formulation; commercialization; small-batch commercial production; scale-up partner introductions",
+        "rawProductTags": [
+          "Bars and bites",
+          "baked goods",
+          "granolas",
+          "dry mixes",
+          "human-grade pet treats (shelf-stable only)"
+        ],
+        "rawCapabilityTags": [
+          "Product formulation",
+          "commercialization",
+          "small-batch commercial production",
+          "scale-up partner introductions"
+        ],
+        "moqDisplay": "Exact minimum not published. The company states small-batch runs of roughly 45–540 pounds of finished product per flavor.",
+        "publishedSmallMoq": true,
+        "certs": [
+          "FDA registered",
+          "cGMP compliant (claimed)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://curiosweets.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Texas.php"
+          }
+        ],
+        "phone": "(832) 840-4549",
+        "publicEmail": "contact@curiosweets.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Bars and bites; baked goods; granolas; dry mixes; human-grade pet treats (shelf-stable only).",
+          "Public sources describe these capabilities: Product formulation; commercialization; small-batch commercial production; scale-up partner introductions."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "dakpak solutions llc|woonsocket|SD",
+      "plant": {
+        "slug": "dakpak-solutions-llc",
+        "name": "DakPak Solutions LLC",
+        "sites": [
+          {
+            "city": "Woonsocket",
+            "state": "SD"
+          }
+        ],
+        "locationDisplay": "Woonsocket, SD",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "spices-dry-mixes",
+          "supplements"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Sports nutrition; protein/collagen supplements; dry blends; capsules",
+        "manufacturingCapabilitiesPublished": "Blending; encapsulation; filling; packaging; labeling; product development; distribution",
+        "rawProductTags": [
+          "Sports nutrition",
+          "protein/collagen supplements",
+          "dry blends",
+          "capsules"
+        ],
+        "rawCapabilityTags": [
+          "Blending",
+          "encapsulation",
+          "filling",
+          "packaging",
+          "labeling",
+          "product development",
+          "distribution"
+        ],
+        "moqDisplay": "The company states that it offers lower minimum quantities but does not publish an exact number.",
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF",
+          "Halal",
+          "Kosher",
+          "GMP",
+          "FDA compliant (claimed on site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://dakpaksolutions.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Specialty Food Resource listing",
+            "href": "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+          }
+        ],
+        "phone": "(605) 574-1715",
+        "publicEmail": "julieb@dakpaksolutions.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Sports nutrition; protein/collagen supplements; dry blends; capsules.",
+          "Public sources describe these capabilities: Blending; encapsulation; filling; packaging; labeling; product development; distribution."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "deland bakery, inc|deland|FL",
+      "plant": {
+        "slug": "deland-bakery-inc",
+        "name": "DeLand Bakery, INC",
+        "sites": [
+          {
+            "city": "DeLand",
+            "state": "FL"
+          }
+        ],
+        "locationDisplay": "DeLand, FL",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "snacks",
+          "bakery"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Breads; bagels; cookies; granola; grains and seeds; dehydrated fruits; nuts; specialty bakery",
+        "manufacturingCapabilitiesPublished": "Bakery co-packing; wholesale production; organic/gluten-free/vegan/pareve specialty baking",
+        "rawProductTags": [
+          "Breads",
+          "bagels",
+          "cookies",
+          "granola",
+          "grains and seeds",
+          "dehydrated fruits",
+          "nuts",
+          "specialty bakery"
+        ],
+        "rawCapabilityTags": [
+          "Bakery co-packing",
+          "wholesale production",
+          "organic/gluten-free/vegan/pareve specialty baking"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "USDA Organic",
+          "Non-GMO Project Verified",
+          "Certified Gluten Free (claimed on about)",
+          "Pareve"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.delandbakery.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://delandbakery.com/bakery-co-packing/"
+          },
+          {
+            "label": "About",
+            "href": "https://delandbakery.com/about/"
+          },
+          {
+            "label": "Contact",
+            "href": "https://delandbakery.com/contact/"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Florida.php"
+          }
+        ],
+        "phone": "(386) 734-7553",
+        "publicEmail": "contact@delandbakery.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Breads; bagels; cookies; granola; grains and seeds; dehydrated fruits; nuts; specialty bakery.",
+          "Public sources describe these capabilities: Bakery co-packing; wholesale production; organic/gluten-free/vegan/pareve specialty baking."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "epd, inc.|angleton|TX",
+      "plant": {
+        "slug": "epd-inc",
+        "name": "EPD, Inc.",
+        "sites": [
+          {
+            "city": "Angleton",
+            "state": "TX"
+          }
+        ],
+        "locationDisplay": "Angleton, TX",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [],
+        "packaging": null,
+        "productTypesPublished": "Specialty food; beverage; nutritional powders and liquids",
+        "manufacturingCapabilitiesPublished": "Blending; powder filling; liquid filling; co-packaging; allergen management; testing; inventory management",
+        "rawProductTags": [
+          "Specialty food",
+          "beverage",
+          "nutritional powders and liquids"
+        ],
+        "rawCapabilityTags": [
+          "Blending",
+          "powder filling",
+          "liquid filling",
+          "co-packaging",
+          "allergen management",
+          "testing",
+          "inventory management"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.epdinc.org"
+        },
+        "extraLinks": [
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Texas.php"
+          }
+        ],
+        "phone": "(979) 849-9633",
+        "publicEmail": "joseph@epdinc.org",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Specialty food; beverage; nutritional powders and liquids.",
+          "Public sources describe these capabilities: Blending; powder filling; liquid filling; co-packaging; allergen management; testing; inventory management."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "fatboy foods|medford|MA",
+      "plant": {
+        "slug": "fatboy-foods",
+        "name": "FATBOY Foods",
+        "sites": [
+          {
+            "city": "Medford",
+            "state": "MA"
+          }
+        ],
+        "locationDisplay": "Medford, MA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce"
+        ],
+        "packaging": "Retail jars; foodservice formats; flexible pouches (directory)",
+        "productTypesPublished": "Sauces for retail and foodservice",
+        "manufacturingCapabilitiesPublished": "Small to large batch co-packing; private label bottling; labeling and packaging support; no competing own-brand products (per site)",
+        "rawProductTags": [
+          "Sauces for retail and foodservice"
+        ],
+        "rawCapabilityTags": [
+          "Small to large batch co-packing",
+          "private label bottling",
+          "labeling and packaging support",
+          "no competing own-brand products (per site)"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "USDA-certified facility (per site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.fbfoods.com"
+        },
+        "extraLinks": [
+          {
+            "label": "jaryoursauce.com company overview",
+            "href": "https://www.jaryoursauce.com/"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Massachusetts.php"
+          }
+        ],
+        "phone": "(617) 335-4468",
+        "publicEmail": "karl@fbfoods.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Sauces for retail and foodservice.",
+          "Public sources describe these capabilities: Small to large batch co-packing; private label bottling; labeling and packaging support; no competing own-brand products (per site)."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "fish ski provisions|alcalde|NM",
+      "plant": {
+        "slug": "fishski-provisions",
+        "name": "FishSki Provisions",
+        "sites": [
+          {
+            "city": "Alcalde",
+            "state": "NM"
+          }
+        ],
+        "locationDisplay": "Alcalde, NM",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "spices-dry-mixes"
+        ],
+        "packaging": "Pouches via VFFS; packs from about 1 oz to 10 lb",
+        "productTypesPublished": "Dry meals; spices; pasta; meal kits; cereals; nuts; coffee; tea; Hatch chile mac and grits (own brand plus co-pack)",
+        "manufacturingCapabilitiesPublished": "Dry ingredient co-packing; co-branding; private label; ingredient/packaging sourcing; recipe development and cost analysis; blending; branding/package design",
+        "rawProductTags": [
+          "Dry meals",
+          "spices",
+          "pasta",
+          "meal kits",
+          "cereals",
+          "nuts",
+          "coffee",
+          "tea",
+          "Hatch chile mac and grits (own brand plus co-pack)"
+        ],
+        "rawCapabilityTags": [
+          "Dry ingredient co-packing",
+          "co-branding",
+          "private label",
+          "ingredient/packaging sourcing",
+          "recipe development and cost analysis",
+          "blending",
+          "branding/package design"
+        ],
+        "moqDisplay": "The company lists 400 units or more on its co-packing and private-label page.",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://fishskiprovisions.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Company overview",
+            "href": "https://fishskiprovisions.com/"
+          },
+          {
+            "label": "Services and capabilities",
+            "href": "https://fishskiprovisions.com/pages/co-packing-and-private-label"
+          }
+        ],
+        "phone": "720-442-0814",
+        "publicEmail": "fishski@fishskiprovisions.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Dry meals; spices; pasta; meal kits; cereals; nuts; coffee; tea; Hatch chile mac and grits (own brand plus co-pack).",
+          "Public sources describe these capabilities: Dry ingredient co-packing; co-branding; private label; ingredient/packaging sourcing; recipe development and cost analysis; blending; branding/package design."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "foremother foods, llc|boulder|CO",
+      "plant": {
+        "slug": "foremother-foods-llc-picaflor",
+        "name": "Foremother Foods, LLC (Picaflor)",
+        "sites": [
+          {
+            "city": "Boulder",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Boulder, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "spices-dry-mixes",
+          "fermented-foods"
+        ],
+        "packaging": "Glass woozy bottles; glass spice jars",
+        "productTypesPublished": "Lacto-fermented sauces; fermented vegetables; dehydrated herbs and spices",
+        "manufacturingCapabilitiesPublished": "Small-batch fermentation co-packing; raw processing; dehydration; high-touch small batch (per directory)",
+        "rawProductTags": [
+          "Lacto-fermented sauces",
+          "fermented vegetables",
+          "dehydrated herbs and spices"
+        ],
+        "rawCapabilityTags": [
+          "Small-batch fermentation co-packing",
+          "raw processing",
+          "dehydration",
+          "high-touch small batch (per directory)"
+        ],
+        "moqDisplay": "A Colorado co-packer directory lists batch sizes of 500 pounds for raw processing, 300 pounds for bulk fermentation, and 50 pounds for dehydration.",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "LISTABLE",
+        "claimSource": "directory-reported",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.picaflor.co/"
+        },
+        "extraLinks": [
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Colorado.php"
+          },
+          {
+            "label": "Published co-packer directory PDF",
+            "href": "https://www.pickyourown.org/cottagefood/Colorado%20Co%20Pack%20Directory_2019.pdf"
+          }
+        ],
+        "phone": "(720) 442-3816",
+        "publicEmail": "picaflorculture@gmail.com",
+        "operationType": "brand-with-co-pack",
+        "operationTypePublished": "brand with co-pack mention",
+        "overview": [
+          "Public sources list these products: Lacto-fermented sauces; fermented vegetables; dehydrated herbs and spices.",
+          "Public sources describe these capabilities: Small-batch fermentation co-packing; raw processing; dehydration; high-touch small batch (per directory)."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "freshies food corporation|peyton|CO",
+      "plant": {
+        "slug": "freshies-food-corporation",
+        "name": "Freshies Food Corporation",
+        "sites": [
+          {
+            "city": "Denver",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Denver, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "hot-sauce",
+          "sauce"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Cocktail mixes; hot sauces; BBQ sauce; cocktail rimming blends",
+        "manufacturingCapabilitiesPublished": "Private label and product development for cocktail mixes, hot sauces, and rimming blends",
+        "rawProductTags": [
+          "Cocktail mixes",
+          "hot sauces",
+          "BBQ sauce",
+          "cocktail rimming blends"
+        ],
+        "rawCapabilityTags": [
+          "Private label and product development for cocktail mixes, hot sauces, and rimming blends"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://freshies.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "About",
+            "href": "https://freshies.com/about/"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Colorado.php"
+          }
+        ],
+        "phone": "(303) 382-1805",
+        "publicEmail": "sales@freshies.com",
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label producer",
+        "overview": [
+          "Public sources list these products: Cocktail mixes; hot sauces; BBQ sauce; cocktail rimming blends.",
+          "Public sources describe these capabilities: Private label and product development for cocktail mixes, hot sauces, and rimming blends."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "fuel kitchens|pueblo|CO",
+      "plant": {
+        "slug": "fuel-kitchens",
+        "name": "Fuel Kitchens",
+        "sites": [
+          {
+            "city": "Pueblo",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Pueblo, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "dips-hummus",
+          "spices-dry-mixes",
+          "dairy",
+          "soups-broths-entrees"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Sauces and condiments; dairy dips; jarred acidified soups; dry spice blends; syrups; jams; honey repack",
+        "manufacturingCapabilitiesPublished": "Co-manufacturing (tolling); test batching; shared commissary kitchen membership; packaging/labeling using client-supplied materials",
+        "rawProductTags": [
+          "Sauces and condiments",
+          "dairy dips",
+          "jarred acidified soups",
+          "dry spice blends",
+          "syrups",
+          "jams",
+          "honey repack"
+        ],
+        "rawCapabilityTags": [
+          "Co-manufacturing (tolling)",
+          "test batching",
+          "shared commissary kitchen membership",
+          "packaging/labeling using client-supplied materials"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "FDA compliant (claimed on co-manufacturing page)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.fuelkitchens.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.fuelkitchens.com/co-manufacturing"
+          },
+          {
+            "label": "Published co-packer directory",
+            "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
+          }
+        ],
+        "phone": "719-545-0155",
+        "publicEmail": "nathan@fuelkitchens.com",
+        "operationType": "shared-kitchen-incubator",
+        "operationTypePublished": "shared kitchen/incubator",
+        "overview": [
+          "Public sources list these products: Sauces and condiments; dairy dips; jarred acidified soups; dry spice blends; syrups; jams; honey repack.",
+          "Public sources describe these capabilities: Co-manufacturing (tolling); test batching; shared commissary kitchen membership; packaging/labeling using client-supplied materials."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "hemp acres|waconia|MN",
+      "plant": {
+        "slug": "hemp-acres",
+        "name": "Hemp Acres",
+        "sites": [
+          {
+            "city": "Waconia",
+            "state": "MN"
+          }
+        ],
+        "locationDisplay": "Waconia, MN",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [],
+        "packaging": null,
+        "productTypesPublished": "Hemp seed oil; hemp hearts; hulls; protein powder/pellets; other hemp grain ingredients; tolling for sunflower/flax/canola and similar oilseeds",
+        "manufacturingCapabilitiesPublished": "Grain receiving/cleaning; expeller press; milling/sifting; dehulling; custom blending; oil refining/bleaching; co-packing dry powder/oils/other liquids; tolling/contract manufacturing",
+        "rawProductTags": [
+          "Hemp seed oil",
+          "hemp hearts",
+          "hulls",
+          "protein powder/pellets",
+          "other hemp grain ingredients",
+          "tolling for sunflower/flax/canola and similar oilseeds"
+        ],
+        "rawCapabilityTags": [
+          "Grain receiving/cleaning",
+          "expeller press",
+          "milling/sifting",
+          "dehulling",
+          "custom blending",
+          "oil refining/bleaching",
+          "co-packing dry powder/oils/other liquids",
+          "tolling/contract manufacturing"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.hempacresusa.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.hempacresusa.com/pages/tolling-services"
+          },
+          {
+            "label": "About Us",
+            "href": "https://www.hempacresusa.com/pages/about-us"
+          }
+        ],
+        "phone": "612-230-9150",
+        "publicEmail": "sales@hempacresusa.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Hemp seed oil; hemp hearts; hulls; protein powder/pellets; other hemp grain ingredients; tolling for sunflower/flax/canola and similar oilseeds.",
+          "Public sources describe these capabilities: Grain receiving/cleaning; expeller press; milling/sifting; dehulling; custom blending; oil refining/bleaching; co-packing dry powder/oils/other liquids; tolling/contract manufacturing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "jaspen's inc.|monroe|WA",
+      "plant": {
+        "slug": "jaspen-s-inc",
+        "name": "Jaspen's Inc.",
+        "sites": [
+          {
+            "city": "Monroe",
+            "state": "WA"
+          }
+        ],
+        "locationDisplay": "Monroe, WA",
+        "processes": [
+          "pack-out"
+        ],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "snacks",
+          "confectionery"
+        ],
+        "packaging": "Flexible packaging formats; pouch/pillow-style snack packs (per site capabilities)",
+        "productTypesPublished": "Popcorn; roasted nuts; chocolate/non-chocolate panned products; specialty and extruded snacks",
+        "manufacturingCapabilitiesPublished": "Contract manufacturing; co-packing; packaging and custom pack-out; labeling; case packing; palletizing",
+        "rawProductTags": [
+          "Popcorn",
+          "roasted nuts",
+          "chocolate/non-chocolate panned products",
+          "specialty and extruded snacks"
+        ],
+        "rawCapabilityTags": [
+          "Contract manufacturing",
+          "co-packing",
+          "packaging and custom pack-out",
+          "labeling",
+          "case packing",
+          "palletizing"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF Certified Facility",
+          "HACCP",
+          "FDA Registered",
+          "Kosher Certified",
+          "Non-GMO Capable (claimed on site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.jaspens.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "360-294-8406",
+        "publicEmail": "jeremy@jaspens.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Popcorn; roasted nuts; chocolate/non-chocolate panned products; specialty and extruded snacks.",
+          "Public sources describe these capabilities: Contract manufacturing; co-packing; packaging and custom pack-out; labeling; case packing; palletizing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "kim's gourmet sauces|hotchkiss|CO",
+      "plant": {
+        "slug": "kim-s-gourmet-sauces",
+        "name": "Kim's Gourmet Sauces",
+        "sites": [
+          {
+            "city": "Castle Rock",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Castle Rock, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "hot-sauce",
+          "sauce",
+          "dressings-marinades"
+        ],
+        "packaging": "Pouches; glass; gallons (flexible packaging options stated)",
+        "productTypesPublished": "Sauces; dressings; pickles; condiments; BBQ and hot sauces; mixes",
+        "manufacturingCapabilitiesPublished": "Co-packing; co-manufacturing; R&D; recipe scale-up; warehousing and fulfillment; flexible batch sizes",
+        "rawProductTags": [
+          "Sauces",
+          "dressings",
+          "pickles",
+          "condiments",
+          "BBQ and hot sauces",
+          "mixes"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing",
+          "co-manufacturing",
+          "R&D",
+          "recipe scale-up",
+          "warehousing and fulfillment",
+          "flexible batch sizes"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.kimsgourmet.com"
+        },
+        "extraLinks": [
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Colorado.php"
+          }
+        ],
+        "phone": "(303) 961-5911",
+        "publicEmail": "info@kimsgourmet.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Sauces; dressings; pickles; condiments; BBQ and hot sauces; mixes.",
+          "Public sources describe these capabilities: Co-packing; co-manufacturing; R&D; recipe scale-up; warehousing and fulfillment; flexible batch sizes."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "landmark foods|denver|CO",
+      "plant": {
+        "slug": "landmark-foods",
+        "name": "Landmark Foods",
+        "sites": [
+          {
+            "city": "Denver",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Denver, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "spices-dry-mixes"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Beverages; oils; dry mixes; dry blends",
+        "manufacturingCapabilitiesPublished": "Contract beverage bottling; oil bottling; dry mixing; dry packaging",
+        "rawProductTags": [
+          "Beverages",
+          "oils",
+          "dry mixes",
+          "dry blends"
+        ],
+        "rawCapabilityTags": [
+          "Contract beverage bottling",
+          "oil bottling",
+          "dry mixing",
+          "dry packaging"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "FDA registered",
+          "certified organic by Colorado Department of Agriculture",
+          "HACCP training",
+          "GMP program"
+        ],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.landmarkfoods.net/home.html"
+        },
+        "extraLinks": [
+          {
+            "label": "Bottling.Html",
+            "href": "https://www.landmarkfoods.net/bottling.html"
+          },
+          {
+            "label": "Dry Mixing.Html",
+            "href": "https://www.landmarkfoods.net/dry_mixing.html"
+          }
+        ],
+        "phone": null,
+        "publicEmail": null,
+        "operationType": "contract-packager",
+        "operationTypePublished": "contract-packager",
+        "fieldSourceUrls": {
+          "products": [
+            "https://www.landmarkfoods.net/home.html",
+            "https://www.landmarkfoods.net/bottling.html",
+            "https://www.landmarkfoods.net/dry_mixing.html"
+          ],
+          "processes": [
+            "https://www.landmarkfoods.net/home.html",
+            "https://www.landmarkfoods.net/bottling.html",
+            "https://www.landmarkfoods.net/dry_mixing.html"
+          ],
+          "certifications": [
+            "https://www.landmarkfoods.net/home.html",
+            "https://www.landmarkfoods.net/bottling.html",
+            "https://www.landmarkfoods.net/dry_mixing.html"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Beverages; oils; dry mixes; dry blends.",
+          "Public sources describe these capabilities: Contract beverage bottling; oil bottling; dry mixing; dry packaging."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "mad wills food company|auburn|CA",
+      "plant": {
+        "slug": "mad-will-s-food-company",
+        "name": "Mad Will's Food Company",
+        "sites": [
+          {
+            "city": "Auburn",
+            "state": "CA"
+          }
+        ],
+        "locationDisplay": "Auburn, CA",
+        "processes": [
+          "acidified"
+        ],
+        "finderProcesses": [
+          "acidified"
+        ],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades"
+        ],
+        "packaging": "Glass; bottles",
+        "productTypesPublished": "Sauces; condiments; marinades; dressings; fruit toppings",
+        "manufacturingCapabilitiesPublished": "Co-packing; private label; recipe scale-up; test batches; acidified foods (pH under 4.6); product development",
+        "rawProductTags": [
+          "Sauces",
+          "condiments",
+          "marinades",
+          "dressings",
+          "fruit toppings"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing",
+          "private label",
+          "recipe scale-up",
+          "test batches",
+          "acidified foods (pH under 4.6)",
+          "product development"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.madwills.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.madwills.com/co-packing"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-California.php"
+          }
+        ],
+        "phone": "(530) 823-8527",
+        "publicEmail": "scott@madwills.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Sauces; condiments; marinades; dressings; fruit toppings.",
+          "Public sources describe these capabilities: Co-packing; private label; recipe scale-up; test batches; acidified foods (pH under 4.6); product development."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "mama vida inc.|randallstown|MD",
+      "plant": {
+        "slug": "mama-vida-inc",
+        "name": "Mama Vida Inc.",
+        "sites": [
+          {
+            "city": "Randallstown",
+            "state": "MD"
+          }
+        ],
+        "locationDisplay": "Randallstown, MD",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "salsa"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Gourmet marinara and sauces; salsas (incl. blue crab salsa); private label sauces; own brands Mama Vida / Toto's Authentic / Don Vito",
+        "manufacturingCapabilitiesPublished": "Private label and co-packing (40+ years claimed); culturally accurate recipe production without preservatives/chemical additives",
+        "rawProductTags": [
+          "Gourmet marinara and sauces",
+          "salsas (incl. blue crab salsa)",
+          "private label sauces",
+          "own brands Mama Vida / Toto's Authentic / Don Vito"
+        ],
+        "rawCapabilityTags": [
+          "Private label and co-packing (40+ years claimed)",
+          "culturally accurate recipe production without preservatives/chemical additives"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://mamavida.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Company overview",
+            "href": "https://mamavida.com/"
+          },
+          {
+            "label": "About",
+            "href": "https://mamavida.com/about/"
+          }
+        ],
+        "phone": "410-521-0742",
+        "publicEmail": "Bessy@mamavida.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Gourmet marinara and sauces; salsas (incl. blue crab salsa); private label sauces; own brands Mama Vida / Toto's Authentic / Don Vito.",
+          "Public sources describe these capabilities: Private label and co-packing (40+ years claimed); culturally accurate recipe production without preservatives/chemical additives."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "motovotano llc|anacortes|WA",
+      "plant": {
+        "slug": "motovotano-llc",
+        "name": "Motovotano LLC",
+        "sites": [
+          {
+            "city": "Anacortes",
+            "state": "WA"
+          }
+        ],
+        "locationDisplay": "Anacortes, WA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "spices-dry-mixes",
+          "dry-coffee-tea"
+        ],
+        "packaging": "Pyramid tea bags; individually wrapped tea bags; bulk; cased",
+        "productTypesPublished": "Loose leaf tea; herbal blends; dry goods packaging",
+        "manufacturingCapabilitiesPublished": "Custom co-packing; blending; product development; pyramid tea bags; individually wrapped tea bags; bulk filling; labeling and coding; casing; metal detection",
+        "rawProductTags": [
+          "Loose leaf tea",
+          "herbal blends",
+          "dry goods packaging"
+        ],
+        "rawCapabilityTags": [
+          "Custom co-packing",
+          "blending",
+          "product development",
+          "pyramid tea bags",
+          "individually wrapped tea bags",
+          "bulk filling",
+          "labeling and coding",
+          "casing",
+          "metal detection"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "GMP certified food safety system",
+          "Organic Certified (claimed on site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.motovotano.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Contact",
+            "href": "https://www.motovotano.com/contact-us"
+          },
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "360-399-1096",
+        "publicEmail": "james@motovotano.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Loose leaf tea; herbal blends; dry goods packaging.",
+          "Public sources describe these capabilities: Custom co-packing; blending; product development; pyramid tea bags; individually wrapped tea bags; bulk filling; labeling and coding; casing; metal detection."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "muirhead canning company|the dalles|OR",
+      "plant": {
+        "slug": "muirhead-canning-company",
+        "name": "Muirhead Canning Company",
+        "sites": [
+          {
+            "city": "The Dalles",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "The Dalles, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce"
+        ],
+        "packaging": "Cans; jars",
+        "productTypesPublished": "Canned fruit; applesauce; fruit butter; jams/preserves; freeze-dried fruit; maple syrup",
+        "manufacturingCapabilitiesPublished": "Custom canning for orchards/fruit stands/farmers; custom jam and preserves; wholesale freeze-drying (from 2026); recipe customization; label design referral",
+        "rawProductTags": [
+          "Canned fruit",
+          "applesauce",
+          "fruit butter",
+          "jams/preserves",
+          "freeze-dried fruit",
+          "maple syrup"
+        ],
+        "rawCapabilityTags": [
+          "Custom canning for orchards/fruit stands/farmers",
+          "custom jam and preserves",
+          "wholesale freeze-drying (from 2026)",
+          "recipe customization",
+          "label design referral"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.muirheadcanning.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Customcanningandfreezedrying",
+            "href": "https://www.muirheadcanning.com/customcanningandfreezedrying"
+          },
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "541-298-1660",
+        "publicEmail": "info@muirheadcanning.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Canned fruit; applesauce; fruit butter; jams/preserves; freeze-dried fruit; maple syrup.",
+          "Public sources describe these capabilities: Custom canning for orchards/fruit stands/farmers; custom jam and preserves; wholesale freeze-drying (from 2026); recipe customization; label design referral."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "neu spice and seasoning llc|washington|NC",
+      "plant": {
+        "slug": "neuspice-and-seasoning-llc",
+        "name": "NeuSpice & Seasoning, LLC",
+        "sites": [
+          {
+            "city": "Washington",
+            "state": "NC"
+          }
+        ],
+        "locationDisplay": "Washington, NC",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades",
+          "dips-hummus",
+          "spices-dry-mixes"
+        ],
+        "packaging": "Plastic and dry shelf formats (details inquire)",
+        "productTypesPublished": "Custom spice blends; dry soup bases; seasonings; BBQ rubs; gravy and salad mixes; dressings/dips/sauces mixes for retail and foodservice",
+        "manufacturingCapabilitiesPublished": "Small-batch custom spice blending; recipe development from scratch or existing formulas; packaging for retail/foodservice/manufacturers",
+        "rawProductTags": [
+          "Custom spice blends",
+          "dry soup bases",
+          "seasonings",
+          "BBQ rubs",
+          "gravy and salad mixes",
+          "dressings/dips/sauces mixes for retail and foodservice"
+        ],
+        "rawCapabilityTags": [
+          "Small-batch custom spice blending",
+          "recipe development from scratch or existing formulas",
+          "packaging for retail/foodservice/manufacturers"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://neuspice.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "About",
+            "href": "https://neuspice.com/about/"
+          },
+          {
+            "label": "Contact",
+            "href": "https://neuspice.com/contact/"
+          }
+        ],
+        "phone": "(252) 378-7912",
+        "publicEmail": "flavor@neuspice.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Custom spice blends; dry soup bases; seasonings; BBQ rubs; gravy and salad mixes; dressings/dips/sauces mixes for retail and foodservice.",
+          "Public sources describe these capabilities: Small-batch custom spice blending; recipe development from scratch or existing formulas; packaging for retail/foodservice/manufacturers."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "noel canning and bottling|yakima|WA",
+      "plant": {
+        "slug": "noel-canning-and-bottling",
+        "name": "Noel Canning and Bottling",
+        "sites": [
+          {
+            "city": "Yakima",
+            "state": "WA"
+          }
+        ],
+        "locationDisplay": "Yakima, WA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "soda",
+          "energy-drink",
+          "water"
+        ],
+        "packaging": "Cans (7.5oz, 12oz, 12oz sleek, 16oz); PET bottles 500mL to 2L; multipacks and shrink wrap",
+        "productTypesPublished": "Soft drinks; alcoholic beverages; energy drinks; water; carbonated and non-carbonated beverages",
+        "manufacturingCapabilitiesPublished": "Beverage co-packing; canning; PET bottling; alcohol blending/packaging (TTB and WA LCB licensed); QA lab testing",
+        "rawProductTags": [
+          "Soft drinks",
+          "alcoholic beverages",
+          "energy drinks",
+          "water",
+          "carbonated and non-carbonated beverages"
+        ],
+        "rawCapabilityTags": [
+          "Beverage co-packing",
+          "canning",
+          "PET bottling",
+          "alcohol blending/packaging (TTB and WA LCB licensed)",
+          "QA lab testing"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "FSSC 22000 (AIB)",
+          "USDA-certified organic processor (claimed on facility page)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://noelcopack.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://noelcopack.com/services/"
+          },
+          {
+            "label": "Facility",
+            "href": "https://noelcopack.com/our-facility/"
+          },
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "509-248-4545",
+        "publicEmail": "sales@noelcorp.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Soft drinks; alcoholic beverages; energy drinks; water; carbonated and non-carbonated beverages.",
+          "Public sources describe these capabilities: Beverage co-packing; canning; PET bottling; alcohol blending/packaging (TTB and WA LCB licensed); QA lab testing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "northwest co-packing|seattle|WA",
+      "plant": {
+        "slug": "northwest-co-packing",
+        "name": "Northwest Co-packing",
+        "sites": [
+          {
+            "city": "Seattle",
+            "state": "WA"
+          }
+        ],
+        "locationDisplay": "Seattle, WA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "dry-coffee-tea"
+        ],
+        "packaging": "K-Cups; portion packs; custom coffee packaging options",
+        "productTypesPublished": "Coffee; K-Cups; portion packs; private label coffee",
+        "manufacturingCapabilitiesPublished": "Coffee co-packing; K-Cup filling; portion packs; private label; toll roasting partner options; flexible runs",
+        "rawProductTags": [
+          "Coffee",
+          "K-Cups",
+          "portion packs",
+          "private label coffee"
+        ],
+        "rawCapabilityTags": [
+          "Coffee co-packing",
+          "K-Cup filling",
+          "portion packs",
+          "private label",
+          "toll roasting partner options",
+          "flexible runs"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.nwcopack.com/"
+        },
+        "extraLinks": [],
+        "phone": "206-920-9048",
+        "publicEmail": "nick@nwcopack.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Coffee; K-Cups; portion packs; private label coffee.",
+          "Public sources describe these capabilities: Coffee co-packing; K-Cup filling; portion packs; private label; toll roasting partner options; flexible runs."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "northwest gourmet foods|renton|WA",
+      "plant": {
+        "slug": "northwest-gourmet-foods",
+        "name": "Northwest Gourmet Foods",
+        "sites": [
+          {
+            "city": "Renton",
+            "state": "WA"
+          }
+        ],
+        "locationDisplay": "Renton, WA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades",
+          "soups-broths-entrees"
+        ],
+        "packaging": "Portion cups (3/4 oz to 4 oz); pouches (2 oz to 8 lb); gallons; pails; bag-in-box; drums; totes; retail jars 8-32 oz PET or glass",
+        "productTypesPublished": "Mayonnaise; salad dressings; sauces; marinades; soups",
+        "manufacturingCapabilitiesPublished": "R&D/custom formulation; manufacturing; private label; co-pack; fresh refrigerated; shelf-stable; cooked hot-filled; label/nutrition support",
+        "rawProductTags": [
+          "Mayonnaise",
+          "salad dressings",
+          "sauces",
+          "marinades",
+          "soups"
+        ],
+        "rawCapabilityTags": [
+          "R&D/custom formulation",
+          "manufacturing",
+          "private label",
+          "co-pack",
+          "fresh refrigerated",
+          "shelf-stable",
+          "cooked hot-filled",
+          "label/nutrition support"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "HACCP compliant",
+          "GMP",
+          "annual third-party audit (claimed on Services page)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.nwgourmetfoods.com/pages/services"
+        },
+        "extraLinks": [
+          {
+            "label": "Contact",
+            "href": "https://www.nwgourmetfoods.com/pages/contact"
+          }
+        ],
+        "phone": "425-793-5001",
+        "publicEmail": null,
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Mayonnaise; salad dressings; sauces; marinades; soups.",
+          "Public sources describe these capabilities: R&D/custom formulation; manufacturing; private label; co-pack; fresh refrigerated; shelf-stable; cooked hot-filled; label/nutrition support."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "oregon fruit products llc|salem|OR",
+      "plant": {
+        "slug": "oregon-fruit-products-llc",
+        "name": "Oregon Fruit Products LLC",
+        "sites": [
+          {
+            "city": "Salem",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Salem, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "juice"
+        ],
+        "packaging": "Aseptic boxes; drums; totes; retail packs",
+        "productTypesPublished": "Fruit purees; juices; concentrates; aseptic fruit ingredients; canned fruit",
+        "manufacturingCapabilitiesPublished": "Private label custom fruit collaborations; industrial fruit processing; recipe ideation",
+        "rawProductTags": [
+          "Fruit purees",
+          "juices",
+          "concentrates",
+          "aseptic fruit ingredients",
+          "canned fruit"
+        ],
+        "rawCapabilityTags": [
+          "Private label custom fruit collaborations",
+          "industrial fruit processing",
+          "recipe ideation"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://oregonfruit.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Private Label",
+            "href": "https://oregonfruit.com/pages/private-label"
+          },
+          {
+            "label": "Industrial",
+            "href": "https://oregonfruit.com/pages/industrial"
+          },
+          {
+            "label": "Oregon co-packer locator",
+            "href": "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+          }
+        ],
+        "phone": "503-581-6211",
+        "publicEmail": "GabinoG@oregonfruit.com",
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label producer",
+        "overview": [
+          "Public sources list these products: Fruit purees; juices; concentrates; aseptic fruit ingredients; canned fruit.",
+          "Public sources describe these capabilities: Private label custom fruit collaborations; industrial fruit processing; recipe ideation."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "oregon hill farm|st. helens|OR",
+      "plant": {
+        "slug": "oregon-hill-farms",
+        "name": "Oregon Hill Farms",
+        "sites": [
+          {
+            "city": "St. Helens",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "St. Helens, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce"
+        ],
+        "packaging": "Retail jars; foodservice 1/2-gallon jugs to 3.5-gallon pails; 275-gallon vinegar totes by special order",
+        "productTypesPublished": "Fruit jams and syrups; apple butters; barbecue sauces; bar mixers; honey; foodservice sizes",
+        "manufacturingCapabilitiesPublished": "Co-packing; white labeling / private labeling; wholesale; foodservice; in-house product development; small-batch to bulk",
+        "rawProductTags": [
+          "Fruit jams and syrups",
+          "apple butters",
+          "barbecue sauces",
+          "bar mixers",
+          "honey",
+          "foodservice sizes"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing",
+          "white labeling / private labeling",
+          "wholesale",
+          "foodservice",
+          "in-house product development",
+          "small-batch to bulk"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.oregonhill.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.oregonhill.com/co-packing"
+          }
+        ],
+        "phone": "503-397-2791",
+        "publicEmail": "info@oregonhill.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Fruit jams and syrups; apple butters; barbecue sauces; bar mixers; honey; foodservice sizes.",
+          "Public sources describe these capabilities: Co-packing; white labeling / private labeling; wholesale; foodservice; in-house product development; small-batch to bulk."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "oregon spice company|portland|OR",
+      "plant": {
+        "slug": "oregon-spice-company",
+        "name": "Oregon Spice Company",
+        "sites": [
+          {
+            "city": "Portland",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Portland, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "spices-dry-mixes"
+        ],
+        "packaging": "Plastic bottling; sealed bags; foodservice bottles (incl. 32 oz and 159 oz pinch grip); bulk herb/spice packs",
+        "productTypesPublished": "Herbs; spices; custom spice blends; foodservice and bulk spice products",
+        "manufacturingCapabilitiesPublished": "Custom blending; flavor duplication / R&D; batch pack and co-packing opportunities; automated packaging; private label",
+        "rawProductTags": [
+          "Herbs",
+          "spices",
+          "custom spice blends",
+          "foodservice and bulk spice products"
+        ],
+        "rawCapabilityTags": [
+          "Custom blending",
+          "flavor duplication / R&D",
+          "batch pack and co-packing opportunities",
+          "automated packaging",
+          "private label"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.oregonspice.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://www.oregonspice.com/services"
+          }
+        ],
+        "phone": "503-238-0664",
+        "publicEmail": "customerservice@oregonspice.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Herbs; spices; custom spice blends; foodservice and bulk spice products.",
+          "Public sources describe these capabilities: Custom blending; flavor duplication / R&D; batch pack and co-packing opportunities; automated packaging; private label."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "oregon trail mountain spring water|north powder|OR",
+      "plant": {
+        "slug": "oregon-trail-mountain-spring-water",
+        "name": "Oregon Trail Mountain Spring Water",
+        "sites": [
+          {
+            "city": "North Powder",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "North Powder, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "water"
+        ],
+        "packaging": "Custom-labeled bottles; sizes must be confirmed",
+        "productTypesPublished": "Private-label bottled spring water",
+        "manufacturingCapabilitiesPublished": "Spring-water bottling; custom label design; label printing",
+        "rawProductTags": [
+          "Private-label bottled spring water"
+        ],
+        "rawCapabilityTags": [
+          "Spring-water bottling",
+          "custom label design",
+          "label printing"
+        ],
+        "moqDisplay": "Company states no minimum order for custom-labeled bottled water",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://oregontrailmountainspringwater.com/index.html"
+        },
+        "extraLinks": [
+          {
+            "label": "Artdept.Htm",
+            "href": "https://oregontrailmountainspringwater.com/artdept.htm"
+          }
+        ],
+        "phone": "1-888-478-2900",
+        "publicEmail": null,
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label-producer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://oregontrailmountainspringwater.com/index.html",
+            "https://oregontrailmountainspringwater.com/artdept.htm"
+          ],
+          "processes": [
+            "https://oregontrailmountainspringwater.com/index.html",
+            "https://oregontrailmountainspringwater.com/artdept.htm"
+          ],
+          "packaging": [
+            "https://oregontrailmountainspringwater.com/index.html",
+            "https://oregontrailmountainspringwater.com/artdept.htm"
+          ],
+          "minimums": [
+            "https://oregontrailmountainspringwater.com/index.html",
+            "https://oregontrailmountainspringwater.com/artdept.htm"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Private-label bottled spring water.",
+          "Public sources describe these capabilities: Spring-water bottling; custom label design; label printing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "portland bottling company|portland|OR",
+      "plant": {
+        "slug": "portland-bottling-company",
+        "name": "Portland Bottling Company",
+        "sites": [
+          {
+            "city": "Portland",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Portland, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "soda",
+          "energy-drink",
+          "functional-beverages",
+          "juice",
+          "water"
+        ],
+        "packaging": "Aluminum cans in multiple sizes; 4-packs; 8-packs; 12-packs; 24-packs",
+        "productTypesPublished": "RTD beverages; energy drinks; functional beverages; juice-based drinks; sparkling water; carbonated beverages",
+        "manufacturingCapabilitiesPublished": "Beverage formulation support; can filling; secondary packaging; warehousing",
+        "rawProductTags": [
+          "RTD beverages",
+          "energy drinks",
+          "functional beverages",
+          "juice-based drinks",
+          "sparkling water",
+          "carbonated beverages"
+        ],
+        "rawCapabilityTags": [
+          "Beverage formulation support",
+          "can filling",
+          "secondary packaging",
+          "warehousing"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "FSSC 22000 certified",
+          "HACCP program"
+        ],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.portlandbottling.com/"
+        },
+        "extraLinks": [],
+        "phone": null,
+        "publicEmail": null,
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://www.portlandbottling.com/"
+          ],
+          "processes": [
+            "https://www.portlandbottling.com/"
+          ],
+          "packaging": [
+            "https://www.portlandbottling.com/"
+          ],
+          "certifications": [
+            "https://www.portlandbottling.com/"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: RTD beverages; energy drinks; functional beverages; juice-based drinks; sparkling water; carbonated beverages.",
+          "Public sources describe these capabilities: Beverage formulation support; can filling; secondary packaging; warehousing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "portland plant foods|wilsonville|OR",
+      "plant": {
+        "slug": "portland-plant-foods",
+        "name": "Portland Plant Foods",
+        "sites": [
+          {
+            "city": "Wilsonville",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Wilsonville, OR",
+        "processes": [
+          "hot-fill"
+        ],
+        "finderProcesses": [
+          "hot-fill"
+        ],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "dips-hummus",
+          "prepared-refrigerated-foods",
+          "shelf-stable-meals",
+          "soups-broths-entrees"
+        ],
+        "packaging": "Retail and food-service formats compatible with the filling line; exact formats must be confirmed",
+        "productTypesPublished": "Refrigerated prepared beans; hummus; soups; dips; sauces; acidified shelf-stable foods",
+        "manufacturingCapabilitiesPublished": "Private label; contract manufacturing; kettle and skillet cooking; pumping; hot fill; refrigerated production",
+        "rawProductTags": [
+          "Refrigerated prepared beans",
+          "hummus",
+          "soups",
+          "dips",
+          "sauces",
+          "acidified shelf-stable foods"
+        ],
+        "rawCapabilityTags": [
+          "Private label",
+          "contract manufacturing",
+          "kettle and skillet cooking",
+          "pumping",
+          "hot fill",
+          "refrigerated production"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.betterbeanco.com/private-label-services/"
+        },
+        "extraLinks": [],
+        "phone": null,
+        "publicEmail": "Keith@betterbeanco.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://www.betterbeanco.com/private-label-services/"
+          ],
+          "processes": [
+            "https://www.betterbeanco.com/private-label-services/"
+          ],
+          "packaging": [
+            "https://www.betterbeanco.com/private-label-services/"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Refrigerated prepared beans; hummus; soups; dips; sauces; acidified shelf-stable foods.",
+          "Public sources describe these capabilities: Private label; contract manufacturing; kettle and skillet cooking; pumping; hot fill; refrigerated production."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "premiere packaging partners, llc|waterbury|CT",
+      "plant": {
+        "slug": "premiere-packaging-partners-llc",
+        "name": "Premiere Packaging Partners, LLC",
+        "sites": [
+          {
+            "city": "Waterbury",
+            "state": "CT"
+          }
+        ],
+        "locationDisplay": "Waterbury, CT",
+        "processes": [
+          "hot-fill"
+        ],
+        "finderProcesses": [
+          "hot-fill"
+        ],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "spices-dry-mixes",
+          "fermented-foods"
+        ],
+        "packaging": "Glass bottles (7 standard bottle options stocked)",
+        "productTypesPublished": "Gourmet specialty foods; cocktail products; sauces and specialty fills; fermented foods; baked and dry goods",
+        "manufacturingCapabilitiesPublished": "Custom manufacturing; recipe development; hot pack; ambient fill; fermented foods; baking; dry pack; private label; warehousing and fulfillment",
+        "rawProductTags": [
+          "Gourmet specialty foods",
+          "cocktail products",
+          "sauces and specialty fills",
+          "fermented foods",
+          "baked and dry goods"
+        ],
+        "rawCapabilityTags": [
+          "Custom manufacturing",
+          "recipe development",
+          "hot pack",
+          "ambient fill",
+          "fermented foods",
+          "baking",
+          "dry pack",
+          "private label",
+          "warehousing and fulfillment"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "Organic certified",
+          "Star-K kosher",
+          "FDA inspected",
+          "GMP",
+          "HACCP",
+          "FSMA compliant",
+          "gluten-free",
+          "Project Non-GMO",
+          "vegan capable"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.ppp-foods.com"
+        },
+        "extraLinks": [
+          {
+            "label": "What We Do",
+            "href": "https://www.ppp-foods.com/what-we-do"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Connecticut.php"
+          }
+        ],
+        "phone": "(203) 437-8148",
+        "publicEmail": "orders@ppp-foods.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Gourmet specialty foods; cocktail products; sauces and specialty fills; fermented foods; baked and dry goods.",
+          "Public sources describe these capabilities: Custom manufacturing; recipe development; hot pack; ambient fill; fermented foods; baking; dry pack; private label; warehousing and fulfillment."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "prospectors llc|grand rapids|MI",
+      "plant": {
+        "slug": "prospectors-specialty-beverage",
+        "name": "Prospectors Specialty Beverage",
+        "sites": [
+          {
+            "city": "Caledonia",
+            "state": "MI"
+          }
+        ],
+        "locationDisplay": "Caledonia, MI",
+        "processes": [
+          "hot-fill",
+          "retort",
+          "cold-fill"
+        ],
+        "finderProcesses": [
+          "hot-fill",
+          "retort",
+          "cold-fill"
+        ],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "sports-hydration",
+          "juice",
+          "rtd-coffee-tea"
+        ],
+        "packaging": "PET; glass; bag-in-box; keg; cans; retort 12 oz sleek cans; bulk totes and barrels",
+        "productTypesPublished": "Cold brew coffee; RTD juices; teas; coffee; sports drinks; specialty beverages",
+        "manufacturingCapabilitiesPublished": "Private label; co-manufacturing; co-packing; hot fill; cold fill; low-acid retort; carbonation; nitro-dosing",
+        "rawProductTags": [
+          "Cold brew coffee",
+          "RTD juices",
+          "teas",
+          "coffee",
+          "sports drinks",
+          "specialty beverages"
+        ],
+        "rawCapabilityTags": [
+          "Private label",
+          "co-manufacturing",
+          "co-packing",
+          "hot fill",
+          "cold fill",
+          "low-acid retort",
+          "carbonation",
+          "nitro-dosing"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF certified"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.drinkprospectors.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Private Label",
+            "href": "https://www.drinkprospectors.com/private-label"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Michigan.php"
+          }
+        ],
+        "phone": "(616) 634-8260",
+        "publicEmail": "david@drinkprospectors.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Cold brew coffee; RTD juices; teas; coffee; sports drinks; specialty beverages.",
+          "Public sources describe these capabilities: Private label; co-manufacturing; co-packing; hot fill; cold fill; low-acid retort; carbonation; nitro-dosing."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "qualia specialty provisions|madison heights|MI",
+      "plant": {
+        "slug": "qualia-specialty-provisions",
+        "name": "Qualia Specialty Provisions",
+        "sites": [
+          {
+            "city": "Madison Heights",
+            "state": "MI"
+          }
+        ],
+        "locationDisplay": "Madison Heights, MI",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "spices-dry-mixes"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Spices; seasonings; teas; dry free-flowing ingredient blends",
+        "manufacturingCapabilitiesPublished": "Dry ingredient blending; co-packing; recipe formulation; private-label packaging",
+        "rawProductTags": [
+          "Spices",
+          "seasonings",
+          "teas",
+          "dry free-flowing ingredient blends"
+        ],
+        "rawCapabilityTags": [
+          "Dry ingredient blending",
+          "co-packing",
+          "recipe formulation",
+          "private-label packaging"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://qualiaprovisions.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Company overview",
+            "href": "https://qualiaprovisions.com/"
+          },
+          {
+            "label": "About Us",
+            "href": "https://www.qualiaprovisions.com/about-us"
+          },
+          {
+            "label": "Contact",
+            "href": "https://qualiaprovisions.com/contact-us"
+          }
+        ],
+        "phone": "(248) 930-2332",
+        "publicEmail": "hello@qualiaprovisions.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Spices; seasonings; teas; dry free-flowing ingredient blends.",
+          "Public sources describe these capabilities: Dry ingredient blending; co-packing; recipe formulation; private-label packaging."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "rainier foodworks|seattle|WA",
+      "plant": {
+        "slug": "rainier-foodworks",
+        "name": "Rainier FoodWorks",
+        "sites": [
+          {
+            "city": "Seattle",
+            "state": "WA"
+          }
+        ],
+        "locationDisplay": "Seattle, WA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [],
+        "packaging": null,
+        "productTypesPublished": "Food co-packing for small to medium food businesses (categories not detailed on site)",
+        "manufacturingCapabilitiesPublished": "Food co-packing; manufacturing; packaging; consulting",
+        "rawProductTags": [
+          "Food co-packing for small to medium food businesses (categories not detailed on site)"
+        ],
+        "rawCapabilityTags": [
+          "Food co-packing",
+          "manufacturing",
+          "packaging",
+          "consulting"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "LISTABLE",
+        "claimSource": "directory-reported",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.rainierfoodworks.com/"
+        },
+        "extraLinks": [],
+        "phone": "206-601-5132",
+        "publicEmail": "info@rainierfoodworks.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Food co-packing for small to medium food businesses (categories not detailed on site).",
+          "Public sources describe these capabilities: Food co-packing; manufacturing; packaging; consulting."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "rocky mountain food factory, inc.|englewood|CO",
+      "plant": {
+        "slug": "rocky-mountain-food-factory-inc",
+        "name": "Rocky Mountain Food Factory, Inc.",
+        "sites": [
+          {
+            "city": "Englewood",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Englewood, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades",
+          "bakery"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Salad dressings; baked goods (empanadas); meatloaf; ethnic and American ready-to-eat foods; sauces; meat fillings",
+        "manufacturingCapabilitiesPublished": "Recipe development; food manufacturing; co-packing; product scale-up; label/nutrition support",
+        "rawProductTags": [
+          "Salad dressings",
+          "baked goods (empanadas)",
+          "meatloaf",
+          "ethnic and American ready-to-eat foods",
+          "sauces",
+          "meat fillings"
+        ],
+        "rawCapabilityTags": [
+          "Recipe development",
+          "food manufacturing",
+          "co-packing",
+          "product scale-up",
+          "label/nutrition support"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF",
+          "HACCP",
+          "USDA/FDA inspected facility (claimed on site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.rockymtnfoodfactory.com"
+        },
+        "extraLinks": [
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Colorado.php"
+          }
+        ],
+        "phone": "(303) 761-3330",
+        "publicEmail": "mercedesrh@earthlink.net",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Salad dressings; baked goods (empanadas); meatloaf; ethnic and American ready-to-eat foods; sauces; meat fillings.",
+          "Public sources describe these capabilities: Recipe development; food manufacturing; co-packing; product scale-up; label/nutrition support."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "scale food labs|golden|CO",
+      "plant": {
+        "slug": "scale-food-labs",
+        "name": "Scale Food Labs",
+        "sites": [
+          {
+            "city": "Golden",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Golden, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "supplements"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Food; beverage; supplement concepts (formulation through manufacturing readiness)",
+        "manufacturingCapabilitiesPublished": "Strategy; product development/formulation; pilot and small-scale manufacturing; commercial ingredient sourcing; manufacturing readiness",
+        "rawProductTags": [
+          "Food",
+          "beverage",
+          "supplement concepts (formulation through manufacturing readiness)"
+        ],
+        "rawCapabilityTags": [
+          "Strategy",
+          "product development/formulation",
+          "pilot and small-scale manufacturing",
+          "commercial ingredient sourcing",
+          "manufacturing readiness"
+        ],
+        "moqDisplay": "The company says pilot and small-scale runs start at $3,500.",
+        "publishedSmallMoq": true,
+        "certs": [
+          "FDA-certified facility (claimed on site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.scalefoodlabs.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Contact",
+            "href": "https://www.scalefoodlabs.com/contact"
+          },
+          {
+            "label": "Published co-packer directory",
+            "href": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
+          }
+        ],
+        "phone": "973-767-9060",
+        "publicEmail": "hello@scalefoodlabs.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Food; beverage; supplement concepts (formulation through manufacturing readiness).",
+          "Public sources describe these capabilities: Strategy; product development/formulation; pilot and small-scale manufacturing; commercial ingredient sourcing; manufacturing readiness."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "silver state foods, inc.|denver|CO",
+      "plant": {
+        "slug": "silver-state-foods-inc",
+        "name": "Silver State Foods, Inc.",
+        "sites": [
+          {
+            "city": "Denver",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Denver, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "hot-sauce",
+          "sauce",
+          "salsa"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Pasta sauces; BBQ sauces; hot sauces; salsas; Italian foods (own brands plus co-pack)",
+        "manufacturingCapabilitiesPublished": "Co-packing; bringing customer products to market (capabilities brochure linked on Co-Packing page)",
+        "rawProductTags": [
+          "Pasta sauces",
+          "BBQ sauces",
+          "hot sauces",
+          "salsas",
+          "Italian foods (own brands plus co-pack)"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing",
+          "bringing customer products to market (capabilities brochure linked on Co-Packing page)"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.silverstatefoods.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Our Brands",
+            "href": "https://silverstatefoods.com/pages/our-brands"
+          },
+          {
+            "label": "Contact",
+            "href": "https://silverstatefoods.com/pages/contact"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Colorado.php"
+          }
+        ],
+        "phone": "(303) 433-3351",
+        "publicEmail": "Info@Silverstatefoods.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Pasta sauces; BBQ sauces; hot sauces; salsas; Italian foods (own brands plus co-pack).",
+          "Public sources describe these capabilities: Co-packing; bringing customer products to market (capabilities brochure linked on Co-Packing page)."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "st cousair|newberg|OR",
+      "plant": {
+        "slug": "st-cousair",
+        "name": "St. Cousair",
+        "sites": [
+          {
+            "city": "Newberg",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Newberg, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce"
+        ],
+        "packaging": "Glass jars; glass bottles; plastic food-service containers",
+        "productTypesPublished": "Jams; beverages; syrups; pasta sauce; foods and beverages for co-packing",
+        "manufacturingCapabilitiesPublished": "Product development; co-packing; glass and plastic filling; in-house R&D",
+        "rawProductTags": [
+          "Jams",
+          "beverages",
+          "syrups",
+          "pasta sauce",
+          "foods and beverages for co-packing"
+        ],
+        "rawCapabilityTags": [
+          "Product development",
+          "co-packing",
+          "glass and plastic filling",
+          "in-house R&D"
+        ],
+        "moqDisplay": "Four batches per flavor; examples include about 1,000 10 oz beverages per batch, 650 16 oz beverages per batch, or 880 12 oz pasta-sauce jars per batch",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.stcousair-oregon.com/copacking/"
+        },
+        "extraLinks": [
+          {
+            "label": "Info Form",
+            "href": "https://www.stcousair-oregon.com/2019/info-form/"
+          }
+        ],
+        "phone": null,
+        "publicEmail": null,
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://www.stcousair-oregon.com/copacking/",
+            "https://www.stcousair-oregon.com/2019/info-form/"
+          ],
+          "processes": [
+            "https://www.stcousair-oregon.com/copacking/",
+            "https://www.stcousair-oregon.com/2019/info-form/"
+          ],
+          "packaging": [
+            "https://www.stcousair-oregon.com/copacking/",
+            "https://www.stcousair-oregon.com/2019/info-form/"
+          ],
+          "minimums": [
+            "https://www.stcousair-oregon.com/copacking/",
+            "https://www.stcousair-oregon.com/2019/info-form/"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Jams; beverages; syrups; pasta sauce; foods and beverages for co-packing.",
+          "Public sources describe these capabilities: Product development; co-packing; glass and plastic filling; in-house R&D."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "summit beverage group|marion|VA",
+      "plant": {
+        "slug": "summit-beverage-group",
+        "name": "Summit Beverage Group",
+        "sites": [
+          {
+            "city": "Marion",
+            "state": "VA"
+          }
+        ],
+        "locationDisplay": "Marion, VA",
+        "processes": [
+          "hot-fill"
+        ],
+        "finderProcesses": [
+          "hot-fill"
+        ],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "functional-beverages"
+        ],
+        "packaging": "Glass or plastic bottles 8 to 32 oz; dome/PET/long-neck styles",
+        "productTypesPublished": "Functional beverages; hot-fill beverages",
+        "manufacturingCapabilitiesPublished": "Hot-fill bottling; shrink sleeve / roll-fed / pressure-sensitive labeling; trays and boxes; variety packs",
+        "rawProductTags": [
+          "Functional beverages",
+          "hot-fill beverages"
+        ],
+        "rawCapabilityTags": [
+          "Hot-fill bottling",
+          "shrink sleeve / roll-fed / pressure-sensitive labeling",
+          "trays and boxes",
+          "variety packs"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "Organic Certified (claimed on site)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.summitbeveragegroup.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "More Info",
+            "href": "https://www.summitbeveragegroup.com/more-info/"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Virginia.php"
+          }
+        ],
+        "phone": "(276) 781-0671",
+        "publicEmail": "geofsoares@aol.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Functional beverages; hot-fill beverages.",
+          "Public sources describe these capabilities: Hot-fill bottling; shrink sleeve / roll-fed / pressure-sensitive labeling; trays and boxes; variety packs."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "swift cider|portland|OR",
+      "plant": {
+        "slug": "swift-cider",
+        "name": "Swift Cider",
+        "sites": [
+          {
+            "city": "Portland",
+            "state": "OR"
+          }
+        ],
+        "locationDisplay": "Portland, OR",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "beverage"
+        ],
+        "categories": [
+          "soda"
+        ],
+        "packaging": "12 oz standard cans; 12 oz sleek cans; 16 oz standard cans; American Sanke D-style kegs",
+        "productTypesPublished": "Hard cider; wine; non-alcoholic carbonated beverages",
+        "manufacturingCapabilitiesPublished": "Beverage co-packing; carbonated can filling; keg filling",
+        "rawProductTags": [
+          "Hard cider",
+          "wine",
+          "non-alcoholic carbonated beverages"
+        ],
+        "rawCapabilityTags": [
+          "Beverage co-packing",
+          "carbonated can filling",
+          "keg filling"
+        ],
+        "moqDisplay": "930 gallons (30 barrels), approximately 400 cases of 12 oz cans or 300 cases of 16 oz cans",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-25",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.swiftcider.com/copacking"
+        },
+        "extraLinks": [],
+        "phone": "(503) 719-3402",
+        "publicEmail": "info@swiftcider.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "fieldSourceUrls": {
+          "products": [
+            "https://www.swiftcider.com/copacking"
+          ],
+          "processes": [
+            "https://www.swiftcider.com/copacking"
+          ],
+          "packaging": [
+            "https://www.swiftcider.com/copacking"
+          ],
+          "minimums": [
+            "https://www.swiftcider.com/copacking"
+          ]
+        },
+        "overview": [
+          "Public sources list these products: Hard cider; wine; non-alcoholic carbonated beverages.",
+          "Public sources describe these capabilities: Beverage co-packing; carbonated can filling; keg filling."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "tender heifer snack co.|hemet|CA",
+      "plant": {
+        "slug": "tender-heifer-snack-co",
+        "name": "Tender Heifer Snack Co.",
+        "sites": [
+          {
+            "city": "Hemet",
+            "state": "CA"
+          }
+        ],
+        "locationDisplay": "Hemet, CA",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "snacks",
+          "confectionery"
+        ],
+        "packaging": "Plastic",
+        "productTypesPublished": "Beef jerky; meat snacks; popcorn; candy",
+        "manufacturingCapabilitiesPublished": "Private label / white label snack program; product development support",
+        "rawProductTags": [
+          "Beef jerky",
+          "meat snacks",
+          "popcorn",
+          "candy"
+        ],
+        "rawCapabilityTags": [
+          "Private label / white label snack program",
+          "product development support"
+        ],
+        "moqDisplay": "The company states that jerky has low minimums but does not publish exact units.",
+        "publishedSmallMoq": false,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://tenderheifersnackco.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://tenderheifersnackco.com/services"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-California.php"
+          }
+        ],
+        "phone": "(925) 448-7778",
+        "publicEmail": "patti@smokehousejerkyco.com",
+        "operationType": "private-label-producer",
+        "operationTypePublished": "private-label producer",
+        "overview": [
+          "Public sources list these products: Beef jerky; meat snacks; popcorn; candy.",
+          "Public sources describe these capabilities: Private label / white label snack program; product development support."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "the organic food incubator|bloomfield|NJ",
+      "plant": {
+        "slug": "the-organic-food-incubator",
+        "name": "The Organic Food Incubator",
+        "sites": [
+          {
+            "city": "Bloomfield",
+            "state": "NJ"
+          }
+        ],
+        "locationDisplay": "Bloomfield, NJ",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce",
+          "prepared-rte"
+        ],
+        "categories": [
+          "sauce",
+          "soups-broths-entrees"
+        ],
+        "packaging": null,
+        "productTypesPublished": "Beverages; sauces; soups; powders and related CPG products",
+        "manufacturingCapabilitiesPublished": "Contract manufacturing; co-packing; product development; consulting; cooking, filling, and labeling",
+        "rawProductTags": [
+          "Beverages",
+          "sauces",
+          "soups",
+          "powders and related CPG products"
+        ],
+        "rawCapabilityTags": [
+          "Contract manufacturing",
+          "co-packing",
+          "product development",
+          "consulting",
+          "cooking, filling, and labeling"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF",
+          "USDA Organic"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://organicfoodincubator.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://organicfoodincubator.com/services"
+          },
+          {
+            "label": "extension.psu.edu university source",
+            "href": "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+          },
+          {
+            "label": "cals.cornell.edu university source",
+            "href": "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+          }
+        ],
+        "phone": "973-748-0111",
+        "publicEmail": "mikes@organicfoodincubator.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Beverages; sauces; soups; powders and related CPG products.",
+          "Public sources describe these capabilities: Contract manufacturing; co-packing; product development; consulting; cooking, filling, and labeling."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "to-go packs|rockbridge|OH",
+      "plant": {
+        "slug": "to-go-packs",
+        "name": "To-Go Packs",
+        "sites": [
+          {
+            "city": "Rockbridge",
+            "state": "OH"
+          }
+        ],
+        "locationDisplay": "Rockbridge, OH",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce"
+        ],
+        "packaging": "Portion control packs; sample packets; pouches; bottles; flexible packets 0.25 oz to 2 oz",
+        "productTypesPublished": "Sauces and condiments (portion packs and retail packs)",
+        "manufacturingCapabilitiesPublished": "Small-batch sauce production; recipe support; FDA compliance guidance; custom packaging; private labeling",
+        "rawProductTags": [
+          "Sauces and condiments (portion packs and retail packs)"
+        ],
+        "rawCapabilityTags": [
+          "Small-batch sauce production",
+          "recipe support",
+          "FDA compliance guidance",
+          "custom packaging",
+          "private labeling"
+        ],
+        "moqDisplay": "The company states that small-batch packet runs range from 15,000 to 500,000 packets.",
+        "publishedSmallMoq": true,
+        "certs": [],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://to-gopacks.com"
+        },
+        "extraLinks": [
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Ohio.php"
+          }
+        ],
+        "phone": "(216) 235-2110",
+        "publicEmail": "rick@to-gopacks.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Sauces and condiments (portion packs and retail packs).",
+          "Public sources describe these capabilities: Small-batch sauce production; recipe support; FDA compliance guidance; custom packaging; private labeling."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "todd's premium foods|des moines|IA",
+      "plant": {
+        "slug": "todd-s-foods-todd-s-premium-foods",
+        "name": "Todd's Foods (Todd's Premium Foods)",
+        "sites": [
+          {
+            "city": "Des Moines",
+            "state": "IA"
+          }
+        ],
+        "locationDisplay": "Des Moines, IA",
+        "processes": [
+          "hot-fill",
+          "acidified"
+        ],
+        "finderProcesses": [
+          "hot-fill",
+          "acidified"
+        ],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "salsa",
+          "spices-dry-mixes"
+        ],
+        "packaging": "Bottles; bags; sachets and pouches (per secondary staff descriptions)",
+        "productTypesPublished": "Acidified liquids; dry blends; seasonings; salsas and related grocery products",
+        "manufacturingCapabilitiesPublished": "Contract manufacturing; co-packing; private labeling; hot fill; acidified processes; bulk blending; dry packing; liquid packaging",
+        "rawProductTags": [
+          "Acidified liquids",
+          "dry blends",
+          "seasonings",
+          "salsas and related grocery products"
+        ],
+        "rawCapabilityTags": [
+          "Contract manufacturing",
+          "co-packing",
+          "private labeling",
+          "hot fill",
+          "acidified processes",
+          "bulk blending",
+          "dry packing",
+          "liquid packaging"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "SQF certified",
+          "FDA compliant / HACCP programs"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://www.todds.co/"
+        },
+        "extraLinks": [
+          {
+            "label": "Certifications and quality",
+            "href": "https://www.todds.co/certifications"
+          },
+          {
+            "label": "toddspremiumfoods.com company overview",
+            "href": "https://toddspremiumfoods.com/"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Iowa.php"
+          }
+        ],
+        "phone": "(515) 266-2276",
+        "publicEmail": "sales@todds.co",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Acidified liquids; dry blends; seasonings; salsas and related grocery products.",
+          "Public sources describe these capabilities: Contract manufacturing; co-packing; private labeling; hot fill; acidified processes; bulk blending; dry packing; liquid packaging."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "total food package|spring lake|MI",
+      "plant": {
+        "slug": "total-food-package",
+        "name": "Total Food Package",
+        "sites": [
+          {
+            "city": "Spring Lake",
+            "state": "MI"
+          }
+        ],
+        "locationDisplay": "Spring Lake, MI",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [],
+        "categories": [
+          "confectionery",
+          "spices-dry-mixes",
+          "dry-coffee-tea"
+        ],
+        "packaging": "Sample pouches; spice jars; tea pouches; other dry packaging",
+        "productTypesPublished": "Dry blends; flavored sugars; salts; spice blends; tea pouches; organic sugar floss; other dry products",
+        "manufacturingCapabilitiesPublished": "Allergen-free dry blending and co-packing; packaging; labeling; distribution; inventory/storage; Amazon and direct drop-ship; small and large runs",
+        "rawProductTags": [
+          "Dry blends",
+          "flavored sugars",
+          "salts",
+          "spice blends",
+          "tea pouches",
+          "organic sugar floss",
+          "other dry products"
+        ],
+        "rawCapabilityTags": [
+          "Allergen-free dry blending and co-packing",
+          "packaging",
+          "labeling",
+          "distribution",
+          "inventory/storage",
+          "Amazon and direct drop-ship",
+          "small and large runs"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "Organic certified",
+          "Kosher certified",
+          "allergen-free facility",
+          "gluten free",
+          "US FDA registered (claimed on homepage)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "https://totalfoodpackage.com/"
+        },
+        "extraLinks": [],
+        "phone": "(616) 847-1868",
+        "publicEmail": "sales@totalfoodpackage.com",
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Dry blends; flavored sugars; salts; spice blends; tea pouches; organic sugar floss; other dry products.",
+          "Public sources describe these capabilities: Allergen-free dry blending and co-packing; packaging; labeling; distribution; inventory/storage; Amazon and direct drop-ship; small and large runs."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "trisco foods|colorado springs|CO",
+      "plant": {
+        "slug": "trisco-foods",
+        "name": "Trisco Foods",
+        "sites": [
+          {
+            "city": "Colorado Springs",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Colorado Springs, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "dressings-marinades",
+          "bakery"
+        ],
+        "packaging": "Sachets (4g-350g); bottles (450mL-5L); single-serve cups (1.5oz-6oz); bulk VFFS pouches (up to 33lbs); bag-in-box (1-5 gallon); no glass",
+        "productTypesPublished": "Shelf-stable sweet and savory liquids; sauces; syrups; condiments; toppings; beverage bases; coffee and bar syrups; marinades; bakery fillings",
+        "manufacturingCapabilitiesPublished": "Contract manufacturing; product innovation and development; steam-jacketed kettle processing; powder induction; CIP; scalable USA production",
+        "rawProductTags": [
+          "Shelf-stable sweet and savory liquids",
+          "sauces",
+          "syrups",
+          "condiments",
+          "toppings",
+          "beverage bases",
+          "coffee and bar syrups",
+          "marinades",
+          "bakery fillings"
+        ],
+        "rawCapabilityTags": [
+          "Contract manufacturing",
+          "product innovation and development",
+          "steam-jacketed kettle processing",
+          "powder induction",
+          "CIP",
+          "scalable USA production"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "BRCGS",
+          "HACCP-based systems",
+          "Kosher",
+          "Halal (claimed on USA capabilities page)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://triscofoods.com"
+        },
+        "extraLinks": [
+          {
+            "label": "Services and capabilities",
+            "href": "https://triscofoods.com/usa-capabilities/"
+          },
+          {
+            "label": "triscofoods.com.au — Contract Manufacturing",
+            "href": "https://triscofoods.com.au/contract-manufacturing/"
+          },
+          {
+            "label": "triscofoods.com.au company overview",
+            "href": "https://triscofoods.com.au/"
+          }
+        ],
+        "phone": "719-266-5900",
+        "publicEmail": "salessupport@triscofoods.com",
+        "operationType": "co-manufacturer",
+        "operationTypePublished": "co-manufacturer",
+        "overview": [
+          "Public sources list these products: Shelf-stable sweet and savory liquids; sauces; syrups; condiments; toppings; beverage bases; coffee and bar syrups; marinades; bakery fillings.",
+          "Public sources describe these capabilities: Contract manufacturing; product innovation and development; steam-jacketed kettle processing; powder induction; CIP; scalable USA production."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "western innovations inc.|denver|CO",
+      "plant": {
+        "slug": "western-innovations-inc",
+        "name": "Western Innovations, Inc.",
+        "sites": [
+          {
+            "city": "Denver",
+            "state": "CO"
+          }
+        ],
+        "locationDisplay": "Denver, CO",
+        "processes": [],
+        "finderProcesses": [],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce",
+          "snacks",
+          "spices-dry-mixes"
+        ],
+        "packaging": "Pillow packs; sachets; stick packs; 3/4-sided seal pouches; sample packs; blister foil packs; counted bottles; trays",
+        "productTypesPublished": "Shelf-stable liquids; granules; powders; grains; candies; cereals; sauces; condiments; spices; seasonings; snack foods; dietary and food supplements",
+        "manufacturingCapabilitiesPublished": "Contract food packaging; liquid bottling (coldfill); VFFS; HFFS; blending liquids and powders; secondary packaging and assembly; packaging design assistance",
+        "rawProductTags": [
+          "Shelf-stable liquids",
+          "granules",
+          "powders",
+          "grains",
+          "candies",
+          "cereals",
+          "sauces",
+          "condiments",
+          "spices",
+          "seasonings",
+          "snack foods",
+          "dietary and food supplements"
+        ],
+        "rawCapabilityTags": [
+          "Contract food packaging",
+          "liquid bottling (coldfill)",
+          "VFFS",
+          "HFFS",
+          "blending liquids and powders",
+          "secondary packaging and assembly",
+          "packaging design assistance"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "Organic certified",
+          "cGMP compliant",
+          "FDA registered",
+          "third-party audited",
+          "GFSI compliant (claimed on company profile)"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "company-published",
+        "website": {
+          "label": "Official website",
+          "href": "http://westerninnovationsinc.com/"
+        },
+        "extraLinks": [
+          {
+            "label": "Company Profile",
+            "href": "http://westerninnovationsinc.com/company-profile/"
+          }
+        ],
+        "phone": "(303) 307-4500",
+        "publicEmail": null,
+        "operationType": "co-packer",
+        "operationTypePublished": "co-packer",
+        "overview": [
+          "Public sources list these products: Shelf-stable liquids; granules; powders; grains; candies; cereals; sauces; condiments; spices; seasonings; snack foods; dietary and food supplements.",
+          "Public sources describe these capabilities: Contract food packaging; liquid bottling (coldfill); VFFS; HFFS; blending liquids and powders; secondary packaging and assembly; packaging design assistance."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    },
+    {
+      "masterDedupeKey": "western ma food processing center|greenfield|MA",
+      "plant": {
+        "slug": "western-ma-food-processing-center",
+        "name": "Western MA Food Processing Center",
+        "sites": [
+          {
+            "city": "Greenfield",
+            "state": "MA"
+          }
+        ],
+        "locationDisplay": "Greenfield, MA",
+        "processes": [
+          "hot-fill"
+        ],
+        "finderProcesses": [
+          "hot-fill"
+        ],
+        "finderProducts": [
+          "sauce"
+        ],
+        "categories": [
+          "sauce"
+        ],
+        "packaging": "Bottles; jars (farm value-add includes bottle, lid, label, case)",
+        "productTypesPublished": "Shelf-stable acidified foods; jams; sauces; pickles; farm value-added products",
+        "manufacturingCapabilitiesPublished": "Co-packing (hot pack and hold); kitchen rental; prototyping and product development; value-add for farms; blast freezing planned spring 2026",
+        "rawProductTags": [
+          "Shelf-stable acidified foods",
+          "jams",
+          "sauces",
+          "pickles",
+          "farm value-added products"
+        ],
+        "rawCapabilityTags": [
+          "Co-packing (hot pack and hold)",
+          "kitchen rental",
+          "prototyping and product development",
+          "value-add for farms",
+          "blast freezing planned spring 2026"
+        ],
+        "moqDisplay": null,
+        "publishedSmallMoq": false,
+        "certs": [
+          "Organic processing certified (Mass.gov co-packer listing)",
+          "FDA registered facility"
+        ],
+        "lastVerified": "2026-08-22",
+        "listingStatus": "VERIFIED",
+        "claimSource": "mixed-public-sources",
+        "website": {
+          "label": "Official website",
+          "href": "https://fccdc.org/food_process_center/"
+        },
+        "extraLinks": [
+          {
+            "label": "mass.gov public-agency source",
+            "href": "https://www.mass.gov/info-details/co-packer-businesses"
+          },
+          {
+            "label": "PickYourOwn state co-packer listing",
+            "href": "https://www.pickyourown.org/copackers-Massachusetts.php"
+          }
+        ],
+        "phone": "413-774-7204 ext. 104",
+        "publicEmail": "katem@fccdc.org",
+        "operationType": "shared-kitchen-incubator",
+        "operationTypePublished": "shared kitchen/incubator",
+        "overview": [
+          "Public sources list these products: Shelf-stable acidified foods; jams; sauces; pickles; farm value-added products.",
+          "Public sources describe these capabilities: Co-packing (hot pack and hold); kitchen rental; prototyping and product development; value-add for farms; blast freezing planned spring 2026."
+        ],
+        "appearedOn": [],
+        "guideRows": {}
+      }
+    }
+  ]
+}
+

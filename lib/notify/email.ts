@@ -60,6 +60,9 @@ export function isNotifyConfigured(): boolean {
 }
 
 export function leadSaveFailureMessage(error?: string): string {
+  if (error?.includes("Durable lead storage")) {
+    return "We could not securely save your request. Try again, or write hello@thelinelist.com and mention LL-STORE-01.";
+  }
   if (error?.includes("No email provider configured")) {
     return "Email notifications are not configured on this deployment. Please write hello@thelinelist.com and mention LL-EMAIL-01.";
   }

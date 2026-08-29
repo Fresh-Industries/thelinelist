@@ -16,6 +16,10 @@ import nextConfig from "@/next.config";
 import { describe, expect, it } from "vitest";
 
 describe("SEO URL and structured-data conventions", () => {
+  it("permanently redirects the legacy claim route to the canonical form", async () => {
+    const redirects = await nextConfig.redirects?.();
+    expect(redirects).toContainEqual({ source: "/claim", destination: "/claim-submit", permanent: true });
+  });
   it("allows the Playwright loopback origin to load Next development assets", () => {
     expect(nextConfig.allowedDevOrigins).toContain("127.0.0.1");
   });
@@ -52,6 +56,7 @@ describe("SEO URL and structured-data conventions", () => {
     expect(new Set(urls).size).toBe(urls.length);
     expect(urls.every((url) => url.startsWith("https://www.thelinelist.com"))).toBe(true);
     expect(urls.some((url) => url.includes("/copackers"))).toBe(false);
+    expect(urls).toContain("https://www.thelinelist.com/for-manufacturers");
     expect(urls).not.toContain("https://www.thelinelist.com/manufacturers/alpenrose-dairy-smith-brothers-farm");
 
     for (const category of getIndexableProductCategories()) {

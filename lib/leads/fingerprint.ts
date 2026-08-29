@@ -12,3 +12,8 @@ export function leadFingerprint(options: {
 export function newLeadId(): string {
   return crypto.randomUUID();
 }
+
+export function idempotentLeadId(fingerprint: string, createdAt: string): string {
+  const day = createdAt.slice(0, 10);
+  return `lead_${sha256(`${fingerprint}:${day}`).slice(0, 40)}`;
+}

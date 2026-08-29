@@ -51,7 +51,7 @@ Workspace JSON, packets, send locks, and lead JSON do not belong in Blob. Artwor
 | `NOTIFY_FROM_EMAIL` | Recommended | Verified from address. |
 | `NOTIFY_TO_EMAIL` | Recommended | Owner review inbox. |
 
-Lead submissions are durable PostgreSQL rows. Email is a notification channel, not the system of record. If PostgreSQL is unavailable outside production, an email-only archive or process-memory fallback may be used for existing public forms.
+Lead submissions fail closed unless they can be stored as PostgreSQL rows. Email is a notification channel, not the system of record. The row is created before notification is attempted; a notification failure is recorded on the stored submission and does not turn that successful submission into a form error. There is no email-only or process-memory success path for claim, correction, featured-interest, or introduction leads.
 
 ## Rate limiting
 

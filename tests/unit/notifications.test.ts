@@ -125,7 +125,7 @@ describe("owner email notifications", () => {
     });
   });
 
-  it("does not report newsletter success when its owner email fails", async () => {
+  it("keeps a successful newsletter subscription successful when owner notification fails", async () => {
     configureResend();
     vi.stubEnv("NEWSLETTER_PROVIDER", "beehiiv");
     vi.stubEnv("BEEHIIV_API_KEY", "beehiiv_test");
@@ -142,12 +142,10 @@ describe("owner email notifications", () => {
 
     const result = await subscribeNewsletter("reader@example.com");
 
-    expect(result.ok).toBe(false);
-    expect(result.error).toContain("owner notification failed");
-    expect(result.error).toContain("Sender domain is not authorized");
+    expect(result).toEqual({ ok: true, provider: "beehiiv" });
   });
 
-  it("does not report an email-archived lead as successful when its owner email fails", async () => {
+  it("requires durable database storage even when owner email is configured", async () => {
     configureResend();
     vi.stubGlobal(
       "fetch",
@@ -168,11 +166,11 @@ describe("owner email notifications", () => {
 
     expect(result).toMatchObject({
       ok: false,
-      adapter: "email-archive",
+      adapter: "unconfigured",
       id: "lead_123",
     });
-    expect(result.error).toContain("Owner notification failed via resend");
-    expect(leadSaveFailureMessage(result.error)).toContain("LL-EMAIL-02");
+    expect(result.error).toContain("DATABASE_URL");
+    expect(leadSaveFailureMessage(result.error)).toContain("LL-STORE-01");
   });
 
   it("classifies provider configuration errors as delivery failures", () => {
@@ -215,10 +213,10 @@ describe("owner email notifications", () => {
 
     expect(result).toMatchObject({
       ok: false,
-      adapter: "email-archive",
+      adapter: "unconfigured",
       id: "lead_email_only_123",
     });
-    expect(result.error).toContain("Owner notification failed via resend");
+    expect(result.error).toContain("DATABASE_URL");
   });
 
   it("does not report lead success when owner email is not configured", async () => {
@@ -243,15 +241,15 @@ describe("owner email notifications", () => {
 
     expect(result).toMatchObject({
       ok: false,
-      adapter: "memory",
+      adapter: "unconfigured",
       id: "lead_unconfigured_123",
-      error: "Owner email notifications are not configured.",
+      error: "Durable lead storage is not configured. DATABASE_URL is required.",
     });
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(leadSaveFailureMessage(result.error)).toContain("LL-EMAIL-01");
+    expect(leadSaveFailureMessage(result.error)).toContain("LL-STORE-01");
   });
 
-  it("uses the claim work email as the owner notification reply-to address", async () => {
+  it("does not send a claim notification before durable storage is configured", async () => {
     configureResend();
     vi.stubEnv("BLOB_READ_WRITE_TOKEN", "");
     const fetchMock = vi.fn().mockResolvedValue(
@@ -271,8 +269,7 @@ describe("owner email notifications", () => {
       fingerprint: "fingerprint_claim_123",
     });
 
-    expect(result).toMatchObject({ ok: true, adapter: "email-archive" });
-    const notification = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
-    expect(notification.reply_to).toBe("claimant@example.com");
+    expect(result).toMatchObject({ ok: false, adapter: "unconfigured" });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

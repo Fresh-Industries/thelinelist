@@ -4,6 +4,7 @@ import { ClaimForm } from "@/components/forms/ClaimForm";
 import { claimPlantOptions } from "@/lib/directory";
 import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = pageMetadata({
   title: "Claim or Submit a Plant",
@@ -30,6 +31,7 @@ export default async function ClaimSubmitPage({
           <h1>Claim or submit a plant</h1>
           <p className="lede">Help us correct an existing profile or review a food and beverage manufacturer we have missed. Submissions are reviewed before publication.</p>
           <p className="honest">A submission is not an endorsement or a paid ranking. Link the public pages that support each capability.</p>
+          <p className="claim-compact">Want the full overview? <Link href="/for-manufacturers">See how The Line List works with manufacturers</Link>.</p>
           <ClaimForm plants={plants} preset={preset} />
         </article>
       </main>

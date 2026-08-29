@@ -26,7 +26,11 @@ function blobReady(): boolean {
 }
 
 function fileStoreReady(): boolean {
-  return process.env.NODE_ENV !== "production";
+  if (process.env.NODE_ENV !== "production") return true;
+
+  const databaseUrl = read("DATABASE_URL");
+  const isLocalDatabase = /@(localhost|127\.0\.0\.1)(?::|\/)/i.test(databaseUrl);
+  return read("E2E_ALLOW_LOCAL_ARTWORK_STORE") === "1" && isLocalDatabase && read("VERCEL") !== "1";
 }
 
 function blobArtworkPath(workspaceId: string, artworkId: string): string {

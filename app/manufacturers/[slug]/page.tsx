@@ -23,6 +23,7 @@ import {
   plantMatchesCategory,
   processLabel,
   queryToSearchParams,
+  smallRunSignalForPlant,
   stateLabel,
 } from "@/lib/directory";
 import { plantProfileJsonLd } from "@/lib/seo/jsonld";
@@ -105,6 +106,7 @@ export default async function ManufacturerPage({
     "What documents and test results do you need before a first run?",
   ].filter((item): item is string => Boolean(item));
   const certificationGroups = classifyCertificationClaims(plant.certs);
+  const smallRunSignal = smallRunSignalForPlant(plant);
   const certificationSections = [
     { label: "Regulatory status", values: certificationGroups.regulatoryStatus },
     { label: "Food-safety systems", values: certificationGroups.foodSafetySystems },
@@ -152,6 +154,13 @@ export default async function ManufacturerPage({
               : `This listing is based on public source material checked ${formatLastVerified(plant.lastVerified)} and has not received the same verification treatment as a Verified profile.`}{" "}
             Check current fit, availability, and requirements directly with the manufacturer.
           </p>
+          {smallRunSignal ? (
+            <aside className="profile-small-run-signal" role="note">
+              <strong>Small-run signal listed</strong>
+              <p>{smallRunSignal.evidence} This is a public-source signal, not a current quote. Confirm the current minimum and line fit directly with the manufacturer.</p>
+              <FieldCitations urls={smallRunSignal.sourceUrls} sourceNumbers={sourceNumbers} />
+            </aside>
+          ) : null}
           {!plant.introductionsPaused ? <div className="profile-contact-help">
             <Link className="btn btn-gold" href={`/find-manufacturers/request-intro?manufacturer=${plant.slug}`}>
               Request help contacting this manufacturer

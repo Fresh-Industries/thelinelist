@@ -16,9 +16,11 @@ export interface LeadRecord {
 
 export interface StoreResult {
   ok: boolean;
-  adapter: "postgres" | "email-archive" | "memory";
+  adapter: "postgres" | "unconfigured";
   id: string;
   duplicate?: boolean;
+  notificationState?: "pending" | "sent" | "failed";
+  notificationProvider?: "resend" | "postmark" | "none";
   error?: string;
 }
 

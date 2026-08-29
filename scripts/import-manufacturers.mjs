@@ -10,9 +10,11 @@ const INPUT_DIRECTORY = join(ROOT, "data/manufacturer-imports");
 const CURATED_CATALOG = join(ROOT, "lib/directory/plants.ts");
 const GENERATED_CATALOG = join(ROOT, "lib/directory/imported-plants.generated.ts");
 const GENERATED_REPORT = join(ROOT, "data/manufacturer-imports/import-report.generated.json");
+const CATALOG_BASELINE = join(ROOT, "data/manufacturer-imports/catalog-baseline.json");
 const SAFE_STATUSES = new Set(["VERIFIED", "LISTABLE"]);
-const TARGET_COUNT = 68;
-const TARGET_LISTABLE_COUNT = 2;
+const ALL_STATUSES = ["VERIFIED", "LISTABLE", "NEEDS_REVIEW", "EXCLUDE"];
+const APPLY = process.argv.includes("--apply");
+const CHECK = process.argv.includes("--check");
 
 const rowSchema = z.object({
   company_name: z.string().trim().min(1),
@@ -210,12 +212,14 @@ function sourceLabel(url, index, websiteDomain) {
 function mapCategories(row) {
   const disclosedProducts = splitList(row.product_types);
   return categoryRules
-    .filter(([category, pattern]) => disclosedProducts.some((product) => {
-      if (category === "functional-beverages" && /\b(pods?|K-Cups?|dry|powder(?:ed)?)\b/i.test(product)) return false;
+    .filter(([category, pattern]) => {
+      if (category === "functional-beverages" && /\b(pods?|K-Cups?|dry ingredients?|powder(?:ed)?)\b/i.test(row.product_types)) return false;
+      return disclosedProducts.some((product) => {
       if (category === "soups-broths-entrees" && /\b(dry|powder(?:ed)?|mix(?:es)?|bases?)\b/i.test(product)) return false;
       if (category === "dairy" && /\b(?:fruit|nut|seed|peanut|almond|cashew|sunflower|apple|pumpkin) butters?\b/i.test(product)) return false;
       return pattern.test(product);
-    }))
+      });
+    })
     .map(([category]) => category);
 }
 
@@ -271,15 +275,6 @@ function dataQualityScore(row) {
     + Math.min(row.quality_notes.length, 500) / 100;
 }
 
-function cohortScore(row) {
-  const flags = row.flags.toLowerCase();
-  return (row.status === "VERIFIED" ? 1_000 : 0)
-    + row.confidence * 100
-    + (/startup_friendly|first_run/.test(flags) ? 80 : 0)
-    + (/small_batch|pilot|low_moq|flexible_minimum|moq_published|published_moq/.test(flags) ? 45 : 0)
-    + dataQualityScore(row);
-}
-
 function chooseRicherRow(left, right) {
   const leftScore = dataQualityScore(left);
   const rightScore = dataQualityScore(right);
@@ -290,13 +285,26 @@ function chooseRicherRow(left, right) {
 
 function loadRows() {
   const files = readdirSync(INPUT_DIRECTORY).filter((file) => file.endsWith(".csv")).sort();
-  return files.flatMap((file) => {
+  const rows = [];
+  const invalidRows = [];
+  for (const file of files) {
     const parsed = parseCsv(readFileSync(join(INPUT_DIRECTORY, file), "utf8"));
-    return parsed.map((row, rowIndex) => ({
-      ...rowSchema.parse(row),
-      __source: `${file}:${rowIndex + 2}`,
-    }));
-  });
+    parsed.forEach((row, rowIndex) => {
+      const source = `${file}:${rowIndex + 2}`;
+      const result = rowSchema.safeParse(row);
+      if (!result.success) {
+        invalidRows.push({
+          companyName: typeof row.company_name === "string" ? row.company_name : "Unknown",
+          source,
+          status: typeof row.status === "string" ? row.status : "",
+          issues: result.error.issues.map((issue) => `${issue.path.join(".") || "row"}: ${issue.message}`),
+        });
+        return;
+      }
+      rows.push({ ...result.data, __source: source });
+    });
+  }
+  return { files, rows, invalidRows };
 }
 
 function loadCuratedIdentities() {
@@ -323,11 +331,34 @@ function sameCompanyName(left, right) {
   return overlap >= 2 && overlap / Math.min(leftTokens.size || 1, rightTokens.size || 1) >= 0.66;
 }
 
+function rowAliases(row) {
+  const aliases = new Set([row.company_name, row.master_name].filter(Boolean).map(normalizeWords));
+  const relationshipText = `${row.company_name}; ${row.master_name}; ${row.quality_notes}`;
+  const patterns = [
+    /(?:formerly|former(?:ly known as)?|fka)\s+([^.;()]+)/gi,
+    /(?:now|acquired by|owned by|dba|doing business as)\s+([^.;()]+)/gi,
+    /\(([^)]+)\)/g,
+  ];
+  for (const pattern of patterns) {
+    for (const match of relationshipText.matchAll(pattern)) {
+      const alias = normalizeWords(match[1] ?? "");
+      if (alias.length >= 4) aliases.add(alias);
+    }
+  }
+  return [...aliases].filter(Boolean);
+}
+
+function aliasesOverlap(left, right) {
+  const leftAliases = "company_name" in left ? rowAliases(left) : [normalizeWords(left.name)];
+  const rightAliases = "company_name" in right ? rowAliases(right) : [normalizeWords(right.name)];
+  return leftAliases.some((leftAlias) => rightAliases.some((rightAlias) => sameCompanyName(leftAlias, rightAlias)));
+}
+
 function existingMatch(row, curatedIdentities) {
   const domain = normalizedDomain(row.website);
   return curatedIdentities.find((identity) => (
     (domain && identity.domain === domain)
-    || (sameCompanyName(row.company_name, identity.name)
+    || (aliasesOverlap(row, identity)
       && row.city.toLowerCase() === identity.city.toLowerCase()
       && row.state === identity.state)
   ));
@@ -351,7 +382,7 @@ function consolidateSafeRows(rows) {
     const duplicateIndex = consolidated.findIndex((candidate) => (
       (domain && domain === normalizedDomain(candidate.website))
       || (phone && email && phone === normalizedPhone(candidate.phone) && email === normalizedEmail(candidate.public_email))
-      || (sameCompanyName(row.company_name, candidate.company_name)
+      || (aliasesOverlap(row, candidate)
         && row.city.toLowerCase() === candidate.city.toLowerCase()
         && row.state === candidate.state)
     ));
@@ -385,11 +416,19 @@ function toPlant(row, usedSlugs) {
   const sourceUrls = splitList(row.source_urls);
   const websiteDomain = normalizedDomain(row.website);
   const hasExternalSource = sourceUrls.some((url) => normalizedDomain(url) && normalizedDomain(url) !== websiteDomain);
+  const seenLabels = new Map();
   const extraLinks = sourceUrls
     .filter((url) => normalizedDomain(url) !== websiteDomain || url !== row.website)
-    .map((url, index) => ({ label: sourceLabel(url, index, websiteDomain), href: url }));
+    .map((url, index) => {
+      const baseLabel = sourceLabel(url, index, websiteDomain);
+      const count = (seenLabels.get(baseLabel) ?? 0) + 1;
+      seenLabels.set(baseLabel, count);
+      return { label: count === 1 ? baseLabel : `${baseLabel} ${count}`, href: url };
+    });
   const rawCapabilities = splitList(row.manufacturing_capabilities);
   const moqDisplay = polishMoqDisplay(row.moq);
+  const smallRunSignal = getSmallRunSignal(row, sourceUrls, moqDisplay);
+  const primaryLink = row.website || sourceUrls[0];
   const overview = [
     row.product_types ? `Public sources list these products: ${row.product_types}.` : null,
     row.manufacturing_capabilities ? `Public sources describe these capabilities: ${row.manufacturing_capabilities}.` : null,
@@ -415,8 +454,7 @@ function toPlant(row, usedSlugs) {
     lastVerified: row.last_checked_date.slice(0, 10),
     listingStatus: row.status,
     claimSource: row.status === "LISTABLE" ? "directory-reported" : hasExternalSource ? "mixed-public-sources" : "company-published",
-    confidence: row.confidence,
-    website: { label: "Official website", href: row.website },
+    website: { label: row.website ? "Official website" : "Public source listing", href: primaryLink },
     extraLinks,
     phone: row.phone || null,
     publicEmail: row.public_email || null,
@@ -429,18 +467,48 @@ function toPlant(row, usedSlugs) {
       ...(row.moq ? { minimums: sourceUrls } : {}),
       ...(row.certifications ? { certifications: sourceUrls } : {}),
     } : undefined,
+    smallRunSignal,
     needsCurrentOwnershipVerification: splitList(row.flags).includes("needs_current_ownership_verification") || undefined,
     introductionsPaused: splitList(row.flags).includes("introductions_paused") || undefined,
     verificationNotice: splitList(row.flags).includes("needs_current_ownership_verification")
       ? "Current ownership or operating details need verification. Contact help is paused until the active operating entity, capabilities, and public contact details are confirmed."
       : undefined,
-    flags: splitList(row.flags),
-    qualityNotes: row.quality_notes || null,
-    masterDedupeKey: row.master_dedupe_key,
     overview,
     appearedOn: [],
     guideRows: {},
   };
+}
+
+function getSmallRunSignal(row, sourceUrls, moqDisplay) {
+  if (sourceUrls.length === 0) return undefined;
+  const moq = row.moq.trim();
+  if (moq && !/^(?:unknown|not stated|none stated|n\/a)$/i.test(moq)) {
+    return { evidence: moqDisplay || moq, sourceUrls };
+  }
+  const segment = splitList(row.manufacturing_capabilities).find((value) => (
+    /\b(?:small[- ]batch|test[- ]run|pilot[- ]run|pilot production|first[- ]run|trial[- ]batch|short[- ]run|low[- ]volume)\b/i.test(value)
+  ));
+  const phrase = segment?.match(
+    /\b(?:small[- ]batch(?: production runs? for test items(?: as well as large volume)?| or long[- ]run options?)?|test[- ]runs?|pilot[- ]runs?|pilot production|first[- ]runs?|trial[- ]batches?|short[- ]runs?|low[- ]volume(?: production)?)\b/i,
+  )?.[0];
+  if (phrase) return { evidence: `Public sources list ${phrase}.`, sourceUrls };
+  const flags = splitList(row.flags);
+  if (flags.some((flag) => /low_moq_claimed_no_number/i.test(flag))) {
+    return { evidence: "Public sources state that the company offers a low minimum; no number is published.", sourceUrls };
+  }
+  if (flags.some((flag) => /small_batch/i.test(flag))) {
+    return { evidence: "Public sources list a small-batch production option.", sourceUrls };
+  }
+  if (flags.some((flag) => /test_run/i.test(flag))) {
+    return { evidence: "Public sources list a test-run production option.", sourceUrls };
+  }
+  if (flags.some((flag) => /pilot/i.test(flag))) {
+    return { evidence: "Public sources list a pilot-run production option.", sourceUrls };
+  }
+  if (flags.some((flag) => /first_run/i.test(flag))) {
+    return { evidence: "Public sources list a first-run production signal.", sourceUrls };
+  }
+  return undefined;
 }
 
 const MOQ_DISPLAY_COPY = new Map([
@@ -460,7 +528,13 @@ const MOQ_DISPLAY_COPY = new Map([
 ]);
 
 function polishMoqDisplay(value) {
-  return MOQ_DISPLAY_COPY.get(value) ?? value;
+  return (MOQ_DISPLAY_COPY.get(value) ?? value)
+    .replace(/\s*\((?:site|stated|directory-published|published|origin (?:processing |private-label |co-pack |about )?(?:page|homepage|FAQ))[^)]*\)/gi, "")
+    .replace(/\bclaimed \(/gi, "(")
+    .replace(/\s+claimed(?=[).,;]|$)/gi, "")
+    .replace(/\b(?:Page|FAQ):\s*/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function hasPublishedSmallMoq(value) {
@@ -472,79 +546,289 @@ function hasPublishedSmallMoq(value) {
   return /\d[\d,.]*\s*(?:K\s*)?[-–]?\s*(?:units?|bottles?|gallons?|gal|lit(?:er|re)s?|pounds?|lbs?|pallets?|cases?|pouches?|packets?|pods?)\b/i.test(value);
 }
 
+function readExistingGeneratedPlants() {
+  try {
+    const source = readFileSync(GENERATED_CATALOG, "utf8");
+    const json = source.match(/export const IMPORTED_PLANTS = ([\s\S]+) satisfies Plant\[\];/)?.[1];
+    return json ? JSON.parse(json) : [];
+  } catch {
+    return [];
+  }
+}
+
+function readPreviousCatalogRecords() {
+  try {
+    const report = JSON.parse(readFileSync(GENERATED_REPORT, "utf8"));
+    return Array.isArray(report.catalogRecords) ? report.catalogRecords : [];
+  } catch {
+    return [];
+  }
+}
+
+function readPreviousReport() {
+  try {
+    return JSON.parse(readFileSync(GENERATED_REPORT, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function readCatalogBaseline() {
+  try {
+    const baseline = JSON.parse(readFileSync(CATALOG_BASELINE, "utf8"));
+    return baseline.records;
+  } catch {
+    return [];
+  }
+}
+
+function findBaselinePlant(row, baselineRecords) {
+  const exact = baselineRecords.find((record) => record.masterDedupeKey === row.master_dedupe_key);
+  if (exact) return exact.plant;
+  return baselineRecords.find((record) => {
+    const site = record.plant.sites?.[0];
+    const sameDomain = normalizedDomain(row.website)
+      && normalizedDomain(row.website) === normalizedDomain(record.plant.website?.href ?? "");
+    return (sameDomain || aliasesOverlap(row, record.plant))
+      && site?.state === row.state
+      && (row.city ? site?.city?.toLowerCase() === row.city.toLowerCase() : true);
+  })?.plant;
+}
+
+function uniqueValues(...values) {
+  return [...new Set(values.flat().filter(Boolean))];
+}
+
+function mergeLinks(previous = [], next = []) {
+  const byUrl = new Map();
+  for (const link of [...previous, ...next]) byUrl.set(link.href, link);
+  return [...byUrl.values()];
+}
+
+function mergeFieldSources(previous, next) {
+  if (!previous && !next) return undefined;
+  const fields = ["products", "processes", "packaging", "minimums", "certifications"];
+  return Object.fromEntries(fields.flatMap((field) => {
+    const urls = uniqueValues(previous?.[field] ?? [], next?.[field] ?? []);
+    return urls.length > 0 ? [[field, urls]] : [];
+  }));
+}
+
+function mergeStrongerPlant(previous, next) {
+  if (!previous) return next;
+  return {
+    ...previous,
+    ...next,
+    slug: previous.slug || next.slug,
+    processes: uniqueValues(previous.processes ?? [], next.processes ?? []),
+    finderProcesses: uniqueValues(previous.finderProcesses ?? [], next.finderProcesses ?? []),
+    finderProducts: uniqueValues(previous.finderProducts ?? [], next.finderProducts ?? []),
+    categories: uniqueValues(previous.categories ?? [], next.categories ?? []),
+    rawProductTags: uniqueValues(previous.rawProductTags ?? [], next.rawProductTags ?? []),
+    rawCapabilityTags: uniqueValues(previous.rawCapabilityTags ?? [], next.rawCapabilityTags ?? []),
+    certs: uniqueValues(previous.certs ?? [], next.certs ?? []),
+    packaging: next.packaging || previous.packaging || null,
+    productTypesPublished: next.productTypesPublished || previous.productTypesPublished || null,
+    manufacturingCapabilitiesPublished: next.manufacturingCapabilitiesPublished || previous.manufacturingCapabilitiesPublished || null,
+    moqDisplay: next.moqDisplay || previous.moqDisplay || null,
+    publishedSmallMoq: Boolean(previous.publishedSmallMoq || next.publishedSmallMoq),
+    listingStatus: previous.listingStatus === "VERIFIED" || next.listingStatus === "VERIFIED" ? "VERIFIED" : "LISTABLE",
+    claimSource: previous.claimSource === "mixed-public-sources" || next.claimSource === "mixed-public-sources"
+      ? "mixed-public-sources"
+      : next.claimSource || previous.claimSource,
+    extraLinks: mergeLinks(previous.extraLinks, next.extraLinks),
+    phone: next.phone || previous.phone || null,
+    publicEmail: next.publicEmail || previous.publicEmail || null,
+    fieldSourceUrls: mergeFieldSources(previous.fieldSourceUrls, next.fieldSourceUrls),
+    needsCurrentOwnershipVerification: Boolean(previous.needsCurrentOwnershipVerification || next.needsCurrentOwnershipVerification) || undefined,
+    introductionsPaused: Boolean(previous.introductionsPaused || next.introductionsPaused) || undefined,
+    verificationNotice: next.verificationNotice || previous.verificationNotice,
+  };
+}
+
+function recordFingerprint(plant) {
+  return createHash("sha256").update(JSON.stringify(plant)).digest("hex");
+}
+
+function isHttpUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function batchNumber(source) {
+  return source.match(/batch-(\d+)/)?.[1] ?? "";
+}
+
 function generate() {
   validateTaxonomyMappings();
-  const rows = loadRows();
-  for (const row of rows.filter((candidate) => SAFE_STATUSES.has(candidate.status))) {
+  const loaded = loadRows();
+  const invalidRows = [...loaded.invalidRows];
+  const usableRows = loaded.rows.filter((row) => {
+    if (!SAFE_STATUSES.has(row.status)) return true;
+    const sourceUrls = splitList(row.source_urls);
     const claims = [row.product_types, row.manufacturing_capabilities, row.packaging_formats, row.certifications, row.moq];
-    if (claims.some(Boolean) && splitList(row.source_urls).length === 0 && !row.website) {
-      throw new Error(`${row.__source}: published claims require at least one source URL.`);
+    const usablePublicUrls = [row.website, ...sourceUrls].filter(Boolean).every(isHttpUrl);
+    if (claims.some(Boolean) && sourceUrls.length === 0 && !row.website) {
+      invalidRows.push({ companyName: row.company_name, source: row.__source, status: row.status, issues: ["Safe public claims require at least one public source URL."] });
+      return false;
     }
-  }
+    if (!row.website && sourceUrls.length === 0) {
+      invalidRows.push({ companyName: row.company_name, source: row.__source, status: row.status, issues: ["A public listing needs a website or source URL."] });
+      return false;
+    }
+    if (!usablePublicUrls) {
+      invalidRows.push({ companyName: row.company_name, source: row.__source, status: row.status, issues: ["Website and source URLs must use HTTP or HTTPS."] });
+      return false;
+    }
+    return true;
+  });
+
   const curatedIdentities = loadCuratedIdentities();
-  const unsafeRows = rows.filter((row) => !SAFE_STATUSES.has(row.status));
-  const { consolidated, repeatedMasterKeys, crossIdentityDuplicates } = consolidateSafeRows(rows);
+  const unsafeRows = usableRows.filter((row) => !SAFE_STATUSES.has(row.status));
+  const safeRows = usableRows.filter((row) => SAFE_STATUSES.has(row.status));
+  const { consolidated, repeatedMasterKeys, crossIdentityDuplicates } = consolidateSafeRows(usableRows);
   const existingDuplicates = [];
   const importCandidates = consolidated.filter((row) => {
     const match = existingMatch(row, curatedIdentities);
     if (!match) return true;
-    existingDuplicates.push({ companyName: row.company_name, source: row.__source, kept: match.name, reason: "already present in curated catalog" });
+    existingDuplicates.push({
+      companyName: row.company_name,
+      source: row.__source,
+      kept: match.name,
+      reason: "already present in the stronger hand-curated catalog",
+      masterDedupeKey: row.master_dedupe_key,
+    });
     return false;
-  });
+  }).sort((left, right) => left.company_name.localeCompare(right.company_name));
 
-  const byRank = (left, right) => cohortScore(right) - cohortScore(left) || left.company_name.localeCompare(right.company_name);
-  const verified = importCandidates.filter((row) => row.status === "VERIFIED").sort(byRank);
-  const listable = importCandidates
-    .filter((row) => row.status === "LISTABLE")
-    .filter((row) => !/shared_kitchen|incubator|not_turnkey_copack/.test(row.flags))
-    .sort(byRank);
-  const selectedRows = [
-    ...verified.slice(0, TARGET_COUNT - TARGET_LISTABLE_COUNT),
-    ...listable.slice(0, TARGET_LISTABLE_COUNT),
-  ].sort((left, right) => left.company_name.localeCompare(right.company_name));
-
-  if (selectedRows.length !== TARGET_COUNT) {
-    throw new Error(`Expected ${TARGET_COUNT} selected manufacturers, received ${selectedRows.length}.`);
+  const previousPlants = readExistingGeneratedPlants();
+  const previousReport = readPreviousReport();
+  const previousRecords = readPreviousCatalogRecords();
+  const baselineRecords = readCatalogBaseline();
+  const previousByKey = new Map(previousRecords.map((record) => [record.masterDedupeKey, record]));
+  for (const plant of previousPlants) {
+    if (plant.masterDedupeKey && !previousByKey.has(plant.masterDedupeKey)) {
+      previousByKey.set(plant.masterDedupeKey, {
+        masterDedupeKey: plant.masterDedupeKey,
+        slug: plant.slug,
+        fingerprint: recordFingerprint(plant),
+      });
+    }
   }
 
   const usedSlugs = new Set(curatedIdentities.map((identity) => identity.slug));
-  const plants = selectedRows.map((row) => toPlant(row, usedSlugs));
+  const plants = importCandidates.map((row) => {
+    const previous = previousByKey.get(row.master_dedupe_key);
+    let plant = toPlant(row, usedSlugs);
+    if (previous?.slug && !usedSlugs.has(previous.slug)) {
+      usedSlugs.delete(plant.slug);
+      plant.slug = previous.slug;
+      usedSlugs.add(plant.slug);
+    }
+    plant = mergeStrongerPlant(findBaselinePlant(row, baselineRecords), plant);
+    return plant;
+  });
   assert.equal(new Set(plants.map((plant) => plant.slug)).size, plants.length, "Imported slugs must be unique.");
-  assert.equal(new Set(plants.map((plant) => plant.masterDedupeKey)).size, plants.length, "Imported master keys must be unique.");
+  assert.equal(new Set(importCandidates.map((row) => row.master_dedupe_key)).size, importCandidates.length, "Imported master keys must be unique.");
   assert.ok(plants.every((plant) => SAFE_STATUSES.has(plant.listingStatus)), "Unsafe statuses cannot enter the generated catalog.");
-  const selectedKeys = new Set(selectedRows.map((row) => row.master_dedupe_key));
-  const safeNotSelected = importCandidates.filter((row) => !selectedKeys.has(row.master_dedupe_key));
+
+  const catalogRecords = importCandidates.map((row, index) => ({
+    masterDedupeKey: row.master_dedupe_key,
+    companyName: row.company_name,
+    slug: plants[index].slug,
+    source: row.__source,
+    status: row.status,
+    fingerprint: recordFingerprint(plants[index]),
+  }));
+  const changes = { new: 0, updated: 0, unchanged: 0 };
+  const changeByKey = new Map();
+  for (const record of catalogRecords) {
+    const previous = previousByKey.get(record.masterDedupeKey);
+    const change = !previous ? "new" : previous.fingerprint === record.fingerprint ? "unchanged" : "updated";
+    changes[change] += 1;
+    changeByKey.set(record.masterDedupeKey, change);
+  }
+
   const categoryCounts = Object.fromEntries(categoryRules.map(([category]) => [
     category,
     plants.filter((plant) => plant.categories.includes(category)).length,
   ]));
   const taxonomyGaps = [...new Set(plants.filter((plant) => plant.categories.length === 0).flatMap((plant) => plant.rawProductTags))].sort();
   const states = [...new Set(plants.flatMap((plant) => plant.sites.map((site) => site.state)))].sort();
+  const duplicates = [...repeatedMasterKeys, ...crossIdentityDuplicates, ...existingDuplicates];
+  const skippedRecords = [
+    ...unsafeRows.map((row) => ({ companyName: row.company_name, source: row.__source, reason: row.status })),
+    ...duplicates,
+    ...invalidRows.map((row) => ({ companyName: row.companyName, source: row.source, reason: `INVALID: ${row.issues.join(" ")}` })),
+  ];
+  const batch26Records = loaded.rows.filter((row) => batchNumber(row.__source) === "26").map((row) => {
+    if (!SAFE_STATUSES.has(row.status)) {
+      return { companyName: row.company_name, source: row.__source, disposition: "skipped", reason: row.status };
+    }
+    const curated = existingDuplicates.find((entry) => entry.source === row.__source);
+    if (curated) {
+      return { companyName: row.company_name, source: row.__source, disposition: "duplicate", reason: curated.reason, kept: curated.kept };
+    }
+    const repeated = repeatedMasterKeys.find((entry) => entry.source === row.__source);
+    if (repeated) {
+      return { companyName: row.company_name, source: row.__source, disposition: "duplicate", reason: "repeated master_dedupe_key" };
+    }
+    const cross = crossIdentityDuplicates.find((entry) => entry.source === row.__source);
+    if (cross) {
+      return { companyName: row.company_name, source: row.__source, disposition: "duplicate", reason: cross.reason, kept: cross.kept };
+    }
+    return {
+      companyName: row.company_name,
+      source: row.__source,
+      disposition: changeByKey.has(row.master_dedupe_key) ? "imported" : "skipped",
+      reason: changeByKey.has(row.master_dedupe_key) ? `${row.status} public record` : "consolidated into another canonical record",
+    };
+  });
+
+  const statusCounts = Object.fromEntries(ALL_STATUSES.map((status) => [
+    status,
+    loaded.rows.filter((row) => row.status === status).length,
+  ]));
   const report = {
-    generatedAt: selectedRows.map((row) => row.last_checked_date.slice(0, 10)).sort().at(-1),
-    sourceFiles: readdirSync(INPUT_DIRECTORY).filter((file) => file.endsWith(".csv")).sort(),
-    sourceRows: rows.length,
-    safeRows: rows.filter((row) => SAFE_STATUSES.has(row.status)).length,
+    generatedAt: usableRows.map((row) => row.last_checked_date.slice(0, 10)).sort().at(-1),
+    mode: APPLY ? "apply" : CHECK ? "check" : "dry-run",
+    sourceFiles: loaded.files,
+    sourceRows: loaded.rows.length + loaded.invalidRows.length,
+    parsedRows: loaded.rows.length,
+    sourceStatusCounts: statusCounts,
+    safeRows: safeRows.length,
+    invalid: invalidRows.length,
     imported: plants.length,
     verified: plants.filter((plant) => plant.listingStatus === "VERIFIED").length,
     listable: plants.filter((plant) => plant.listingStatus === "LISTABLE").length,
+    changes,
+    duplicates: duplicates.length,
+    skipped: skippedRecords.length,
+    finalCatalogCount: curatedIdentities.length + plants.length,
+    smallRunSignals: plants.filter((plant) => plant.smallRunSignal).length,
+    internalSignalAudit: {
+      flaggedCandidates: importCandidates.filter((row) => /startup_friendly|first_run|small_batch|test_run|pilot|low_moq|flexible_minimum|moq_published|published_moq/i.test(row.flags)).length,
+      flaggedWithoutPublishableEvidence: importCandidates
+        .filter((row, index) => /startup_friendly|first_run|small_batch|test_run|pilot|low_moq|flexible_minimum|moq_published|published_moq/i.test(row.flags) && !plants[index].smallRunSignal)
+        .map((row) => ({ companyName: row.company_name, source: row.__source, flags: splitList(row.flags) })),
+    },
     states,
     categoryCounts,
     taxonomyGaps,
-    skipped: {
-      byStatus: Object.fromEntries(["NEEDS_REVIEW", "EXCLUDE"].map((status) => [status, unsafeRows.filter((row) => row.status === status).length])),
+    duplicateBreakdown: {
       repeatedMasterKey: repeatedMasterKeys.length,
       crossIdentityDuplicate: crossIdentityDuplicates.length,
       alreadyCurated: existingDuplicates.length,
-      safeNotSelected: safeNotSelected.length,
     },
-    skippedRecords: {
-      unsafeStatus: unsafeRows.map((row) => ({ companyName: row.company_name, source: row.__source, reason: row.status })),
-      repeatedMasterKey: repeatedMasterKeys,
-      crossIdentityDuplicate: crossIdentityDuplicates,
-      alreadyCurated: existingDuplicates,
-      safeNotSelected: safeNotSelected.map((row) => ({ companyName: row.company_name, source: row.__source, reason: `outside initial ${TARGET_COUNT}-record cohort` })),
-    },
+    invalidRecords: invalidRows,
+    duplicateRecords: duplicates,
+    skippedRecords,
+    batch26Records,
+    catalogRecords,
   };
 
   const catalog = [
@@ -554,19 +838,43 @@ function generate() {
     `export const IMPORTED_PLANTS = ${JSON.stringify(plants, null, 2)} satisfies Plant[];`,
     "",
   ].join("\n");
-  const reportJson = `${JSON.stringify(report, null, 2)}\n`;
+  const appliedChanges = previousReport?.appliedChanges ?? previousReport?.changes ?? changes;
+  const persistedReport = {
+    ...report,
+    mode: "apply",
+    changes: appliedChanges,
+    appliedChanges,
+    lastApplyChanges: APPLY ? changes : previousReport?.lastApplyChanges ?? appliedChanges,
+  };
+  const reportJson = `${JSON.stringify(persistedReport, null, 2)}\n`;
 
-  if (process.argv.includes("--check")) {
+  if (CHECK) {
     const catalogMatches = readFileSync(GENERATED_CATALOG, "utf8") === catalog;
     const reportMatches = readFileSync(GENERATED_REPORT, "utf8") === reportJson;
     if (!catalogMatches || !reportMatches) throw new Error("Generated manufacturer files are stale. Run npm run manufacturers:import.");
-    console.log(`Manufacturer import is current: ${plants.length} records (${report.verified} verified, ${report.listable} listable).`);
+    console.log(`Manufacturer import is current: ${plants.length} imported, ${report.finalCatalogCount} total.`);
     return;
   }
 
-  writeFileSync(GENERATED_CATALOG, catalog);
-  writeFileSync(GENERATED_REPORT, reportJson);
-  console.log(`Imported ${plants.length} manufacturers (${report.verified} verified, ${report.listable} listable).`);
+  if (APPLY) {
+    writeFileSync(GENERATED_CATALOG, catalog);
+    writeFileSync(GENERATED_REPORT, reportJson);
+  }
+  console.log(JSON.stringify({
+    mode: APPLY ? "apply" : "dry-run",
+    sourceRows: report.sourceRows,
+    sourceStatusCounts: report.sourceStatusCounts,
+    safeRows: report.safeRows,
+    imported: report.imported,
+    finalCatalogCount: report.finalCatalogCount,
+    changes: report.changes,
+    duplicates: report.duplicates,
+    skipped: report.skipped,
+    invalid: report.invalid,
+    smallRunSignals: report.smallRunSignals,
+    flaggedSignalCandidates: report.internalSignalAudit.flaggedCandidates,
+    flaggedWithoutPublishableEvidence: report.internalSignalAudit.flaggedWithoutPublishableEvidence.length,
+  }, null, 2));
 }
 
 generate();

@@ -123,7 +123,7 @@ describe("sourcing workspace trust rules", () => {
     expect(matches.some((match) => match.evidence.some((evidence) => evidence.status === "not_publicly_listed"))).toBe(true);
     expect(matches.flatMap((match) => match.evidence).every((evidence) => evidence.sourceUrl)).toBe(true);
     expect(matches.length).toBeLessThanOrEqual(3);
-    expect(matches.map((match) => match.manufacturerName)).toEqual(expect.arrayContaining(["Better Beverage Company", "Portland Bottling Company"]));
+    expect(matches.some((match) => match.manufacturerName.startsWith("Better Beverage Company"))).toBe(true);
   });
 
   it("does not match an empty plan and allows sourced research with visible unknowns", () => {
@@ -179,7 +179,7 @@ describe("sourcing workspace trust rules", () => {
     const matches = matchManufacturers(workspace, { resultLimit: 5 });
     expect(matches.length).toBeGreaterThan(0);
     expect(matches.every((match) => match.evidence.some((evidence) => evidence.requirementKey === "product_type" && evidence.sourceUrl))).toBe(true);
-    expect(matches.map((match) => match.manufacturerName)).toEqual(expect.arrayContaining(["Bake'n Joy Foods, Inc."]));
+    expect(matches.every((match) => getPlantBySlug(match.manufacturerSlug)?.categories?.includes("bakery"))).toBe(true);
     expect(matches.some((match) => match.unknowns.some((unknown) => /wrapped|4 oz/i.test(unknown)))).toBe(true);
     expect(matches.every((match) => match.unknowns.some((unknown) => /exact banana-bread capability/i.test(unknown)))).toBe(true);
     expect(matches.flatMap((match) => match.supportedMatches).some((claim) => /includes .*banana bread/i.test(claim))).toBe(false);

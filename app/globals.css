@@ -1137,7 +1137,15 @@ h1 {
   .category-snapshot-heading { grid-template-columns: 1fr; }
   .category-snapshot-heading > p { text-align: left; }
   .directory-pagination { grid-template-columns: 1fr 1fr; }
-  .directory-pagination ol { grid-column: 1 / -1; grid-row: 1; justify-content: center; }
+  .directory-pagination ol {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    max-width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+  }
   .wizard-page-head { grid-template-columns: minmax(0, 1fr) 6rem; }
   .wizard-page-head > img { width: 6rem; margin: 0; }
   .wizard-step { min-height: 0; }
@@ -4477,6 +4485,27 @@ main:not(.home) .wizard-fields select {
 .plant-card-moq span + span::before { content: " · "; }
 .plant-card-moq-unknown { color: var(--faint); }
 
+.small-run-signal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  align-items: baseline;
+  margin: 0.7rem 0 0;
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.small-run-signal strong {
+  display: inline-flex;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  background: var(--gold);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.small-run-signal span { color: var(--muted); }
+
 .not-listed {
   color: var(--faint);
   font-weight: 600;
@@ -5811,6 +5840,15 @@ main:not(.home) .wizard-fields select {
 }
 
 .ownership-review p { margin: 0.35rem 0 0; }
+.profile-small-run-signal {
+  margin: 1rem 0 1.5rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+  background: var(--gold-hover);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.profile-small-run-signal p { margin: 0.35rem 0 0; }
 .ownership-review-badge {
   padding: 0.3rem 0.45rem;
   border: 1px solid #8a361e;

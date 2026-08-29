@@ -64,6 +64,7 @@ export {
   paginatePlants,
   plantsForGuide,
   queryToSearchParams,
+  smallRunSignalForPlant,
   verifiedStates,
 } from "./query";
 export {

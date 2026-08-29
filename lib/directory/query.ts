@@ -90,7 +90,10 @@ export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
   if (query.process && !matchesFinderProcess(plant, query.process)) {
     return false;
   }
-  if ((query.smallMoq || query.moqDisclosed) && !plant.publishedSmallMoq) {
+  if (query.moqDisclosed && !plant.publishedSmallMoq) {
+    return false;
+  }
+  if ((query.smallRunSignal || query.smallMoq) && !smallRunSignalForPlant(plant)) {
     return false;
   }
   if (query.packaging && !matchesPackaging(plant, query.packaging)) {
@@ -183,6 +186,7 @@ export function parseDirectoryQuery(
     category: readCategory(first(searchParams.category)),
     process: readProcess(first(searchParams.process)),
     smallMoq: first(searchParams.smallMoq) === "1",
+    smallRunSignal: first(searchParams.smallRun) === "1",
     moqDisclosed: first(searchParams.moq) === "disclosed",
     packaging: readPackaging(first(searchParams.packaging)),
     certification: readCertification(first(searchParams.certification)),
@@ -200,6 +204,7 @@ export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   if (query.category) params.set("category", query.category);
   if (query.process) params.set("process", query.process);
   if (query.smallMoq) params.set("smallMoq", "1");
+  if (query.smallRunSignal) params.set("smallRun", "1");
   if (query.moqDisclosed) params.set("moq", "disclosed");
   if (query.packaging) params.set("packaging", query.packaging);
   if (query.certification) params.set("certification", query.certification);
@@ -209,6 +214,15 @@ export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   if (query.sort === "za") params.set("sort", query.sort);
   if (query.page && query.page > 1) params.set("page", String(query.page));
   return params;
+}
+
+export function smallRunSignalForPlant(plant: Plant): Plant["smallRunSignal"] {
+  if (plant.smallRunSignal) return plant.smallRunSignal;
+  if (!plant.publishedSmallMoq || !plant.moqDisplay) return undefined;
+  return {
+    evidence: plant.moqDisplay,
+    sourceUrls: plant.fieldSourceUrls?.minimums ?? [plant.website.href],
+  };
 }
 
 function readVerificationDate(value: string | undefined): VerificationDateFilter | undefined {

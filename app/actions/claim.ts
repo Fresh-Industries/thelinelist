@@ -1,7 +1,7 @@
 "use server";
 
 import { getPlantBySlug } from "@/lib/directory";
-import { leadFingerprint, newLeadId } from "@/lib/leads/fingerprint";
+import { idempotentLeadId, leadFingerprint } from "@/lib/leads/fingerprint";
 import { claimInputSchema, zodFieldErrors, type FieldErrors } from "@/lib/leads/schema";
 import { createLeadStore } from "@/lib/leads/store";
 import { leadSaveFailureMessage } from "@/lib/notify/email";
@@ -57,6 +57,7 @@ export async function submitClaim(
     storage: readFormString(formData, "storage"),
     distribution: readFormString(formData, "distribution"),
     aboutNotes: readFormString(formData, "aboutNotes"),
+    consent: readFormString(formData, "consent"),
     startedAt: readFormString(formData, "startedAt"),
     hp: readFormString(formData, "hp"),
     utm_source: readFormString(formData, "utm_source"),
@@ -126,12 +127,19 @@ export async function submitClaim(
     };
   }
 
-  const { hp: _hp, startedAt: _startedAt, ...payload } = input;
+  const { hp: _hp, startedAt: _startedAt, consent: _consent, ...payload } = input;
   void _hp;
   void _startedAt;
+  void _consent;
 
+  const createdAt = new Date().toISOString();
+  const submissionTypes = [
+    input.notListed === "yes" ? "new_facility" : "profile_claim",
+    input.activityCorrections || input.corrections || input.moqCorrection || input.certsCorrection ? "profile_correction" : null,
+    input.featuredInterest === "yes" ? "featured_listing_interest" : null,
+  ].filter((value): value is string => Boolean(value));
   const saved = await store.save({
-    id: newLeadId(),
+    id: idempotentLeadId(fingerprint, createdAt),
     kind: "claim",
     manufacturerSlug: input.manufacturerSlug,
     manufacturerName: input.manufacturerName,
@@ -139,9 +147,18 @@ export async function submitClaim(
       listed && input.manufacturerSlug !== "not-listed"
         ? absoluteUrl(`/manufacturers/${input.manufacturerSlug}`)
         : absoluteUrl("/claim-submit"),
-    createdAt: new Date().toISOString(),
+    createdAt,
     utm: mergeRequestUtm(formData, context.utmCookie),
-    payload,
+    payload: {
+      ...payload,
+      _lead: {
+        submissionTypes,
+        contact: { name: input.contactName, email: input.workEmail, phone: input.phone || null, role: input.role },
+        consent: { granted: true, recordedAt: createdAt },
+        status: "received",
+        notification: { state: "pending", updatedAt: createdAt },
+      },
+    },
     fingerprint,
   });
 

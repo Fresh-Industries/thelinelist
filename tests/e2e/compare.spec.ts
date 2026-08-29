@@ -40,7 +40,7 @@ test.describe("manufacturer comparison", () => {
     }, slugs);
     await page.goto(`/find-manufacturers/compare?plants=${encodeURIComponent(slugs.join(","))}`);
 
-    await expect(page.getByRole("row", { name: /Manufacturing capabilities/ })).toContainText("Custom fermentation");
+    await expect(page.getByRole("row", { name: /Manufacturing capabilities/ })).toContainText("aluminum can filling");
     await expect(page.getByRole("row", { name: /Manufacturing capabilities/ })).toContainText("pasteurization");
 
     const layout = await page.evaluate(() => {

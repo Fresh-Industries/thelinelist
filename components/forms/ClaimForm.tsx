@@ -350,6 +350,12 @@ export function ClaimForm({
         <input id={`${id}-featured`} name="featuredInterest" type="checkbox" value="yes" />
         <label htmlFor={`${id}-featured`}>Ask about a featured listing</label>
       </div>
+      <div className="field-check form-check">
+        <input id={`${id}-consent`} name="consent" type="checkbox" value="yes" required aria-describedby={`${id}-consent-help`} />
+        <label htmlFor={`${id}-consent`}>I agree that The Line List may securely store this submission and follow up by email.</label>
+      </div>
+      <p id={`${id}-consent-help`} className="form-aside">Claims are reviewed manually. Private contact details are not published.</p>
+      {errors.consent ? <p className="field-error">{errors.consent}</p> : null}
 
       <button className="btn btn-gold" type="submit" disabled={pending}>
         {pending ? "Sending…" : "Submit claim for review"}

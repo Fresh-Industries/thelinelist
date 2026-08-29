@@ -3,7 +3,7 @@ import Link from "next/link";
 
 function pageHref(query: DirectoryQuery, page: number): string {
   const hasFilters = Boolean(
-    query.product || query.category || query.process || query.smallMoq || query.moqDisclosed
+    query.product || query.category || query.process || query.smallMoq || query.smallRunSignal || query.moqDisclosed
       || query.packaging || query.certification || query.operationType || query.state || query.verified || query.sort,
   );
 

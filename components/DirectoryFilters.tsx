@@ -137,11 +137,18 @@ function getActiveFilters(initial: DirectoryQuery): ActiveFilter[] {
           href: directoryHref({ ...initial, operationType: undefined, page: undefined }),
         }
       : null,
-    initial.moqDisclosed || initial.smallMoq
+    initial.moqDisclosed
       ? {
           key: "moq",
           label: "Minimum listed",
-          href: directoryHref({ ...initial, moqDisclosed: false, smallMoq: false, page: undefined }),
+          href: directoryHref({ ...initial, moqDisclosed: false, page: undefined }),
+        }
+      : null,
+    initial.smallRunSignal || initial.smallMoq
+      ? {
+          key: "smallRun",
+          label: "Small-run signal listed",
+          href: directoryHref({ ...initial, smallRunSignal: false, smallMoq: false, page: undefined }),
         }
       : null,
     initial.verified
@@ -342,7 +349,7 @@ export function DirectoryFilters({
   const id = useId();
   const [isPending, startTransition] = useTransition();
   const hasAdvancedFilters = Boolean(
-    initial.process || initial.packaging || initial.certification || initial.operationType || initial.moqDisclosed || initial.smallMoq || initial.verified,
+    initial.process || initial.packaging || initial.certification || initial.operationType || initial.moqDisclosed || initial.smallRunSignal || initial.smallMoq || initial.verified,
   );
   const [advancedOpen, setAdvancedOpen] = useState(hasAdvancedFilters);
   const [category, setCategory] = useState(initial.category ?? "");
@@ -351,7 +358,8 @@ export function DirectoryFilters({
   const [certification, setCertification] = useState(initial.certification ?? "");
   const [operationType, setOperationType] = useState(initial.operationType ?? "");
   const [state, setState] = useState(initial.state ?? "");
-  const [moqDisclosed, setMoqDisclosed] = useState(Boolean(initial.moqDisclosed || initial.smallMoq));
+  const [moqDisclosed, setMoqDisclosed] = useState(Boolean(initial.moqDisclosed));
+  const [smallRunSignal, setSmallRunSignal] = useState(Boolean(initial.smallRunSignal || initial.smallMoq));
   const [verified, setVerified] = useState(initial.verified ?? "");
 
   const activeFilters = getActiveFilters(initial);
@@ -368,6 +376,7 @@ export function DirectoryFilters({
       operationType: (operationType as OperationType) || undefined,
       state: state || undefined,
       moqDisclosed,
+      smallRunSignal,
       verified: (verified as VerificationDateFilter) || undefined,
       sort: initial.sort,
     };
@@ -379,6 +388,7 @@ export function DirectoryFilters({
       operationType: operationType || "any",
       state: state || "any",
       moqDisclosed,
+      smallRunSignal,
       verified: verified || "any",
     });
     startTransition(() => window.location.assign(directoryHref(query)));
@@ -458,6 +468,18 @@ export function DirectoryFilters({
                 <option value="">Any minimum</option>
                 <option value="disclosed">Show publicly listed minimums only</option>
               </select>
+            </div>
+            <div className="field">
+              <label className="field-check" htmlFor={`${id}-small-run`}>
+                <input
+                  id={`${id}-small-run`}
+                  type="checkbox"
+                  checked={smallRunSignal}
+                  onChange={(event) => setSmallRunSignal(event.target.checked)}
+                />
+                Publicly lists a small-run signal
+              </label>
+              <small>Based only on a sourced MOQ, first-run, test-run, pilot-run, or small-run statement. Confirm current minimums directly.</small>
             </div>
             <div className="field">
               <label htmlFor={`${id}-operation-type`}>Operating model</label>

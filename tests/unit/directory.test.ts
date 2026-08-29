@@ -6,7 +6,10 @@ import {
   getIndexableProductCategories,
   getPlantBySlug,
   isPlantIndexable,
+  parseDirectoryQuery,
   paginatePlants,
+  queryToSearchParams,
+  smallRunSignalForPlant,
 } from "@/lib/directory";
 import { comparableMoq, categorySnapshot } from "@/lib/directory/snapshot";
 import type { Plant } from "@/lib/directory/types";
@@ -15,8 +18,9 @@ import { describe, expect, it } from "vitest";
 
 describe("directory trust and pagination", () => {
   it("keeps the dry-only California Spice Basket out of prepared refrigerated foods", () => {
-    expect(filterPlants({ category: "prepared-refrigerated-foods" }).map((plant) => plant.slug))
-      .toEqual(["boulder-organic-foods-bolder-foods", "portland-plant-foods"]);
+    const prepared = filterPlants({ category: "prepared-refrigerated-foods" }).map((plant) => plant.slug);
+    expect(prepared).toEqual(expect.arrayContaining(["boulder-organic-foods-bolder-foods", "harvest-food-group", "portland-plant-foods"]));
+    expect(prepared).not.toContain("california-spice-basket-inc");
   });
 
   it("keeps dry beverage pods separate from bottled wellness drinks", () => {
@@ -216,16 +220,16 @@ describe("directory trust and pagination", () => {
   it("reports the complete Hot Sauce snapshot without mixing MOQ units", () => {
     const plants = filterPlants({ category: "hot-sauce" });
 
-    expect(plants).toHaveLength(9);
+    expect(plants).toHaveLength(20);
     expect(plants.map((plant) => plant.slug)).toContain("creative-foodworks");
     expect(plants.map((plant) => plant.slug)).not.toContain("acecopack");
     expect(categorySnapshot(plants)).toMatchObject({
-      matchingManufacturers: 9,
+      matchingManufacturers: 20,
       publishingMinimums: 2,
       comparableMoqRange: "50–1,000 gallons across 2 published minimums",
-      commonProcesses: ["Hot fill", "Acidified", "Pack-out"],
-      commonPackaging: ["bottles", "pouches", "jars"],
-      states: ["CO", "DE", "IN", "NJ", "TX"],
+      commonProcesses: ["Acidified", "Hot fill", "Cold fill"],
+      commonPackaging: ["bottles", "jars", "pouches"],
+      states: ["CO", "DE", "FL", "GA", "IN", "MI", "NH", "NJ", "NY", "PA", "TX", "VA", "WI"],
     });
   });
 
@@ -260,6 +264,21 @@ describe("directory trust and pagination", () => {
     expect(disclosed).toContain("bevpro-solutions-formerly-beer-dudes-canning");
     expect(disclosed).toContain("st-cousair");
     expect(disclosed).toContain("oregon-trail-mountain-spring-water");
+  });
+
+  it("shares and combines the sourced small-run signal filter without inferring friendliness", () => {
+    const query = parseDirectoryQuery({ smallRun: "1", category: "spices-dry-mixes", state: "TX" });
+    expect(query).toMatchObject({ smallRunSignal: true, category: "spices-dry-mixes", state: "TX" });
+    expect(queryToSearchParams(query).toString()).toContain("smallRun=1");
+
+    const matches = filterPlants({ smallRunSignal: true });
+    for (const slug of ["amigos-canning-co-amigos-foods", "consolidated-mills-inc"]) {
+      const plant = matches.find((candidate) => candidate.slug === slug);
+      expect(plant, slug).toBeDefined();
+      expect(smallRunSignalForPlant(plant!)?.evidence).toMatch(/small-batch/i);
+      expect(smallRunSignalForPlant(plant!)?.sourceUrls[0]).toMatch(/^https:\/\//);
+      expect(smallRunSignalForPlant(plant!)?.evidence).not.toMatch(/beginner-friendly|small-run friendly/i);
+    }
   });
 
   it("does not infer jars from glass material or a negated glass format", () => {

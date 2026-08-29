@@ -35,6 +35,7 @@ test.describe("lead form validation", () => {
     await page.locator("[name=name]").fill("Local test");
     await page.locator("[name=email]").fill("local-test@example.com");
     await page.locator("[name=launchDate]").fill("Flexible");
+    await page.locator("[name=consent]").check();
     await page.getByRole("button", { name: "Request contact help" }).click();
 
     await expect(page.locator(".form-banner")).toContainText("Tell us what you want to make.");
@@ -65,6 +66,7 @@ test.describe("lead form validation", () => {
     await page.locator("[name=contactName]").fill("   ");
     await page.locator("[name=workEmail]").fill("local-claim@example.com");
     await page.locator("[name=role]").fill("Plant manager");
+    await page.locator("[name=consent]").check();
     await page.getByRole("button", { name: "Submit claim for review" }).click();
 
     await expect(page.locator(".form-banner")).toContainText("Enter a contact name.");
@@ -81,6 +83,7 @@ test.describe("lead form validation", () => {
     await page.locator("[name=role]").fill("Plant manager");
     await page.getByText("More plant detail (optional)").click();
     await page.locator("[name=operationType]").fill("x".repeat(201));
+    await page.locator("[name=consent]").check();
     await page.getByText("More plant detail (optional)").click();
     await page.getByRole("button", { name: "Submit claim for review" }).click();
 

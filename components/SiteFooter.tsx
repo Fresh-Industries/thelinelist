@@ -32,6 +32,7 @@ export function SiteFooter() {
           <Link href="/find-manufacturers">Find manufacturers</Link>
           <a href="mailto:hello@thelinelist.com">Contact</a>
           <Link href="/claim-submit">Claim or submit a plant</Link>
+          <Link href="/for-manufacturers">For manufacturers</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </nav>

@@ -1,7 +1,7 @@
 "use server";
 
 import { getPlantBySlug } from "@/lib/directory";
-import { leadFingerprint, newLeadId } from "@/lib/leads/fingerprint";
+import { idempotentLeadId, leadFingerprint } from "@/lib/leads/fingerprint";
 import { introInputSchema, zodFieldErrors, type FieldErrors } from "@/lib/leads/schema";
 import { createLeadStore } from "@/lib/leads/store";
 import { leadSaveFailureMessage } from "@/lib/notify/email";
@@ -56,6 +56,7 @@ export async function submitIntro(
     manufacturerSlug: readFormString(formData, "manufacturerSlug"),
     manufacturerName: readFormString(formData, "manufacturerName"),
     sourceUrl: readFormString(formData, "sourceUrl"),
+    consent: readFormString(formData, "consent"),
     startedAt: readFormString(formData, "startedAt"),
     hp: readFormString(formData, "hp"),
     utm_source: readFormString(formData, "utm_source"),
@@ -127,19 +128,30 @@ export async function submitIntro(
     };
   }
 
-  const { hp: _hp, startedAt: _startedAt, ...payload } = input;
+  const { hp: _hp, startedAt: _startedAt, consent: _consent, ...payload } = input;
   void _hp;
   void _startedAt;
+  void _consent;
 
+  const createdAt = new Date().toISOString();
   const saved = await store.save({
-    id: newLeadId(),
+    id: idempotentLeadId(fingerprint, createdAt),
     kind: "intro",
     manufacturerSlug: plant.slug,
     manufacturerName: plant.name,
     sourceUrl: absoluteSourceUrl(input.sourceUrl),
-    createdAt: new Date().toISOString(),
+    createdAt,
     utm: mergeRequestUtm(formData, context.utmCookie),
-    payload,
+    payload: {
+      ...payload,
+      _lead: {
+        submissionTypes: ["manufacturer_introduction"],
+        contact: { name: input.name, email: input.email, phone: input.phone || null },
+        consent: { granted: true, recordedAt: createdAt },
+        status: "received",
+        notification: { state: "pending", updatedAt: createdAt },
+      },
+    },
     fingerprint,
   });
 

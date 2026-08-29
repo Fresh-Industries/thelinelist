@@ -3,6 +3,7 @@ import {
   formatCardSnippet,
   formatProcesses,
   certificationCardClaims,
+  smallRunSignalForPlant,
   plantMatchesCategory,
   type Plant,
   type ProductCategorySlug,
@@ -71,6 +72,7 @@ export function CopackerCard({ plant, prioritizedCategory }: { plant: Plant; pri
   const tags = capabilityTags(plant, productLabels);
   const publicProductFallback = productLabels.length === 0 ? formatCardSnippet(plant.productTypesPublished, 120) : null;
   const certificationClaims = certificationCardClaims(plant);
+  const smallRunSignal = smallRunSignalForPlant(plant);
 
   return (
     <article className="plant-card">
@@ -99,6 +101,13 @@ export function CopackerCard({ plant, prioritizedCategory }: { plant: Plant; pri
           <strong>MOQ:</strong>{" "}
           {minimums.length > 0 ? minimums.map((line) => <span key={line}>{line}</span>) : "Ask manufacturer"}
         </p>
+
+        {smallRunSignal ? (
+          <p className="small-run-signal" title="Public source signal only. Confirm current minimums directly with the manufacturer.">
+            <strong>Small-run signal listed</strong>
+            <span>Confirm current minimums directly.</span>
+          </p>
+        ) : null}
 
         <footer className="plant-card-footer">
           {plant.needsCurrentOwnershipVerification ? <span className="ownership-review-badge">Ownership review needed</span> : null}

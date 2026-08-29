@@ -9,77 +9,163 @@ import type { LeadRecord, LeadStore, StoreResult } from "./types";
 import type { Prisma } from "@/generated/prisma/client";
 import { databaseConfigured, prisma } from "@/lib/db/prisma";
 
-const memoryRecords = new Map<string, LeadRecord[]>();
+type NotificationState = "pending" | "sent" | "failed";
 
-export function getLeadStoreAdapterName(): "postgres" | "email-archive" | "memory" {
-  if (databaseConfigured()) return "postgres";
-  if (isNotifyConfigured()) return "email-archive";
-  return "memory";
+export function getLeadStoreAdapterName(): "postgres" | "unconfigured" {
+  return databaseConfigured() ? "postgres" : "unconfigured";
 }
 
 export function createLeadStore(): LeadStore {
   return {
     async save(record) {
-      if (databaseConfigured()) {
-        const stored = await saveToPostgres(record);
-        if (stored.ok) {
-          const notified = await notifyOwner(record, "postgres");
-          if (!notified.ok) {
-            return {
-              ...stored,
-              ok: false,
-              error: notifyError(notified),
-            };
-          }
-          return stored;
-        }
+      if (!databaseConfigured()) {
+        return {
+          ok: false,
+          adapter: "unconfigured",
+          id: record.id,
+          error: "Durable lead storage is not configured. DATABASE_URL is required.",
+        };
       }
 
-      if (isNotifyConfigured()) {
-        return saveToEmailArchive(record);
+      const stored = await saveToPostgres(record);
+      if (!stored.ok) return stored;
+      if (stored.duplicate) {
+        console.info("[lead-store] duplicate submission reused", {
+          id: record.id,
+          kind: record.kind,
+          manufacturerSlug: record.manufacturerSlug,
+          adapter: "postgres",
+        });
+        return stored;
       }
 
-      const memory = saveToMemory(record);
+      const notified = isNotifyConfigured()
+        ? await notifyOwner(record)
+        : { ok: false, provider: "none" as const, error: "No email provider configured." };
+      const notificationState: NotificationState = notified.ok ? "sent" : "failed";
+      await updateNotificationState(record, notificationState, notified);
+
+      console.info("[lead-store] submission processed", {
+        id: record.id,
+        kind: record.kind,
+        manufacturerSlug: record.manufacturerSlug,
+        adapter: "postgres",
+        notificationState,
+        notificationProvider: notified.provider,
+      });
+
       return {
-        ...memory,
-        ok: false,
-        error: "Owner email notifications are not configured.",
+        ...stored,
+        ok: true,
+        notificationState,
+        notificationProvider: notified.provider,
       };
     },
     async findRecentDuplicate(fingerprint, withinMs) {
-      const local = findMemoryDuplicate(fingerprint, withinMs);
-      if (local) return local;
-      if (databaseConfigured()) {
-        return findPostgresDuplicate(fingerprint, withinMs);
-      }
-      return null;
+      if (!databaseConfigured()) return null;
+      return findPostgresDuplicate(fingerprint, withinMs);
     },
   };
 }
 
 async function saveToPostgres(record: LeadRecord): Promise<StoreResult> {
   try {
-    await prisma.leadSubmission.create({ data: {
-      id: record.id,
-      kind: record.kind,
-      manufacturerSlug: record.manufacturerSlug,
-      manufacturerName: record.manufacturerName,
-      sourceUrl: record.sourceUrl,
-      utm: record.utm as unknown as Prisma.InputJsonValue,
-      payload: record.payload as Prisma.InputJsonValue,
-      fingerprint: record.fingerprint,
-      createdAt: new Date(record.createdAt),
-    } });
+    await prisma.leadSubmission.create({
+      data: {
+        id: record.id,
+        kind: record.kind,
+        manufacturerSlug: record.manufacturerSlug,
+        manufacturerName: record.manufacturerName,
+        sourceUrl: record.sourceUrl,
+        utm: record.utm as unknown as Prisma.InputJsonValue,
+        payload: withNotificationState(record.payload, "pending", record.createdAt) as Prisma.InputJsonValue,
+        fingerprint: record.fingerprint,
+        createdAt: new Date(record.createdAt),
+      },
+    });
   } catch (error) {
+    if (isUniqueConflict(error)) {
+      return {
+        ok: true,
+        duplicate: true,
+        adapter: "postgres",
+        id: record.id,
+        notificationState: "pending",
+      };
+    }
     return {
       ok: false,
       adapter: "postgres",
       id: record.id,
-      error: error instanceof Error ? error.message : "PostgreSQL write failed",
+      error: databaseFailure(error),
     };
   }
-  remember(record);
-  return { ok: true, adapter: "postgres", id: record.id };
+  return { ok: true, adapter: "postgres", id: record.id, notificationState: "pending" };
+}
+
+async function updateNotificationState(
+  record: LeadRecord,
+  state: NotificationState,
+  result: NotifyResult,
+): Promise<void> {
+  try {
+    await prisma.leadSubmission.update({
+      where: { id: record.id },
+      data: {
+        payload: withNotificationState(
+          record.payload,
+          state,
+          new Date().toISOString(),
+          result.provider,
+          result.error,
+        ) as Prisma.InputJsonValue,
+      },
+    });
+  } catch (error) {
+    console.error("[lead-store] notification state update failed", {
+      id: record.id,
+      kind: record.kind,
+      manufacturerSlug: record.manufacturerSlug,
+      notificationState: state,
+      error: databaseFailure(error),
+    });
+  }
+}
+
+function withNotificationState(
+  payload: Record<string, unknown>,
+  state: NotificationState,
+  updatedAt: string,
+  provider: NotifyResult["provider"] = "none",
+  error?: string,
+): Record<string, unknown> {
+  const metadata = isRecord(payload._lead) ? payload._lead : {};
+  return {
+    ...payload,
+    _lead: {
+      ...metadata,
+      status: "received",
+      notification: {
+        state,
+        provider,
+        updatedAt,
+        ...(error ? { errorCode: provider === "none" ? "NOT_CONFIGURED" : "DELIVERY_FAILED" } : {}),
+      },
+    },
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isUniqueConflict(error: unknown): boolean {
+  return isRecord(error) && error.code === "P2002";
+}
+
+function databaseFailure(error: unknown): string {
+  const code = isRecord(error) && typeof error.code === "string" ? error.code : null;
+  return code ? `PostgreSQL write failed (${code})` : "PostgreSQL write failed";
 }
 
 async function findPostgresDuplicate(
@@ -104,40 +190,7 @@ async function findPostgresDuplicate(
   };
 }
 
-async function saveToEmailArchive(record: LeadRecord): Promise<StoreResult> {
-  const notified = await notifyOwner(record, "email-archive");
-  if (!notified.ok) {
-    return {
-      ok: false,
-      adapter: "email-archive",
-      id: record.id,
-      error: notifyError(notified),
-    };
-  }
-  remember(record);
-  return { ok: true, adapter: "email-archive", id: record.id };
-}
-
-function saveToMemory(record: LeadRecord): StoreResult {
-  remember(record);
-  return { ok: true, adapter: "memory", id: record.id };
-}
-
-function remember(record: LeadRecord): void {
-  const list = memoryRecords.get(record.fingerprint) ?? [];
-  list.push(record);
-  memoryRecords.set(record.fingerprint, list);
-}
-
-function findMemoryDuplicate(fingerprint: string, withinMs: number): LeadRecord | null {
-  const now = Date.now();
-  const list = memoryRecords.get(fingerprint) ?? [];
-  return (
-    list.find((record) => now - Date.parse(record.createdAt) <= withinMs) ?? null
-  );
-}
-
-async function notifyOwner(record: LeadRecord, via: string): Promise<NotifyResult> {
+async function notifyOwner(record: LeadRecord): Promise<NotifyResult> {
   const kindLabel = record.kind === "intro" ? "Contact-help request" : "Profile claim";
   const replyTo = [record.payload.email, record.payload.workEmail].find(
     (value): value is string => typeof value === "string" && value.length > 0,
@@ -146,29 +199,25 @@ async function notifyOwner(record: LeadRecord, via: string): Promise<NotifyResul
     to: getOwnerNotifyAddress(),
     subject: `${SITE_NAME}: ${kindLabel} for ${record.manufacturerName}`,
     replyTo,
-    text: formatLeadText(record, via),
+    text: formatLeadText(record),
     tags: { kind: record.kind, slug: record.manufacturerSlug },
+    idempotencyKey: `lead-${record.id}`,
   });
 }
 
-function notifyError(result: NotifyResult): string {
-  return `Owner notification failed via ${result.provider}: ${result.error ?? "Unknown email error."}`;
-}
-
-function formatLeadText(record: LeadRecord, via: string): string {
-  const lines = [
+function formatLeadText(record: LeadRecord): string {
+  return [
     `${record.kind === "intro" ? "Contact-help request" : "Profile claim"} submitted for review.`,
-    `Do not treat this as an intro already sent. Review first.`,
+    "Do not treat this as an intro already sent. Review first.",
     "",
     `Manufacturer: ${record.manufacturerName} (${record.manufacturerSlug})`,
     `Source URL: ${record.sourceUrl}`,
     `Submitted: ${record.createdAt}`,
     `Record ID: ${record.id}`,
-    `Store path: ${via}`,
+    "Store path: postgres",
     `UTM: ${JSON.stringify(record.utm)}`,
     "",
     "Payload:",
     JSON.stringify(record.payload, null, 2),
-  ];
-  return lines.join("\n");
+  ].join("\n");
 }

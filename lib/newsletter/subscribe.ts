@@ -49,11 +49,10 @@ export async function subscribeNewsletter(email: string): Promise<NewsletterSubs
   });
 
   if (!notified.ok) {
-    return {
-      ok: false,
-      provider: subscribed.provider,
-      error: `Subscriber saved, but owner notification failed: ${notified.error ?? "Unknown email error."}`,
-    };
+    console.error("[newsletter-notify] owner notification failed", {
+      provider: notified.provider,
+      error: notified.error ?? "Unknown email error.",
+    });
   }
 
   return subscribed;

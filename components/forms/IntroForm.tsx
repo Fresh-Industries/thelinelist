@@ -36,6 +36,7 @@ const INTRO_FIELD_STEPS: Record<string, number> = {
   location: 3,
   certsNeeded: 3,
   details: 3,
+  consent: 3,
 };
 
 export function IntroForm({
@@ -273,6 +274,12 @@ export function IntroForm({
             <textarea id={`${id}-details`} name="details" rows={3} />
           </Field>
         </div>
+        <div className="field-check form-check">
+          <input id={`${id}-consent`} name="consent" type="checkbox" value="yes" required aria-describedby={`${id}-consent-help`} />
+          <label htmlFor={`${id}-consent`}>I agree that The Line List may securely store this request and follow up by email.</label>
+        </div>
+        <p id={`${id}-consent-help`} className="form-aside">Your contact details stay private. No manufacturer is contacted automatically.</p>
+        {errors.consent ? <p className="field-error">{errors.consent}</p> : null}
       </fieldset>
 
       <div className="form-step-actions">

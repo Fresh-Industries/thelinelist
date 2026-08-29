@@ -57,10 +57,17 @@ test("legacy company profiles redirect to the canonical manufacturer URL", async
   expect(response.headers().location).toBe("/manufacturers/innomark");
 });
 
-test("a refrigerated-food category shows the verified gap expansion", async ({ page }) => {
+test("legacy claim route permanently redirects and preserves query parameters", async ({ request }) => {
+  const response = await request.get("/claim?manufacturer=creative-foodworks&utm_source=legacy", { maxRedirects: 0 });
+  expect(response.status()).toBe(308);
+  expect(response.headers().location).toBe("/claim-submit?manufacturer=creative-foodworks&utm_source=legacy");
+});
+
+test("a refrigerated-food category shows the complete verified set", async ({ page }) => {
   await page.goto("/find-manufacturers/prepared-refrigerated-foods");
-  await expect(page.getByRole("heading", { level: 2, name: /^2 manufacturers that/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: /^3 manufacturers that/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Boulder Organic Foods (Bolder Foods)" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Harvest Food Group" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Portland Plant Foods" })).toBeVisible();
 });
 

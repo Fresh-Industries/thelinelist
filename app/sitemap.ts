@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/find-manufacturers",
     "/find-manufacturers/wizard",
     "/about",
+    "/for-manufacturers",
     "/guides",
     "/how-we-verify",
     "/newsletter",
