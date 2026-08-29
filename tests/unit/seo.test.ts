@@ -1,4 +1,5 @@
 import {
+  CATEGORY_HUB_CONTENT,
   filterPlants,
   getIndexableProductCategories,
   getPlantBySlug,
@@ -22,6 +23,12 @@ describe("SEO URL and structured-data conventions", () => {
   });
   it("allows the Playwright loopback origin to load Next development assets", () => {
     expect(nextConfig.allowedDevOrigins).toContain("127.0.0.1");
+  });
+
+  it("titles the sauce directory hub for manufacturer and condiment queries", () => {
+    expect(CATEGORY_HUB_CONTENT.sauce.seoTitle).toMatch(/Manufacturers?/);
+    expect(CATEGORY_HUB_CONTENT.sauce.seoTitle).toMatch(/Condiment/);
+    expect(CATEGORY_HUB_CONTENT.sauce.seoTitle).not.toBe("Sauce Co-Packers");
   });
 
   it("uses no trailing slash for non-root internal URLs", () => {
