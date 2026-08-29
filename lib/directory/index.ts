@@ -52,6 +52,7 @@ export {
   DIRECTORY_PAGE_SIZE,
   countByFinderProduct,
   countVerifiedSlice,
+  directoryFacetCounts,
   filterPlants,
   getDirectoryPlants,
   getPlantBySlug,
@@ -66,6 +67,7 @@ export {
   queryToSearchParams,
   smallRunSignalForPlant,
   verifiedStates,
+  type DirectoryFacetCounts,
 } from "./query";
 export {
   coverageNote,

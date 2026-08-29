@@ -46,11 +46,63 @@ test.describe("manufacturer directory discovery redesign", () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   });
 
+  test("applies quick product filters across navigation, reload, and browser history", async ({ page }) => {
+    await page.goto("/find-manufacturers");
+    const unfilteredHeading = await page.locator("#directory-results-heading").innerText();
+    const filteredDocumentRequests: string[] = [];
+    page.on("request", (request) => {
+      if (request.resourceType() === "document" && request.url().includes("category=bakery")) {
+        filteredDocumentRequests.push(request.url());
+      }
+    });
+
+    await page.getByRole("link", { name: /^Bakery/ }).click();
+
+    await expect(page).toHaveURL(/category=bakery/);
+    expect(filteredDocumentRequests).toHaveLength(1);
+    await expect(page.getByRole("link", { name: "Remove Bakery filter" })).toBeVisible();
+    const filteredHeading = await page.locator("#directory-results-heading").innerText();
+    expect(filteredHeading).not.toBe(unfilteredHeading);
+
+    await page.reload();
+    await expect(page.locator("#directory-results-heading")).toHaveText(filteredHeading);
+
+    await page.goBack();
+    await expect(page.locator("#directory-results-heading")).toHaveText(unfilteredHeading);
+
+    await page.goForward();
+    await expect(page.locator("#directory-results-heading")).toHaveText(filteredHeading);
+  });
+
   test("filtered cards prioritize the category that explains the result", async ({ page }) => {
     await page.goto("/find-manufacturers?category=functional-beverages");
     const betterBeverage = page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: "Better Beverage Company" }) });
 
     await expect(betterBeverage.locator(".capability-chip-product > span:last-child").first()).toHaveText("Wellness drinks & shots");
+  });
+
+  test("shows contextual counts and prevents unsupported bakery combinations", async ({ page }) => {
+    await page.goto("/find-manufacturers?category=bakery");
+    await page.getByText("More filters", { exact: true }).click();
+
+    const process = page.getByLabel("How it is made Process");
+    await expect(process.locator('option[value="hpp"]')).toBeDisabled();
+    await expect(process.locator('option[value="hpp"]')).toHaveText("HPP (0)");
+
+    const packaging = page.getByLabel("Package type");
+    const pouchOption = packaging.locator('option[value="pouch"]');
+    const pouchLabel = await pouchOption.innerText();
+    const advertisedCount = Number(pouchLabel.match(/\((\d+)\)$/)?.[1]);
+    expect(advertisedCount).toBeGreaterThan(0);
+
+    await packaging.selectOption("pouch");
+    await page.getByRole("button", { name: "Apply filters" }).click();
+
+    await expect(page).toHaveURL(/category=bakery/);
+    await expect(page).toHaveURL(/packaging=pouch/);
+    await expect(page.getByRole("link", { name: "Remove Bakery filter" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Remove Pouches or sachets filter" })).toBeVisible();
+    await expect(page.locator("#directory-results-heading")).toContainText(`of ${advertisedCount} manufacturers`);
   });
 
   test("mobile keeps quick discovery and cards inside the viewport", async ({ page }) => {

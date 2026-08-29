@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteHeader } from "@/components/SiteHeader";
 import {
   filterPlants,
+  directoryFacetCounts,
   isPlantIndexable,
   paginatePlants,
   queryToSearchParams,
@@ -26,6 +27,7 @@ export function ManufacturerDirectory({ query, requestedPage = 1, schemaPath = "
   schemaPath?: string;
 }) {
   const allMatches = filterPlants(query);
+  const facetCounts = directoryFacetCounts(query);
   const page = paginatePlants(allMatches, requestedPage);
   const indexableStartPosition = allMatches
     .slice(0, page.startIndex)
@@ -50,7 +52,7 @@ export function ManufacturerDirectory({ query, requestedPage = 1, schemaPath = "
             <h1 id="directory-title">Find a manufacturer for your product</h1>
             <p className="lede">Browse food and beverage manufacturers using publicly sourced information.</p>
           </div>
-          <DirectoryFilters key={filterKey} states={verifiedStates()} initial={query} />
+          <DirectoryFilters key={filterKey} states={verifiedStates()} initial={query} facetCounts={facetCounts} />
         </section>
         <DirectoryResultsBar
           initial={query}

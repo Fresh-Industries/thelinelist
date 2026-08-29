@@ -2,6 +2,7 @@ import { capabilityContradictions } from "@/lib/directory/assert";
 import {
   DIRECTORY_PAGE_SIZE,
   categoryFaqs,
+  directoryFacetCounts,
   filterPlants,
   getIndexableProductCategories,
   getPlantBySlug,
@@ -65,6 +66,19 @@ describe("directory trust and pagination", () => {
     const bakery = filterPlants({ category: "bakery" }).map((plant) => plant.slug);
     expect(bakery).not.toContain("copacking-express");
     expect(bakery).not.toContain("precision-pack-partners");
+  });
+
+  it("computes contextual facet counts without turning unknown fields into matches", () => {
+    const bakeryFacets = directoryFacetCounts({ category: "bakery" });
+
+    expect(bakeryFacets.categories.bakery).toBe(filterPlants({ category: "bakery" }).length);
+    expect(bakeryFacets.processes.hpp).toBe(filterPlants({ category: "bakery", process: "hpp" }).length);
+    expect(bakeryFacets.packaging.pouch).toBe(filterPlants({ category: "bakery", packaging: "pouch" }).length);
+    expect(bakeryFacets.certifications.sqf).toBe(filterPlants({ category: "bakery", certification: "sqf" }).length);
+    expect(bakeryFacets.processes.hpp).toBe(0);
+
+    const legacyProductFacets = directoryFacetCounts({ product: "beverage" });
+    expect(legacyProductFacets.categories.bakery).toBe(filterPlants({ category: "bakery" }).length);
   });
 
   it("does not infer soup products from stock packaging", () => {

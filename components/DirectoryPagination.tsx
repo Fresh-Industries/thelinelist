@@ -1,5 +1,4 @@
 import { queryToSearchParams, type DirectoryQuery } from "@/lib/directory";
-import Link from "next/link";
 
 function pageHref(query: DirectoryQuery, page: number): string {
   const hasFilters = Boolean(
@@ -22,15 +21,15 @@ export function DirectoryPagination({ query, currentPage, pageCount }: {
 
   return (
     <nav className="directory-pagination" aria-label="Manufacturer result pages">
-      {currentPage > 1 ? <Link rel="prev" href={pageHref(query, currentPage - 1)}>← Previous</Link> : <span />}
+      {currentPage > 1 ? <a rel="prev" href={pageHref(query, currentPage - 1)}>← Previous</a> : <span />}
       <ol>
         {pages.map((page) => (
           <li key={page}>
-            <Link href={pageHref(query, page)} aria-current={page === currentPage ? "page" : undefined}>{page}</Link>
+            <a href={pageHref(query, page)} aria-current={page === currentPage ? "page" : undefined}>{page}</a>
           </li>
         ))}
       </ol>
-      {currentPage < pageCount ? <Link rel="next" href={pageHref(query, currentPage + 1)}>Next →</Link> : <span />}
+      {currentPage < pageCount ? <a rel="next" href={pageHref(query, currentPage + 1)}>Next →</a> : <span />}
     </nav>
   );
 }

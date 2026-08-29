@@ -10,6 +10,7 @@ import {
   queryToSearchParams,
   stateLabel,
   type CertificationFilter,
+  type DirectoryFacetCounts,
   type DirectoryQuery,
   type DirectorySort,
   type FinderProcess,
@@ -78,6 +79,10 @@ const QUICK_CATEGORIES = QUICK_CATEGORY_SLUGS.map((slug) => {
   if (!category) throw new Error(`Missing quick directory category: ${slug}`);
   return category;
 });
+
+function manufacturerCountLabel(count: number): string {
+  return `${count} ${count === 1 ? "manufacturer" : "manufacturers"}`;
+}
 
 function directoryHref(query: DirectoryQuery): string {
   const params = queryToSearchParams(query);
@@ -165,10 +170,12 @@ function ProductCombobox({
   id,
   value,
   onChange,
+  facetCounts,
 }: {
   id: string;
   value: string;
   onChange: (value: string) => void;
+  facetCounts: DirectoryFacetCounts["categories"];
 }) {
   const listboxId = `${id}-listbox`;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -185,6 +192,10 @@ function ProductCombobox({
     if (!isTyping || !query) return PRODUCT_COMBOBOX_OPTIONS;
     return PRODUCT_COMBOBOX_OPTIONS.filter((option) => option.searchText.includes(query));
   }, [inputValue, isTyping]);
+
+  function optionIsAvailable(option: (typeof PRODUCT_COMBOBOX_OPTIONS)[number]): boolean {
+    return !option.value || facetCounts[option.value] > 0 || value === option.value;
+  }
 
   useEffect(() => {
     function closeOnOutsidePointer(event: PointerEvent) {
@@ -237,7 +248,12 @@ function ProductCombobox({
       const direction = event.key === "ArrowDown" ? 1 : -1;
       setActiveIndex((current) => {
         if (options.length === 0) return 0;
-        return (current + direction + options.length) % options.length;
+        let next = current;
+        for (let offset = 0; offset < options.length; offset += 1) {
+          next = (next + direction + options.length) % options.length;
+          if (optionIsAvailable(options[next])) return next;
+        }
+        return current;
       });
       return;
     }
@@ -248,7 +264,7 @@ function ProductCombobox({
         : undefined;
       const option = exactMatch ?? options[activeIndex];
       event.preventDefault();
-      if (option) {
+      if (option && optionIsAvailable(option)) {
         chooseOption(option);
       } else {
         commitTypedValue();
@@ -321,13 +337,20 @@ function ProductCombobox({
                 type="button"
                 role="option"
                 tabIndex={-1}
+                disabled={Boolean(option.value && facetCounts[option.value] === 0 && value !== option.value)}
                 aria-selected={value === option.value}
                 className={index === activeIndex ? "active" : undefined}
                 onMouseDown={(event) => event.preventDefault()}
-                onMouseEnter={() => setActiveIndex(index)}
-                onClick={() => chooseOption(option)}
+                onMouseEnter={() => { if (optionIsAvailable(option)) setActiveIndex(index); }}
+                onClick={() => { if (optionIsAvailable(option)) chooseOption(option); }}
               >
-                <span><strong>{option.label}</strong><small>{option.description}</small></span>
+                <span>
+                  <strong>{option.label}</strong>
+                  <small>
+                    {option.description}
+                    {option.value ? ` · ${manufacturerCountLabel(facetCounts[option.value])}` : ""}
+                  </small>
+                </span>
                 {value === option.value ? <span className="product-option-check" aria-hidden="true">✓</span> : null}
               </button>
             ))}
@@ -342,9 +365,11 @@ function ProductCombobox({
 export function DirectoryFilters({
   states,
   initial,
+  facetCounts,
 }: {
   states: string[];
   initial: DirectoryQuery;
+  facetCounts: DirectoryFacetCounts;
 }) {
   const id = useId();
   const [isPending, startTransition] = useTransition();
@@ -364,6 +389,7 @@ export function DirectoryFilters({
 
   const activeFilters = getActiveFilters(initial);
   const productInputId = `${id}-category`;
+  const showVerificationFilter = Boolean(verified) || Object.values(facetCounts.verified).some((count) => count !== facetCounts.verifiedAny);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -399,13 +425,17 @@ export function DirectoryFilters({
       <div className="directory-search-primary">
         <div className="field">
           <label htmlFor={productInputId}>What are you making?</label>
-          <ProductCombobox id={productInputId} value={category} onChange={setCategory} />
+          <ProductCombobox id={productInputId} value={category} onChange={setCategory} facetCounts={facetCounts.categories} />
         </div>
         <div className="field">
           <label htmlFor={`${id}-state`}>Where?</label>
           <select id={`${id}-state`} value={state} onChange={(event) => setState(event.target.value)}>
             <option value="">Anywhere in the U.S.</option>
-            {states.map((code) => <option key={code} value={code}>{stateLabel(code)}</option>)}
+            {states.map((code) => (
+              <option key={code} value={code} disabled={facetCounts.states[code] === 0 && state !== code}>
+                {stateLabel(code)} ({facetCounts.states[code] ?? 0})
+              </option>
+            ))}
           </select>
         </div>
         <button className="btn btn-gold directory-search-submit" type="submit" disabled={isPending}>
@@ -418,12 +448,12 @@ export function DirectoryFilters({
         <ul aria-label="Quick product filters">
           {QUICK_CATEGORIES.map((quickCategory) => (
             <li key={quickCategory.slug}>
-              <Link
+              <a
                 href={directoryHref({ ...initial, product: undefined, category: quickCategory.slug, page: undefined })}
                 aria-current={initial.category === quickCategory.slug ? "page" : undefined}
               >
-                {quickCategory.label}
-              </Link>
+                {quickCategory.label} ({facetCounts.categories[quickCategory.slug]})
+              </a>
             </li>
           ))}
           <li>
@@ -443,7 +473,15 @@ export function DirectoryFilters({
             <div className="field">
               <label htmlFor={`${id}-process`}>How it is made <span>Process</span></label>
               <select id={`${id}-process`} value={process} onChange={(event) => setProcess(event.target.value)}>
-                {PROCESS_OPTIONS.map((option) => <option key={option.label} value={option.value}>{option.value ? option.label : "Any process"}</option>)}
+                {PROCESS_OPTIONS.map((option) => (
+                  <option
+                    key={option.label}
+                    value={option.value}
+                    disabled={Boolean(option.value && facetCounts.processes[option.value] === 0 && process !== option.value)}
+                  >
+                    {option.value ? `${option.label} (${facetCounts.processes[option.value]})` : "Any process"}
+                  </option>
+                ))}
               </select>
               <small>Choose this only if you already know the process your product needs.</small>
             </div>
@@ -451,14 +489,30 @@ export function DirectoryFilters({
               <label htmlFor={`${id}-packaging`}>Package type</label>
               <select id={`${id}-packaging`} value={packaging} onChange={(event) => setPackaging(event.target.value)}>
                 <option value="">Any packaging</option>
-                {Object.entries(PACKAGING_LABELS).map(([optionValue, label]) => <option key={optionValue} value={optionValue}>{label}</option>)}
+                {Object.entries(PACKAGING_LABELS).map(([optionValue, label]) => (
+                  <option
+                    key={optionValue}
+                    value={optionValue}
+                    disabled={facetCounts.packaging[optionValue as PackagingFilter] === 0 && packaging !== optionValue}
+                  >
+                    {label} ({facetCounts.packaging[optionValue as PackagingFilter]})
+                  </option>
+                ))}
               </select>
             </div>
             <div className="field">
               <label htmlFor={`${id}-certification`}>Certification</label>
               <select id={`${id}-certification`} value={certification} onChange={(event) => setCertification(event.target.value)}>
                 <option value="">Any certification</option>
-                {Object.entries(CERTIFICATION_LABELS).map(([optionValue, label]) => <option key={optionValue} value={optionValue}>{label}</option>)}
+                {Object.entries(CERTIFICATION_LABELS).map(([optionValue, label]) => (
+                  <option
+                    key={optionValue}
+                    value={optionValue}
+                    disabled={facetCounts.certifications[optionValue as CertificationFilter] === 0 && certification !== optionValue}
+                  >
+                    {label} ({facetCounts.certifications[optionValue as CertificationFilter]})
+                  </option>
+                ))}
               </select>
               <small>Only manufacturers that publicly name the selected certification are included.</small>
             </div>
@@ -466,7 +520,9 @@ export function DirectoryFilters({
               <label htmlFor={`${id}-moq`}>Minimum order</label>
               <select id={`${id}-moq`} value={moqDisclosed ? "disclosed" : ""} onChange={(event) => setMoqDisclosed(event.target.value === "disclosed")}>
                 <option value="">Any minimum</option>
-                <option value="disclosed">Show publicly listed minimums only</option>
+                <option value="disclosed" disabled={facetCounts.moqDisclosed === 0 && !moqDisclosed}>
+                  Show publicly listed minimums only ({facetCounts.moqDisclosed})
+                </option>
               </select>
             </div>
             <div className="field">
@@ -475,9 +531,10 @@ export function DirectoryFilters({
                   id={`${id}-small-run`}
                   type="checkbox"
                   checked={smallRunSignal}
+                  disabled={facetCounts.smallRunSignal === 0 && !smallRunSignal}
                   onChange={(event) => setSmallRunSignal(event.target.checked)}
                 />
-                Publicly lists a small-run signal
+                Publicly lists a small-run signal ({facetCounts.smallRunSignal})
               </label>
               <small>Based only on a sourced MOQ, first-run, test-run, pilot-run, or small-run statement. Confirm current minimums directly.</small>
             </div>
@@ -485,23 +542,33 @@ export function DirectoryFilters({
               <label htmlFor={`${id}-operation-type`}>Operating model</label>
               <select id={`${id}-operation-type`} value={operationType} onChange={(event) => setOperationType(event.target.value as OperationType | "")}>
                 <option value="">Any operating model</option>
-                {Object.entries(OPERATION_TYPE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                {Object.entries(OPERATION_TYPE_LABELS).map(([value, label]) => (
+                  <option
+                    key={value}
+                    value={value}
+                    disabled={facetCounts.operationTypes[value as OperationType] === 0 && operationType !== value}
+                  >
+                    {label} ({facetCounts.operationTypes[value as OperationType]})
+                  </option>
+                ))}
               </select>
               <small>Uses the operating model stated in the public source record.</small>
             </div>
-            <div className="field">
-              <label htmlFor={`${id}-verified`}>Last verified</label>
-              <select id={`${id}-verified`} value={verified} onChange={(event) => setVerified(event.target.value)}>
-                <option value="">Any review date</option>
-                <option value="30-days">Within 30 days of the latest catalog review</option>
-                <option value="90-days">Within 90 days of the latest catalog review</option>
-                <option value="year">Within one year of the latest catalog review</option>
-              </select>
-              <small>Uses each profile’s public-source review date.</small>
-            </div>
+            {showVerificationFilter ? (
+              <div className="field">
+                <label htmlFor={`${id}-verified`}>Last verified</label>
+                <select id={`${id}-verified`} value={verified} onChange={(event) => setVerified(event.target.value)}>
+                  <option value="">Any review date</option>
+                  <option value="30-days" disabled={facetCounts.verified["30-days"] === 0 && verified !== "30-days"}>Within 30 days of the latest catalog review ({facetCounts.verified["30-days"]})</option>
+                  <option value="90-days" disabled={facetCounts.verified["90-days"] === 0 && verified !== "90-days"}>Within 90 days of the latest catalog review ({facetCounts.verified["90-days"]})</option>
+                  <option value="year" disabled={facetCounts.verified.year === 0 && verified !== "year"}>Within one year of the latest catalog review ({facetCounts.verified.year})</option>
+                </select>
+                <small>Uses each profile’s public-source review date.</small>
+              </div>
+            ) : null}
           </div>
           <div className="advanced-filter-actions">
-            <p>Unknown information is never treated as a match.</p>
+            <p>Counts reflect the filters currently applied. Unknown information is never treated as a match.</p>
             <div>
               {activeFilters.length > 0 ? <Link href="/find-manufacturers">Clear all</Link> : null}
               <button className="btn btn-gold" type="submit" disabled={isPending}>Apply filters</button>
@@ -541,7 +608,7 @@ export function DirectoryResultsBar({ initial, resultCount, currentPage, pageSiz
         {activeFilters.length > 0 ? (
           <ul className="active-filter-list" aria-label="Active filters">
             {activeFilters.map((filter) => (
-              <li key={filter.key}><Link href={filter.href} aria-label={`Remove ${filter.label} filter`}>{filter.label} <span aria-hidden="true">×</span></Link></li>
+              <li key={filter.key}><a href={filter.href} aria-label={`Remove ${filter.label} filter`}>{filter.label} <span aria-hidden="true">×</span></a></li>
             ))}
           </ul>
         ) : null}

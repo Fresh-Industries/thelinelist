@@ -1,5 +1,5 @@
 import "./assert";
-import { STATE_NAMES } from "./labels";
+import { OPERATION_TYPE_LABELS, STATE_NAMES } from "./labels";
 import { DIRECTORY_PLANTS } from "./plants";
 import { PRODUCT_CATEGORIES, isProductCategorySlug, plantMatchesCategory } from "./categories";
 import type {
@@ -20,6 +20,24 @@ import { hasPackagingFormat } from "./packaging";
 import { matchesCertificationClaim } from "./certifications";
 
 export const DIRECTORY_PAGE_SIZE = 18;
+
+const FACET_PROCESSES = ["hpp", "hot-fill", "retort", "cold-fill", "acidified"] as const satisfies readonly FinderProcess[];
+const FACET_PACKAGING = ["can", "bottle", "jar", "pouch", "other"] as const satisfies readonly PackagingFilter[];
+const FACET_CERTIFICATIONS = ["organic", "kosher", "halal", "gluten-free", "non-gmo", "sqf"] as const satisfies readonly CertificationFilter[];
+const FACET_VERIFICATION_DATES = ["30-days", "90-days", "year"] as const satisfies readonly VerificationDateFilter[];
+
+export interface DirectoryFacetCounts {
+  categories: Record<(typeof PRODUCT_CATEGORIES)[number]["slug"], number>;
+  processes: Record<FinderProcess, number>;
+  packaging: Record<PackagingFilter, number>;
+  certifications: Record<CertificationFilter, number>;
+  operationTypes: Record<OperationType, number>;
+  states: Record<string, number>;
+  verified: Record<VerificationDateFilter, number>;
+  verifiedAny: number;
+  moqDisclosed: number;
+  smallRunSignal: number;
+}
 
 /**
  * Access layer for the public directory.
@@ -65,6 +83,67 @@ export function filterPlants(query: DirectoryQuery): Plant[] {
   return DIRECTORY_PLANTS.filter((plant) => matchesQuery(plant, query)).sort((left, right) => (
     left.name.localeCompare(right.name) * direction || left.slug.localeCompare(right.slug) * direction
   ));
+}
+
+/**
+ * Contextual counts for standard faceted search. Each facet ignores its own
+ * current value while retaining every other applied constraint, so the UI can
+ * show what selecting that option would return without treating unknown data
+ * as a match.
+ */
+export function directoryFacetCounts(query: DirectoryQuery): DirectoryFacetCounts {
+  const active = { ...query, page: undefined, sort: undefined };
+  const categoryBase = { ...active, category: undefined, product: undefined };
+  const processBase = { ...active, process: undefined };
+  const packagingBase = { ...active, packaging: undefined };
+  const certificationBase = { ...active, certification: undefined };
+  const operationTypeBase = { ...active, operationType: undefined };
+  const stateBase = { ...active, state: undefined };
+  const verifiedBase = { ...active, verified: undefined };
+  const moqBase = { ...active, moqDisclosed: false };
+  const smallRunBase = { ...active, smallMoq: false, smallRunSignal: false };
+
+  return {
+    categories: Object.fromEntries(PRODUCT_CATEGORIES.map((category) => [
+      category.slug,
+      countMatchingPlants({ ...categoryBase, category: category.slug }),
+    ])) as DirectoryFacetCounts["categories"],
+    processes: Object.fromEntries(FACET_PROCESSES.map((process) => [
+      process,
+      countMatchingPlants({ ...processBase, process }),
+    ])) as DirectoryFacetCounts["processes"],
+    packaging: Object.fromEntries(FACET_PACKAGING.map((packaging) => [
+      packaging,
+      countMatchingPlants({ ...packagingBase, packaging }),
+    ])) as DirectoryFacetCounts["packaging"],
+    certifications: Object.fromEntries(FACET_CERTIFICATIONS.map((certification) => [
+      certification,
+      countMatchingPlants({ ...certificationBase, certification }),
+    ])) as DirectoryFacetCounts["certifications"],
+    operationTypes: Object.fromEntries((Object.keys(OPERATION_TYPE_LABELS) as OperationType[]).map((operationType) => [
+      operationType,
+      countMatchingPlants({ ...operationTypeBase, operationType }),
+    ])) as DirectoryFacetCounts["operationTypes"],
+    states: Object.fromEntries(verifiedStates().map((state) => [
+      state,
+      countMatchingPlants({ ...stateBase, state }),
+    ])),
+    verified: Object.fromEntries(FACET_VERIFICATION_DATES.map((verified) => [
+      verified,
+      countMatchingPlants({ ...verifiedBase, verified }),
+    ])) as DirectoryFacetCounts["verified"],
+    verifiedAny: countMatchingPlants(verifiedBase),
+    moqDisclosed: countMatchingPlants({ ...moqBase, moqDisclosed: true }),
+    smallRunSignal: countMatchingPlants({ ...smallRunBase, smallRunSignal: true }),
+  };
+}
+
+function countMatchingPlants(query: DirectoryQuery): number {
+  let count = 0;
+  for (const plant of DIRECTORY_PLANTS) {
+    if (matchesQuery(plant, query)) count += 1;
+  }
+  return count;
 }
 
 export function paginatePlants(plants: Plant[], page: number, pageSize = DIRECTORY_PAGE_SIZE) {
