@@ -40,6 +40,7 @@ export interface SourcingReadiness {
 const WHY_IT_MATTERS: Partial<Record<SourcingFieldKey, string>> = {
   brand_name: "A brand name helps identify the brief, but it can stay open while you make manufacturing decisions.",
   product_type: "This sets the manufacturing category and the questions that come next.",
+  product_description: "A short product story lets a manufacturer understand the format, customer use, and unresolved development work without reconstructing the idea from separate fields.",
   packaging_format: "Manufacturers need equipment that can form, fill, seal, or wrap your exact package.",
   packaging_size: "Size affects line compatibility, portion economics, labels, and case packing.",
   formula_status: "A manufacturer needs to know whether you need development help or are ready to scale.",
@@ -61,7 +62,7 @@ function productText(workspace: SourcingWorkspace): string {
 
 export function requiredMatchingFields(workspace: SourcingWorkspace): SourcingFieldKey[] {
   const product = productText(workspace);
-  const required: SourcingFieldKey[] = ["product_type", "product_format", "packaging_format", "storage_distribution", "production_volume"];
+  const required: SourcingFieldKey[] = ["product_type", "product_format", "packaging_format", "storage_distribution", "production_volume", "product_description"];
   if (!isUsefulConfirmedValue(workspace, "formula_status") && !isUsefulConfirmedValue(workspace, "formulation_assistance")) {
     required.push("formula_status");
   }

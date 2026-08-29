@@ -278,6 +278,24 @@ export function invalidateDraftApprovalsForFounderEmailChange(workspace: Sourcin
   };
 }
 
+export function invalidateDraftsForProductChange(workspace: SourcingWorkspace): SourcingWorkspace {
+  const timestamp = now();
+  return {
+    ...workspace,
+    outreachDrafts: workspace.outreachDrafts.map((draft) => draft.sentAt ? draft : {
+      ...draft,
+      approvedVersion: null,
+      approvedAt: null,
+      deliveryStatus: "draft" as const,
+      deliveryError: null,
+      packet: { ...draft.packet, revokedAt: timestamp },
+      humanSendTokenHash: null,
+      humanSendTokenExpiresAt: null,
+      updatedAt: timestamp,
+    }),
+  };
+}
+
 export function touch(workspace: SourcingWorkspace, timestamp = now()): SourcingWorkspace {
   return { ...workspace, revision: workspace.revision + 1, updatedAt: timestamp };
 }

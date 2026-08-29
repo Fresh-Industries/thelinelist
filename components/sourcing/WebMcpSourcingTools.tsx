@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
 import { getBrandName, getPackagingOptions, getProductCategory, getProductDescriptor, getProductName } from "@/lib/sourcing/product-catalog";
 import { getProductJourney } from "@/lib/sourcing/product-journey";
-import { SOURCING_FIELD_KEYS, type SourcingWorkspace } from "@/lib/sourcing/types";
+import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
 
 interface ToolResponse { workspace?: SourcingWorkspace; error?: string; [key: string]: unknown }
 
@@ -23,10 +23,12 @@ export function WebMcpSourcingTools({
   workspaceId,
   onWorkspaceChanged,
   onOpenIntroductionReview,
+  onPreviewPackageDesign,
 }: {
   workspaceId: string;
   onWorkspaceChanged: (workspace: SourcingWorkspace) => void;
   onOpenIntroductionReview: () => void;
+  onPreviewPackageDesign: (preview: PackageDesignPreviewInput, workspace?: SourcingWorkspace) => void;
 }) {
   useEffect(() => {
     const modelContext = document.modelContext ?? navigator.modelContext;
@@ -76,7 +78,7 @@ export function WebMcpSourcingTools({
       {
         name: "update_sourcing_workspace",
         title: "Propose sourcing brief updates",
-        description: "Update the canonical ProductPlan from the conversation. Keep originalIdea, brand_name, and product_type distinct. For no brand, not yet, or uncertainty, write brand_name as null with needs_decision and continue; never invent a brand. Mark a value confirmed only when the founder stated it clearly. Research-backed recommendations remain proposed with sources. After updating, read readiness and ask its single next useful question. The page visibly highlights these changes and lets the founder undo them.",
+        description: "Update the canonical ProductPlan from the conversation. Keep originalIdea, brand_name, and product_type distinct. For no brand, not yet, or uncertainty, write brand_name as null with needs_decision and continue; never invent a brand. When enough confirmed facts exist and product_description is open, write a concise proposed product description using only those facts, clearly preserving unresolved validation. Mark a value confirmed only when the founder stated it clearly. Research-backed recommendations remain proposed with sources. After updating, read readiness and ask its single next useful question. The page visibly highlights proposals, lets the founder accept them, and lets the founder undo the latest agent change.",
         inputSchema: {
           type: "object",
           properties: {
@@ -136,9 +138,68 @@ export function WebMcpSourcingTools({
         },
       },
       {
+        name: "preview_package_design",
+        title: "Preview packaging in 3D",
+        description: "Stage any subset of packaging choices in the visible 3D workbench for founder review. Use this for exploration and agent-generated directions. Omit choices the founder has not made instead of inventing them. This does not commit the package direction, clear manufacturer matches, or change the canonical ProductPlan; only the founder's visible Use this package direction button can do that.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            packagingType: { type: "string", enum: ["slim-can", "bottle", "jar", "stand-up-pouch"] },
+            finish: { type: "string", enum: ["colored", "clear"] },
+            baseColor: { type: "string", pattern: "^#[0-9a-fA-F]{6}$" },
+            labelColor: { type: "string", pattern: "^#[0-9a-fA-F]{6}$" },
+            artworkId: { type: ["string", "null"] },
+            logoAspect: { type: "number", minimum: 0.25, maximum: 4 },
+            logoScale: { type: "number", minimum: 0.05, maximum: 3 },
+            logoPosition: { type: "object", properties: { x: { type: "number", minimum: -2, maximum: 2 }, y: { type: "number", minimum: -2, maximum: 2 } }, additionalProperties: false },
+            dimensions: { type: "object", properties: { width: { type: ["number", "null"], minimum: 0, maximum: 10000 }, height: { type: ["number", "null"], minimum: 0, maximum: 10000 }, depth: { type: ["number", "null"], minimum: 0, maximum: 10000 } }, additionalProperties: false },
+            summary: { type: "string", maxLength: 500 },
+          },
+          minProperties: 1,
+          additionalProperties: false,
+        },
+        annotations: { readOnlyHint: false, untrustedContentHint: true },
+        async execute(input) {
+          const preview = input as PackageDesignPreviewInput;
+          onPreviewPackageDesign(preview);
+          return { previewOpened: true, committed: false, preview, humanActionRequired: "The founder must review the staged 3D direction and click Use this package direction to commit it." };
+        },
+      },
+      {
+        name: "stage_package_artwork",
+        title: "Stage generated package artwork",
+        description: "Upload founder-requested generated logo or label artwork into this product workspace and open it on the visible 3D packaging preview. Accept PNG, JPEG, or WebP bytes encoded as base64, up to 2 MB. The upload becomes a workspace asset, but it does not commit a packaging direction or affect matching until the founder uses the visible package direction.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            fileName: { type: "string", minLength: 1, maxLength: 140 },
+            contentType: { type: "string", enum: ["image/png", "image/jpeg", "image/webp"] },
+            base64Data: { type: "string", minLength: 4, maxLength: 2800000 },
+            logoAspect: { type: "number", minimum: 0.25, maximum: 4 },
+          },
+          required: ["fileName", "contentType", "base64Data"],
+          additionalProperties: false,
+        },
+        annotations: { readOnlyHint: false, untrustedContentHint: true },
+        async execute(input) {
+          const args = input as { fileName: string; contentType: "image/png" | "image/jpeg" | "image/webp"; base64Data: string; logoAspect?: number };
+          const bytes = decodeBase64Artwork(args.base64Data);
+          if (bytes.byteLength > 2 * 1024 * 1024) throw new Error("Artwork must be 2 MB or smaller.");
+          const form = new FormData();
+          form.set("artwork", new File([bytes.buffer as ArrayBuffer], args.fileName, { type: args.contentType }));
+          const response = await fetch(`/api/sourcing/${workspaceId}/artwork`, { method: "POST", body: form, cache: "no-store" });
+          const body = await response.json().catch(() => ({})) as ToolResponse & { artworkUrl?: string };
+          if (!response.ok || !body.workspace?.artwork) throw new Error(body.error || `Artwork upload failed (${response.status}).`);
+          onWorkspaceChanged(body.workspace);
+          const preview: PackageDesignPreviewInput = { artworkId: body.workspace.artwork.id, ...(args.logoAspect ? { logoAspect: args.logoAspect } : {}) };
+          onPreviewPackageDesign(preview, body.workspace);
+          return withGuidance({ ...body, artworkUrl: body.artworkUrl, previewOpened: true, committed: false, humanActionRequired: "The founder must visually review the artwork and click Use this package direction to commit it." });
+        },
+      },
+      {
         name: "update_package_design",
         title: "Update packaging direction",
-        description: "Apply a packaging choice only when the founder explicitly asked for every supplied visual choice. Do not invent colors, finish, dimensions, artwork, or logo placement. For visual exploration or an unstated choice, ask the founder to use the page's packaging workbench instead.",
+        description: "Commit a complete packaging choice only when the founder explicitly asked to apply every supplied visual choice. Do not invent colors, finish, dimensions, artwork, or logo placement. For exploration, partial choices, or an agent-generated direction, use preview_package_design so the founder can judge it in 3D first.",
         inputSchema: {
           type: "object",
           properties: {
@@ -243,7 +304,7 @@ export function WebMcpSourcingTools({
       {
         name: "open_manufacturer_introduction_review",
         title: "Open founder introduction review",
-        description: "Open the current page's introduction review so the founder can inspect every recipient, exact message, shared product details, and private fields. This never sends or contacts anyone. Approval and any later human contact are separate states.",
+        description: "Open the current page's introduction review so the founder can inspect every sourced recipient, exact message, shared product details, and private fields. This tool never sends or contacts anyone. The founder must approve the exact version, then separately confirm Send now in the visible page to deliver it through The Line List.",
         inputSchema: { type: "object", properties: {}, additionalProperties: false },
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
@@ -251,7 +312,7 @@ export function WebMcpSourcingTools({
           const body = await api(`/api/sourcing/${workspaceId}`);
           if (!body.workspace?.outreachDrafts.length) throw new Error("Prepare an introduction draft before opening final review.");
           onOpenIntroductionReview();
-          return withGuidance({ ...body, reviewOpened: true, humanActionRequired: "The founder must review each draft and later choose a visible human-controlled contact channel. Nothing can be sent by this tool." });
+          return withGuidance({ ...body, reviewOpened: true, humanActionRequired: "The founder must approve each exact draft and then click the visible Send now control. Nothing can be sent by this tool." });
         },
       },
     ];
@@ -261,7 +322,20 @@ export function WebMcpSourcingTools({
       console.warn("[webmcp] sourcing tools unavailable", error);
     });
     return () => controller.abort();
-  }, [onOpenIntroductionReview, onWorkspaceChanged, workspaceId]);
+  }, [onOpenIntroductionReview, onPreviewPackageDesign, onWorkspaceChanged, workspaceId]);
 
   return null;
+}
+
+function decodeBase64Artwork(value: string): Uint8Array {
+  const encoded = value.includes(",") ? value.slice(value.indexOf(",") + 1) : value;
+  let decoded: string;
+  try {
+    decoded = window.atob(encoded.replace(/\s/g, ""));
+  } catch {
+    throw new Error("Artwork is not valid base64 data.");
+  }
+  const bytes = new Uint8Array(decoded.length);
+  for (let index = 0; index < decoded.length; index += 1) bytes[index] = decoded.charCodeAt(index);
+  return bytes;
 }

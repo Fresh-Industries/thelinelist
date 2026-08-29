@@ -3,7 +3,7 @@ import { getSourcingReadiness, MATCH_SHAPING_FIELDS } from "@/lib/sourcing/readi
 import { agentUpdateSchema, founderUpdateSchema, packageDesignUpdateSchema, selectionUpdateSchema, undoAgentChangeSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
 import { getAuthorizedWorkspace } from "@/lib/sourcing/access";
-import { applyAgentUpdates, applyFounderFieldUpdate, applyPackageDesignUpdate, invalidateDraftApprovalsForFounderEmailChange, touch, undoLastAgentChange } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderFieldUpdate, applyPackageDesignUpdate, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, touch, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
@@ -73,12 +73,12 @@ export async function PATCH(request: Request, context: RouteContext) {
         ? true
         : undo.success ? workspace.lastAgentChange?.changedKeys.some((key) => matchRelevantKeys.has(key)) ?? false : false;
   if (changesManufacturerFit) {
-    updated = {
+    updated = invalidateDraftsForProductChange({
       ...updated,
       matches: [],
       matchesUpdatedAt: null,
       selectedManufacturerSlugs: [],
-    };
+    });
   }
   try {
     await saveSourcingWorkspace(updated, workspace.revision);

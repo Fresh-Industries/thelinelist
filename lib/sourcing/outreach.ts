@@ -3,6 +3,7 @@ import { getPlantBySlug } from "@/lib/directory";
 import { SITE_URL } from "@/lib/site";
 import { FIELD_DEFINITION_BY_KEY, NEVER_SHARE_FIELD_KEYS, SOURCING_FIELD_DEFINITIONS } from "./fields";
 import { getProductDescriptor } from "./product-catalog";
+import { contactEmailSchema } from "./schemas";
 import type { ManufacturerMatch, OutreachDraft, SourcingFieldKey, SourcingWorkspace } from "./types";
 
 function read(name: string): string {
@@ -10,7 +11,10 @@ function read(name: string): string {
 }
 
 function recipientFor(manufacturerSlug: string): { method: OutreachDraft["availableDeliveryMethod"]; recipient: string | null; demoRecipient: string | null } {
-  void manufacturerSlug;
+  const plant = getPlantBySlug(manufacturerSlug);
+  if (plant?.publicEmail && contactEmailSchema.safeParse(plant.publicEmail).success && !plant.introductionsPaused && !plant.needsCurrentOwnershipVerification) {
+    return { method: "line_list_introduction", recipient: plant.publicEmail, demoRecipient: null };
+  }
   return { method: "not_configured", recipient: null, demoRecipient: null };
 }
 
@@ -98,7 +102,7 @@ function createBody(
     "",
     `Product brief: ${packetUrl(token)}`,
     "",
-    "The founder will choose the contact channel after reviewing and approving this exact draft.",
+    "Please reply directly to this email if this project may fit your current capabilities.",
     "",
     "Warmly,",
     "The Line List Introductions",

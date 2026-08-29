@@ -100,6 +100,8 @@
 .brief-field dt { margin-bottom: 6px; color: #65645e; font-size: 10px; font-weight: 800; }
 .brief-field dd { margin: 0; font-size: 13px; font-weight: 650; line-height: 1.5; overflow-wrap: anywhere; }
 .brief-field > p { margin: 4px 0 0; color: #79553f; font-size: 9px; }
+.accept-proposal { margin-top: 7px; padding: 0; display: inline-flex; align-items: center; gap: 4px; border: 0; background: transparent; color: #173f35; font: inherit; font-size: 9px; font-weight: 800; text-decoration: underline; cursor: pointer; }
+.accept-proposal svg { width: 12px; height: 12px; }
 .brief-field.field-muted dd { color: #8f887d; font-weight: 500; }
 .brief-field.agent-changed { margin: -8px; padding: 8px 26px 8px 8px; background: #fbede1; box-shadow: inset 2px 0 #b64d2c; }
 .field-edit { position: absolute; top: -2px; right: 0; width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; color: #8f887d; opacity: 0; cursor: pointer; }
@@ -166,8 +168,11 @@
 .introduction-card > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 15px; border-bottom: 1px solid #c9c1b4; }
 .introduction-card header > div span { color: #65645e; font-size: 9px; text-transform: uppercase; }
 .introduction-card h3 { margin: 3px 0 0; font-size: 19px; }
+.recipient-email { margin: 4px 0 0; color: #173f35; font-size: 10px; }
+.recipient-unavailable { color: #9b3825; }
 .approved-state, .draft-state { padding: 5px 7px; border: 1px solid #173f35; color: #173f35; font-size: 9px; font-weight: 800; text-transform: uppercase; }
 .draft-state { border-color: #8f887d; color: #65645e; }
+.delivery-preview { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 12px; padding: 9px 10px; border: 1px solid #d7c8b8; background: #fbede1; color: #5f574f; font-size: 9px; }
 .introduction-card > label { display: grid; gap: 6px; margin-top: 15px; font-size: 10px; font-weight: 800; }
 .introduction-card input, .introduction-card textarea { width: 100%; padding: 10px; border: 1px solid #c9c1b4; background: #f8f4ec; font: inherit; font-size: 11px; line-height: 1.6; }
 .introduction-card textarea { resize: vertical; }
@@ -179,7 +184,9 @@
 .introduction-card footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #c9c1b4; }
 .introduction-card footer p { flex: 1 1 270px; margin: 0; color: #65645e; font-size: 9px; }
 .introduction-card footer button { min-height: 38px; padding: 8px 12px; font-size: 10px; }
+.introduction-card footer .secondary-button { border-color: #8f887d; background: transparent; color: #171915; box-shadow: none; }
 .introduction-card footer a { color: #173f35; font-size: 10px; font-weight: 800; }
+.introduction-error { margin: 14px 0 -4px; padding: 9px 10px; border-left: 3px solid #9b3825; background: #fff0ea; color: #7b2d1f; font-size: 10px; }
 
 /* Focused 3D package subflow */
 .workbench-loading { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgb(23 25 21 / 65%); color: white; }

@@ -178,6 +178,19 @@ export interface PackageDesign {
   summary: string;
 }
 
+export interface PackageDesignPreviewInput {
+  packagingType?: PackageDesign["packagingType"];
+  finish?: PackageDesign["finish"];
+  baseColor?: string;
+  labelColor?: string;
+  artworkId?: string | null;
+  logoAspect?: number;
+  logoScale?: number;
+  logoPosition?: Partial<PackageDesign["logoPosition"]>;
+  dimensions?: Partial<PackageDesign["dimensions"]>;
+  summary?: string;
+}
+
 export interface WorkspaceOwnership {
   userId: string | null;
   brandId: string | null;

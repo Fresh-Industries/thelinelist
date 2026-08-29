@@ -1,15 +1,15 @@
 "use client";
 
-import { ArrowRight, Check, Copy, Cube, DownloadSimple, PencilSimple, Sparkle, TrashSimple } from "@phosphor-icons/react";
+import { ArrowRight, Check, Cube, DownloadSimple, PaperPlaneTilt, PencilSimple, Sparkle, TrashSimple } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { FormEvent, useCallback, useMemo, useRef, useState } from "react";
 import { WebMcpSourcingTools } from "./WebMcpSourcingTools";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
-import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
+import { formatPackageDirection, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getProductIdentity, isOpenBrandAnswer } from "@/lib/sourcing/product-identity";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
-import type { ManufacturerMatch, OutreachDraft, SourcingFieldKey, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
+import type { ManufacturerMatch, OutreachDraft, PackageDesign, PackageDesignPreviewInput, SourcingFieldKey, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
 
 const PackageWorkbench = dynamic(
   () => import("./SourcingPackageWorkbench").then((module) => module.SourcingPackageWorkbench),
@@ -31,6 +31,7 @@ const AGENT_QUESTIONS: Partial<Record<SourcingFieldKey, string>> = {
   brand_name: "Do you already have a brand name? It is completely fine if you are still deciding.",
   product_type: "What is the product, in the simplest words you would use with a customer?",
   product_format: "How will one customer receive or eat it—for example, a mini loaf, two slices, or a full loaf?",
+  product_description: "Here is where the product story comes together. What should a manufacturer understand about the product, how a customer receives it, and what still needs development?",
   packaging_format: "What package are you leaning toward? You can also open the 3D workbench and compare the real can, bottle, jar, and bag models.",
   packaging_size: "What size or portion should one retail unit contain? A rough answer is enough.",
   formula_status: "How far along is the recipe: idea, draft, tested, or ready to scale?",
@@ -55,6 +56,7 @@ export function SourcingWorkspace({
   const [agentNote, setAgentNote] = useState("I’ve started your brief from what you told me. Let’s resolve one useful decision at a time.");
   const [editingKey, setEditingKey] = useState<SourcingFieldKey | null>(null);
   const [workbenchOpen, setWorkbenchOpen] = useState(false);
+  const [packagePreview, setPackagePreview] = useState<PackageDesign | null>(null);
   const reviewRef = useRef<HTMLElement>(null);
   const readiness = useMemo(() => getSourcingReadiness(workspace), [workspace]);
   const selectedManufacturerSlugs = useMemo(() => new Set(workspace.selectedManufacturerSlugs), [workspace.selectedManufacturerSlugs]);
@@ -63,6 +65,7 @@ export function SourcingWorkspace({
     if (!workspace.selectedManufacturerSlugs.includes(draft.manufacturerSlug)) return false;
     return !workspace.matchesUpdatedAt || Date.parse(draft.createdAt) >= Date.parse(workspace.matchesUpdatedAt);
   }), [workspace.matchesUpdatedAt, workspace.outreachDrafts, workspace.selectedManufacturerSlugs]);
+  const sentIntroductionCount = currentDrafts.filter((draft) => draft.deliveryStatus === "sent").length;
   const nextKey = readiness.nextQuestionKey;
   const { brandName, productDescriptor } = getProductIdentity(workspace);
   const packagePresentation = workspace.packageDesign
@@ -70,6 +73,12 @@ export function SourcingWorkspace({
     : null;
   const openReview = useCallback(() => reviewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), []);
   const acceptWorkspace = useCallback((next: Workspace) => setWorkspace(next), []);
+  const previewPackage = useCallback((patch: PackageDesignPreviewInput, currentWorkspace?: Workspace) => {
+    const source = currentWorkspace ?? workspace;
+    setPackagePreview(mergePackagePreview(source, patch));
+    setWorkbenchOpen(true);
+    setAgentNote("Your agent staged a packaging preview in the 3D workbench. Review it visually; matching will not change unless you use this direction.");
+  }, [workspace]);
 
   async function answerNext(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -172,7 +181,7 @@ export function SourcingWorkspace({
 
   return (
     <div className="living-workspace">
-      <WebMcpSourcingTools workspaceId={workspace.id} onWorkspaceChanged={acceptWorkspace} onOpenIntroductionReview={openReview} />
+      <WebMcpSourcingTools workspaceId={workspace.id} onWorkspaceChanged={acceptWorkspace} onOpenIntroductionReview={openReview} onPreviewPackageDesign={previewPackage} />
       <nav className="workspace-actions" aria-label="Workspace actions"><a href={`/api/sourcing/${workspace.id}/export`} download><DownloadSimple aria-hidden="true" /> Export PDF</a>{ownership === "guest" ? <Link className="save-product" href={`/auth?workspaceId=${workspace.id}`}>Save this product</Link> : ownership === "user" ? <Link href="/products">Your products</Link> : null}</nav>
 
       <article className="living-document">
@@ -198,7 +207,7 @@ export function SourcingWorkspace({
         ))}
 
         <section className={`brief-section packaging-section${agentChangedKeys.has("packaging_format") ? " agent-authored-section" : ""}`}>
-          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => setWorkbenchOpen(true)}><Cube aria-hidden="true" /> {workspace.packageDesign ? "Refine in 3D" : "Open 3D workbench"}</button></div>
+          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> {workspace.packageDesign ? "Refine in 3D" : "Open 3D workbench"}</button></div>
           {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => setWorkbenchOpen(true)} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>Open the workbench when a visual comparison would help.</small></div></div> : <p className="open-value">No package direction is locked yet. The collaborator can help narrow it, or you can compare the real jar, bottle, can, and bag models now.</p>}
         </section>
 
@@ -214,9 +223,9 @@ export function SourcingWorkspace({
 
         {workspace.matches.length ? <section className="brief-section manufacturer-section"><div className="section-heading"><div><p className="document-kicker">Evidence, not guesses</p><h2>Manufacturer possibilities</h2></div><span>Select up to 3</span></div><p className="section-intro">These are possibilities to investigate. “Unknown” means the public evidence does not answer the requirement—it is not treated as a match.</p><div className="match-list">{workspace.matches.map((match) => <MatchRow key={match.manufacturerSlug} match={match} selected={selectedManufacturerSlugs.has(match.manufacturerSlug)} disabled={busy !== null} onToggle={() => toggleManufacturer(match.manufacturerSlug)} />)}</div>{workspace.selectedManufacturerSlugs.length ? <div className="prepare-introductions"><div><strong>{workspace.selectedManufacturerSlugs.length} selected</strong><span>Each manufacturer gets its own message and visible review.</span></div><button type="button" onClick={prepareIntroductions} disabled={busy !== null}>{busy === "outreach" ? "Preparing…" : `Prepare ${workspace.selectedManufacturerSlugs.length} introduction${workspace.selectedManufacturerSlugs.length === 1 ? "" : "s"}`}</button></div> : null}</section> : null}
 
-        {currentDrafts.length ? <section className="brief-section introduction-section" ref={reviewRef}><div className="section-heading"><div><p className="document-kicker">Founder review required</p><h2>Manufacturer introductions</h2></div><span>Nothing has been sent</span></div><p className="section-intro">Review each recipient, exact message, and shared product details. Approval records your decision; contacting the manufacturer remains a separate human action.</p><div className="introduction-list">{currentDrafts.map((draft) => <DraftReview key={`${draft.id}-${draft.version}`} draft={draft} workspace={workspace} onWorkspace={setWorkspace} />)}</div></section> : null}
+        {currentDrafts.length ? <section className="brief-section introduction-section" ref={reviewRef}><div className="section-heading"><div><p className="document-kicker">Founder-controlled delivery</p><h2>Manufacturer introductions</h2></div><span>{sentIntroductionCount ? `${sentIntroductionCount} sent` : "Nothing has been sent"}</span></div><p className="section-intro">Review the sourced recipient, exact message, and shared product details. First approve the exact version; only your separate “Send now” click emails the manufacturer through The Line List.</p><div className="introduction-list">{currentDrafts.map((draft) => <DraftReview key={`${draft.id}-${draft.version}`} draft={draft} workspace={workspace} onWorkspace={setWorkspace} />)}</div></section> : null}
       </article>
-      {workbenchOpen ? <PackageWorkbench workspace={workspace} onClose={() => setWorkbenchOpen(false)} onSaved={setWorkspace} /> : null}
+      {workbenchOpen ? <PackageWorkbench key={packagePreview ? JSON.stringify(packagePreview) : "saved-package"} workspace={workspace} initialPreview={packagePreview} onClose={() => { setWorkbenchOpen(false); setPackagePreview(null); }} onSaved={(next) => { setWorkspace(next); setPackagePreview(null); }} /> : null}
     </div>
   );
 }
@@ -227,7 +236,7 @@ function EditableField({ fieldKey, workspace, agentChanged, editing, onEdit, onC
   const field = workspace.fields[fieldKey];
   if (editing) return <FieldEditor fieldKey={fieldKey} initialValue={field.value || ""} onSave={onSave} onCancel={onCancel} />;
   const attribution = field.evidence?.length ? "Source verified" : field.status === "proposed" ? "Agent suggested · needs your review" : field.status === "needs_decision" || !field.value ? "Still open" : field.updatedBy === "agent" ? "Agent captured your answer" : field.updatedBy === "founder" ? "You confirmed" : null;
-  return <div className={`brief-field${field.value ? "" : " field-muted"}${agentChanged ? " agent-changed" : ""}`}><dt>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</dt><dd>{field.value || "Still open"}</dd>{attribution ? <p>{attribution}</p> : null}<button className="field-edit" type="button" aria-label={`Edit ${FIELD_DEFINITION_BY_KEY[fieldKey].label}`} onClick={onEdit}><PencilSimple aria-hidden="true" /></button></div>;
+  return <div className={`brief-field${field.value ? "" : " field-muted"}${agentChanged ? " agent-changed" : ""}`}><dt>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</dt><dd>{field.value || "Still open"}</dd>{attribution ? <p>{attribution}</p> : null}{field.status === "proposed" && field.value ? <button className="accept-proposal" type="button" onClick={() => void onSave(fieldKey, field.value!)}><Check aria-hidden="true" /> Accept suggestion</button> : null}<button className="field-edit" type="button" aria-label={`Edit ${FIELD_DEFINITION_BY_KEY[fieldKey].label}`} onClick={onEdit}><PencilSimple aria-hidden="true" /></button></div>;
 }
 
 function FieldEditor({ fieldKey, initialValue, onSave, onCancel }: {
@@ -249,31 +258,43 @@ function DraftReview({ draft, workspace, onWorkspace }: { draft: OutreachDraft; 
   const subjectRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const [busy, setBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const approved = draft.deliveryStatus === "approved" && draft.approvedVersion === draft.version;
+  const [confirmingSend, setConfirmingSend] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const approved = draft.approvedVersion === draft.version && Boolean(draft.approvedAt);
+  const sent = draft.deliveryStatus === "sent" && Boolean(draft.sentAt);
   async function approve() {
     setBusy(true);
+    setLocalError("");
     try {
       const response = await workspaceApi(`/api/sourcing/${workspace.id}/outreach/${draft.id}`, { method: "PATCH", body: JSON.stringify({ subject: subjectRef.current?.value ?? draft.subject, body: bodyRef.current?.value ?? draft.body, includedFieldKeys: draft.includedFieldKeys }) });
       if (response.workspace) onWorkspace(response.workspace);
+      if (response.error) setLocalError(response.error);
     } finally {
       setBusy(false);
     }
   }
-  async function copyMessage() {
-    await navigator.clipboard.writeText(`Subject: ${subjectRef.current?.value ?? draft.subject}\n\n${bodyRef.current?.value ?? draft.body}`);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+  async function send() {
+    setBusy(true);
+    setLocalError("");
+    try {
+      const response = await workspaceApi(`/api/sourcing/${workspace.id}/outreach/${draft.id}/send`, { method: "POST" });
+      if (response.workspace) onWorkspace(response.workspace);
+      if (response.error) setLocalError(response.error);
+      else setConfirmingSend(false);
+    } finally {
+      setBusy(false);
+    }
   }
-  return <article className="introduction-card"><header><div><span>To</span><h3>{draft.manufacturerName}</h3></div><span className={approved ? "approved-state" : "draft-state"}>{approved ? "Approved" : "Draft"}</span></header><label>Subject<input ref={subjectRef} defaultValue={draft.subject} maxLength={180} readOnly={approved} /></label><label>Message<textarea ref={bodyRef} defaultValue={draft.body} rows={12} maxLength={12_000} readOnly={approved} /></label><details><summary>{draft.includedFieldKeys.length} product details included</summary><ul>{draft.includedFieldKeys.map((key) => <li key={key}><strong>{FIELD_DEFINITION_BY_KEY[key].label}</strong><span>{workspace.fields[key].value}</span></li>)}</ul></details><footer><p>{approved ? "Approved for your use. Nothing was sent by The Line List." : "Review and approve this exact version before you use it."}</p>{approved ? <><button type="button" onClick={copyMessage}><Copy aria-hidden="true" /> {copied ? "Copied" : "Copy approved message"}</button><Link href={`/manufacturers/${draft.manufacturerSlug}`}>Open manufacturer profile ↗</Link></> : <button type="button" onClick={approve} disabled={busy}>{busy ? "Approving…" : "Approve this introduction"}</button>}</footer></article>;
+  const stateLabel = sent ? "Sent" : draft.deliveryStatus === "failed" ? "Needs retry" : approved ? "Approved" : "Draft";
+  return <article className="introduction-card"><header><div><span>To</span><h3>{draft.manufacturerName}</h3>{draft.recipientEmail ? <p className="recipient-email">{draft.recipientEmail}</p> : <p className="recipient-email recipient-unavailable">No sourced public email available</p>}</div><span className={approved || sent ? "approved-state" : "draft-state"}>{stateLabel}</span></header><div className="delivery-preview"><span>From The Line List</span><span>Reply-to and copy: {draft.founderCopyEmail || workspace.fields.contact_email.value || "Add your confirmed email"}</span></div><label>Subject<input ref={subjectRef} defaultValue={draft.subject} maxLength={180} readOnly={approved || sent} /></label><label>Message<textarea ref={bodyRef} defaultValue={draft.body} rows={12} maxLength={12_000} readOnly={approved || sent} /></label><details><summary>{draft.includedFieldKeys.length} product details included</summary><ul>{draft.includedFieldKeys.map((key) => <li key={key}><strong>{FIELD_DEFINITION_BY_KEY[key].label}</strong><span>{workspace.fields[key].value}</span></li>)}</ul></details>{localError || draft.deliveryError ? <p className="introduction-error" role="alert">{localError || "The last delivery attempt failed. Review the email setup and try again."}</p> : null}<footer>{sent ? <><p>Sent by you through The Line List on {new Date(draft.sentAt!).toLocaleString()}.</p><Link href={`/manufacturers/${draft.manufacturerSlug}`}>Open manufacturer profile ↗</Link></> : approved ? confirmingSend ? <><p><strong>This will email {draft.recipientEmail || draft.manufacturerName} now.</strong> You will be copied, and replies will go directly to you.</p><button type="button" onClick={send} disabled={busy || !draft.recipientEmail || !draft.founderCopyEmail}><PaperPlaneTilt aria-hidden="true" /> {busy ? "Sending…" : "Send now"}</button><button className="secondary-button" type="button" onClick={() => setConfirmingSend(false)} disabled={busy}>Cancel</button></> : <><p>Approved. Nothing has been sent yet; the next click opens a final send confirmation.</p><button type="button" onClick={() => setConfirmingSend(true)} disabled={!draft.recipientEmail || !draft.founderCopyEmail}><PaperPlaneTilt aria-hidden="true" /> {draft.deliveryStatus === "failed" ? "Retry introduction" : "Send introduction"}</button><Link href={`/manufacturers/${draft.manufacturerSlug}`}>Open manufacturer profile ↗</Link></> : <><p>Review and approve this exact version. Approval alone never sends email.</p><button type="button" onClick={approve} disabled={busy}>{busy ? "Approving…" : "Approve this introduction"}</button></>}</footer></article>;
 }
 
 async function workspaceApi(url: string, init: RequestInit): Promise<{ workspace?: Workspace; error?: string }> {
   try {
     const response = await fetch(url, { ...init, headers: { "Content-Type": "application/json", ...init.headers }, cache: "no-store" });
     if (!response.ok) {
-      const failure = await response.json().catch(() => ({})) as { error?: string };
-      return { error: failure.error || `Request failed (${response.status}).` };
+      const failure = await response.json().catch(() => ({})) as { workspace?: Workspace; error?: string };
+      return { ...failure, error: failure.error || `Request failed (${response.status}).` };
     }
     return await response.json().catch(() => ({ error: "The server returned an unreadable response." })) as { workspace?: Workspace; error?: string };
   } catch {
@@ -285,6 +306,38 @@ function latestDrafts(drafts: OutreachDraft[]): OutreachDraft[] {
   const found = new Map<string, OutreachDraft>();
   for (const draft of drafts) if (!found.has(draft.manufacturerSlug)) found.set(draft.manufacturerSlug, draft);
   return [...found.values()];
+}
+
+function mergePackagePreview(workspace: Workspace, patch: PackageDesignPreviewInput): PackageDesign {
+  const inferredType: PackageDesign["packagingType"] = /jar/i.test(workspace.fields.packaging_format.value || "")
+    ? "jar"
+    : /bottle/i.test(workspace.fields.packaging_format.value || "")
+      ? "bottle"
+      : /pouch|bag|bread|bakery/i.test(`${workspace.fields.packaging_format.value || ""} ${workspace.fields.product_description.value || ""}`)
+        ? "stand-up-pouch"
+        : "slim-can";
+  const base = workspace.packageDesign ?? {
+    packagingType: inferredType,
+    finish: "colored" as const,
+    baseColor: "#b64d2c",
+    labelColor: "#f2e8d5",
+    artworkId: workspace.artwork?.id ?? null,
+    logoAspect: 1345 / 662,
+    logoScale: 0.62,
+    logoPosition: { x: 0, y: 0 },
+    dimensions: { width: null, height: null, depth: null },
+    summary: formatPackageDirection(inferredType, { width: null, height: null, depth: null }),
+  };
+  const packagingType = patch.packagingType ?? base.packagingType;
+  const dimensions = { ...base.dimensions, ...patch.dimensions };
+  return {
+    ...base,
+    ...patch,
+    packagingType,
+    logoPosition: { ...base.logoPosition, ...patch.logoPosition },
+    dimensions,
+    summary: patch.summary || formatPackageDirection(packagingType, dimensions),
+  };
 }
 
 function BrandNameEditor({ initialValue, onSave, onCancel }: {

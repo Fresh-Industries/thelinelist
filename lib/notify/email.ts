@@ -14,6 +14,7 @@ export interface EmailMessage {
   html?: string;
   replyTo?: string;
   tags?: Record<string, string>;
+  idempotencyKey?: string;
 }
 
 export interface NotifyResult {
@@ -104,6 +105,7 @@ async function sendWithResend(message: EmailMessage): Promise<NotifyResult> {
       Authorization: `Bearer ${read("RESEND_API_KEY")}`,
       "Content-Type": "application/json",
       "User-Agent": "TheLineList/1.0",
+      ...(message.idempotencyKey ? { "Idempotency-Key": message.idempotencyKey } : {}),
     },
     body: JSON.stringify({
       from: message.from || getNotifyFromAddress(),

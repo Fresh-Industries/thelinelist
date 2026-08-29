@@ -11,12 +11,13 @@ const DEFAULT_COLOR = "#b64d2c";
 const DEFAULT_LABEL = "#f2e8d5";
 const DEFAULT_LOGO_ASPECT = 1345 / 662;
 
-export function SourcingPackageWorkbench({ workspace, onClose, onSaved }: {
+export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, onSaved }: {
   workspace: SourcingWorkspace;
+  initialPreview?: PackageDesign | null;
   onClose: () => void;
   onSaved: (workspace: SourcingWorkspace) => void;
 }) {
-  const initial = workspace.packageDesign;
+  const initial = initialPreview ?? workspace.packageDesign;
   const [packagingType, setPackagingType] = useState<PackagingType>(initial?.packagingType ?? inferPackage(workspace));
   const [finish, setFinish] = useState<BottleFinish>(initial?.finish ?? "colored");
   const [baseColor, setBaseColor] = useState(initial?.baseColor ?? DEFAULT_COLOR);
@@ -26,7 +27,7 @@ export function SourcingPackageWorkbench({ workspace, onClose, onSaved }: {
     if (initial) defaults[initial.packagingType] = { scale: initial.logoScale, ...initial.logoPosition };
     return defaults;
   });
-  const [logoUrl, setLogoUrl] = useState<string | undefined>(workspace.artwork ? `/api/sourcing/${workspace.id}/artwork/${workspace.artwork.id}` : undefined);
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(workspace.artwork && (initial?.artworkId === workspace.artwork.id || !initial) ? `/api/sourcing/${workspace.id}/artwork/${workspace.artwork.id}` : undefined);
   const [logoAspect, setLogoAspect] = useState(initial && initial.artworkId === workspace.artwork?.id ? initial.logoAspect : DEFAULT_LOGO_ASPECT);
   const [dimensions, setDimensions] = useState(initial?.dimensions ?? { width: null, height: null, depth: null });
   const [busy, setBusy] = useState(false);
@@ -87,7 +88,7 @@ export function SourcingPackageWorkbench({ workspace, onClose, onSaved }: {
       finish,
       baseColor,
       labelColor,
-      artworkId: workspace.artwork?.id ?? null,
+      artworkId: logoUrl ? workspace.artwork?.id ?? null : null,
       logoAspect,
       logoScale: logo.scale,
       logoPosition: { x: logo.x, y: logo.y },
@@ -144,7 +145,7 @@ export function SourcingPackageWorkbench({ workspace, onClose, onSaved }: {
           </section>
         </div>
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
-        <footer className="workbench-footer"><div><strong>{summary}</strong><span>Writes back into this same product brief.</span></div><button type="button" onClick={save} disabled={busy}>{busy ? "Saving…" : "Use this package direction"}</button></footer>
+        <footer className="workbench-footer"><div><strong>{summary}</strong><span>{initialPreview ? "Agent-staged preview · matching is unchanged until you use it." : "Writes back into this same product brief."}</span></div><button type="button" onClick={save} disabled={busy}>{busy ? "Saving…" : "Use this package direction"}</button></footer>
       </div>
     </dialog>
   );

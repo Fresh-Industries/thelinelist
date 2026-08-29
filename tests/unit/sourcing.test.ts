@@ -1,4 +1,5 @@
 import { FIELD_DEFINITION_BY_KEY, NEVER_SHARE_FIELD_KEYS } from "@/lib/sourcing/fields";
+import { getPlantBySlug } from "@/lib/directory";
 import { matchManufacturers } from "@/lib/sourcing/matching";
 import { editAndApproveDraft, prepareOutreachDrafts } from "@/lib/sourcing/outreach";
 import { getPackagingOptions, getProductCategory, resolveProductVisualAsset } from "@/lib/sourcing/product-catalog";
@@ -9,7 +10,7 @@ import { getPackageColorName, getPackageDesignPresentation } from "@/lib/sourcin
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, editDraftSchema, founderUpdateSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
-import { applyAgentUpdates, applyFounderFieldUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, undoLastAgentChange } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderFieldUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { describe, expect, it } from "vitest";
 
 describe("sourcing workspace trust rules", () => {
@@ -355,9 +356,17 @@ describe("sourcing workspace trust rules", () => {
       humanSendTokenExpiresAt: null,
       deliveryStatus: "draft",
     });
+
+    const productInvalidated = invalidateDraftsForProductChange({ ...workspace, outreachDrafts: [reapproved.draft] });
+    expect(productInvalidated.outreachDrafts[0]).toMatchObject({
+      approvedVersion: null,
+      approvedAt: null,
+      deliveryStatus: "draft",
+    });
+    expect(productInvalidated.outreachDrafts[0].packet.revokedAt).not.toBeNull();
   });
 
-  it("prepares separate drafts for multiple manufacturers without configuring a recipient or send path", () => {
+  it("prepares separate drafts and uses only current sourced public manufacturer emails", () => {
     let workspace = createWorkspace({ demo: true });
     workspace = { ...workspace, matches: matchManufacturers(workspace, { resultLimit: 5 }) };
     const slugs = workspace.matches.slice(0, 3).map((match) => match.manufacturerSlug);
@@ -365,7 +374,16 @@ describe("sourcing workspace trust rules", () => {
     expect(drafts).toHaveLength(slugs.length);
     expect(new Set(drafts.map((draft) => draft.manufacturerSlug)).size).toBe(slugs.length);
     expect(drafts.every((draft) => draft.packet.fieldValues.brand_name === "Fresh Energy" && draft.body.includes("Fresh Energy"))).toBe(true);
-    expect(drafts.every((draft) => draft.availableDeliveryMethod === "not_configured" && draft.recipientEmail === null)).toBe(true);
+    for (const draft of drafts) {
+      const plant = getPlantBySlug(draft.manufacturerSlug)!;
+      if (plant.publicEmail && !plant.needsCurrentOwnershipVerification) {
+        expect(draft.availableDeliveryMethod).toBe("line_list_introduction");
+        expect(draft.recipientEmail).toBe(plant.publicEmail);
+      } else {
+        expect(draft.availableDeliveryMethod).toBe("not_configured");
+        expect(draft.recipientEmail).toBeNull();
+      }
+    }
   });
 
   it("keeps internal fields marked private by default", () => {

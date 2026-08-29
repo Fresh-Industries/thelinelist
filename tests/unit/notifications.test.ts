@@ -32,13 +32,14 @@ describe("owner email notifications", () => {
       to: "owner@example.com",
       subject: "Test notification",
       text: "Test body",
+      idempotencyKey: "test-email-123",
     });
 
     expect(result).toEqual({ ok: true, provider: "resend" });
     expect(fetchMock).toHaveBeenCalledOnce();
     const [url, request] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.resend.com/emails");
-    expect(request.headers).toMatchObject({ "User-Agent": "TheLineList/1.0" });
+    expect(request.headers).toMatchObject({ "User-Agent": "TheLineList/1.0", "Idempotency-Key": "test-email-123" });
     expect(JSON.parse(String(request.body))).toMatchObject({
       from: "The Line List <notifications@mail.thelinelist.com>",
       to: ["owner@example.com"],

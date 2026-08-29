@@ -281,15 +281,15 @@ Comparison helps the founder choose a conversation. It focuses on supported fit,
 
 ## 10. Outreach constraints
 
-V1 uses founder-approved draft outreach:
+V1 uses founder-approved, founder-sent outreach:
 
-> The Line List prepares → founder reviews → founder sends or copies.
+> The Line List prepares → founder reviews exact recipient and content → founder approves exact version → founder confirms Send now → The Line List delivers and records the result.
 
-Later, The Line List may send an approved introduction, but nothing is ever silently sent.
+The Line List may deliver only after those separate visible founder actions; nothing is ever silently sent, and no agent tool can invoke delivery.
 
 The outreach sequence is:
 
-> Shortlist → choose recipient → prepare recipient-specific draft → review shared details → review exact message → founder approval → founder send/copy → record outcome.
+> Shortlist → choose recipient → prepare recipient-specific draft → review shared details → review exact message → founder approval → founder send confirmation → provider success → record outcome.
 
 Constraints:
 
@@ -517,7 +517,7 @@ Delete or demote it when it repeats information, only makes the interface feel p
 - Matching may begin with unknowns.
 - 3D is limited to decisions and formats it can faithfully support.
 - Packaging supports alternatives with one active direction.
-- V1 prepares founder-approved draft outreach; the founder sends or copies.
+- V1 prepares founder-approved draft outreach; the founder explicitly confirms delivery through The Line List.
 - V1 scope is packaged food and beverage with conventional co-manufacturing workflows; demos focus on beverages and shelf-stable packaged foods.
 
 ### MVP defaults

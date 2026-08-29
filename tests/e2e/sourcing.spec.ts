@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 
@@ -170,12 +171,23 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
     return tool.execute(input);
   }, { name, input });
 
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(9);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(11);
   const current = await invoke("get_sourcing_workspace", {}) as { canonicalPlan: { schemaVersion: number; originalIdea: string }; product: { brandName: string | null; descriptor: string }; externalContactRequiresFounderAction: boolean };
   expect(current.canonicalPlan.schemaVersion).toBe(2);
   expect(current.canonicalPlan.originalIdea).toBe("A sparkling beverage in slim cans");
   expect(current.product).toMatchObject({ brandName: null, descriptor: "Sparkling beverage" });
   expect(current.externalContactRequiresFounderAction).toBe(true);
+  const preview = await invoke("preview_package_design", { packagingType: "bottle", baseColor: "#f2e8d5", labelColor: "#b64d2c" }) as { committed: boolean; previewOpened: boolean };
+  expect(preview).toMatchObject({ committed: false, previewOpened: true });
+  await expect(page.getByRole("dialog", { name: "Make the package direction tangible." })).toBeVisible();
+  expect((await invoke("get_package_design", {}) as { packageDesign: unknown }).packageDesign).toBeNull();
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
+
+  const artworkBase64 = readFileSync(path.join(process.cwd(), "public/brand/line-list-mark.png")).toString("base64");
+  const artwork = await invoke("stage_package_artwork", { fileName: "agent-generated-mark.png", contentType: "image/png", base64Data: artworkBase64 }) as { committed: boolean; previewOpened: boolean; product: { artwork: { fileName: string } } };
+  expect(artwork).toMatchObject({ committed: false, previewOpened: true, product: { artwork: { fileName: "agent-generated-mark.png" } } });
+  expect((await invoke("get_package_design", {}) as { packageDesign: unknown }).packageDesign).toBeNull();
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
   await invoke("update_sourcing_workspace", { proposedUpdates: [
     { key: "product_type", value: "Sparkling beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
     { key: "packaging_format", value: "Slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
@@ -197,7 +209,7 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   expect(guardedDraft).toContain("founder must select");
   const hasSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
   expect(hasSendTool).toBe(false);
-  for (const tool of ["get_package_design", "update_package_design", "undo_last_agent_change", "export_product_packet"]) {
+  for (const tool of ["get_package_design", "preview_package_design", "stage_package_artwork", "update_package_design", "undo_last_agent_change", "export_product_packet"]) {
     expect(await page.evaluate((name) => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has(name), tool)).toBe(true);
   }
 });
@@ -213,12 +225,14 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
       body: JSON.stringify({ revision: current.workspace.revision, proposedUpdates: [
         { key: "brand_name", value: "Fresh Energy", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "product_type", value: "Sparkling energy drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "product_description", value: "A shelf-stable sparkling energy drink in a single-serve 12 oz slim can; final commercial formulation and production validation remain with qualified partners.", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "product_format", value: "12 oz drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "packaging_format", value: "12 oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "storage_distribution", value: "Shelf stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "production_volume", value: "1,000 to 5,000 units", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "formula_status", value: "Tested recipe", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "carbonation", value: "Carbonated", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "contact_email", value: "founder@example.com", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       ] }),
     });
     location.reload();
@@ -234,6 +248,12 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
   await page.getByRole("button", { name: "Prepare 2 introductions" }).click();
   await expect(page.locator(".introduction-card")).toHaveCount(2);
   await expect(page.getByText("Nothing has been sent")).toBeVisible();
+  const firstDraft = page.locator(".introduction-card").first();
+  await firstDraft.getByRole("button", { name: "Approve this introduction" }).click();
+  await expect(firstDraft.getByRole("button", { name: "Send introduction" })).toBeVisible();
+  await firstDraft.getByRole("button", { name: "Send introduction" }).click();
+  await expect(firstDraft.getByRole("button", { name: "Send now" })).toBeVisible();
+  await expect(firstDraft.getByText(/This will email .* now/)).toBeVisible();
 });
 
 test("mobile keeps the living document inside the viewport", async ({ page }) => {

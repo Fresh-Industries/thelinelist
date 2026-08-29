@@ -104,7 +104,7 @@ Owns the portable, manufacturer-safe project summary. It never contains internal
 4. Show a small set of evidence-backed possibilities; never pad the list or claim confirmed capability from missing public information.
 5. Select up to three manufacturers and prepare a separate personalized introduction for each without sending anything.
 6. Review the exact shared fields and product-brief preview; budget remains private unless explicitly selected.
-7. For v1, approve the visible message and product brief, then let the founder copy the exact approved draft or continue through a visible human-controlled contact channel. Never silently send.
+7. Approve the visible message and product brief, then require a separate founder-only send confirmation. The Line List sends the exact approved version to a sourced public manufacturer email, copies the founder, and routes replies to the founder. Never silently send and never expose send as an agent tool.
 8. Do not infer or record Contacted from approval alone; an external consequence requires separate founder action and evidence.
 
 ## Design patterns
