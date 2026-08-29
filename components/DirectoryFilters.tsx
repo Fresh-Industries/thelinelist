@@ -542,15 +542,13 @@ export function DirectoryFilters({
               <label htmlFor={`${id}-operation-type`}>Operating model</label>
               <select id={`${id}-operation-type`} value={operationType} onChange={(event) => setOperationType(event.target.value as OperationType | "")}>
                 <option value="">Any operating model</option>
-                {Object.entries(OPERATION_TYPE_LABELS).map(([value, label]) => (
-                  <option
-                    key={value}
-                    value={value}
-                    disabled={facetCounts.operationTypes[value as OperationType] === 0 && operationType !== value}
-                  >
-                    {label} ({facetCounts.operationTypes[value as OperationType]})
-                  </option>
-                ))}
+                {Object.entries(OPERATION_TYPE_LABELS)
+                  .filter(([value]) => facetCounts.operationTypes[value as OperationType] > 0 || operationType === value)
+                  .map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label} ({facetCounts.operationTypes[value as OperationType]})
+                    </option>
+                  ))}
               </select>
               <small>Uses the operating model stated in the public source record.</small>
             </div>

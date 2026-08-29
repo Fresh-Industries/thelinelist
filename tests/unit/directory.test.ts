@@ -132,6 +132,45 @@ describe("directory trust and pagination", () => {
     expect(isPlantIndexable(listable!)).toBe(false);
   });
 
+  it("unlists brand shops and custom-label water from the finder and sitemap set", () => {
+    const listed = new Set(filterPlants({}).map((plant) => plant.slug));
+    for (const slug of [
+      "hot-wachula-s",
+      "toby-s-family-foods",
+      "three-little-figs",
+      "desert-springs-bottled-water-llc",
+    ]) {
+      expect(listed.has(slug), slug).toBe(false);
+      const plant = getPlantBySlug(slug);
+      expect(plant, slug).toBeUndefined();
+    }
+  });
+
+  it("keeps shared kitchens listed as incubators, not turnkey copackers", () => {
+    const listed = new Set(filterPlants({}).map((plant) => plant.slug));
+    for (const slug of [
+      "prep-commercial-kitchens",
+      "stock-pot-malden-llc",
+      "worcester-regional-food-hub",
+      "skyway-foods",
+      "buckman-coffee-factory",
+      "the-petite-chef",
+    ]) {
+      const plant = getPlantBySlug(slug);
+      expect(plant, slug).toBeDefined();
+      expect(listed.has(slug), slug).toBe(true);
+      expect(plant?.operationType, slug).toBe("shared-kitchen-incubator");
+    }
+  });
+
+  it("reports zero matches for unused operation-type facets", () => {
+    const counts = directoryFacetCounts({});
+    expect(counts.operationTypes["contract-packager"]).toBe(0);
+    expect(counts.operationTypes["toll-processor"]).toBe(0);
+    expect(counts.operationTypes["shared-kitchen-incubator"]).toBeGreaterThan(0);
+    expect(counts.operationTypes["co-packer"]).toBeGreaterThan(0);
+  });
+
   it("separates regulatory, safety-system, third-party, and product certification claims", () => {
     const groups = classifyCertificationClaims(["FDA approved", "HACCP", "HACCP training", "SQF Level 2", "SQF Level 3 HACCP", "Organic (Oregon Tilth)", "Nut-free facility", "third-party audited"]);
     expect(groups.regulatoryStatus.join(" ")).not.toMatch(/FDA approved/i);

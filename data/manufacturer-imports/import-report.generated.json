@@ -57,24 +57,24 @@
   "parsedRows": 646,
   "sourceStatusCounts": {
     "VERIFIED": 314,
-    "LISTABLE": 30,
+    "LISTABLE": 26,
     "NEEDS_REVIEW": 104,
-    "EXCLUDE": 198
+    "EXCLUDE": 202
   },
-  "safeRows": 344,
+  "safeRows": 340,
   "invalid": 2,
-  "imported": 312,
+  "imported": 308,
   "verified": 284,
-  "listable": 28,
+  "listable": 24,
   "changes": {
     "new": 250,
     "updated": 62,
     "unchanged": 0
   },
   "duplicates": 32,
-  "skipped": 336,
-  "finalCatalogCount": 348,
-  "smallRunSignals": 142,
+  "skipped": 340,
+  "finalCatalogCount": 344,
+  "smallRunSignals": 139,
   "internalSignalAudit": {
     "flaggedCandidates": 149,
     "flaggedWithoutPublishableEvidence": [
@@ -455,18 +455,18 @@
     "sports-hydration": 4,
     "functional-beverages": 4,
     "cold-pressed-juice": 1,
-    "juice": 26,
+    "juice": 25,
     "rtd-coffee-tea": 2,
     "water": 4,
     "hot-sauce": 14,
-    "sauce": 133,
-    "salsa": 39,
-    "dressings-marinades": 62,
-    "dips-hummus": 24,
+    "sauce": 131,
+    "salsa": 38,
+    "dressings-marinades": 60,
+    "dips-hummus": 23,
     "snacks": 41,
     "bakery": 42,
     "confectionery": 9,
-    "spices-dry-mixes": 64,
+    "spices-dry-mixes": 62,
     "supplements": 6,
     "dry-coffee-tea": 5,
     "dairy": 17,
@@ -481,7 +481,6 @@
     "Beverage contract manufacturing / incubation (page title",
     "Beverage powders",
     "Beverages (bottles and cans)",
-    "Bottled drinking water from an artesian well behind Echo, OR",
     "Bulk and retail superfood powders, custom/proprietary blends, proteins, mushroom and fruit powders, and related natural ingredients (400+ specialty SKUs)",
     "Canned and smoked seafood",
     "Cheesecakes",
@@ -1108,6 +1107,11 @@
       "reason": "EXCLUDE"
     },
     {
+      "companyName": "Three Little Figs",
+      "source": "batch-07-a.csv:5",
+      "reason": "EXCLUDE"
+    },
+    {
       "companyName": "Culinaire, Inc.",
       "source": "batch-07-a.csv:7",
       "reason": "EXCLUDE"
@@ -1163,6 +1167,11 @@
       "reason": "EXCLUDE"
     },
     {
+      "companyName": "Toby's Family Foods",
+      "source": "batch-08-a.csv:2",
+      "reason": "EXCLUDE"
+    },
+    {
       "companyName": "West Coast CoPacker, Inc.",
       "source": "batch-08-a.csv:3",
       "reason": "EXCLUDE"
@@ -1203,6 +1212,11 @@
       "reason": "EXCLUDE"
     },
     {
+      "companyName": "Desert Springs Bottled Water, LLC",
+      "source": "batch-09-a.csv:5",
+      "reason": "EXCLUDE"
+    },
+    {
       "companyName": "Forté Chocolate",
       "source": "batch-09-a.csv:7",
       "reason": "EXCLUDE"
@@ -1216,6 +1230,11 @@
       "companyName": "The Honest Stand",
       "source": "batch-09-a.csv:10",
       "reason": "NEEDS_REVIEW"
+    },
+    {
+      "companyName": "Hot Wachula's",
+      "source": "batch-09-a.csv:11",
+      "reason": "EXCLUDE"
     },
     {
       "companyName": "Ol'Geechee BBQ (Hogwaller)",
@@ -3427,14 +3446,6 @@
       "fingerprint": "b11b4207333b303eec53a903d5790d0fe8427f1eb6870aab5577feb8b3c4f602"
     },
     {
-      "masterDedupeKey": "desert springs bottled water|echo|OR",
-      "companyName": "Desert Springs Bottled Water, LLC",
-      "slug": "desert-springs-bottled-water-llc",
-      "source": "batch-09-a.csv:5",
-      "status": "LISTABLE",
-      "fingerprint": "0f36e30d4cb6d1506fc8acd7bc8e64f3c0bc269bf6afd9fa20b2523e94b9e379"
-    },
-    {
       "masterDedupeKey": "dimitria delights, inc|north grafton|MA",
       "companyName": "Dimitria Delights, Inc.",
       "slug": "dimitria-delights-inc",
@@ -3817,14 +3828,6 @@
       "source": "batch-17-b.csv:9",
       "status": "VERIFIED",
       "fingerprint": "11d954332258d126cef9b91f14e72ddc1d83d44d72c6e2945b56bdb805a595be"
-    },
-    {
-      "masterDedupeKey": "hot wachulas|bartow|FL",
-      "companyName": "Hot Wachula's",
-      "slug": "hot-wachula-s",
-      "source": "batch-09-a.csv:11",
-      "status": "LISTABLE",
-      "fingerprint": "fe45de15977c25aae597f952209689d222b3a09e73126c9be2c75f555daec3b5"
     },
     {
       "masterDedupeKey": "house-autry mills|four oaks|NC",
@@ -4963,14 +4966,6 @@
       "fingerprint": "b0e623cf5fb44343f042a502d5ab880f5c3af6f9affc69a0a1cd4ab08556a314"
     },
     {
-      "masterDedupeKey": "three little figs/raft|portland|OR",
-      "companyName": "Three Little Figs",
-      "slug": "three-little-figs",
-      "source": "batch-07-a.csv:5",
-      "status": "LISTABLE",
-      "fingerprint": "b55ca21826880aecc9287586a848106ae823f4c9e023eda0964bc58a012ee78c"
-    },
-    {
       "masterDedupeKey": "tillamook bay cannery|garibaldi|OR",
       "companyName": "Tillamook Bay Cannery",
       "slug": "tillamook-bay-cannery",
@@ -4993,14 +4988,6 @@
       "source": "batch-02.csv:9",
       "status": "VERIFIED",
       "fingerprint": "9cb247d74f55eb9d4b10e1e0054d4ffd26445811bcc7ec2abda7c79dec320153"
-    },
-    {
-      "masterDedupeKey": "toby's family foods|springfield|OR",
-      "companyName": "Toby's Family Foods",
-      "slug": "toby-s-family-foods",
-      "source": "batch-08-a.csv:2",
-      "status": "LISTABLE",
-      "fingerprint": "323fe6c08b6e83ff9e1f7316df4ec2fbc785baefaba2f336192ca43afbd6a791"
     },
     {
       "masterDedupeKey": "todd's premium foods|des moines|IA",
@@ -5202,7 +5189,7 @@
   },
   "lastApplyChanges": {
     "new": 0,
-    "updated": 44,
-    "unchanged": 268
+    "updated": 0,
+    "unchanged": 308
   }
 }

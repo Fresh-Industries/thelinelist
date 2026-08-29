@@ -42,7 +42,7 @@ test("keeps the Hot Sauce wizard result in sync with the directory URL", async (
   await page.getByRole("link", { name: "Remove Hot sauce filter" }).click();
   await expect(page).toHaveURL(/\/find-manufacturers$/);
   await expect(page.getByRole("list", { name: "Active filters" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 348 manufacturers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 344 manufacturers" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 
   await page.goBack();
@@ -54,7 +54,7 @@ test("keeps the Hot Sauce wizard result in sync with the directory URL", async (
   await page.goForward();
   await expect(page).toHaveURL(/\/find-manufacturers$/);
   await expect(page.getByRole("list", { name: "Active filters" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 348 manufacturers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "1–18 of 344 manufacturers" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 
   await page.getByRole("combobox", { name: "Where?" }).selectOption("TX");
