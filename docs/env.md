@@ -28,7 +28,7 @@ npx prisma migrate dev --name <descriptive-name>
 
 Never point local migration or test commands at the production database.
 
-Vercel runs `prisma generate`, applies committed migrations with `prisma migrate deploy`, and then runs the Next.js build. The migration targets the `DATABASE_URL` scoped to that Vercel environment. Configure a separate Preview database before enabling preview deployments; a preview must never migrate the production database.
+Vercel runs `prisma generate`, then `next build`. Production also applies committed migrations with `prisma migrate deploy` against that environment's `DATABASE_URL`. Preview and local Vercel builds skip migrations so they cannot touch the production database. Configure a separate Preview database before enabling preview migrations.
 
 ## Binary artwork storage
 
