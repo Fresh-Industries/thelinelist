@@ -16,6 +16,13 @@ test("filtered directory URLs use the directory canonical and stay noindex", asy
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 
+test("the sauce hub title matches manufacturer and condiment queries", async ({ page }) => {
+  await page.goto("/find-manufacturers/sauce");
+  await expect(page).toHaveTitle(/Manufacturer(s)?/);
+  await expect(page).toHaveTitle(/Condiment/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find sauce and condiment manufacturers");
+});
+
 test("static directory pagination exposes normal profile and page links", async ({ page }) => {
   await page.goto("/find-manufacturers");
   await expect(page.locator(".plant-card")).toHaveCount(18);
