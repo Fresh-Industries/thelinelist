@@ -8,6 +8,7 @@ import { WebMcpSourcingTools } from "./WebMcpSourcingTools";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
 import { formatPackageDirection, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getProductIdentity, isOpenBrandAnswer } from "@/lib/sourcing/product-identity";
+import { getSourcingQuestion } from "@/lib/sourcing/questions";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
 import type { ManufacturerMatch, OutreachDraft, PackageDesign, PackageDesignPreviewInput, SourcingFieldKey, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
 
@@ -26,20 +27,6 @@ const BRIEF_GROUPS: Array<{ title: string; keys: SourcingFieldKey[] }> = [
   { title: "Formula & product requirements", keys: ["formula_status", "formulation_assistance", "allergens", "manufacturing_process"] },
   { title: "Production", keys: ["production_volume", "storage_distribution", "preferred_geography", "target_launch_date"] },
 ];
-
-const AGENT_QUESTIONS: Partial<Record<SourcingFieldKey, string>> = {
-  brand_name: "Do you already have a brand name? It is completely fine if you are still deciding.",
-  product_type: "What is the product, in the simplest words you would use with a customer?",
-  product_format: "How will one customer receive or eat it—for example, a mini loaf, two slices, or a full loaf?",
-  product_description: "Here is where the product story comes together. What should a manufacturer understand about the product, how a customer receives it, and what still needs development?",
-  packaging_format: "What package are you leaning toward? You can also open the 3D workbench and compare the real can, bottle, jar, and bag models.",
-  packaging_size: "What size or portion should one retail unit contain? A rough answer is enough.",
-  formula_status: "How far along is the recipe: idea, draft, tested, or ready to scale?",
-  formulation_assistance: "Would you want the manufacturer to help develop or scale the recipe?",
-  carbonation: "Should the drink be carbonated, still, or is that still open?",
-  storage_distribution: "Should the finished product be shelf-stable, refrigerated, or frozen? If you are unsure, say that.",
-  production_volume: "What first run feels realistic? A range such as 1,000–5,000 units works well.",
-};
 
 export function SourcingWorkspace({
   initialWorkspace,
@@ -67,6 +54,10 @@ export function SourcingWorkspace({
   }), [workspace.matchesUpdatedAt, workspace.outreachDrafts, workspace.selectedManufacturerSlugs]);
   const sentIntroductionCount = currentDrafts.filter((draft) => draft.deliveryStatus === "sent").length;
   const nextKey = readiness.nextQuestionKey;
+  const packageDesignPending = nextKey === "packaging_format"
+    && readiness.packageDesignRequired
+    && !readiness.packageDesignReady
+    && workspace.fields.packaging_format.status === "confirmed";
   const { brandName, productDescriptor } = getProductIdentity(workspace);
   const packagePresentation = workspace.packageDesign
     ? getPackageDesignPresentation(workspace.packageDesign, workspace.artwork)
@@ -207,21 +198,21 @@ export function SourcingWorkspace({
         ))}
 
         <section className={`brief-section packaging-section${agentChangedKeys.has("packaging_format") ? " agent-authored-section" : ""}`}>
-          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> {workspace.packageDesign ? "Refine in 3D" : "Open 3D workbench"}</button></div>
-          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => setWorkbenchOpen(true)} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>Open the workbench when a visual comparison would help.</small></div></div> : <p className="open-value">No package direction is locked yet. The collaborator can help narrow it, or you can compare the real jar, bottle, can, and bag models now.</p>}
+          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> {workspace.packageDesign || workspace.fields.packaging_format.status === "confirmed" ? "Refine in 3D" : "Open 3D workbench"}</button></div>
+          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => setWorkbenchOpen(true)} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>{workspace.fields.packaging_format.status === "confirmed" ? "3D refinement is still needed for the manufacturer-ready brief." : "Open the workbench when a visual comparison would help."}</small></div></div> : <p className="open-value">No package direction is locked yet. The collaborator can help narrow it, or you can compare the real jar, bottle, can, and bag models now.</p>}
         </section>
 
         <aside className="agent-exchange" aria-live="polite"><Sparkle aria-hidden="true" weight="fill" /><div><span>Product collaborator</span><p>{agentNote}</p></div></aside>
 
         <section className="agent-prompt" aria-labelledby="next-question-heading">
-          <div className="prompt-line"><div><span>{readiness.searchReady ? "Research is available" : "Next useful decision"}</span><h2 id="next-question-heading">{nextKey ? AGENT_QUESTIONS[nextKey] || `What should manufacturers know about ${FIELD_DEFINITION_BY_KEY[nextKey].label.toLowerCase()}?` : "Your brief has enough confirmed detail for a focused manufacturer search."}</h2>{readiness.whyItMatters && nextKey ? <p>{readiness.whyItMatters}</p> : null}</div>{nextKey === "packaging_format" ? <button className="text-action" type="button" onClick={() => setWorkbenchOpen(true)}>Compare packages in 3D</button> : null}</div>
-          {nextKey ? <form className="composer" onSubmit={answerNext}><label className="sr-only" htmlFor="next-decision-answer">Your answer to the next product decision</label><textarea id="next-decision-answer" rows={2} value={answer} onChange={(event) => setAnswer(event.target.value)} placeholder="Answer naturally, or say “I’m not sure”…" maxLength={4_000} disabled={busy !== null} /><button type="submit" disabled={!answer.trim() || busy !== null}>{busy === "answer" ? "Adding…" : <>Add to brief <ArrowRight aria-hidden="true" /></>}</button></form> : <button className="primary-action" type="button" onClick={findMatches} disabled={busy !== null}>{busy === "match" ? "Researching matches…" : "Find evidence-backed manufacturers"}</button>}
+          <div className="prompt-line"><div><span>{readiness.searchReady ? "Research is available" : "Next useful decision"}</span><h2 id="next-question-heading">{packageDesignPending ? "Review and save your packaging direction in 3D." : nextKey ? getSourcingQuestion(workspace, nextKey) : "Your brief has enough confirmed detail for a focused manufacturer search."}</h2>{readiness.whyItMatters && nextKey ? <p>{readiness.whyItMatters}</p> : null}</div>{nextKey === "packaging_format" && !packageDesignPending ? <button className="text-action" type="button" onClick={() => setWorkbenchOpen(true)}>Compare packages in 3D</button> : null}</div>
+          {packageDesignPending ? <button className="primary-action" type="button" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> Refine packaging in 3D</button> : nextKey ? <form className="composer" onSubmit={answerNext}><label className="sr-only" htmlFor="next-decision-answer">Your answer to the next product decision</label><textarea id="next-decision-answer" rows={2} value={answer} onChange={(event) => setAnswer(event.target.value)} placeholder="Answer naturally, or say “I’m not sure”…" maxLength={4_000} disabled={busy !== null} /><button type="submit" disabled={!answer.trim() || busy !== null}>{busy === "answer" ? "Adding…" : <>Add to brief <ArrowRight aria-hidden="true" /></>}</button></form> : <button className="primary-action" type="button" onClick={findMatches} disabled={busy !== null}>{busy === "match" ? "Researching matches…" : "Find evidence-backed manufacturers"}</button>}
           {nextKey && readiness.searchReady ? <div className="research-now"><span>You can keep refining this later.</span><button className="text-action" type="button" onClick={findMatches} disabled={busy !== null}>{busy === "match" ? "Researching…" : "Research manufacturers now"}</button></div> : null}
         </section>
 
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
 
-        {workspace.matches.length ? <section className="brief-section manufacturer-section"><div className="section-heading"><div><p className="document-kicker">Evidence, not guesses</p><h2>Manufacturer possibilities</h2></div><span>Select up to 3</span></div><p className="section-intro">These are possibilities to investigate. “Unknown” means the public evidence does not answer the requirement—it is not treated as a match.</p><div className="match-list">{workspace.matches.map((match) => <MatchRow key={match.manufacturerSlug} match={match} selected={selectedManufacturerSlugs.has(match.manufacturerSlug)} disabled={busy !== null} onToggle={() => toggleManufacturer(match.manufacturerSlug)} />)}</div>{workspace.selectedManufacturerSlugs.length ? <div className="prepare-introductions"><div><strong>{workspace.selectedManufacturerSlugs.length} selected</strong><span>Each manufacturer gets its own message and visible review.</span></div><button type="button" onClick={prepareIntroductions} disabled={busy !== null}>{busy === "outreach" ? "Preparing…" : `Prepare ${workspace.selectedManufacturerSlugs.length} introduction${workspace.selectedManufacturerSlugs.length === 1 ? "" : "s"}`}</button></div> : null}</section> : null}
+        {workspace.matches.length ? <section className="brief-section manufacturer-section"><div className="section-heading"><div><p className="document-kicker">Evidence, not guesses</p><h2>Manufacturer possibilities</h2></div><span>Select up to 3</span></div><p className="section-intro">These are possibilities to investigate. “Unknown” means the public evidence does not answer the requirement—it is not treated as a match.</p><div className="match-list">{workspace.matches.map((match) => <MatchRow key={match.manufacturerSlug} match={match} selected={selectedManufacturerSlugs.has(match.manufacturerSlug)} disabled={busy !== null} onToggle={() => toggleManufacturer(match.manufacturerSlug)} />)}</div>{workspace.selectedManufacturerSlugs.length ? <div className="prepare-introductions"><div><strong>{workspace.selectedManufacturerSlugs.length} selected</strong><span>{readiness.manufacturerReady ? "Each manufacturer gets its own message and visible review." : "Finish the manufacturer-ready brief before preparing an introduction."}</span></div>{readiness.manufacturerReady ? <button type="button" onClick={prepareIntroductions} disabled={busy !== null}>{busy === "outreach" ? "Preparing…" : `Prepare ${workspace.selectedManufacturerSlugs.length} introduction${workspace.selectedManufacturerSlugs.length === 1 ? "" : "s"}`}</button> : readiness.packageDesignRequired && !readiness.packageDesignReady ? <button type="button" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> Finish package design</button> : <button type="button" onClick={() => document.getElementById("next-question-heading")?.scrollIntoView({ behavior: "smooth", block: "center" })}>Finish manufacturer brief</button>}</div> : null}</section> : null}
 
         {currentDrafts.length ? <section className="brief-section introduction-section" ref={reviewRef}><div className="section-heading"><div><p className="document-kicker">Founder-controlled delivery</p><h2>Manufacturer introductions</h2></div><span>{sentIntroductionCount ? `${sentIntroductionCount} sent` : "Nothing has been sent"}</span></div><p className="section-intro">Review the sourced recipient, exact message, and shared product details. First approve the exact version; only your separate “Send now” click emails the manufacturer through The Line List.</p><div className="introduction-list">{currentDrafts.map((draft) => <DraftReview key={`${draft.id}-${draft.version}`} draft={draft} workspace={workspace} onWorkspace={setWorkspace} />)}</div></section> : null}
       </article>
@@ -322,6 +313,7 @@ function mergePackagePreview(workspace: Workspace, patch: PackageDesignPreviewIn
     baseColor: "#b64d2c",
     labelColor: "#f2e8d5",
     artworkId: workspace.artwork?.id ?? null,
+    previewAssetId: null,
     logoAspect: 1345 / 662,
     logoScale: 0.62,
     logoPosition: { x: 0, y: 0 },

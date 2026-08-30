@@ -111,7 +111,7 @@ The journey is dependency-aware but not rigidly linear.
 | Product definition | What the product is and who it is for | Working category and description | Coherent product overview | Detailed production requirements |
 | Product format | The physical item someone buys or consumes | Liquid, loaf, bar, sauce, snack, and similar format | Defined physical format | Exact packaging engineering |
 | Formulation | Recipe readiness changes the help and manufacturer needed | Recipe ready, needs work, or needs development; known allergen constraints | Formulation-readiness statement and open questions | Proprietary recipe detail and premature process jargon |
-| Packaging | Packaging changes equipment fit, cost, storage, and shipping | Alternatives may be compared; one active direction is chosen | Active package plus quietly preserved alternatives | Secondary package details until useful |
+| Packaging | Packaging changes equipment fit, cost, storage, and shipping | Alternatives may be compared; one active direction is reviewed and saved in the supported 3D workbench | Active package plus quietly preserved alternatives | Secondary package details until useful |
 | Production requirements | A useful range is enough for an initial conversation | Approximate volume, storage, sourcing responsibilities, relevant timing | Initial production brief | Premature pallet, freight, or detailed costing questions |
 | Certifications and constraints | Some requirements are mandatory and others aspirational | Required, preferred, unknown, or not applicable | Prioritized requirements with reasons | Catalog of every possible certification |
 | Manufacturer matching | A result means worth evaluating, not confirmed capable | Decide whether to explore candidates; unknowns may remain | Evidence-backed candidate set plus narrowing questions | Contact actions before evidence exists |
@@ -242,10 +242,13 @@ Packaging exploration supports alternatives while preserving one active directio
 The model must:
 
 - Visibly change when a represented packaging decision changes.
+- Open the refinement space whenever an agent stages or applies a visual packaging direction so the founder can see the exact work before accepting it.
 - Make proposed alternatives look tentative and confirmed choices stable.
 - Never make an unconfirmed package appear resolved.
 - Have accessible non-3D controls for every decision.
 - Recede or disappear when it does not improve the current decision.
+
+For manufacturer-brief readiness, a supported package direction must be visibly reviewed and saved from this workbench. The private founder PDF includes a static render captured from that exact saved 3D view so the portable brief remains visually consistent; the PDF never relies on viewer-specific interactive 3D support. That saved direction is a communication mockup only; it does not claim a production-ready dieline, validated dimensions, materials, line compatibility, or manufacturer approval. Matching research may still begin earlier with the package decision explicitly open.
 
 It must never represent formula readiness, safety, shelf life, certifications, manufacturer capability, commercial viability, or production readiness. It must not become an interior hero that displaces the living brief.
 
@@ -515,7 +518,7 @@ Delete or demote it when it repeats information, only makes the interface feel p
 - The Codex agent and the workspace share one canonical state.
 - Explicit founder statements may become confirmed immediately.
 - Matching may begin with unknowns.
-- 3D is limited to decisions and formats it can faithfully support.
+- 3D is limited to decisions and formats it can faithfully support, and a reviewed saved direction is required for manufacturer-brief readiness.
 - Packaging supports alternatives with one active direction.
 - V1 prepares founder-approved draft outreach; the founder explicitly confirms delivery through The Line List.
 - V1 scope is packaged food and beverage with conventional co-manufacturing workflows; demos focus on beverages and shelf-stable packaged foods.

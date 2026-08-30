@@ -18,6 +18,7 @@ const STATE_ALIASES: Record<string, string> = {
   "new york": "NY", ohio: "OH", oregon: "OR", pennsylvania: "PA", tennessee: "TN", washington: "WA",
   wisconsin: "WI",
 };
+const STATE_CODES = new Set(Object.values(STATE_ALIASES));
 
 function searchablePlantText(plant: Plant): string {
   return [
@@ -48,7 +49,7 @@ function fieldValue(workspace: SourcingWorkspace, key: SourcingFieldKey): string
 
 function inferPreferredState(value: string): string | null {
   const normalized = value.toLowerCase().replace(/\b(?:near|around|in|close to|within)\b/g, " ").trim();
-  const abbreviation = normalized.match(/\b[A-Z]{2}\b/i)?.[0].toUpperCase();
+  const abbreviation = normalized.match(/\b[a-z]{2}\b/gi)?.map((token) => token.toUpperCase()).find((token) => STATE_CODES.has(token));
   if (abbreviation) return abbreviation;
   return Object.entries(STATE_ALIASES).find(([name]) => normalized.includes(name))?.[1] ?? null;
 }
@@ -264,7 +265,7 @@ export function matchManufacturers(
     "product_type", "packaging_format", "packaging_size", "carbonation", "formulation_assistance",
     "manufacturing_process", "preferred_geography", "certifications", "production_volume", "storage_distribution", "allergens",
   ]);
-  const usable = confirmed.filter((field) => requirementKeys.has(field.key));
+  const usable = confirmed.filter((field) => requirementKeys.has(field.key) && (!options.geographyPreference || field.key !== "preferred_geography"));
   if (options.geographyPreference) {
     usable.push({ ...workspace.fields.preferred_geography, value: options.geographyPreference, status: "confirmed" });
   }

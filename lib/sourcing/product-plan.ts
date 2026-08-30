@@ -111,6 +111,7 @@ export const PackageDesignSchema = z.object({
   baseColor: z.string().regex(/^#[0-9a-f]{6}$/i),
   labelColor: z.string().regex(/^#[0-9a-f]{6}$/i),
   artworkId: z.string().min(1).max(500).nullable().default(null),
+  previewAssetId: z.string().min(1).max(500).nullable().default(null),
   logoAspect: z.number().min(0.25).max(4).default(1345 / 662),
   logoScale: z.number().min(0.05).max(3),
   logoPosition: z.object({ x: z.number().min(-2).max(2), y: z.number().min(-2).max(2) }),

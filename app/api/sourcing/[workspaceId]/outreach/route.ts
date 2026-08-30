@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
 import { getAuthorizedWorkspace } from "@/lib/sourcing/access";
+import { getSourcingReadiness } from "@/lib/sourcing/readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   const founderSelected = [...workspace.selectedManufacturerSlugs].sort();
   if (!founderSelected.length || requested.length !== founderSelected.length || requested.some((slug, index) => slug !== founderSelected[index])) {
     return NextResponse.json({ error: "The founder must select these manufacturers in the workspace before any introduction drafts can be prepared." }, { status: 409 });
+  }
+  const readiness = getSourcingReadiness(workspace);
+  if (!readiness.manufacturerReady) {
+    return NextResponse.json({
+      error: readiness.packageDesignRequired && !readiness.packageDesignReady
+        ? "Review and save the packaging direction in the 3D workbench before preparing a manufacturer introduction."
+        : "Finish the manufacturer-ready brief before preparing an introduction.",
+      workspace,
+      readiness,
+    }, { status: 409 });
   }
   const drafts = prepareOutreachDrafts(workspace, parsed.data);
   if (!drafts.length) return NextResponse.json({ error: "No available manufacturer introduction could be prepared." }, { status: 400 });

@@ -87,7 +87,17 @@ export function SourcingLanding() {
         if (typeof rawIdea !== "string" || rawIdea.trim().length < 2) throw new Error("Tell me the product idea in at least two characters.");
         const workspace = await createWorkspace(rawIdea);
         if (!workspace) throw new Error("The product workspace could not be created.");
-        return { workspace, workspaceUrl: `/sourcing/${workspace.id}`, nextAction: "Open the new workspace and ask its single next useful question.", externalContactRequiresFounderAction: true };
+        return {
+          workspace: {
+            id: workspace.id,
+            revision: workspace.revision,
+            originalIdea: workspace.originalIdea,
+            productType: workspace.fields.product_type.value,
+          },
+          workspaceUrl: `/sourcing/${workspace.id}`,
+          nextAction: "Open the new workspace and ask its single next useful question.",
+          externalContactRequiresFounderAction: true,
+        };
       },
     };
     try {

@@ -33,6 +33,7 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const capturePreviewRef = useRef<(() => Promise<Blob | null>) | null>(null);
   const config = packageConfigs[packagingType];
   const logo = logoSettings[packagingType];
   const summary = useMemo(() => packageSummary(packagingType, finish, dimensions), [dimensions, finish, packagingType]);
@@ -83,19 +84,21 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   async function save() {
     setBusy(true);
     setError("");
-    const packageDesign: PackageDesign = {
-      packagingType,
-      finish,
-      baseColor,
-      labelColor,
-      artworkId: logoUrl ? workspace.artwork?.id ?? null : null,
-      logoAspect,
-      logoScale: logo.scale,
-      logoPosition: { x: logo.x, y: logo.y },
-      dimensions,
-      summary,
-    };
     try {
+      const previewAssetId = await uploadPackagePreview(workspace.id, capturePreviewRef.current);
+      const packageDesign: PackageDesign = {
+        packagingType,
+        finish,
+        baseColor,
+        labelColor,
+        artworkId: logoUrl ? workspace.artwork?.id ?? null : null,
+        previewAssetId,
+        logoAspect,
+        logoScale: logo.scale,
+        logoPosition: { x: logo.x, y: logo.y },
+        dimensions,
+        summary,
+      };
       const response = await fetch(`/api/sourcing/${workspace.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -113,8 +116,8 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
       }
       onSaved(body.workspace);
       onClose();
-    } catch {
-      setError("The package direction could not be saved. Check your connection and try again.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The package direction could not be saved. Check your connection and try again.");
     } finally {
       setBusy(false);
     }
@@ -123,7 +126,7 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   return (
     <dialog className="workbench-overlay" aria-labelledby="package-workbench-heading" open onCancel={onClose}>
       <div className="workbench-shell">
-        <header className="workbench-heading"><div><p>Packaging workbench</p><h1 id="package-workbench-heading">Make the package direction tangible.</h1></div><button type="button" onClick={onClose} aria-label="Close packaging workbench"><X aria-hidden="true" /></button></header>
+        <header className="workbench-heading"><div><p>{initialPreview ? "Agent-staged 3D refinement" : "Packaging workbench"}</p><h1 id="package-workbench-heading">{initialPreview ? "Review what your agent changed." : "Make the package direction tangible."}</h1></div><button type="button" onClick={onClose} aria-label="Close packaging workbench"><X aria-hidden="true" /></button></header>
         <div className="packaging-layout">
           <aside className="tool-controls">
             <fieldset><legend>Package</legend>{PACKAGING_TYPES.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => setPackagingType(type)}>{type === "stand-up-pouch" ? "Bag / pouch" : packageConfigs[type].label}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}</fieldset>
@@ -139,8 +142,8 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
             <div className="dimension-controls"><span>Working dimensions</span>{(["width", "height", "depth"] as const).map((key) => <label key={key}>{key}<input type="number" min="0" max="10000" step="0.1" value={dimensions[key] ?? ""} onChange={(event) => setDimensions((current) => ({ ...current, [key]: event.target.value ? Number(event.target.value) : null }))} /></label>)}</div>
           </aside>
           <section className="package-canvas">
-            <div className="package-preview-meta"><div><p>Live 3D preview</p><h2>{config.previewTitle}</h2></div><span>Drag to turn</span></div>
-            <ProductMockup packagingType={packagingType} logoUrl={logoUrl} logoAspect={logoAspect} baseColor={baseColor} labelColor={labelColor} bottleFinish={finish} logoScale={logo.scale} logoPosition={{ x: logo.x, y: logo.y }} />
+            <div className="package-preview-meta"><div><p>{initialPreview ? "Agent preview · live in 3D" : "Live 3D preview"}</p><h2>{config.previewTitle}</h2></div><span>Drag to turn</span></div>
+            <ProductMockup packagingType={packagingType} logoUrl={logoUrl} logoAspect={logoAspect} baseColor={baseColor} labelColor={labelColor} bottleFinish={finish} logoScale={logo.scale} logoPosition={{ x: logo.x, y: logo.y }} onCaptureReady={(capture) => { capturePreviewRef.current = capture; }} />
             <div className="tradeoff-note"><span>Working direction</span><p>{summary}</p><small>This is a communication mockup, not a production dieline. Final dimensions and materials still need manufacturer validation.</small></div>
           </section>
         </div>
@@ -149,6 +152,18 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
       </div>
     </dialog>
   );
+}
+
+async function uploadPackagePreview(workspaceId: string, capture: (() => Promise<Blob | null>) | null): Promise<string> {
+  if (!capture) throw new Error("The 3D preview is still loading. Wait a moment and try again.");
+  const blob = await capture();
+  if (!blob?.size) throw new Error("The 3D preview could not be captured. Try turning the package once, then save again.");
+  const data = new FormData();
+  data.set("preview", new File([blob], "package-preview.png", { type: "image/png" }));
+  const response = await fetch(`/api/sourcing/${workspaceId}/package-preview`, { method: "POST", body: data });
+  const body = await response.json().catch(() => null) as { previewAssetId?: string; error?: string } | null;
+  if (!response.ok || !body?.previewAssetId) throw new Error(body?.error || "The 3D preview could not be saved for the PDF.");
+  return body.previewAssetId;
 }
 
 function inferPackage(workspace: SourcingWorkspace): PackagingType {

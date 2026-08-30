@@ -171,6 +171,7 @@ export interface PackageDesign {
   baseColor: string;
   labelColor: string;
   artworkId: string | null;
+  previewAssetId: string | null;
   logoAspect: number;
   logoScale: number;
   logoPosition: { x: number; y: number };

@@ -1,4 +1,5 @@
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
+import { getSourcingCategory } from "./questions";
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
 
 export const MATCH_SHAPING_FIELDS: SourcingFieldKey[] = [
@@ -22,6 +23,8 @@ export interface SourcingReadiness {
   searchReady: boolean;
   manufacturerReady: boolean;
   launchReady: boolean;
+  packageDesignRequired: boolean;
+  packageDesignReady: boolean;
   stageLabel: string;
   stageSummary: string;
   manufacturerMissing: SourcingFieldKey[];
@@ -41,7 +44,7 @@ const WHY_IT_MATTERS: Partial<Record<SourcingFieldKey, string>> = {
   brand_name: "A brand name helps identify the brief, but it can stay open while you make manufacturing decisions.",
   product_type: "This sets the manufacturing category and the questions that come next.",
   product_description: "A short product story lets a manufacturer understand the format, customer use, and unresolved development work without reconstructing the idea from separate fields.",
-  packaging_format: "Manufacturers need equipment that can form, fill, seal, or wrap your exact package.",
+  packaging_format: "Manufacturers need a clear package direction. Refine it in 3D, then save the version you want included in the manufacturer brief.",
   packaging_size: "Size affects line compatibility, portion economics, labels, and case packing.",
   formula_status: "A manufacturer needs to know whether you need development help or are ready to scale.",
   formulation_assistance: "Some manufacturers develop formulas; others only run finished commercial formulas.",
@@ -57,23 +60,31 @@ function isUsefulConfirmedValue(workspace: SourcingWorkspace, key: SourcingField
 }
 
 function productText(workspace: SourcingWorkspace): string {
-  return `${workspace.fields.product_name?.value ?? ""} ${workspace.fields.product_category?.value ?? ""} ${workspace.fields.product_format?.value ?? ""} ${workspace.fields.product_type?.value ?? ""} ${workspace.fields.product_description?.value ?? ""}`.toLowerCase();
+  return `${workspace.originalIdea ?? ""} ${workspace.fields.product_name?.value ?? ""} ${workspace.fields.product_category?.value ?? ""} ${workspace.fields.product_format?.value ?? ""} ${workspace.fields.product_type?.value ?? ""} ${workspace.fields.product_description?.value ?? ""}`.toLowerCase();
 }
 
 export function requiredMatchingFields(workspace: SourcingWorkspace): SourcingFieldKey[] {
   const product = productText(workspace);
-  const required: SourcingFieldKey[] = ["product_type", "product_format", "packaging_format", "storage_distribution", "production_volume", "product_description"];
+  const category = getSourcingCategory(workspace);
+  const beverage = category === "beverage";
+  const bakery = category === "bakery" || /\b(?:bar|bars|snack|snacks)\b/.test(product);
+  const required: SourcingFieldKey[] = ["product_type", "product_format", "product_description"];
   if (!isUsefulConfirmedValue(workspace, "formula_status") && !isUsefulConfirmedValue(workspace, "formulation_assistance")) {
     required.push("formula_status");
   }
-  if (/\b(?:drink|drinks|beverage|beverages|juice|water|seltzer|coffee|tea)\b/.test(product)) required.push("carbonation");
-  if (/\b(?:bread|bakery|cake|cakes|cookie|cookies|muffin|muffins|bar|bars|snack|snacks)\b/.test(product)) required.push("packaging_size");
+  if (beverage) required.push("carbonation");
+  required.push("storage_distribution", "packaging_format");
+  if (beverage || bakery) required.push("packaging_size");
+  if (/\borganic\b/.test(product)) required.push("certifications");
+  required.push("production_volume");
   return [...new Set(required)];
 }
 
 export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingReadiness {
   const required = requiredMatchingFields(workspace);
-  const confirmed = required.filter((key) => isUsefulConfirmedValue(workspace, key));
+  const packageDesignRequired = required.includes("packaging_format");
+  const packageDesignReady = Boolean(workspace.packageDesign);
+  const confirmed = required.filter((key) => isUsefulConfirmedValue(workspace, key) && (key !== "packaging_format" || packageDesignReady));
   const proposed = required.filter((key) => workspace.fields[key]?.status === "proposed");
   const confirmedSet = new Set(confirmed);
   const proposedSet = new Set(proposed);
@@ -104,8 +115,13 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
     introduction: "Introduction prepared",
   } as const)[milestone];
   const remaining = required.length - confirmed.length;
+  const packageDesignPending = packageDesignRequired
+    && !packageDesignReady
+    && isUsefulConfirmedValue(workspace, "packaging_format");
   const summary = manufacturerReady
     ? "Your brief is ready for an introductory manufacturer fit conversation."
+    : packageDesignPending
+      ? "Your package format is captured. Refine and save the 3D direction before the manufacturer brief is ready."
     : searchReady
       ? "You can research manufacturers now while the remaining product decisions stay visibly open."
     : remaining === 1
@@ -127,6 +143,8 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
     searchReady,
     manufacturerReady,
     launchReady,
+    packageDesignRequired,
+    packageDesignReady,
     stageLabel,
     stageSummary,
     manufacturerMissing: missing,

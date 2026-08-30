@@ -30,7 +30,7 @@ function confirmedShareableKeys(workspace: SourcingWorkspace): SourcingFieldKey[
   });
 }
 
-function warningsFor(workspace: SourcingWorkspace, match: ManufacturerMatch | undefined): string[] {
+function warningsFor(workspace: SourcingWorkspace, match: ManufacturerMatch | undefined, hasPrivateDraftingInstructions: boolean): string[] {
   const warnings: string[] = [];
   if (workspace.fields.production_volume.status !== "confirmed") warnings.push("Initial production volume is still missing.");
   if (workspace.fields.contact_email.status !== "confirmed") warnings.push("Add a confirmed contact email before contacting a manufacturer.");
@@ -38,6 +38,7 @@ function warningsFor(workspace: SourcingWorkspace, match: ManufacturerMatch | un
   const proposedCount = Object.values(workspace.fields).filter((field) => field.status === "proposed").length;
   if (proposedCount) warnings.push(`${proposedCount} agent proposal${proposedCount === 1 ? " is" : "s are"} excluded until the founder confirms them.`);
   if (match?.possibleConflicts.length) warnings.push("Review the possible fit conflicts before approving outreach.");
+  if (hasPrivateDraftingInstructions) warnings.push("Private drafting instructions were not copied into the recipient message. Apply any desired wording during founder review.");
   return warnings;
 }
 
@@ -76,7 +77,6 @@ function createBody(
   keys: SourcingFieldKey[],
   questions: string[],
   token: string,
-  founderInstructions?: string,
 ): string {
   const name = workspace.fields.founder_name.value;
   const company = workspace.fields.brand_name.value || workspace.fields.company_name.value;
@@ -86,13 +86,11 @@ function createBody(
   const fit = match?.supportedMatches.length
     ? `The Line List’s reviewed public information suggests a possible fit. ${match.supportedMatches.slice(0, 2).join(" ")}`
     : "I would like to learn whether this project may fit your current capabilities.";
-  const instructions = founderInstructions ? `Additional context: ${founderInstructions}` : null;
   return ([
     greeting,
     "",
     introduction,
     fit,
-    instructions,
     "",
     "Project details:",
     formatSharedDetails(workspace, keys) || "- A detailed brief is still being prepared.",
@@ -140,11 +138,11 @@ export function prepareOutreachDrafts(
       manufacturerSlug: plant.slug,
       manufacturerName: plant.name,
       subject: `Introduction: ${founderLabel(workspace)} × ${plant.name} — ${product}`,
-      body: createBody(workspace, plant.name, match, included, questions, token, input.founderInstructions),
+      body: createBody(workspace, plant.name, match, included, questions, token),
       questions,
       includedFieldKeys: included,
       excludedFieldKeys: excluded,
-      warnings: warningsFor(workspace, match),
+      warnings: warningsFor(workspace, match, Boolean(input.founderInstructions)),
       packet: {
         token,
         manufacturerSlug: plant.slug,

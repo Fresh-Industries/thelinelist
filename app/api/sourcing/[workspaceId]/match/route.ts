@@ -20,7 +20,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   const limited = await rateLimit({ key: `sourcing-match:${context.ipHash}:${workspaceId}`, limit: 60, windowSec: 60 * 60 });
   if (!limited.ok) return NextResponse.json({ error: "Matching limit reached. Try again later." }, { status: 429 });
   const parsed = matchRequestSchema.safeParse(await request.json().catch(() => ({})));
-  if (!parsed.success) return NextResponse.json({ error: "Invalid matching request." }, { status: 400 });
+  if (!parsed.success) {
+    const detail = parsed.error.issues[0];
+    const field = detail?.path.length ? ` for ${detail.path.join(".")}` : "";
+    return NextResponse.json({ error: `Invalid matching request${field}: ${detail?.message ?? "check the supplied filters"}.` }, { status: 400 });
+  }
   if (!hasMinimumMatchingInfo(workspace)) {
     return NextResponse.json({ error: "Your plan needs a little more detail before a useful manufacturer search.", workspace, readiness: getSourcingReadiness(workspace), matches: [] }, { status: 409 });
   }

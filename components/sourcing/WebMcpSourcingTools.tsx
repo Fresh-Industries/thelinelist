@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
 import { getBrandName, getPackagingOptions, getProductCategory, getProductDescriptor, getProductName } from "@/lib/sourcing/product-catalog";
 import { getProductJourney } from "@/lib/sourcing/product-journey";
+import { getCategoryDecisionGuardrails, getSourcingQuestion } from "@/lib/sourcing/questions";
 import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
 
 interface ToolResponse { workspace?: SourcingWorkspace; error?: string; [key: string]: unknown }
@@ -30,44 +31,46 @@ export function WebMcpSourcingTools({
   onOpenIntroductionReview: () => void;
   onPreviewPackageDesign: (preview: PackageDesignPreviewInput, workspace?: SourcingWorkspace) => void;
 }) {
+  const callbacksRef = useRef({ onWorkspaceChanged, onOpenIntroductionReview, onPreviewPackageDesign });
+  useEffect(() => {
+    callbacksRef.current = { onWorkspaceChanged, onOpenIntroductionReview, onPreviewPackageDesign };
+  }, [onOpenIntroductionReview, onPreviewPackageDesign, onWorkspaceChanged]);
+
   useEffect(() => {
     const modelContext = document.modelContext ?? navigator.modelContext;
     if (!modelContext) return;
     const controller = new AbortController();
     const fieldKeys = [...SOURCING_FIELD_KEYS];
     const withGuidance = (body: ToolResponse) => {
-      if (body.workspace) onWorkspaceChanged(body.workspace);
-      return body.workspace ? {
-        ...body,
-        readiness: getSourcingReadiness(body.workspace),
+      if (body.workspace) callbacksRef.current.onWorkspaceChanged(body.workspace);
+      if (!body.workspace) return body;
+      const { workspace, ...response } = body;
+      const readiness = getSourcingReadiness(workspace);
+      return {
+        ...response,
+        workspace: compactWorkspace(workspace),
+        readiness,
+        nextQuestion: readiness.nextQuestionKey ? getSourcingQuestion(workspace, readiness.nextQuestionKey) : null,
+        decisionGuardrails: getCategoryDecisionGuardrails(workspace),
         product: {
-          name: getProductName(body.workspace),
-          brandName: getBrandName(body.workspace),
-          descriptor: getProductDescriptor(body.workspace),
-          category: getProductCategory(body.workspace),
-          artwork: body.workspace.artwork,
+          name: getProductName(workspace),
+          brandName: getBrandName(workspace),
+          descriptor: getProductDescriptor(workspace),
+          category: getProductCategory(workspace),
+          artwork: workspace.artwork,
         },
-        journey: getProductJourney(body.workspace),
-        relevantPackagingOptions: getPackagingOptions(body.workspace).map(({ id, label, value, description }) => ({ id, label, value, description })),
-        whatChanged: body.workspace.activity[0]?.message ?? null,
-        canonicalPlan: {
-          schemaVersion: 2,
-          originalIdea: body.workspace.originalIdea,
-          fields: body.workspace.fields,
-          packageDesign: body.workspace.packageDesign,
-          matches: body.workspace.matches,
-          selectedManufacturerSlugs: body.workspace.selectedManufacturerSlugs,
-          outreachDrafts: body.workspace.outreachDrafts,
-        },
+        journey: getProductJourney(workspace),
+        relevantPackagingOptions: getPackagingOptions(workspace).map(({ id, label, value, description }) => ({ id, label, value, description })),
+        whatChanged: workspace.activity[0]?.message ?? null,
         externalContactRequiresFounderAction: true,
-      } : body;
+      };
     };
 
     const tools: WebMcpToolDefinition[] = [
       {
         name: "get_sourcing_workspace",
         title: "Read sourcing workspace",
-        description: "Read the canonical ProductPlan on the current page. Treat originalIdea as source context, brand_name as the founder's brand identity, and product_type as the concise product being manufactured. Use readiness.nextQuestionKey to drive one useful question at a time. If brand_name is open, ask whether the founder already has a brand; no or not yet is valid and does not block manufacturing progress. Preserve confirmed founder decisions, keep uncertainty explicit, and never ask for a workspace ID.",
+        description: "Read the canonical ProductPlan on the current page. Treat originalIdea as source context, brand_name as the founder's brand identity, and product_type as the concise product being manufactured. Use readiness.nextQuestionKey to drive one useful question at a time. A saved 3D package direction is required for manufacturer-ready status; when readiness.packageDesignReady is false and packaging is the next decision, open the visible refinement workbench instead of describing changes invisibly. If brand_name is open, ask whether the founder already has a brand; no or not yet is valid and does not block manufacturing progress. Preserve confirmed founder decisions, keep uncertainty explicit, and never ask for a workspace ID.",
         inputSchema: { type: "object", properties: {}, additionalProperties: false },
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
@@ -78,7 +81,7 @@ export function WebMcpSourcingTools({
       {
         name: "update_sourcing_workspace",
         title: "Propose sourcing brief updates",
-        description: "Update the canonical ProductPlan from the conversation. Keep originalIdea, brand_name, and product_type distinct. For no brand, not yet, or uncertainty, write brand_name as null with needs_decision and continue; never invent a brand. When enough confirmed facts exist and product_description is open, write a concise proposed product description using only those facts, clearly preserving unresolved validation. Mark a value confirmed only when the founder stated it clearly. Research-backed recommendations remain proposed with sources. After updating, read readiness and ask its single next useful question. The page visibly highlights proposals, lets the founder accept them, and lets the founder undo the latest agent change.",
+        description: "Update the canonical ProductPlan from the conversation. Keep originalIdea, brand_name, and product_type distinct. For no brand, not yet, or uncertainty, write brand_name as null with needs_decision and continue; never invent a brand. When enough confirmed facts exist and product_description is open, write a concise proposed product description using only those facts, clearly preserving unresolved validation. Mark a value confirmed only when the founder stated it clearly. Research-backed recommendations remain proposed with sources. Never make a visual packaging change through a text field alone: use preview_package_design or refine_package_design_in_3d so the founder sees the work live. After updating, read readiness and ask its single next useful question. The page visibly highlights proposals, lets the founder accept them, and lets the founder undo the latest agent change.",
         inputSchema: {
           type: "object",
           properties: {
@@ -161,7 +164,7 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
           const preview = input as PackageDesignPreviewInput;
-          onPreviewPackageDesign(preview);
+          callbacksRef.current.onPreviewPackageDesign(preview);
           return { previewOpened: true, committed: false, preview, humanActionRequired: "The founder must review the staged 3D direction and click Use this package direction to commit it." };
         },
       },
@@ -190,16 +193,16 @@ export function WebMcpSourcingTools({
           const response = await fetch(`/api/sourcing/${workspaceId}/artwork`, { method: "POST", body: form, cache: "no-store" });
           const body = await response.json().catch(() => ({})) as ToolResponse & { artworkUrl?: string };
           if (!response.ok || !body.workspace?.artwork) throw new Error(body.error || `Artwork upload failed (${response.status}).`);
-          onWorkspaceChanged(body.workspace);
+          callbacksRef.current.onWorkspaceChanged(body.workspace);
           const preview: PackageDesignPreviewInput = { artworkId: body.workspace.artwork.id, ...(args.logoAspect ? { logoAspect: args.logoAspect } : {}) };
-          onPreviewPackageDesign(preview, body.workspace);
+          callbacksRef.current.onPreviewPackageDesign(preview, body.workspace);
           return withGuidance({ ...body, artworkUrl: body.artworkUrl, previewOpened: true, committed: false, humanActionRequired: "The founder must visually review the artwork and click Use this package direction to commit it." });
         },
       },
       {
-        name: "update_package_design",
-        title: "Update packaging direction",
-        description: "Commit a complete packaging choice only when the founder explicitly asked to apply every supplied visual choice. Do not invent colors, finish, dimensions, artwork, or logo placement. For exploration, partial choices, or an agent-generated direction, use preview_package_design so the founder can judge it in 3D first.",
+        name: "refine_package_design_in_3d",
+        title: "Refine packaging direction in 3D",
+        description: "Open a complete founder-requested packaging direction in the visible 3D workbench. Do not invent colors, finish, dimensions, artwork, or logo placement. This always stages the direction for visual review; it never commits behind the scenes. Only the founder's visible Use this package direction button can make it canonical and satisfy package-design readiness.",
         inputSchema: {
           type: "object",
           properties: {
@@ -227,11 +230,12 @@ export function WebMcpSourcingTools({
         },
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
-          const args = input as { packageDesign: unknown; explicitlyStated: boolean };
-          if (args.explicitlyStated !== true) throw new Error("Ask the founder to confirm the packaging choice before applying it.");
+          const args = input as { packageDesign: PackageDesignPreviewInput; explicitlyStated: boolean };
+          if (args.explicitlyStated !== true) throw new Error("Ask the founder to confirm the packaging direction before staging it.");
           const current = await api(`/api/sourcing/${workspaceId}`);
           if (!current.workspace) throw new Error("The current ProductPlan could not be read.");
-          return withGuidance(await api(`/api/sourcing/${workspaceId}`, { method: "PATCH", body: JSON.stringify({ revision: current.workspace.revision, packageDesign: args.packageDesign, updatedBy: "agent", explicitlyStated: true }) }));
+          callbacksRef.current.onPreviewPackageDesign(args.packageDesign, current.workspace);
+          return withGuidance({ ...current, previewOpened: true, committed: false, humanActionRequired: "The founder must review the live 3D refinement and click Use this package direction to commit it." });
         },
       },
       {
@@ -284,7 +288,7 @@ export function WebMcpSourcingTools({
       {
         name: "prepare_manufacturer_outreach",
         title: "Prepare manufacturer outreach",
-        description: "Create manufacturer-specific introduction drafts only for the exact manufacturers the founder already selected in the visible workspace. This creates draft state only and never sends or contacts anyone.",
+        description: "Create manufacturer-specific introduction drafts only for the exact manufacturers the founder already selected in the visible workspace and only after readiness.manufacturerReady is true. A visibly reviewed, founder-saved 3D package direction is part of that readiness. founderInstructions are private drafting guidance and are never copied verbatim into recipient text. This creates draft state only and never sends or contacts anyone.",
         inputSchema: {
           type: "object",
           properties: {
@@ -311,7 +315,7 @@ export function WebMcpSourcingTools({
           void input;
           const body = await api(`/api/sourcing/${workspaceId}`);
           if (!body.workspace?.outreachDrafts.length) throw new Error("Prepare an introduction draft before opening final review.");
-          onOpenIntroductionReview();
+          callbacksRef.current.onOpenIntroductionReview();
           return withGuidance({ ...body, reviewOpened: true, humanActionRequired: "The founder must approve each exact draft and then click the visible Send now control. Nothing can be sent by this tool." });
         },
       },
@@ -322,9 +326,45 @@ export function WebMcpSourcingTools({
       console.warn("[webmcp] sourcing tools unavailable", error);
     });
     return () => controller.abort();
-  }, [onOpenIntroductionReview, onPreviewPackageDesign, onWorkspaceChanged, workspaceId]);
+  }, [workspaceId]);
 
   return null;
+}
+
+function compactWorkspace(workspace: SourcingWorkspace) {
+  return {
+    id: workspace.id,
+    revision: workspace.revision,
+    originalIdea: workspace.originalIdea,
+    fields: workspace.fields,
+    artwork: workspace.artwork,
+    packageDesign: workspace.packageDesign,
+    lastAgentChange: workspace.lastAgentChange,
+    matchesUpdatedAt: workspace.matchesUpdatedAt,
+    matches: workspace.matches.map((match) => ({
+      manufacturerSlug: match.manufacturerSlug,
+      manufacturerName: match.manufacturerName,
+      location: match.location,
+      fitExplanation: match.fitExplanation,
+      supportedMatches: match.supportedMatches,
+      possibleConflicts: match.possibleConflicts,
+      unknowns: match.unknowns,
+      introductionAvailable: match.introductionAvailable,
+      lastReviewed: match.lastReviewed,
+    })),
+    selectedManufacturerSlugs: workspace.selectedManufacturerSlugs,
+    outreachDrafts: workspace.outreachDrafts.map((draft) => ({
+      id: draft.id,
+      manufacturerSlug: draft.manufacturerSlug,
+      manufacturerName: draft.manufacturerName,
+      subject: draft.subject,
+      warnings: draft.warnings,
+      version: draft.version,
+      approvedVersion: draft.approvedVersion,
+      deliveryStatus: draft.deliveryStatus,
+      updatedAt: draft.updatedAt,
+    })),
+  };
 }
 
 function decodeBase64Artwork(value: string): Uint8Array {

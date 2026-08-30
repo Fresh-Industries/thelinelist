@@ -5,12 +5,13 @@ import { editAndApproveDraft, prepareOutreachDrafts } from "@/lib/sourcing/outre
 import { getPackagingOptions, getProductCategory, resolveProductVisualAsset } from "@/lib/sourcing/product-catalog";
 import { deriveProductDescriptorFromIdea, getProductIdentity } from "@/lib/sourcing/product-identity";
 import { getProductJourney } from "@/lib/sourcing/product-journey";
+import { getCategoryDecisionGuardrails, getSourcingQuestion } from "@/lib/sourcing/questions";
 import { PackageDesignSchema, ProductPlanSchema, productPlanFromWorkspace } from "@/lib/sourcing/product-plan";
 import { getPackageColorName, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, editDraftSchema, founderUpdateSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
-import { applyAgentUpdates, applyFounderFieldUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, undoLastAgentChange } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderFieldUpdate, applyPackageDesignUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { describe, expect, it } from "vitest";
 
 describe("sourcing workspace trust rules", () => {
@@ -42,6 +43,21 @@ describe("sourcing workspace trust rules", () => {
     expect(deriveProductDescriptorFromIdea("I make banana bread and want to sell it in stores.")).toBe("Banana bread");
     expect(deriveProductDescriptorFromIdea("I want to make a packaged sauce that is really spicy and sell it in grocery stores.")).toBe("Packaged sauce");
     expect(deriveProductDescriptorFromIdea("A healthier sparkling energy drink in 12 oz cans")).toBe("Healthier sparkling energy drink");
+  });
+
+  it("asks category-aware questions and keeps beverage claims visibly unvalidated", () => {
+    const beverage = createWorkspace({ idea: "A healthy organic sparkling energy drink for hydration" });
+    expect(getSourcingQuestion(beverage, "product_format")).toContain("12 oz slim can");
+    expect(getSourcingQuestion(beverage, "product_format")).not.toContain("mini loaf");
+    expect(getCategoryDecisionGuardrails(beverage)).toEqual(expect.arrayContaining([
+      expect.stringContaining("healthy"),
+      expect.stringContaining("organic"),
+      expect.stringContaining("Shelf-stable"),
+    ]));
+    expect(requiredMatchingFields(beverage)).toEqual(expect.arrayContaining(["carbonation", "packaging_size", "certifications"]));
+
+    const bakery = createWorkspace({ idea: "A packaged banana bread" });
+    expect(getSourcingQuestion(bakery, "product_format")).toContain("mini loaf");
   });
 
   it("migrates a version-one plan without losing its original idea", () => {
@@ -94,6 +110,49 @@ describe("sourcing workspace trust rules", () => {
     expect(getSourcingReadiness(searchable)).toMatchObject({ searchReady: true, manufacturerReady: false, launchReady: false, stageLabel: "Ready to research" });
   });
 
+  it("requires a founder-saved 3D package direction for manufacturer readiness", () => {
+    let workspace = createWorkspace({ idea: "A sparkling beverage" });
+    workspace = applyFounderFieldUpdate(workspace, { key: "brand_name", value: null, status: "needs_decision", shareWithManufacturer: false });
+    for (const update of [
+      { key: "product_format", value: "Single-serve drink" },
+      { key: "product_description", value: "A shelf-stable sparkling beverage for grocery retail." },
+      { key: "packaging_format", value: "12 oz slim can" },
+      { key: "packaging_size", value: "12 oz" },
+      { key: "storage_distribution", value: "Shelf stable" },
+      { key: "production_volume", value: "1,000 to 5,000 units" },
+      { key: "formula_status", value: "Tested recipe" },
+      { key: "carbonation", value: "Carbonated" },
+    ] as const) {
+      workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
+    }
+
+    expect(getSourcingReadiness(workspace)).toMatchObject({
+      manufacturerReady: false,
+      packageDesignRequired: true,
+      packageDesignReady: false,
+      nextQuestionKey: "packaging_format",
+    });
+
+    workspace = applyPackageDesignUpdate(workspace, PackageDesignSchema.parse({
+      packagingType: "slim-can",
+      finish: "colored",
+      baseColor: "#b64d2c",
+      labelColor: "#f2e8d5",
+      artworkId: null,
+      logoAspect: 1,
+      logoScale: 1,
+      logoPosition: { x: 0, y: 0 },
+      dimensions: { width: null, height: null, depth: null },
+      summary: "Slim can · dimensions still open",
+    }), "founder");
+
+    expect(getSourcingReadiness(workspace)).toMatchObject({
+      manufacturerReady: true,
+      packageDesignRequired: true,
+      packageDesignReady: true,
+    });
+  });
+
   it("lets the founder confirm, reject, mark unknown, and control sharing", () => {
     const proposed = applyAgentUpdates(createWorkspace(), [
       { key: "carbonation", value: "Carbonated", explicitlyStated: false, suggestedSharing: true },
@@ -124,6 +183,20 @@ describe("sourcing workspace trust rules", () => {
     expect(matches.flatMap((match) => match.evidence).every((evidence) => evidence.sourceUrl)).toBe(true);
     expect(matches.length).toBeLessThanOrEqual(3);
     expect(matches.some((match) => match.manufacturerName.startsWith("Better Beverage Company"))).toBe(true);
+  });
+
+  it("recognizes state names without mistaking ordinary two-letter words for state codes", () => {
+    const workspace = applyFounderFieldUpdate(createWorkspace({ demo: true }), {
+      key: "preferred_geography",
+      value: "in my region im in texas",
+      status: "confirmed",
+      shareWithManufacturer: true,
+    });
+    const evidence = matchManufacturers(workspace, { geographyPreference: "in my region im in texas" })
+      .flatMap((match) => match.evidence)
+      .filter((item) => item.requirementKey === "preferred_geography");
+    expect(evidence.length).toBeGreaterThan(0);
+    expect(evidence.every((item) => !item.claim.includes("MY") && !item.claim.includes("IM"))).toBe(true);
   });
 
   it("does not match an empty plan and allows sourced research with visible unknowns", () => {
@@ -242,7 +315,7 @@ describe("sourcing workspace trust rules", () => {
     expect(getProductCategory(workspace)).toBe("bakery");
     expect(getPackagingOptions(workspace).map((option) => option.value)).toEqual(["Flow wrap", "Bakery bag", "Clamshell", "Tray and film"]);
     expect(resolveProductVisualAsset({ category: "bakery", packagingType: "Flow wrap" })).toMatchObject({ imageSrc: "/images/clay-v2/packaging/flow-wrap-mini-loaf.png" });
-    expect(getProductJourney(workspace).map((step) => step.status)).toEqual(["complete", "complete", "complete", "current", "future"]);
+    expect(getProductJourney(workspace).map((step) => step.status)).toEqual(["complete", "complete", "current", "future", "future"]);
   });
 
   it("backfills canonical artwork placement metadata for older package directions", () => {
@@ -258,6 +331,7 @@ describe("sourcing workspace trust rules", () => {
     });
 
     expect(design.artworkId).toBeNull();
+    expect(design.previewAssetId).toBeNull();
     expect(design.logoAspect).toBeCloseTo(1345 / 662);
   });
 
@@ -364,6 +438,20 @@ describe("sourcing workspace trust rules", () => {
       deliveryStatus: "draft",
     });
     expect(productInvalidated.outreachDrafts[0].packet.revokedAt).not.toBeNull();
+  });
+
+  it("keeps private founder drafting instructions out of recipient outreach", () => {
+    let workspace = createWorkspace({ demo: true });
+    workspace = { ...workspace, matches: matchManufacturers(workspace, { resultLimit: 1 }) };
+    const manufacturerSlug = workspace.matches[0].manufacturerSlug;
+    const [draft] = prepareOutreachDrafts(workspace, {
+      selectedManufacturerIds: [manufacturerSlug],
+      founderInstructions: "Make this sound exciting and do not mention our budget.",
+    });
+
+    expect(draft.body).not.toContain("Make this sound exciting");
+    expect(draft.body).not.toContain("Additional context:");
+    expect(draft.warnings).toContain("Private drafting instructions were not copied into the recipient message. Apply any desired wording during founder review.");
   });
 
   it("prepares separate drafts and uses only current sourced public manufacturer emails", () => {

@@ -14,6 +14,7 @@ export type ProductMockupProps = {
   logoPosition?: { x: number; y: number };
   sceneKey?: number;
   variant?: "studio" | "thumbnail";
+  onCaptureReady?: (capture: () => Promise<Blob | null>) => void;
 };
 
 const ProductMockupCanvas = dynamic(() => import("./ProductMockupCanvas"), {

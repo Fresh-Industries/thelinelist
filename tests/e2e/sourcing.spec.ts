@@ -109,15 +109,16 @@ test("the collaborator drives one decision and keeps uncertainty open", async ({
   await page.getByPlaceholder(/Answer naturally/).fill("Not yet");
   await page.getByRole("button", { name: "Add to brief" }).click();
   await expect(page.getByText(/brand name can stay open/i)).toBeVisible();
-  await expect(page.getByRole("heading", { name: /How will one customer receive/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /How should one customer buy and eat/ })).toBeVisible();
   await page.getByPlaceholder(/Answer naturally/).fill("Mini loaf");
   await page.getByRole("button", { name: "Add to brief" }).click();
   await expect(page.getByText(/I added product format to the brief/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: /What package are you leaning toward/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /In one sentence, what is the product promise/ })).toBeVisible();
   await page.getByPlaceholder(/Answer naturally/).fill("I'm not sure");
   await page.getByRole("button", { name: "Add to brief" }).click();
   await expect(page.getByText(/That can stay open/)).toBeVisible();
-  await expect(page.getByText("Intentionally left open")).toBeVisible();
+  const openDescription = await page.evaluate(async () => fetch(location.pathname.replace("/sourcing/", "/api/sourcing/")).then((response) => response.json())) as { workspace: { fields: { product_description: { status: string; value: string | null } } } };
+  expect(openDescription.workspace.fields.product_description).toMatchObject({ status: "needs_decision", value: "I'm not sure" });
 });
 
 test("brand identity updates the document without duplicating the product identity", async ({ page }) => {
@@ -157,6 +158,17 @@ test("the focused package workbench uses all four production 3D models and write
   await dialog.getByRole("button", { name: "Use this package direction" }).click();
   await expect(dialog).toBeHidden();
   await expect(page.getByText("Bag / pouch · dimensions still open").first()).toBeVisible();
+  const savedPackage = await page.evaluate(async () => fetch(location.pathname.replace("/sourcing/", "/api/sourcing/")).then((response) => response.json())) as { workspace: { packageDesign: { previewAssetId: string | null } } };
+  expect(savedPackage.workspace.packageDesign.previewAssetId).toMatch(/^[0-9a-f-]{36}$/i);
+  const exportedWithPackage = await page.evaluate(async () => {
+    const response = await fetch(`${location.pathname.replace("/sourcing/", "/api/sourcing/")}/export`);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    const marker = new TextEncoder().encode("/Subtype /Image");
+    const includesImage = bytes.some((_, index) => marker.every((value, offset) => bytes[index + offset] === value));
+    return { byteLength: bytes.byteLength, includesImage };
+  });
+  expect(exportedWithPackage.byteLength).toBeGreaterThan(20_000);
+  expect(exportedWithPackage.includesImage).toBe(true);
   const preview = page.locator(".package-direction-preview");
   await expect(preview).toHaveAttribute("data-packaging-type", "stand-up-pouch");
   await expect(preview).toHaveAttribute("data-base-color", "#b64d2c");
@@ -165,17 +177,14 @@ test("the focused package workbench uses all four production 3D models and write
   await expect(page.getByText(/line-list-mark\.png/i)).toHaveCount(0);
   const previewCanvas = preview.locator("canvas");
   await expect(previewCanvas).toBeVisible({ timeout: 15_000 });
-  const previewResolution = await previewCanvas.evaluate((element) => {
+  await expect.poll(async () => previewCanvas.evaluate((element) => {
     const canvas = element as HTMLCanvasElement;
-    return {
-      pixelWidth: canvas.width,
-      pixelHeight: canvas.height,
-      displayWidth: canvas.getBoundingClientRect().width,
-      displayHeight: canvas.getBoundingClientRect().height,
-    };
-  });
-  expect(previewResolution.pixelWidth / previewResolution.displayWidth).toBeGreaterThanOrEqual(1.45);
-  expect(previewResolution.pixelHeight / previewResolution.displayHeight).toBeGreaterThanOrEqual(1.45);
+    return canvas.width / canvas.getBoundingClientRect().width;
+  }), { timeout: 15_000 }).toBeGreaterThanOrEqual(1.45);
+  await expect.poll(async () => previewCanvas.evaluate((element) => {
+    const canvas = element as HTMLCanvasElement;
+    return canvas.height / canvas.getBoundingClientRect().height;
+  }), { timeout: 15_000 }).toBeGreaterThanOrEqual(1.45);
   await expect.poll(async () => visualVariationRatio(await previewCanvas.screenshot()), { timeout: 15_000 }).toBeGreaterThan(0.05);
   await expect(page.locator(".package-glyph")).toHaveCount(0);
   await page.getByRole("button", { name: "Refine saved package direction in 3D" }).click();
@@ -199,14 +208,35 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   }, { name, input });
 
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(11);
-  const current = await invoke("get_sourcing_workspace", {}) as { canonicalPlan: { schemaVersion: number; originalIdea: string }; product: { brandName: string | null; descriptor: string }; externalContactRequiresFounderAction: boolean };
-  expect(current.canonicalPlan.schemaVersion).toBe(2);
-  expect(current.canonicalPlan.originalIdea).toBe("A sparkling beverage in slim cans");
+  const current = await invoke("get_sourcing_workspace", {}) as { workspace: { originalIdea: string }; canonicalPlan?: unknown; product: { brandName: string | null; descriptor: string }; externalContactRequiresFounderAction: boolean };
+  expect(current.workspace.originalIdea).toBe("A sparkling beverage in slim cans");
+  expect(current.canonicalPlan).toBeUndefined();
   expect(current.product).toMatchObject({ brandName: null, descriptor: "Sparkling beverage" });
   expect(current.externalContactRequiresFounderAction).toBe(true);
   const preview = await invoke("preview_package_design", { packagingType: "bottle", baseColor: "#f2e8d5", labelColor: "#b64d2c" }) as { committed: boolean; previewOpened: boolean };
   expect(preview).toMatchObject({ committed: false, previewOpened: true });
-  await expect(page.getByRole("dialog", { name: "Make the package direction tangible." })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toBeVisible();
+  expect((await invoke("get_package_design", {}) as { packageDesign: unknown }).packageDesign).toBeNull();
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
+
+  const refinement = await invoke("refine_package_design_in_3d", {
+    explicitlyStated: true,
+    packageDesign: {
+      packagingType: "bottle",
+      finish: "colored",
+      baseColor: "#173f35",
+      labelColor: "#f2e8d5",
+      artworkId: null,
+      logoAspect: 1,
+      logoScale: 1,
+      logoPosition: { x: 0, y: 0 },
+      dimensions: { width: null, height: null, depth: null },
+      summary: "Bottle · dimensions still open",
+    },
+  }) as { committed: boolean; previewOpened: boolean };
+  expect(refinement).toMatchObject({ committed: false, previewOpened: true });
+  await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toBeVisible();
+  await expect(page.getByText("Agent preview · live in 3D")).toBeVisible();
   expect((await invoke("get_package_design", {}) as { packageDesign: unknown }).packageDesign).toBeNull();
   await page.getByRole("button", { name: "Close packaging workbench" }).click();
 
@@ -236,7 +266,7 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   expect(guardedDraft).toContain("founder must select");
   const hasSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
   expect(hasSendTool).toBe(false);
-  for (const tool of ["get_package_design", "preview_package_design", "stage_package_artwork", "update_package_design", "undo_last_agent_change", "export_product_packet"]) {
+  for (const tool of ["get_package_design", "preview_package_design", "stage_package_artwork", "refine_package_design_in_3d", "undo_last_agent_change", "export_product_packet"]) {
     expect(await page.evaluate((name) => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has(name), tool)).toBe(true);
   }
 });
@@ -255,6 +285,7 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
         { key: "product_description", value: "A shelf-stable sparkling energy drink in a single-serve 12 oz slim can; final commercial formulation and production validation remain with qualified partners.", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "product_format", value: "12 oz drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "packaging_format", value: "12 oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "packaging_size", value: "12 oz", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "storage_distribution", value: "Shelf stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "production_volume", value: "1,000 to 5,000 units", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "formula_status", value: "Tested recipe", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
@@ -264,6 +295,12 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
     });
     location.reload();
   });
+  await expect(page.getByRole("button", { name: "Refine packaging in 3D" })).toBeVisible();
+  await page.getByRole("button", { name: "Refine packaging in 3D" }).click();
+  const packageDialog = page.getByRole("dialog", { name: "Make the package direction tangible." });
+  await expect(packageDialog).toBeVisible();
+  await expect(packageDialog.getByText("The 3D preview is still loading. Wait a moment and try again.")).toBeHidden({ timeout: 15_000 });
+  await packageDialog.getByRole("button", { name: "Use this package direction" }).click();
   await expect(page.getByRole("button", { name: "Find evidence-backed manufacturers" })).toBeVisible();
   await page.getByRole("button", { name: "Find evidence-backed manufacturers" }).click();
   const rows = page.locator(".match-row");
