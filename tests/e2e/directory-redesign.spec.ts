@@ -36,6 +36,10 @@ test.describe("manufacturer directory discovery redesign", () => {
     const productSearch = page.getByRole("combobox", { name: "What are you making?" });
     await expect(productSearch).toBeFocused();
     await expect(page.getByRole("listbox", { name: "Product categories" })).toBeVisible();
+
+    await productSearch.fill("bottling");
+    await expect(page.getByRole("option", { name: /Bottles \(packaging\)/ })).toBeVisible();
+    await expect(page.getByText("No product categories match")).toHaveCount(0);
   });
 
   test("routes a verified-only URL through filtered results", async ({ page }) => {

@@ -4399,6 +4399,14 @@ main:not(.home) .wizard-fields select {
   font-weight: 650;
 }
 
+.plant-card-operation {
+  margin: 0.28rem 0 0;
+  color: var(--forest-deep);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .plant-card-mark {
   display: grid;
   width: 2.45rem;

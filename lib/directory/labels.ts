@@ -1,4 +1,4 @@
-import type { FinderProcess, FinderProduct, OperationType, ProcessCapability } from "./types";
+import type { FinderProcess, FinderProduct, OperationType, PackagingFilter, ProcessCapability } from "./types";
 
 export const PRODUCT_OPTIONS: { value: FinderProduct | ""; label: string }[] = [
   { value: "", label: "Not sure" },
@@ -38,6 +38,14 @@ export const OPERATION_TYPE_LABELS: Record<OperationType, string> = {
   "shared-kitchen-incubator": "Shared kitchen or incubator",
   "brand-with-co-pack": "Brand with co-packing",
   other: "Other public operating model",
+};
+
+export const PACKAGING_LABELS: Record<PackagingFilter, string> = {
+  can: "Cans",
+  bottle: "Bottles",
+  jar: "Jars",
+  pouch: "Pouches or sachets",
+  other: "Other listed formats",
 };
 
 const PROCESS_LABELS: Record<ProcessCapability, string> = {

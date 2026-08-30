@@ -1,4 +1,5 @@
 import {
+  OPERATION_TYPE_LABELS,
   PRODUCT_CATEGORIES,
   formatCardSnippet,
   formatProcesses,
@@ -81,6 +82,9 @@ export function CopackerCard({ plant, prioritizedCategory }: { plant: Plant; pri
           <div>
             <h2><Link href={`/manufacturers/${plant.slug}`}>{plant.name}</Link></h2>
             <p className="place">{primaryLocation(plant)}</p>
+            {plant.operationType === "shared-kitchen-incubator" ? (
+              <p className="plant-card-operation">{OPERATION_TYPE_LABELS[plant.operationType]}</p>
+            ) : null}
           </div>
         </header>
 

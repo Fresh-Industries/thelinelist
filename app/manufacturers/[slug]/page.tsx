@@ -133,7 +133,11 @@ export default async function ManufacturerPage({
 
           <div className="profile-heading">
             <div>
-              <p className="kicker">Food and beverage manufacturer</p>
+              <p className="kicker">
+                {plant.operationType === "shared-kitchen-incubator"
+                  ? OPERATION_TYPE_LABELS[plant.operationType]
+                  : "Food and beverage manufacturer"}
+              </p>
               <h1>{plant.name}</h1>
               <p className="company-place">{plant.locationDisplay}</p>
               <p className={`listing-evidence listing-evidence-${plant.needsCurrentOwnershipVerification ? "review" : listingStatus.toLowerCase()}`}>

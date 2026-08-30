@@ -41,6 +41,7 @@ export {
   PROCESS_OPTIONS,
   PRODUCT_OPTIONS,
   OPERATION_TYPE_LABELS,
+  PACKAGING_LABELS,
   STATE_NAMES,
   processHint,
   processLabel,
@@ -48,6 +49,14 @@ export {
   stateLabel,
 } from "./labels";
 export { claimPlantOptions } from "./claim";
+export {
+  productCategoryOptions,
+  productComboboxSuggestions,
+  selectionAppliesCurrentFilters,
+  type ProductComboboxCounts,
+  type ProductComboboxSelection,
+  type ProductComboboxSuggestion,
+} from "./search-synonyms";
 export {
   DIRECTORY_PAGE_SIZE,
   countByFinderProduct,
