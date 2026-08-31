@@ -1,21 +1,17 @@
 "use client";
 
-import { ArrowRight, Check, Cube, DownloadSimple, PaperPlaneTilt, PencilSimple, Sparkle, TrashSimple } from "@phosphor-icons/react";
+import { ArrowRight, Check, Cube, PencilSimple, Sparkle, TrashSimple } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { FormEvent, useCallback, useMemo, useRef, useState } from "react";
-import { WebMcpSourcingTools } from "./WebMcpSourcingTools";
+import { useRouter } from "next/navigation";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
-import { formatPackageDirection, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
+import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getProductIdentity, isOpenBrandAnswer } from "@/lib/sourcing/product-identity";
 import { getSourcingQuestion } from "@/lib/sourcing/questions";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
-import type { ManufacturerMatch, OutreachDraft, PackageDesign, PackageDesignPreviewInput, SourcingFieldKey, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
-
-const PackageWorkbench = dynamic(
-  () => import("./SourcingPackageWorkbench").then((module) => module.SourcingPackageWorkbench),
-  { ssr: false, loading: () => <div className="workbench-loading" role="status">Opening the 3D packaging workbench…</div> },
-);
+import type { SourcingFieldKey, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
+import { useSourcingWorkspace } from "./SourcingWorkspaceContext";
 
 const PackagePreview = dynamic(
   () => import("./SourcingPackagePreview").then((module) => module.SourcingPackagePreview),
@@ -23,36 +19,18 @@ const PackagePreview = dynamic(
 );
 
 const BRIEF_GROUPS: Array<{ title: string; keys: SourcingFieldKey[] }> = [
-  { title: "The product", keys: ["product_format", "product_description", "retail_channel"] },
+  { title: "The product", keys: ["product_category", "product_format", "product_description", "retail_channel"] },
   { title: "Formula & product requirements", keys: ["formula_status", "formulation_assistance", "allergens", "manufacturing_process"] },
   { title: "Production", keys: ["production_volume", "storage_distribution", "preferred_geography", "target_launch_date"] },
 ];
 
-export function SourcingWorkspace({
-  initialWorkspace,
-  ownership,
-}: {
-  initialWorkspace: Workspace;
-  storageAdapter: "postgres" | "filesystem" | "unavailable";
-  ownership: "user" | "guest" | "development";
-}) {
-  const [workspace, setWorkspace] = useState(initialWorkspace);
+export function SourcingWorkspace() {
+  const { workspace, busy, setBusy, error, setError, agentNote, setAgentNote, acceptWorkspace, openPackageWorkbench } = useSourcingWorkspace();
+  const router = useRouter();
   const [answer, setAnswer] = useState("");
-  const [busy, setBusy] = useState<"answer" | "match" | "select" | "outreach" | "undo" | null>(null);
-  const [error, setError] = useState("");
-  const [agentNote, setAgentNote] = useState("I’ve started your brief from what you told me. Let’s resolve one useful decision at a time.");
   const [editingKey, setEditingKey] = useState<SourcingFieldKey | null>(null);
-  const [workbenchOpen, setWorkbenchOpen] = useState(false);
-  const [packagePreview, setPackagePreview] = useState<PackageDesign | null>(null);
-  const reviewRef = useRef<HTMLElement>(null);
   const readiness = useMemo(() => getSourcingReadiness(workspace), [workspace]);
-  const selectedManufacturerSlugs = useMemo(() => new Set(workspace.selectedManufacturerSlugs), [workspace.selectedManufacturerSlugs]);
   const agentChangedKeys = useMemo(() => new Set(workspace.lastAgentChange?.changedKeys ?? []), [workspace.lastAgentChange]);
-  const currentDrafts = useMemo(() => latestDrafts(workspace.outreachDrafts).filter((draft) => {
-    if (!workspace.selectedManufacturerSlugs.includes(draft.manufacturerSlug)) return false;
-    return !workspace.matchesUpdatedAt || Date.parse(draft.createdAt) >= Date.parse(workspace.matchesUpdatedAt);
-  }), [workspace.matchesUpdatedAt, workspace.outreachDrafts, workspace.selectedManufacturerSlugs]);
-  const sentIntroductionCount = currentDrafts.filter((draft) => draft.deliveryStatus === "sent").length;
   const nextKey = readiness.nextQuestionKey;
   const packageDesignPending = nextKey === "packaging_format"
     && readiness.packageDesignRequired
@@ -62,14 +40,6 @@ export function SourcingWorkspace({
   const packagePresentation = workspace.packageDesign
     ? getPackageDesignPresentation(workspace.packageDesign, workspace.artwork)
     : null;
-  const openReview = useCallback(() => reviewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), []);
-  const acceptWorkspace = useCallback((next: Workspace) => setWorkspace(next), []);
-  const previewPackage = useCallback((patch: PackageDesignPreviewInput, currentWorkspace?: Workspace) => {
-    const source = currentWorkspace ?? workspace;
-    setPackagePreview(mergePackagePreview(source, patch));
-    setWorkbenchOpen(true);
-    setAgentNote("Your agent staged a packaging preview in the 3D workbench. Review it visually; matching will not change unless you use this direction.");
-  }, [workspace]);
 
   async function answerNext(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,10 +56,11 @@ export function SourcingWorkspace({
         fieldUpdate: { key: nextKey, value: brandStillOpen ? null : value, status: uncertain ? "needs_decision" : "confirmed", shareWithManufacturer: !uncertain },
       }),
     });
-    if (!response.workspace) {
+    if (response.error) {
+      if (response.workspace) acceptWorkspace(response.workspace);
       setError(response.error || "That answer could not be saved.");
-    } else {
-      setWorkspace(response.workspace);
+    } else if (response.workspace) {
+      acceptWorkspace(response.workspace);
       setAnswer("");
       const next = getSourcingReadiness(response.workspace);
       setAgentNote(brandStillOpen
@@ -110,11 +81,14 @@ export function SourcingWorkspace({
       method: "PATCH",
       body: JSON.stringify({ revision: workspace.revision, fieldUpdate: { key, value, status: value.trim() ? "confirmed" : key === "brand_name" ? "needs_decision" : "unknown", shareWithManufacturer: Boolean(value.trim()) } }),
     });
-    if (response.workspace) {
-      setWorkspace(response.workspace);
+    if (response.error) {
+      if (response.workspace) acceptWorkspace(response.workspace);
+      setError(response.error);
+    } else if (response.workspace) {
+      acceptWorkspace(response.workspace);
       setEditingKey(null);
       setAgentNote(`${FIELD_DEFINITION_BY_KEY[key].label} is corrected in the shared brief.`);
-    } else setError(response.error || "That correction could not be saved.");
+    } else setError("That correction could not be saved.");
     setBusy(null);
   }
 
@@ -122,36 +96,16 @@ export function SourcingWorkspace({
     setBusy("match");
     setError("");
     const response = await workspaceApi(`/api/sourcing/${workspace.id}/match`, { method: "POST", body: JSON.stringify({ resultLimit: 5 }) });
-    if (response.workspace) {
-      setWorkspace(response.workspace);
-      setAgentNote(`I found ${response.workspace.matches.length} evidence-backed possibilities. I’ve kept unsupported capabilities in the unknown column.`);
-    } else setError(response.error || "Manufacturer matches could not be prepared.");
-    setBusy(null);
-  }
-
-  async function toggleManufacturer(slug: string) {
-    const selected = workspace.selectedManufacturerSlugs.includes(slug)
-      ? workspace.selectedManufacturerSlugs.filter((item) => item !== slug)
-      : [...workspace.selectedManufacturerSlugs, slug].slice(0, 3);
-    setBusy("select");
-    const response = await workspaceApi(`/api/sourcing/${workspace.id}`, { method: "PATCH", body: JSON.stringify({ revision: workspace.revision, selectedManufacturerSlugs: selected }) });
-    if (response.workspace) setWorkspace(response.workspace);
-    else setError(response.error || "That selection could not be saved.");
-    setBusy(null);
-  }
-
-  async function prepareIntroductions() {
-    setBusy("outreach");
-    setError("");
-    const response = await workspaceApi(`/api/sourcing/${workspace.id}/outreach`, {
-      method: "POST",
-      body: JSON.stringify({ selectedManufacturerIds: workspace.selectedManufacturerSlugs }),
-    });
-    if (response.workspace) {
-      setWorkspace(response.workspace);
-      setAgentNote(`${workspace.selectedManufacturerSlugs.length} manufacturer-specific introduction${workspace.selectedManufacturerSlugs.length === 1 ? " is" : "s are"} ready for your review. Nothing was sent.`);
-      window.setTimeout(openReview, 0);
-    } else setError(response.error || "The introductions could not be prepared.");
+    if (response.error) {
+      if (response.workspace) acceptWorkspace(response.workspace);
+      setError(response.error);
+    } else if (response.workspace) {
+      acceptWorkspace(response.workspace);
+      setAgentNote(response.workspace.matches.length
+        ? `I found ${response.workspace.matches.length} evidence-backed possibilities. I’ve kept unsupported capabilities in the unknown column.`
+        : "The current evidence did not produce a responsible manufacturer possibility. I did not add weaker results just to fill the list.");
+      router.push(`/sourcing/${workspace.id}/manufacturers`);
+    } else setError("Manufacturer matches could not be prepared.");
     setBusy(null);
   }
 
@@ -163,18 +117,18 @@ export function SourcingWorkspace({
       method: "PATCH",
       body: JSON.stringify({ revision: workspace.revision, undoAgentChangeId: workspace.lastAgentChange.id }),
     });
-    if (response.workspace) {
-      setWorkspace(response.workspace);
+    if (response.error) {
+      if (response.workspace) acceptWorkspace(response.workspace);
+      setError(response.error);
+    } else if (response.workspace) {
+      acceptWorkspace(response.workspace);
       setAgentNote("I removed my latest workspace change. Your earlier decisions are restored.");
-    } else setError(response.error || "That agent change could not be undone.");
+    } else setError("That agent change could not be undone.");
     setBusy(null);
   }
 
   return (
-    <div className="living-workspace">
-      <WebMcpSourcingTools workspaceId={workspace.id} onWorkspaceChanged={acceptWorkspace} onOpenIntroductionReview={openReview} onPreviewPackageDesign={previewPackage} />
-      <nav className="workspace-actions" aria-label="Workspace actions"><a href={`/api/sourcing/${workspace.id}/export`} download><DownloadSimple aria-hidden="true" /> Export PDF</a>{ownership === "guest" ? <Link className="save-product" href={`/auth?workspaceId=${workspace.id}`}>Save this product</Link> : ownership === "user" ? <Link href="/products">Your products</Link> : null}</nav>
-
+    <div className="living-workspace brief-workspace">
       <article className="living-document">
         <p className="document-kicker">First Run · Product brief</p>
         <div className={`document-identity${agentChangedKeys.has("brand_name") || agentChangedKeys.has("product_type") ? " agent-authored-section" : ""}`}>
@@ -198,25 +152,22 @@ export function SourcingWorkspace({
         ))}
 
         <section className={`brief-section packaging-section${agentChangedKeys.has("packaging_format") ? " agent-authored-section" : ""}`}>
-          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> {workspace.packageDesign || workspace.fields.packaging_format.status === "confirmed" ? "Refine in 3D" : "Open 3D workbench"}</button></div>
-          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => setWorkbenchOpen(true)} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>{workspace.fields.packaging_format.status === "confirmed" ? "3D refinement is still needed for the manufacturer-ready brief." : "Open the workbench when a visual comparison would help."}</small></div></div> : <p className="open-value">No package direction is locked yet. The collaborator can help narrow it, or you can compare the real jar, bottle, can, and bag models now.</p>}
+          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => openPackageWorkbench()}><Cube aria-hidden="true" /> {workspace.packageDesign || workspace.fields.packaging_format.status === "confirmed" ? "Refine in 3D" : "Open 3D workbench"}</button></div>
+          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => openPackageWorkbench()} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "proposed" ? "Agent proposal · needs your review" : workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>{workspace.fields.packaging_format.reason || (workspace.fields.packaging_format.status === "confirmed" ? "3D refinement is still needed for the manufacturer-ready brief." : "Open the workbench when a visual comparison would help.")}</small></div></div> : <p className="open-value">No package direction is locked yet. The collaborator can help narrow it, or you can compare the jar, bottle, can, pouch, and windowed bakery-bag models now.</p>}
         </section>
 
         <aside className="agent-exchange" aria-live="polite"><Sparkle aria-hidden="true" weight="fill" /><div><span>Product collaborator</span><p>{agentNote}</p></div></aside>
 
         <section className="agent-prompt" aria-labelledby="next-question-heading">
-          <div className="prompt-line"><div><span>{readiness.searchReady ? "Research is available" : "Next useful decision"}</span><h2 id="next-question-heading">{packageDesignPending ? "Review and save your packaging direction in 3D." : nextKey ? getSourcingQuestion(workspace, nextKey) : "Your brief has enough confirmed detail for a focused manufacturer search."}</h2>{readiness.whyItMatters && nextKey ? <p>{readiness.whyItMatters}</p> : null}</div>{nextKey === "packaging_format" && !packageDesignPending ? <button className="text-action" type="button" onClick={() => setWorkbenchOpen(true)}>Compare packages in 3D</button> : null}</div>
-          {packageDesignPending ? <button className="primary-action" type="button" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> Refine packaging in 3D</button> : nextKey ? <form className="composer" onSubmit={answerNext}><label className="sr-only" htmlFor="next-decision-answer">Your answer to the next product decision</label><textarea id="next-decision-answer" rows={2} value={answer} onChange={(event) => setAnswer(event.target.value)} placeholder="Answer naturally, or say “I’m not sure”…" maxLength={4_000} disabled={busy !== null} /><button type="submit" disabled={!answer.trim() || busy !== null}>{busy === "answer" ? "Adding…" : <>Add to brief <ArrowRight aria-hidden="true" /></>}</button></form> : <button className="primary-action" type="button" onClick={findMatches} disabled={busy !== null}>{busy === "match" ? "Researching matches…" : "Find evidence-backed manufacturers"}</button>}
+          <div className="prompt-line"><div><span>{readiness.searchReady ? "Research is available" : "Next useful decision"}</span><h2 id="next-question-heading">{packageDesignPending ? "Review and save your packaging direction in 3D." : nextKey ? getSourcingQuestion(workspace, nextKey) : "Your brief has enough confirmed detail for a focused manufacturer search."}</h2>{readiness.whyItMatters && nextKey ? <p>{readiness.whyItMatters}</p> : null}</div>{nextKey === "packaging_format" && !packageDesignPending ? <button className="text-action" type="button" onClick={() => openPackageWorkbench()}>Compare packages in 3D</button> : null}</div>
+          {packageDesignPending ? <button className="primary-action" type="button" onClick={() => openPackageWorkbench()}><Cube aria-hidden="true" /> Refine packaging in 3D</button> : nextKey ? <form className="composer" onSubmit={answerNext}><label className="sr-only" htmlFor="next-decision-answer">Your answer to the next product decision</label><textarea id="next-decision-answer" rows={2} value={answer} onChange={(event) => setAnswer(event.target.value)} placeholder="Answer naturally, or say “I’m not sure”…" maxLength={4_000} disabled={busy !== null} /><button type="submit" disabled={!answer.trim() || busy !== null}>{busy === "answer" ? "Adding…" : <>Add to brief <ArrowRight aria-hidden="true" /></>}</button></form> : <button className="primary-action" type="button" onClick={findMatches} disabled={busy !== null}>{busy === "match" ? "Researching matches…" : "Find evidence-backed manufacturers"}</button>}
           {nextKey && readiness.searchReady ? <div className="research-now"><span>You can keep refining this later.</span><button className="text-action" type="button" onClick={findMatches} disabled={busy !== null}>{busy === "match" ? "Researching…" : "Research manufacturers now"}</button></div> : null}
         </section>
 
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
 
-        {workspace.matches.length ? <section className="brief-section manufacturer-section"><div className="section-heading"><div><p className="document-kicker">Evidence, not guesses</p><h2>Manufacturer possibilities</h2></div><span>Select up to 3</span></div><p className="section-intro">These are possibilities to investigate. “Unknown” means the public evidence does not answer the requirement—it is not treated as a match.</p><div className="match-list">{workspace.matches.map((match) => <MatchRow key={match.manufacturerSlug} match={match} selected={selectedManufacturerSlugs.has(match.manufacturerSlug)} disabled={busy !== null} onToggle={() => toggleManufacturer(match.manufacturerSlug)} />)}</div>{workspace.selectedManufacturerSlugs.length ? <div className="prepare-introductions"><div><strong>{workspace.selectedManufacturerSlugs.length} selected</strong><span>{readiness.manufacturerReady ? "Each manufacturer gets its own message and visible review." : "Finish the manufacturer-ready brief before preparing an introduction."}</span></div>{readiness.manufacturerReady ? <button type="button" onClick={prepareIntroductions} disabled={busy !== null}>{busy === "outreach" ? "Preparing…" : `Prepare ${workspace.selectedManufacturerSlugs.length} introduction${workspace.selectedManufacturerSlugs.length === 1 ? "" : "s"}`}</button> : readiness.packageDesignRequired && !readiness.packageDesignReady ? <button type="button" onClick={() => { setPackagePreview(null); setWorkbenchOpen(true); }}><Cube aria-hidden="true" /> Finish package design</button> : <button type="button" onClick={() => document.getElementById("next-question-heading")?.scrollIntoView({ behavior: "smooth", block: "center" })}>Finish manufacturer brief</button>}</div> : null}</section> : null}
-
-        {currentDrafts.length ? <section className="brief-section introduction-section" ref={reviewRef}><div className="section-heading"><div><p className="document-kicker">Founder-controlled delivery</p><h2>Manufacturer introductions</h2></div><span>{sentIntroductionCount ? `${sentIntroductionCount} sent` : "Nothing has been sent"}</span></div><p className="section-intro">Review the sourced recipient, exact message, and shared product details. First approve the exact version; only your separate “Send now” click emails the manufacturer through The Line List.</p><div className="introduction-list">{currentDrafts.map((draft) => <DraftReview key={`${draft.id}-${draft.version}`} draft={draft} workspace={workspace} onWorkspace={setWorkspace} />)}</div></section> : null}
+        {workspace.matchesUpdatedAt ? <section className="brief-section manufacturing-writeback" aria-labelledby="manufacturing-summary-heading"><div><p className="document-kicker">Manufacturer research</p><h2 id="manufacturing-summary-heading">{workspace.matches.length ? `${workspace.matches.length} possibilit${workspace.matches.length === 1 ? "y" : "ies"} ready to review` : "No current possibilities"}</h2><p>{workspace.selectedManufacturerSlugs.length ? `${workspace.selectedManufacturerSlugs.length} selected. Review evidence and next steps in the focused manufacturer workspace.` : "Review the evidence, unknowns, and possible conflicts away from the product brief."}</p></div><Link href={`/sourcing/${workspace.id}/manufacturers`} prefetch={false}>Review manufacturers <ArrowRight aria-hidden="true" /></Link></section> : null}
       </article>
-      {workbenchOpen ? <PackageWorkbench key={packagePreview ? JSON.stringify(packagePreview) : "saved-package"} workspace={workspace} initialPreview={packagePreview} onClose={() => { setWorkbenchOpen(false); setPackagePreview(null); }} onSaved={(next) => { setWorkspace(next); setPackagePreview(null); }} /> : null}
     </div>
   );
 }
@@ -227,7 +178,9 @@ function EditableField({ fieldKey, workspace, agentChanged, editing, onEdit, onC
   const field = workspace.fields[fieldKey];
   if (editing) return <FieldEditor fieldKey={fieldKey} initialValue={field.value || ""} onSave={onSave} onCancel={onCancel} />;
   const attribution = field.evidence?.length ? "Source verified" : field.status === "proposed" ? "Agent suggested · needs your review" : field.status === "needs_decision" || !field.value ? "Still open" : field.updatedBy === "agent" ? "Agent captured your answer" : field.updatedBy === "founder" ? "You confirmed" : null;
-  return <div className={`brief-field${field.value ? "" : " field-muted"}${agentChanged ? " agent-changed" : ""}`}><dt>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</dt><dd>{field.value || "Still open"}</dd>{attribution ? <p>{attribution}</p> : null}{field.status === "proposed" && field.value ? <button className="accept-proposal" type="button" onClick={() => void onSave(fieldKey, field.value!)}><Check aria-hidden="true" /> Accept suggestion</button> : null}<button className="field-edit" type="button" aria-label={`Edit ${FIELD_DEFINITION_BY_KEY[fieldKey].label}`} onClick={onEdit}><PencilSimple aria-hidden="true" /></button></div>;
+  const validationReason = field.reason && /validat|commercial|shelf[- ]life|line compatibility|qualified/i.test(field.reason);
+  const reasonLabel = validationReason ? "Needs validation" : field.status === "proposed" ? "Why suggested" : "Captured from your idea";
+  return <div className={`brief-field${field.value ? "" : " field-muted"}${agentChanged ? " agent-changed" : ""}`}><dt>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</dt><dd>{field.value || "Still open"}</dd>{attribution ? <p>{attribution}</p> : null}{field.reason ? <small><strong>{reasonLabel}</strong> · {field.reason}</small> : null}{field.status === "proposed" && field.value ? <button className="accept-proposal" type="button" onClick={() => void onSave(fieldKey, field.value!)}><Check aria-hidden="true" /> Accept suggestion</button> : null}<button className="field-edit" type="button" aria-label={`Edit ${FIELD_DEFINITION_BY_KEY[fieldKey].label}`} onClick={onEdit}><PencilSimple aria-hidden="true" /></button></div>;
 }
 
 function FieldEditor({ fieldKey, initialValue, onSave, onCancel }: {
@@ -241,45 +194,6 @@ function FieldEditor({ fieldKey, initialValue, onSave, onCancel }: {
   return <div className="brief-field field-editor"><dt><label htmlFor={inputId}>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</label></dt><dd><textarea id={inputId} ref={inputRef} defaultValue={initialValue} rows={3} /><span><button type="button" onClick={() => void onSave(fieldKey, inputRef.current?.value ?? "")}>Save</button><button type="button" onClick={onCancel}>Cancel</button></span></dd></div>;
 }
 
-function MatchRow({ match, selected, disabled, onToggle }: { match: ManufacturerMatch; selected: boolean; disabled: boolean; onToggle: () => void }) {
-  return <article className={`match-row${selected ? " is-selected" : ""}`}><div className="match-heading"><div><h3>{match.manufacturerName}</h3><p>{match.location}</p></div><button type="button" className="select-control" aria-pressed={selected} onClick={onToggle} disabled={disabled}>{selected ? <><Check aria-hidden="true" /> Selected</> : "Select"}</button></div><p className="fit-reason"><strong>Why it may fit</strong>{match.fitExplanation}</p><div className="evidence-columns"><div><strong>Supported by sources</strong><ul>{match.supportedMatches.length ? match.supportedMatches.map((item) => <li key={item}>{item}</li>) : <li>No required capability is treated as proven yet.</li>}</ul></div><div><strong>Still needs confirmation</strong><ul>{[...match.possibleConflicts, ...match.unknowns].slice(0, 6).map((item) => <li key={item}>{item}</li>)}</ul></div></div><details><summary>Review source evidence</summary>{match.evidence.map((item) => <div className="evidence-line" key={item.requirementKey}><span>{item.status.replaceAll("_", " ")}</span><strong>{item.requirementLabel}</strong><p>{item.claim}</p>{item.sourceUrl ? <a href={item.sourceUrl} target="_blank" rel="noreferrer">{item.sourceLabel || "Open source"} ↗</a> : <small>No public source found</small>}</div>)}</details><Link href={`/manufacturers/${match.manufacturerSlug}`}>View directory profile ↗</Link></article>;
-}
-
-function DraftReview({ draft, workspace, onWorkspace }: { draft: OutreachDraft; workspace: Workspace; onWorkspace: (workspace: Workspace) => void }) {
-  const subjectRef = useRef<HTMLInputElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
-  const [busy, setBusy] = useState(false);
-  const [confirmingSend, setConfirmingSend] = useState(false);
-  const [localError, setLocalError] = useState("");
-  const approved = draft.approvedVersion === draft.version && Boolean(draft.approvedAt);
-  const sent = draft.deliveryStatus === "sent" && Boolean(draft.sentAt);
-  async function approve() {
-    setBusy(true);
-    setLocalError("");
-    try {
-      const response = await workspaceApi(`/api/sourcing/${workspace.id}/outreach/${draft.id}`, { method: "PATCH", body: JSON.stringify({ subject: subjectRef.current?.value ?? draft.subject, body: bodyRef.current?.value ?? draft.body, includedFieldKeys: draft.includedFieldKeys }) });
-      if (response.workspace) onWorkspace(response.workspace);
-      if (response.error) setLocalError(response.error);
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function send() {
-    setBusy(true);
-    setLocalError("");
-    try {
-      const response = await workspaceApi(`/api/sourcing/${workspace.id}/outreach/${draft.id}/send`, { method: "POST" });
-      if (response.workspace) onWorkspace(response.workspace);
-      if (response.error) setLocalError(response.error);
-      else setConfirmingSend(false);
-    } finally {
-      setBusy(false);
-    }
-  }
-  const stateLabel = sent ? "Sent" : draft.deliveryStatus === "failed" ? "Needs retry" : approved ? "Approved" : "Draft";
-  return <article className="introduction-card"><header><div><span>To</span><h3>{draft.manufacturerName}</h3>{draft.recipientEmail ? <p className="recipient-email">{draft.recipientEmail}</p> : <p className="recipient-email recipient-unavailable">No sourced public email available</p>}</div><span className={approved || sent ? "approved-state" : "draft-state"}>{stateLabel}</span></header><div className="delivery-preview"><span>From The Line List</span><span>Reply-to and copy: {draft.founderCopyEmail || workspace.fields.contact_email.value || "Add your confirmed email"}</span></div><label>Subject<input ref={subjectRef} defaultValue={draft.subject} maxLength={180} readOnly={approved || sent} /></label><label>Message<textarea ref={bodyRef} defaultValue={draft.body} rows={12} maxLength={12_000} readOnly={approved || sent} /></label><details><summary>{draft.includedFieldKeys.length} product details included</summary><ul>{draft.includedFieldKeys.map((key) => <li key={key}><strong>{FIELD_DEFINITION_BY_KEY[key].label}</strong><span>{workspace.fields[key].value}</span></li>)}</ul></details>{localError || draft.deliveryError ? <p className="introduction-error" role="alert">{localError || "The last delivery attempt failed. Review the email setup and try again."}</p> : null}<footer>{sent ? <><p>Sent by you through The Line List on {new Date(draft.sentAt!).toLocaleString()}.</p><Link href={`/manufacturers/${draft.manufacturerSlug}`}>Open manufacturer profile ↗</Link></> : approved ? confirmingSend ? <><p><strong>This will email {draft.recipientEmail || draft.manufacturerName} now.</strong> You will be copied, and replies will go directly to you.</p><button type="button" onClick={send} disabled={busy || !draft.recipientEmail || !draft.founderCopyEmail}><PaperPlaneTilt aria-hidden="true" /> {busy ? "Sending…" : "Send now"}</button><button className="secondary-button" type="button" onClick={() => setConfirmingSend(false)} disabled={busy}>Cancel</button></> : <><p>Approved. Nothing has been sent yet; the next click opens a final send confirmation.</p><button type="button" onClick={() => setConfirmingSend(true)} disabled={!draft.recipientEmail || !draft.founderCopyEmail}><PaperPlaneTilt aria-hidden="true" /> {draft.deliveryStatus === "failed" ? "Retry introduction" : "Send introduction"}</button><Link href={`/manufacturers/${draft.manufacturerSlug}`}>Open manufacturer profile ↗</Link></> : <><p>Review and approve this exact version. Approval alone never sends email.</p><button type="button" onClick={approve} disabled={busy}>{busy ? "Approving…" : "Approve this introduction"}</button></>}</footer></article>;
-}
-
 async function workspaceApi(url: string, init: RequestInit): Promise<{ workspace?: Workspace; error?: string }> {
   try {
     const response = await fetch(url, { ...init, headers: { "Content-Type": "application/json", ...init.headers }, cache: "no-store" });
@@ -291,45 +205,6 @@ async function workspaceApi(url: string, init: RequestInit): Promise<{ workspace
   } catch {
     return { error: "The product workspace could not reach the server. Check your connection and try again." };
   }
-}
-
-function latestDrafts(drafts: OutreachDraft[]): OutreachDraft[] {
-  const found = new Map<string, OutreachDraft>();
-  for (const draft of drafts) if (!found.has(draft.manufacturerSlug)) found.set(draft.manufacturerSlug, draft);
-  return [...found.values()];
-}
-
-function mergePackagePreview(workspace: Workspace, patch: PackageDesignPreviewInput): PackageDesign {
-  const inferredType: PackageDesign["packagingType"] = /jar/i.test(workspace.fields.packaging_format.value || "")
-    ? "jar"
-    : /bottle/i.test(workspace.fields.packaging_format.value || "")
-      ? "bottle"
-      : /pouch|bag|bread|bakery/i.test(`${workspace.fields.packaging_format.value || ""} ${workspace.fields.product_description.value || ""}`)
-        ? "stand-up-pouch"
-        : "slim-can";
-  const base = workspace.packageDesign ?? {
-    packagingType: inferredType,
-    finish: "colored" as const,
-    baseColor: "#b64d2c",
-    labelColor: "#f2e8d5",
-    artworkId: workspace.artwork?.id ?? null,
-    previewAssetId: null,
-    logoAspect: 1345 / 662,
-    logoScale: 0.62,
-    logoPosition: { x: 0, y: 0 },
-    dimensions: { width: null, height: null, depth: null },
-    summary: formatPackageDirection(inferredType, { width: null, height: null, depth: null }),
-  };
-  const packagingType = patch.packagingType ?? base.packagingType;
-  const dimensions = { ...base.dimensions, ...patch.dimensions };
-  return {
-    ...base,
-    ...patch,
-    packagingType,
-    logoPosition: { ...base.logoPosition, ...patch.logoPosition },
-    dimensions,
-    summary: patch.summary || formatPackageDirection(packagingType, dimensions),
-  };
 }
 
 function BrandNameEditor({ initialValue, onSave, onCancel }: {

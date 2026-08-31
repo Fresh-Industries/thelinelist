@@ -27,9 +27,7 @@ function validateContactEmail(
   }
 }
 
-export const agentUpdateSchema = z.object({
-  revision: z.number().int().positive().optional(),
-  proposedUpdates: z.array(z.object({
+export const agentFieldUpdateSchema = z.object({
     key: fieldKeySchema,
     value: z.string().trim().max(4_000).nullable(),
     reason: z.string().trim().max(1_000).optional(),
@@ -46,7 +44,11 @@ export const agentUpdateSchema = z.object({
     })).max(8).optional(),
   }).refine((update) => update.explicitlyStated !== undefined || update.status !== undefined, {
     message: "Each update needs a decision status.",
-  }).superRefine(validateContactEmail)).min(1).max(SOURCING_FIELD_KEYS.length),
+  }).superRefine(validateContactEmail);
+
+export const agentUpdateSchema = z.object({
+  revision: z.number().int().positive().optional(),
+  proposedUpdates: z.array(agentFieldUpdateSchema).min(1).max(SOURCING_FIELD_KEYS.length),
 });
 
 export const founderUpdateSchema = z.object({

@@ -1,4 +1,4 @@
-export const PACKAGING_TYPES = ["slim-can", "bottle", "jar", "stand-up-pouch"] as const;
+export const PACKAGING_TYPES = ["slim-can", "bottle", "jar", "stand-up-pouch", "bakery-bag"] as const;
 
 export type PackagingType = (typeof PACKAGING_TYPES)[number];
 export type BottleFinish = "colored" | "clear";
@@ -62,6 +62,11 @@ export type PackageLogoConfig = {
   surface: CylindricalLogoSurface | FlatLogoSurface;
 };
 
+export type PackageWindowConfig = {
+  defaultScale: number;
+  scale: RangeConfig;
+};
+
 type SlimCanGeometryConfig = {
   kind: "slim-can";
   segments: number;
@@ -99,7 +104,20 @@ type JarGeometryConfig = {
 
 type GltfModelGeometryConfig = { kind: "gltf-model" };
 
-type PackageGeometryConfig = SlimCanGeometryConfig | BottleGeometryConfig | JarGeometryConfig | GltfModelGeometryConfig;
+type BakeryBagGeometryConfig = {
+  kind: "bakery-bag";
+  width: number;
+  height: number;
+  depth: number;
+  panelThickness: number;
+  opening: {
+    centerY: number;
+    maxWidth: number;
+    maxHeight: number;
+  };
+};
+
+type PackageGeometryConfig = SlimCanGeometryConfig | BottleGeometryConfig | JarGeometryConfig | GltfModelGeometryConfig | BakeryBagGeometryConfig;
 
 export type PackageConfig = {
   id: PackagingType;
@@ -133,6 +151,7 @@ export type PackageConfig = {
     far: number;
   };
   logo: PackageLogoConfig;
+  window?: PackageWindowConfig;
   material: {
     body: SurfaceMaterialConfig;
     clearBody?: ClearSurfaceMaterialConfig;
@@ -447,6 +466,70 @@ export const packageConfigs: Record<PackagingType, PackageConfig> = {
     },
     geometry: {
       kind: "gltf-model",
+    },
+  },
+  "bakery-bag": {
+    id: "bakery-bag",
+    implementation: { kind: "procedural" },
+    label: "Bakery Bag",
+    previewTitle: "Kraft-style bread bag",
+    shortName: "bakery bag",
+    defaultColor: "#b98a5f",
+    appearance: { baseColorLabel: "Kraft-style color", supportsLabelColor: false, supportsClearFinish: false },
+    camera: {
+      position: [3.45, 2.05, 7.4],
+      target: [0, -0.02, 0],
+      fov: 32,
+      minPolarAngle: Math.PI / 3.25,
+      maxPolarAngle: Math.PI / 1.82,
+    },
+    object: {
+      position: [0, -0.02, 0],
+      rotation: [0, 0.28, -0.012],
+      scale: [1, 1, 1],
+    },
+    shadow: { position: [0, -1.46, 0], scale: 4.8, opacity: 0.34, blur: 2.6, far: 3.2 },
+    logo: {
+      defaultScale: 0.82,
+      scale: { min: 0.48, max: 1.2, step: 0.04 },
+      horizontal: { min: -0.34, max: 0.34, step: 0.02 },
+      vertical: { min: -0.18, max: 0.21, step: 0.03 },
+      surface: {
+        kind: "flat-decal",
+        anchorX: 0,
+        anchorY: 0.75,
+        z: 0.67,
+        rotation: [0, 0, 0],
+        projectionDepth: 0.12,
+        mirrorX: false,
+      },
+    },
+    window: {
+      defaultScale: 0.72,
+      scale: { min: 0.35, max: 1, step: 0.05 },
+    },
+    material: {
+      body: { roughness: 0.9, metalness: 0, clearcoat: 0.015, clearcoatRoughness: 0.96 },
+      secondary: { roughness: 0.86, metalness: 0, clearcoat: 0.02, clearcoatRoughness: 0.92 },
+      trim: { roughness: 0.82, metalness: 0, clearcoat: 0.03, clearcoatRoughness: 0.88 },
+    },
+    colors: {
+      loaf: "#b9642f",
+      loafTop: "#d98a47",
+      window: "#fff9e9",
+      seam: "#8a5f3d",
+    },
+    geometry: {
+      kind: "bakery-bag",
+      width: 2.32,
+      height: 2.62,
+      depth: 1.12,
+      panelThickness: 0.07,
+      opening: {
+        centerY: -0.32,
+        maxWidth: 1.72,
+        maxHeight: 1.12,
+      },
     },
   },
 };

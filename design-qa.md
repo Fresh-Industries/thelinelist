@@ -1,80 +1,45 @@
-# Product workspace design QA
+# Design QA — Manufacturers workspace
 
-## Comparison target
+## Visual truth and capture
 
-- Source visual truth: conversation attachment, selected "option 2" product workspace mockup.
-- Source pixels: 1488 × 1058.
-- Implementation: `http://127.0.0.1:3000/sourcing/AdKdM5r-lfWeYU3aHEpJwG4Q`.
-- Final implementation screenshot: `docs/screenshots/design-qa/product-workspace-final-1488x1058.png`.
-- Implementation pixels and CSS viewport: 1488 × 1058 at device scale factor 1.
-- State: Mya's Banana Bread, idea and product complete, packaging current, Flow wrap selected, no manufacturer search run yet.
-- Density normalization: none required; source and final implementation are the same pixel dimensions at 1×.
+- Source visual truth: `C:\Users\Nik\AppData\Local\Temp\codex-clipboard-7582af43-1222-4c94-aa0d-8046a4233641.png`
+- Browser-rendered implementation: `C:\Users\Nik\thelinelist\artifacts\design-qa\manufacturers-1440x1024.png`
+- Route: `http://127.0.0.1:3010/sourcing/u2PaOFsUzzck4-svpZhoVwAV/manufacturers`
+- CSS viewport override: 1440 × 1024
+- Source pixels: 1487 × 1058
+- Implementation pixels: 1425 × 1013
+- Density: both compared at 1×. The captures have the same 1.406 aspect ratio; no density downsampling was needed.
+- State: three current manufacturer possibilities, Assemblers, Inc. active and selected, source evidence collapsed, one selected, no draft outreach sent.
 
 ## Full-view comparison evidence
 
-The source and final browser capture were reviewed together in the same multimodal comparison context. The final implementation preserves the source composition: existing Line List site navigation; an integrated transparent product visual, product identity, and five-step journey; a two-column packaging decision area; four visual package choices; an unsure path; and the visible ChatGPT progress panel. It intentionally keeps the current site's Bricolage/Manrope typography, cream/forest/mustard palette, hard borders, and tactile shadows instead of copying the mockup's more neutral styling.
+The source and implementation were opened together in one comparison input after the final browser capture. The implementation preserves the reference hierarchy and proportions: product-level masthead, sibling Product brief and Manufacturers destinations, product context strip, concise page introduction, 32/68 shortlist-detail split, selected aqua row with forest rule, evidence columns, readiness callout, source disclosure, and bottom comparison action.
 
-The final header begins at 123 CSS px and the decision stage at 348 CSS px, closely matching the source's above-the-fold region proportions. The document width equals the viewport width, so there is no page-level horizontal overflow.
+Canonical workspace data remains authoritative, so the rendered product title, package-direction copy, unresolved-decision count, and manufacturer locations differ from the illustrative source where the saved workspace differs. The existing Export PDF utility remains visible as a working product action.
 
-## Focused region evidence
+## Focused region comparison
 
-- Packaging primitives were inspected individually and together: `flow-wrap-mini-loaf.png`, `bakery-bag-mini-loaf.png`, `clamshell-mini-loaf.png`, and `tray-film-mini-loaf.png`. All four are PNG RGBA assets with alpha, isolated objects, warm 3D treatment, soft shadows, and no baked-in scene.
-- Packaging choice controls use library radio icons, not CSS or placeholder drawings. The selected card has the source's mustard emphasis and explicit radio state.
-- Manufacturer evidence and packet states were checked in `manufacturer-matches-top.png`, `manufacturer-comparison-v1.png`, and `manufacturer-packet-v2.png`.
-- Mobile was checked in `product-workspace-mobile-v3.png` at 390 × 844. The product decision appears before the supporting progress panel, and the document width remains 390 CSS px.
+No separate crop was needed. At this viewport the full-view capture contains the complete active shortlist row, manufacturer heading and selection control, evidence summary, readiness callout, source-evidence control, selected count, and Compare selected action at readable scale.
 
-## Required fidelity surfaces
+## Interaction and responsive evidence
 
-- Fonts and typography: passed. Existing Line List display and UI families are retained; the product name no longer collides with the journey; hierarchy and wrapping match the selected direction.
-- Spacing and layout rhythm: passed. Product header height and stage offset were reduced to keep the packaging decision above the fold; desktop and mobile have no page-level horizontal overflow.
-- Colors and visual tokens: passed. The implementation uses existing forest, paper, mustard, aqua, coral, and lavender tokens with semantic state contrast.
-- Image quality and asset fidelity: passed. Product imagery is transparent RGBA artwork with no cream rectangle, scene, gradient, inline SVG, CSS illustration, or placeholder asset.
-- Copy and content: passed. Founder-facing language is beginner friendly; unknown manufacturer facts remain explicit; no numeric or unsupported fit score was introduced; the final send remains human-only.
-
-## Comparison history
-
-1. `product-workspace-v1.png`
-   - P1: the oversized product name wrapped into three lines and made the identity header dominate the screen.
-   - P2: the full-width activity banner pushed the packaging decision below the intended position.
-   - P2: programmatic section focus produced a large gold outline around the stage.
-   - Fixes: resized and rebalanced the identity grid, removed the section focus outline, and moved activity feedback into the ChatGPT panel.
-2. `product-workspace-v2.png`
-   - P1 remained: a higher-specificity global heading rule still caused the product name to overlap the journey.
-   - Fix: scoped the heading rule to the sourcing workspace and explicitly sized the product name.
-3. `product-workspace-v3.png`
-   - P2: layout was stable, but the product header and top spacing still placed the core decision lower than the source.
-   - Fix: reduced workspace top padding, header margins, image height, and header vertical padding.
-4. `product-workspace-v4.png`
-   - Post-fix evidence showed the header at 157 CSS px high and the stage beginning at 348 CSS px with no collision or overflow.
-5. `product-workspace-final-1488x1058.png`
-   - Post-fix comparison at the exact source viewport found no actionable P0, P1, or P2 differences. Radio states were added with the selected icon library as final P3 polish.
-
-## Primary interactions and runtime checks
-
-- Selected a package and confirmed it.
-- Uploaded and retrieved private WebP artwork.
-- Generated three source-backed manufacturer possibilities.
-- Opened the strongest-match comparison.
-- Prepared and opened the private packet.
-- Verified mobile geometry and the five WebMCP tools, including the absence of an agent send tool.
-- Checked the browser console after the final desktop render: no errors or warnings.
+- Researched manufacturers from the empty state and received three evidence-backed results.
+- Opened Assemblers, Inc. without changing the persisted shortlist implicitly.
+- Verified its explicit selection control exposes `aria-pressed="true"` and includes the manufacturer name in its accessible label.
+- Navigated Product brief → browser Back → browser Forward; the canonical selected manufacturer persisted and the correct workspace navigation link retained `aria-current="page"`.
+- Verified 12 WebMCP tools register on the Manufacturers route and no send tool is exposed.
+- At 390 × 844, verified zero horizontal overflow, a list-first drill-in, reachable full-width detail, and a working “All possibilities” return control.
+- Checked browser logs. There were no application errors; only development/HMR messages and one informational Three.js context-lost message when the product brief’s 3D preview unmounted during route navigation.
 
 ## Findings
 
-No actionable P0, P1, or P2 findings remain.
+- No actionable P0, P1, or P2 findings remain.
+- P3: the implementation keeps the real saved product data and existing Export PDF utility instead of reproducing the reference’s illustrative text exactly.
 
-## Follow-up polish
+## Comparison history
 
-- P3: the four packaging primitives have intentionally different silhouettes and source resolutions. Future blank-package batches should continue using the same fixed camera, light, scale, and export dimensions established here.
-
-## Implementation checklist
-
-- [x] Same-size source and implementation comparison
-- [x] Desktop packaging state
-- [x] Mobile responsive state
-- [x] Focused transparent-asset inspection
-- [x] Manufacturer reveal, comparison, and packet states
-- [x] Console and horizontal-overflow checks
-- [x] P0/P1/P2 fixes re-captured
+1. P1 — The previous single-page manufacturer section used negative selected-row margins, a sticky negative-margin tray, and programmatic focus on the whole section, creating the large overlapping outline seen in the reported screenshot. Fixed by moving Manufacturers to a sibling route, using a contained master-detail layout, a normal-flow action bar, and focusing only the route heading.
+2. P2 — The first desktop comparison placed the bottom action below the reference frame and left excess page padding around the manufacturer route. Fixed by overriding the global main padding, tightening the context/header/detail rhythm, and fitting the complete comparison action into the reference-height viewport.
+3. P2 — The first post-fix capture showed a gold outline around the active shortlist row because a non-navigation detail activator used `aria-current`. Fixed by reserving `aria-current` for the two workspace navigation links and keeping the active row’s semantic button label plus contained visual state. The final implementation screenshot is the post-fix evidence.
 
 final result: passed

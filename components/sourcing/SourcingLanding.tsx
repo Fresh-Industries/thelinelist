@@ -4,7 +4,8 @@ import { ArrowRight, Sparkle } from "@phosphor-icons/react";
 import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { SourcingWorkspace } from "@/lib/sourcing/types";
+import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
+import { SOURCING_FIELD_KEYS, type AgentFieldUpdate, type SourcingWorkspace } from "@/lib/sourcing/types";
 
 const PROMPT_STARTERS = [
   { label: "Drink", seed: "I want to make a packaged drink...", image: "/images/clay-v2/products/functional-beverages.webp" },
@@ -34,7 +35,7 @@ export function SourcingLanding() {
     });
   }
 
-  const createWorkspace = useCallback(async (rawIdea: string) => {
+  const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[]) => {
     const trimmed = rawIdea.trim();
     if (!trimmed || creatingRef.current) return;
     creatingRef.current = true;
@@ -44,7 +45,7 @@ export function SourcingLanding() {
       const response = await fetch("/api/sourcing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea: trimmed }),
+        body: JSON.stringify({ idea: trimmed, ...(initialUpdates?.length ? { initialUpdates } : {}) }),
       });
       if (!response.ok) {
         const failure = await response.json().catch(() => null) as { error?: string } | null;
@@ -74,29 +75,44 @@ export function SourcingLanding() {
     const tool: WebMcpToolDefinition = {
       name: "create_sourcing_workspace",
       title: "Start a Line List product workspace",
-      description: "Create the founder's canonical Line List Product Workspace as soon as they describe a food or beverage idea. Pass their idea in their own words, then continue in the new workspace one simple question at a time. Never create a manufacturer outreach draft or contact anyone as part of workspace creation.",
+      description: "Create the founder's canonical Line List Product Workspace as soon as they describe a food or beverage idea. Preserve the exact idea, capture every explicitly stated fact in initialUpdates, and add useful inferences only as proposed with clear reasons. Do not ask about an optional brand or stage packaging before the next material product decision. The result exposes one blocking founder question at a time; persist the answer and read again before continuing. Never create outreach or contact anyone during creation.",
       inputSchema: {
         type: "object",
-        properties: { idea: { type: "string", minLength: 2, maxLength: 1500 } },
+        properties: {
+          idea: { type: "string", minLength: 2, maxLength: 1500 },
+          initialUpdates: {
+            type: "array",
+            maxItems: SOURCING_FIELD_KEYS.length,
+            items: {
+              type: "object",
+              properties: {
+                key: { type: "string", enum: [...SOURCING_FIELD_KEYS] },
+                value: { type: ["string", "null"] },
+                status: { type: "string", enum: ["confirmed", "proposed", "needs_decision"] },
+                explicitlyStated: { type: "boolean" },
+                reason: { type: "string", maxLength: 1000 },
+                source: { type: "string", maxLength: 500 },
+                suggestedSharing: { type: "boolean" },
+              },
+              required: ["key", "value", "status"],
+              additionalProperties: false,
+            },
+          },
+        },
         required: ["idea"],
         additionalProperties: false,
       },
       annotations: { readOnlyHint: false, untrustedContentHint: true },
       async execute(input) {
-        const rawIdea = (input as { idea?: unknown }).idea;
+        const args = input as { idea?: unknown; initialUpdates?: AgentFieldUpdate[] };
+        const rawIdea = args.idea;
         if (typeof rawIdea !== "string" || rawIdea.trim().length < 2) throw new Error("Tell me the product idea in at least two characters.");
-        const workspace = await createWorkspace(rawIdea);
+        const workspace = await createWorkspace(rawIdea, args.initialUpdates);
         if (!workspace) throw new Error("The product workspace could not be created.");
         return {
-          workspace: {
-            id: workspace.id,
-            revision: workspace.revision,
-            originalIdea: workspace.originalIdea,
-            productType: workspace.fields.product_type.value,
-          },
+          ...buildSourcingAgentState(workspace),
           workspaceUrl: `/sourcing/${workspace.id}`,
-          nextAction: "Open the new workspace and ask its single next useful question.",
-          externalContactRequiresFounderAction: true,
+          created: true,
         };
       },
     };
@@ -117,7 +133,7 @@ export function SourcingLanding() {
       <div className="sourcing-entry-copy">
         <p className="document-kicker"><Sparkle aria-hidden="true" weight="fill" /> First Run · Product collaborator</p>
         <h1 id="sourcing-entry-heading">Tell your agent what you want to make.</h1>
-        <p>Your agent starts the workspace, fills only what you actually said, and brings you here for visual decisions and approval. You stay in control of every manufacturer introduction.</p>
+        <p>Your agent turns what you said into a first-pass brief, keeps suggestions visibly separate from confirmed facts, and brings you here for visual decisions and approval. You stay in control of every manufacturer introduction.</p>
       </div>
       <div className={`agent-start-state${agentConnected ? " is-connected" : ""}`}><span aria-hidden="true" /><div><strong>{agentConnected ? "Agent connected" : "Agent start available"}</strong><p>{agentConnected ? "Describe your idea in chat. Your agent can create this workspace now." : "Open this page with a WebMCP-capable agent, or start manually below."}</p></div></div>
       <details className="manual-start" open={!agentConnected}>

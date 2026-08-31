@@ -6,8 +6,13 @@ import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 import { getSession } from "@/lib/auth/server";
 import { createGuestCredential, setGuestWorkspaceCookie } from "@/lib/sourcing/access";
+import { agentFieldUpdateSchema } from "@/lib/sourcing/schemas";
+import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
 
-const createWorkspaceSchema = z.object({ idea: z.string().trim().min(2).max(1_500) });
+const createWorkspaceSchema = z.object({
+  idea: z.string().trim().min(2).max(1_500),
+  initialUpdates: z.array(agentFieldUpdateSchema).max(SOURCING_FIELD_KEYS.length).optional(),
+});
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +24,7 @@ export async function POST(request: Request) {
   if (!limited.ok) return NextResponse.json({ error: "Workspace creation limit reached. Try again later." }, { status: 429 });
   const parsed = createWorkspaceSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Tell us a little about the product you want to make." }, { status: 400 });
-  const workspace = createWorkspace({ idea: parsed.data.idea });
+  const workspace = createWorkspace({ idea: parsed.data.idea, initialUpdates: parsed.data.initialUpdates });
   const session = await getSession();
   const guest = session?.user.id ? null : createGuestCredential(workspace.id);
   try {

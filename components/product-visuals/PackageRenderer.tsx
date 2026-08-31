@@ -1,7 +1,9 @@
 "use client";
 
 import type { ComponentType } from "react";
+import type { PackageFrontText } from "@/lib/sourcing/types";
 import { PACKAGING_TYPES, packageConfigs, type BottleFinish, type PackagingType } from "./package-config";
+import { BakeryBag } from "./packages/BakeryBag";
 import { Bottle } from "./packages/Bottle";
 import { Jar } from "./packages/Jar";
 import { SlimCan } from "./packages/SlimCan";
@@ -15,6 +17,8 @@ export type PackageImplementationProps = {
   logoAspect: number;
   logoScale: number;
   logoPosition: { x: number; y: number };
+  frontText: PackageFrontText | null;
+  windowScale: number;
 };
 
 type RegisteredPackageImplementation = {
@@ -27,6 +31,7 @@ const packageImplementations: Record<PackagingType, RegisteredPackageImplementat
   bottle: { kind: "procedural", Component: Bottle },
   jar: { kind: "procedural", Component: Jar },
   "stand-up-pouch": { kind: "gltf", Component: StandUpPouch },
+  "bakery-bag": { kind: "procedural", Component: BakeryBag },
 };
 
 for (const packagingType of PACKAGING_TYPES) {

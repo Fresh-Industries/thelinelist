@@ -1,4 +1,3 @@
-import { getPlantBySlug } from "@/lib/directory";
 import { getSourcingReadiness, MATCH_SHAPING_FIELDS } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, founderUpdateSchema, packageDesignUpdateSchema, selectionUpdateSchema, undoAgentChangeSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
@@ -47,8 +46,12 @@ export async function PATCH(request: Request, context: RouteContext) {
   } else if (founder.success) {
     updated = applyFounderFieldUpdate(workspace, founder.data.fieldUpdate);
   } else if (selection.success) {
-    const valid = selection.data.selectedManufacturerSlugs.filter((slug) => getPlantBySlug(slug));
-    updated = touch({ ...workspace, selectedManufacturerSlugs: [...new Set(valid)] });
+    const currentMatchSlugs = new Set(workspace.matches.map((match) => match.manufacturerSlug));
+    const requested = [...new Set(selection.data.selectedManufacturerSlugs)];
+    if (requested.some((slug) => !currentMatchSlugs.has(slug))) {
+      return NextResponse.json({ error: "Select manufacturers only from the current research results.", workspace }, { status: 409 });
+    }
+    updated = touch({ ...workspace, selectedManufacturerSlugs: requested });
   } else if (packageDesign.success) {
     if (packageDesign.data.updatedBy === "agent" && !packageDesign.data.explicitlyStated) return error("The agent can only apply packaging choices the founder explicitly requested.", 400);
     updated = applyPackageDesignUpdate(workspace, packageDesign.data.packageDesign, packageDesign.data.updatedBy);
@@ -77,7 +80,6 @@ export async function PATCH(request: Request, context: RouteContext) {
       ...updated,
       matches: [],
       matchesUpdatedAt: null,
-      selectedManufacturerSlugs: [],
     });
   }
   try {

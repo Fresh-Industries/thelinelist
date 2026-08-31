@@ -5,6 +5,7 @@ const PACKAGE_LABELS: Record<PackageDesign["packagingType"], string> = {
   bottle: "Bottle",
   jar: "Jar",
   "stand-up-pouch": "Bag / pouch",
+  "bakery-bag": "Kraft-style bakery bag",
 };
 
 const NAMED_PACKAGE_COLORS = [
@@ -31,15 +32,20 @@ export function getPackageDesignPresentation(
   artwork: ProductArtwork | null,
 ): PackageDesignPresentation {
   const color = design.finish === "clear" ? "Clear finish" : getPackageColorName(design.baseColor);
-  const artworkText = artwork
+  const artworkText = design.frontText?.brand || design.frontText?.product
+    ? `front copy set${design.frontText.brand ? ` for ${design.frontText.brand}` : ""}`
+    : artwork
     ? design.artworkId === artwork.id
       ? "custom artwork added"
       : "artwork added · placement still open"
     : "artwork not added";
+  const windowText = design.packagingType === "bakery-bag" && design.windowScale > 0
+    ? "clear viewing window"
+    : null;
 
   return {
     direction: formatPackageDirection(design.packagingType, design.dimensions),
-    appearance: `${color} · ${artworkText}`,
+    appearance: [color, windowText, artworkText].filter(Boolean).join(" · "),
     validation: "Mockup for planning; final packaging requires manufacturer validation.",
   };
 }

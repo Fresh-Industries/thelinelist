@@ -63,6 +63,17 @@ function productText(workspace: SourcingWorkspace): string {
   return `${workspace.originalIdea ?? ""} ${workspace.fields.product_name?.value ?? ""} ${workspace.fields.product_category?.value ?? ""} ${workspace.fields.product_format?.value ?? ""} ${workspace.fields.product_type?.value ?? ""} ${workspace.fields.product_description?.value ?? ""}`.toLowerCase();
 }
 
+function prioritizeDecisions(workspace: SourcingWorkspace, keys: SourcingFieldKey[]): SourcingFieldKey[] {
+  const category = getSourcingCategory(workspace);
+  const priority: SourcingFieldKey[] = category === "bakery"
+    ? ["product_type", "product_format", "storage_distribution", "production_volume", "formula_status", "formulation_assistance", "packaging_size", "packaging_format", "product_description", "certifications", "allergens"]
+    : category === "beverage"
+      ? ["product_type", "product_format", "formula_status", "formulation_assistance", "carbonation", "storage_distribution", "packaging_format", "packaging_size", "production_volume", "certifications", "allergens", "product_description"]
+      : ["product_type", "product_format", "formula_status", "formulation_assistance", "storage_distribution", "production_volume", "packaging_format", "packaging_size", "certifications", "allergens", "product_description"];
+  const position = new Map(priority.map((key, index) => [key, index]));
+  return [...keys].sort((left, right) => (position.get(left) ?? priority.length) - (position.get(right) ?? priority.length));
+}
+
 export function requiredMatchingFields(workspace: SourcingWorkspace): SourcingFieldKey[] {
   const product = productText(workspace);
   const category = getSourcingCategory(workspace);
@@ -85,12 +96,10 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const packageDesignRequired = required.includes("packaging_format");
   const packageDesignReady = Boolean(workspace.packageDesign);
   const confirmed = required.filter((key) => isUsefulConfirmedValue(workspace, key) && (key !== "packaging_format" || packageDesignReady));
-  const proposed = required.filter((key) => workspace.fields[key]?.status === "proposed");
+  const proposed = prioritizeDecisions(workspace, required.filter((key) => workspace.fields[key]?.status === "proposed"));
   const confirmedSet = new Set(confirmed);
   const proposedSet = new Set(proposed);
-  const missing = required.filter((key) => !confirmedSet.has(key) && !proposedSet.has(key));
-  const brandField = workspace.fields.brand_name;
-  const brandQuestionPending = brandField.status === "unknown" || brandField.status === "proposed";
+  const missing = prioritizeDecisions(workspace, required.filter((key) => !confirmedSet.has(key) && !proposedSet.has(key)));
   const hasProduct = isUsefulConfirmedValue(workspace, "product_type");
   const searchReady = hasProduct && MATCH_SHAPING_FIELDS.some((key) => isUsefulConfirmedValue(workspace, key));
   const manufacturerReady = confirmed.length === required.length;
@@ -98,7 +107,7 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const launchMissing = launchFields.filter((key) => !isUsefulConfirmedValue(workspace, key));
   const launchReady = manufacturerReady && launchMissing.length === 0;
   const matchingReady = manufacturerReady;
-  const nextQuestionKey = !manufacturerReady && hasProduct && brandQuestionPending ? "brand_name" : proposed[0] ?? missing[0] ?? null;
+  const nextQuestionKey = missing[0] ?? proposed[0] ?? null;
   const percent = Math.round((confirmed.length / Math.max(required.length, 1)) * 100);
   const hasProductDefinition = hasProduct && confirmed.some((key) => ["product_format", "packaging_format", "packaging_size", "storage_distribution"].includes(key));
   const hasPreparedIntroduction = workspace.outreachDrafts.some((draft) => draft.approvedVersion !== null);

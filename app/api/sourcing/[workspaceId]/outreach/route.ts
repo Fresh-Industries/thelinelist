@@ -26,6 +26,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   if (!founderSelected.length || requested.length !== founderSelected.length || requested.some((slug, index) => slug !== founderSelected[index])) {
     return NextResponse.json({ error: "The founder must select these manufacturers in the workspace before any introduction drafts can be prepared." }, { status: 409 });
   }
+  const currentMatchSlugs = new Set(workspace.matches.map((match) => match.manufacturerSlug));
+  if (!workspace.matchesUpdatedAt || requested.some((slug) => !currentMatchSlugs.has(slug))) {
+    return NextResponse.json({
+      error: "Research the current product plan again before preparing introductions for this shortlist.",
+      workspace,
+      readiness: getSourcingReadiness(workspace),
+    }, { status: 409 });
+  }
   const readiness = getSourcingReadiness(workspace);
   if (!readiness.manufacturerReady) {
     return NextResponse.json({

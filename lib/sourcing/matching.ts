@@ -108,13 +108,34 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       return productRequirement(plant, value);
     case "packaging_format": {
       const wanted = value.toLowerCase();
+      const packaging = plant.packaging?.toLowerCase() ?? "";
+      const wantsBakeryBag = /\bbakery(?:[\s-]+)bags?\b/.test(wanted);
+      if (wantsBakeryBag) {
+        const wantsWindow = /\bwindow(?:ed|ing)?\b/.test(wanted);
+        const bakeryBagPublished = /\bbakery(?:[\s-]+)bags?\b/.test(packaging);
+        const windowedBakeryBagPublished = /\b(?:windowed[\s-]+bakery(?:[\s-]+)bags?|bakery(?:[\s-]+)bags?[^.;]{0,50}\bwindow(?:ed|ing)?)\b/.test(packaging);
+        const exactBakeryBag = wantsWindow ? windowedBakeryBagPublished : bakeryBagPublished;
+        const broaderBag = bakeryBagPublished || /\b(?:bags?|gusseted|flexible packaging)\b/.test(packaging);
+        return {
+          key,
+          label,
+          outcome: exactBakeryBag ? "supported" : "unknown",
+          claim: exactBakeryBag
+            ? "Published packaging explicitly includes bakery bags."
+            : broaderBag
+              ? "Bag packaging is published, but the exact windowed bakery-bag construction is not publicly established."
+              : "Bakery-bag packaging is not publicly listed.",
+          sourceField: "packaging",
+          notes: broaderBag && !exactBakeryBag ? "Confirm the window material, barrier, seal, dimensions, and line compatibility directly." : undefined,
+        };
+      }
       const terms = wanted.includes("can") ? ["can", "cans", "canning"]
         : wanted.includes("bottle") ? ["bottle", "bottles", "bottling"]
         : wanted.includes("pouch") ? ["pouch", "pouches"]
         : wanted.includes("jar") ? ["jar", "jars"]
+        : wanted.includes("bag") ? ["bag", "bags"]
         : wanted.includes("wrap") ? ["individually wrapped", "flow wrap", "flow-wrap", "wrapped"]
         : wanted.includes("loaf") ? ["loaf", "loaves"] : [wanted];
-      const packaging = plant.packaging?.toLowerCase() ?? "";
       return {
         key, label,
         outcome: packaging && includesAny(packaging, terms) ? "supported" : "unknown",
@@ -285,13 +306,17 @@ export function matchManufacturers(
     const productSupport = supported.some((result) => result.key === "product_type");
     const productCandidate = product ? isProductCandidate(plant, product) : false;
     const geographySupport = supported.some((result) => result.key === "preferred_geography");
+    const evidenceCaveat = [
+      conflicts.length ? `${conflicts.length} possible conflict${conflicts.length === 1 ? " needs" : "s need"} review.` : null,
+      unknowns.length ? `${unknowns.length} important detail${unknowns.length === 1 ? " remains" : "s remain"} to confirm.` : null,
+    ].filter(Boolean).join(" ") || "Within the requirements evaluated here, no conflict or unknown was recorded.";
     const match: ManufacturerMatch = {
       manufacturerSlug: plant.slug,
       manufacturerName: plant.name,
       location: plant.locationDisplay,
       fitExplanation: supported.length > 0
-        ? `Reviewed public information supports ${supported.slice(0, 3).map((item) => item.label.toLowerCase()).join(", ")}. ${unknowns.length > 0 ? `${unknowns.length} important detail${unknowns.length === 1 ? " remains" : "s remain"} to confirm.` : "No requested detail is currently missing from the reviewed record."}`
-        : "The product category may be relevant, but the reviewed record does not confirm the other requirements yet.",
+        ? `Reviewed public information supports ${supported.slice(0, 3).map((item) => item.label.toLowerCase()).join(", ")}. ${evidenceCaveat}`
+        : `The product category may be relevant, but the reviewed record does not confirm the other requirements yet. ${evidenceCaveat}`,
       supportedMatches: supported.map((result) => result.claim),
       possibleConflicts: conflicts.map((result) => result.claim),
       unknowns: unknowns.map((result) => result.claim),

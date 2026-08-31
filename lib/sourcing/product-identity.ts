@@ -35,10 +35,13 @@ export function deriveProductDescriptorFromIdea(idea: string): string | null {
   let candidate = source;
   const packageMatch = /^i\s+want\s+to\s+package\s+(.+)$/i.exec(candidate);
   const turnIdeaMatch = /^i\s+want\s+to\s+turn\s+my\s+(.+?)\s+idea\s+into\b.*$/i.exec(candidate);
+  const thirdPersonMakerMatch = /^[\p{L}][\p{L}\p{M}'’.-]*(?:\s+[\p{L}][\p{L}\p{M}'’.-]*){0,3}\s+(?:makes?|bakes?)\s+(.+?)(?=\s+(?:at|from)\s+home\b|\s+and\s+(?:i|we)\b|$)/iu.exec(candidate);
   if (packageMatch) {
     candidate = `Packaged ${packageMatch[1]}`;
   } else if (turnIdeaMatch) {
     candidate = `Packaged ${turnIdeaMatch[1]}`;
+  } else if (thirdPersonMakerMatch) {
+    candidate = thirdPersonMakerMatch[1];
   } else {
     candidate = candidate.replace(
       /^(?:i|we)\s+(?:(?:want|would\s+like|plan|hope)\s+to\s+)?(?:make|create|develop|sell)|^(?:i(?:'|’)m|i\s+am|we(?:'|’)re|we\s+are)\s+(?:making|creating|developing|working\s+on)|^i\s+have\s+an\s+idea\s+for/i,
@@ -61,6 +64,9 @@ export function deriveProductDescriptorFromIdea(idea: string): string | null {
     candidate = fallbackProductPhrase(source) || "";
   }
   if (!candidate) return null;
+  if (/^banana\s+bread$/i.test(candidate) && /\b(?:manufactur\w*|retail|stores?)\b/i.test(source)) {
+    candidate = "Packaged banana bread";
+  }
   return candidate.charAt(0).toUpperCase() + candidate.slice(1);
 }
 

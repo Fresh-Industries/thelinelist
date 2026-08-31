@@ -165,13 +165,20 @@ export interface ProductArtwork {
   createdAt: string;
 }
 
+export interface PackageFrontText {
+  brand: string;
+  product: string;
+}
+
 export interface PackageDesign {
-  packagingType: "slim-can" | "bottle" | "jar" | "stand-up-pouch";
+  packagingType: "slim-can" | "bottle" | "jar" | "stand-up-pouch" | "bakery-bag";
   finish: "colored" | "clear";
   baseColor: string;
   labelColor: string;
   artworkId: string | null;
   previewAssetId: string | null;
+  frontText: PackageFrontText | null;
+  windowScale: number;
   logoAspect: number;
   logoScale: number;
   logoPosition: { x: number; y: number };
@@ -185,6 +192,8 @@ export interface PackageDesignPreviewInput {
   baseColor?: string;
   labelColor?: string;
   artworkId?: string | null;
+  frontText?: PackageFrontText | null;
+  windowScale?: number;
   logoAspect?: number;
   logoScale?: number;
   logoPosition?: Partial<PackageDesign["logoPosition"]>;

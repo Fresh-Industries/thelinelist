@@ -1,6 +1,7 @@
 "use client";
 
 import { ContactShadows, OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import type { PackageFrontText } from "@/lib/sourcing/types";
 import { packageConfigs, type BottleFinish, type PackagingType } from "./package-config";
 import { PackageRenderer } from "./PackageRenderer";
 
@@ -13,6 +14,8 @@ type StudioSceneProps = {
   bottleFinish: BottleFinish;
   logoScale: number;
   logoPosition: { x: number; y: number };
+  frontText: PackageFrontText | null;
+  windowScale: number;
   interactive?: boolean;
   shadowResolution?: number;
 };
@@ -26,6 +29,8 @@ export function StudioScene({
   bottleFinish,
   logoScale,
   logoPosition,
+  frontText,
+  windowScale,
   interactive = true,
   shadowResolution = 256,
 }: StudioSceneProps) {
@@ -56,6 +61,8 @@ export function StudioScene({
           logoAspect={logoAspect}
           logoScale={logoScale}
           logoPosition={logoPosition}
+          frontText={frontText}
+          windowScale={windowScale}
         />
       </group>
 

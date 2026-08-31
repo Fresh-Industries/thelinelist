@@ -39,6 +39,8 @@ export function SourcingPackagePreview({
         bottleFinish={design.finish}
         logoScale={design.logoScale}
         logoPosition={design.logoPosition}
+        frontText={design.frontText}
+        windowScale={design.windowScale}
         variant="thumbnail"
       />
     </button>

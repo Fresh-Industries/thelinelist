@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { PackageFrontText } from "@/lib/sourcing/types";
 import type { BottleFinish, PackagingType } from "./package-config";
 
 export type ProductMockupProps = {
@@ -12,6 +13,8 @@ export type ProductMockupProps = {
   bottleFinish?: BottleFinish;
   logoScale?: number;
   logoPosition?: { x: number; y: number };
+  frontText?: PackageFrontText | null;
+  windowScale?: number;
   sceneKey?: number;
   variant?: "studio" | "thumbnail";
   onCaptureReady?: (capture: () => Promise<Blob | null>) => void;

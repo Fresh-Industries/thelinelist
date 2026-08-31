@@ -29,10 +29,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     return NextResponse.json({ error: "Your plan needs a little more detail before a useful manufacturer search.", workspace, readiness: getSourcingReadiness(workspace), matches: [] }, { status: 409 });
   }
   const matches = matchManufacturers(workspace, parsed.data);
+  const currentMatchSlugs = new Set(matches.map((match) => match.manufacturerSlug));
+  const selectedManufacturerSlugs = workspace.selectedManufacturerSlugs.filter((slug) => currentMatchSlugs.has(slug));
   const updated = addWorkspaceActivity({
     ...workspace,
     matches,
-    selectedManufacturerSlugs: [],
+    selectedManufacturerSlugs,
     matchesUpdatedAt: new Date().toISOString(),
   }, "matched", `${matches.length} evidence-backed manufacturer match${matches.length === 1 ? "" : "es"} prepared.`);
   try {

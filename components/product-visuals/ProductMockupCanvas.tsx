@@ -15,6 +15,8 @@ export default function ProductMockupCanvas({
   bottleFinish = "colored",
   logoScale,
   logoPosition = { x: 0, y: 0 },
+  frontText = null,
+  windowScale = 0,
   sceneKey = 0,
   variant = "studio",
   onCaptureReady,
@@ -57,6 +59,8 @@ export default function ProductMockupCanvas({
           bottleFinish={bottleFinish}
           logoScale={logoScale ?? config.logo.defaultScale}
           logoPosition={logoPosition}
+          frontText={frontText}
+          windowScale={windowScale}
           interactive={!thumbnail}
           shadowResolution={256}
         />

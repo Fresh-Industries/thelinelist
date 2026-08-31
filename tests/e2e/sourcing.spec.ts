@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
@@ -16,6 +16,30 @@ async function visualVariationRatio(image: Buffer) {
   return variedPixels / (rendered.info.width * rendered.info.height);
 }
 
+async function waitFor3dPreview(dialog: Locator) {
+  const canvas = dialog.locator('.package-canvas canvas[aria-label^="Interactive 3D"]');
+  await expect(canvas).toBeVisible({ timeout: 15_000 });
+  await expect.poll(async () => visualVariationRatio(await canvas.screenshot()), { timeout: 15_000 }).toBeGreaterThan(0.02);
+}
+
+function workspaceIdFromUrl(page: Page) {
+  const match = new URL(page.url()).pathname.match(/^\/sourcing\/([^/]+)/);
+  if (!match) throw new Error(`Expected a sourcing workspace URL, received ${page.url()}`);
+  return match[1];
+}
+
+function productBriefPath(workspaceId: string) {
+  return `/sourcing/${workspaceId}`;
+}
+
+function manufacturersPath(workspaceId: string) {
+  return `${productBriefPath(workspaceId)}/manufacturers`;
+}
+
+function workspaceApiPath(workspaceId: string, suffix = "") {
+  return `/api/sourcing/${workspaceId}${suffix}`;
+}
+
 async function startProduct(page: Page, idea = "A packaged banana bread mini loaf for individual sale in coffee shops", navigate = true) {
   if (navigate) await page.goto("/sourcing");
   const manualStart = page.locator("details.manual-start");
@@ -23,6 +47,7 @@ async function startProduct(page: Page, idea = "A packaged banana bread mini loa
   await page.getByLabel("What do you want to make?").fill(idea);
   await page.getByRole("button", { name: "Build with your agent" }).click();
   await expect(page).toHaveURL(/\/sourcing\/[A-Za-z0-9_-]+$/, { timeout: 20_000 });
+  return workspaceIdFromUrl(page);
 }
 
 async function installWebMcpHarness(page: Page) {
@@ -83,17 +108,17 @@ test("single sourcing entry creates the agent-led living document", async ({ pag
   await expect(page.getByText("Build it myself")).toHaveCount(0);
   await expect(page.getByText("ready-made energy drink demo")).toHaveCount(0);
 
-  await startProduct(page);
+  const workspaceId = await startProduct(page);
   await expect(page.getByText("First Run · Product brief", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Packaged banana bread mini loaf" })).toBeVisible();
   await expect(page.getByText("Brand name still open").first()).toBeVisible();
   await expect(page.getByText("Product collaborator", { exact: true }).last()).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Do you already have a brand name/ })).toBeVisible();
-  const exported = await page.evaluate(async () => {
-    const response = await fetch(`${location.pathname.replace("/sourcing/", "/api/sourcing/")}/export`);
+  await expect(page.getByRole("heading", { name: /How should one customer buy and eat/ })).toBeVisible();
+  const exported = await page.evaluate(async (exportPath) => {
+    const response = await fetch(exportPath);
     const bytes = new Uint8Array(await response.arrayBuffer());
     return { contentType: response.headers.get("content-type"), signature: String.fromCharCode(...bytes.slice(0, 4)), byteLength: bytes.byteLength };
-  });
+  }, workspaceApiPath(workspaceId, "/export"));
   expect(exported).toMatchObject({ contentType: "application/pdf", signature: "%PDF" });
   expect(exported.byteLength).toBeGreaterThan(500);
   await expect(page.getByText("Development workspace")).toHaveCount(0);
@@ -105,28 +130,25 @@ test("single sourcing entry creates the agent-led living document", async ({ pag
 });
 
 test("the collaborator drives one decision and keeps uncertainty open", async ({ page }) => {
-  await startProduct(page);
-  await page.getByPlaceholder(/Answer naturally/).fill("Not yet");
-  await page.getByRole("button", { name: "Add to brief" }).click();
-  await expect(page.getByText(/brand name can stay open/i)).toBeVisible();
-  await expect(page.getByRole("heading", { name: /How should one customer buy and eat/ })).toBeVisible();
+  const workspaceId = await startProduct(page);
   await page.getByPlaceholder(/Answer naturally/).fill("Mini loaf");
   await page.getByRole("button", { name: "Add to brief" }).click();
   await expect(page.getByText(/I added product format to the brief/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: /In one sentence, what is the product promise/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /shelf-stable, refrigerated, or frozen/ })).toBeVisible();
   await page.getByPlaceholder(/Answer naturally/).fill("I'm not sure");
   await page.getByRole("button", { name: "Add to brief" }).click();
   await expect(page.getByText(/That can stay open/)).toBeVisible();
-  const openDescription = await page.evaluate(async () => fetch(location.pathname.replace("/sourcing/", "/api/sourcing/")).then((response) => response.json())) as { workspace: { fields: { product_description: { status: string; value: string | null } } } };
-  expect(openDescription.workspace.fields.product_description).toMatchObject({ status: "needs_decision", value: "I'm not sure" });
+  const openStorage = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(workspaceId)) as { workspace: { fields: { storage_distribution: { status: string; value: string | null } } } };
+  expect(openStorage.workspace.fields.storage_distribution).toMatchObject({ status: "needs_decision", value: "I'm not sure" });
 });
 
 test("brand identity updates the document without duplicating the product identity", async ({ page }) => {
   const originalIdea = "I want to make a packaged sauce that is really spicy and sell it in grocery stores.";
-  await startProduct(page, originalIdea);
+  const workspaceId = await startProduct(page, originalIdea);
   await expect(page.getByRole("heading", { level: 1, name: "Packaged sauce" })).toBeVisible();
-  await page.getByPlaceholder(/Answer naturally/).fill("Fireline Foods");
-  await page.getByRole("button", { name: "Add to brief" }).click();
+  await page.getByRole("button", { name: "Add brand name" }).click();
+  await page.getByRole("textbox", { name: "Brand name" }).fill("Fireline Foods");
+  await page.getByRole("button", { name: "Save brand" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Fireline Foods" })).toBeVisible();
   await expect(page.locator(".document-identity").getByText("Packaged sauce", { exact: true })).toBeVisible();
   await expect(page.locator(".product-anchor")).toHaveCount(0);
@@ -138,43 +160,49 @@ test("brand identity updates the document without duplicating the product identi
   await page.getByRole("button", { name: "Save brand" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Fireline Kitchen" })).toBeVisible();
 
-  const stored = await page.evaluate(async () => fetch(location.pathname.replace("/sourcing/", "/api/sourcing/")).then((response) => response.json())) as { workspace: { originalIdea: string; fields: { brand_name: { value: string }; product_type: { value: string } } } };
+  const stored = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(workspaceId)) as { workspace: { originalIdea: string; fields: { brand_name: { value: string }; product_type: { value: string } } } };
   expect(stored.workspace.originalIdea).toBe(originalIdea);
   expect(stored.workspace.fields.brand_name.value).toBe("Fireline Kitchen");
   expect(stored.workspace.fields.product_type.value).toBe("Packaged sauce");
 });
 
-test("the focused package workbench uses all four production 3D models and writes back", async ({ page }) => {
-  await startProduct(page);
+test("the focused package workbench includes the bakery model, exact copy, and a real viewing window", async ({ page }) => {
+  const workspaceId = await startProduct(page);
   await page.getByRole("button", { name: "Open 3D workbench" }).click();
   const dialog = page.getByRole("dialog", { name: "Make the package direction tangible." });
   await expect(dialog).toBeVisible();
-  for (const label of ["Slim Can", "Bottle", "Jar", "Bag / pouch"]) {
+  for (const label of ["Slim Can", "Bottle", "Jar", "Bag / pouch", "Bakery bag + window"]) {
     await expect(dialog.getByRole("button", { name: label })).toBeVisible();
   }
-  await dialog.getByRole("button", { name: "Bag / pouch" }).click();
-  await dialog.locator('input[type="file"]').setInputFiles(path.join(process.cwd(), "public/brand/line-list-mark.png"));
-  await dialog.getByLabel("Logo size").fill("1.1");
+  await dialog.getByRole("button", { name: "Bakery bag + window" }).click();
+  await dialog.getByRole("textbox", { name: "Brand text" }).fill("Mya's");
+  await dialog.getByRole("textbox", { name: "Product text" }).fill("Banana Bread");
+  await dialog.getByLabel("Window size").fill("0.5");
+  await dialog.getByLabel("Front copy size").fill("1.1");
+  await waitFor3dPreview(dialog);
   await dialog.getByRole("button", { name: "Use this package direction" }).click();
   await expect(dialog).toBeHidden();
-  await expect(page.getByText("Bag / pouch · dimensions still open").first()).toBeVisible();
-  const savedPackage = await page.evaluate(async () => fetch(location.pathname.replace("/sourcing/", "/api/sourcing/")).then((response) => response.json())) as { workspace: { packageDesign: { previewAssetId: string | null } } };
-  expect(savedPackage.workspace.packageDesign.previewAssetId).toMatch(/^[0-9a-f-]{36}$/i);
-  const exportedWithPackage = await page.evaluate(async () => {
-    const response = await fetch(`${location.pathname.replace("/sourcing/", "/api/sourcing/")}/export`);
+  await expect(page.getByText("Kraft-style bakery bag · dimensions still open").first()).toBeVisible();
+  const savedPackage = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(workspaceId)) as { workspace: { packageDesign: { previewAssetId: string | null; frontText: { brand: string; product: string }; windowScale: number } } };
+  expect(savedPackage.workspace.packageDesign).toMatchObject({
+    previewAssetId: expect.stringMatching(/^[0-9a-f-]{36}$/i),
+    frontText: { brand: "Mya's", product: "Banana Bread" },
+    windowScale: 0.5,
+  });
+  const exportedWithPackage = await page.evaluate(async (exportPath) => {
+    const response = await fetch(exportPath);
     const bytes = new Uint8Array(await response.arrayBuffer());
     const marker = new TextEncoder().encode("/Subtype /Image");
     const includesImage = bytes.some((_, index) => marker.every((value, offset) => bytes[index + offset] === value));
     return { byteLength: bytes.byteLength, includesImage };
-  });
+  }, workspaceApiPath(workspaceId, "/export"));
   expect(exportedWithPackage.byteLength).toBeGreaterThan(20_000);
   expect(exportedWithPackage.includesImage).toBe(true);
   const preview = page.locator(".package-direction-preview");
-  await expect(preview).toHaveAttribute("data-packaging-type", "stand-up-pouch");
-  await expect(preview).toHaveAttribute("data-base-color", "#b64d2c");
-  await expect(preview).toHaveAttribute("data-artwork-state", "applied");
-  await expect(page.getByText("Terracotta · custom artwork added")).toBeVisible();
-  await expect(page.getByText(/line-list-mark\.png/i)).toHaveCount(0);
+  await expect(preview).toHaveAttribute("data-packaging-type", "bakery-bag");
+  await expect(preview).toHaveAttribute("data-base-color", "#b98a5f");
+  await expect(preview).toHaveAttribute("data-artwork-state", "none");
+  await expect(page.getByText(/clear viewing window · front copy set for Mya's/i)).toBeVisible();
   const previewCanvas = preview.locator("canvas");
   await expect(previewCanvas).toBeVisible({ timeout: 15_000 });
   await expect.poll(async () => previewCanvas.evaluate((element) => {
@@ -189,9 +217,12 @@ test("the focused package workbench uses all four production 3D models and write
   await expect(page.locator(".package-glyph")).toHaveCount(0);
   await page.getByRole("button", { name: "Refine saved package direction in 3D" }).click();
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Bag / pouch" })).toHaveClass(/selected/);
-  await expect(dialog.getByLabel("Package color")).toHaveValue("#b64d2c");
-  await expect(dialog.getByLabel("Logo size")).toHaveValue("1.1");
+  await expect(dialog.getByRole("button", { name: "Bakery bag + window" })).toHaveClass(/selected/);
+  await expect(dialog.getByLabel("Package color")).toHaveValue("#b98a5f");
+  await expect(dialog.getByRole("textbox", { name: "Brand text" })).toHaveValue("Mya's");
+  await expect(dialog.getByRole("textbox", { name: "Product text" })).toHaveValue("Banana Bread");
+  await expect(dialog.getByLabel("Window size")).toHaveValue("0.5");
+  await expect(dialog.getByLabel("Front copy size")).toHaveValue("1.1");
 });
 
 test("landing and workspace WebMCP tools share canonical state and expose no send action", async ({ page }) => {
@@ -199,7 +230,7 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   await page.goto("/sourcing");
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
   expect(await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("create_sourcing_workspace"))).toBe(true);
-  await startProduct(page, "A sparkling beverage in slim cans", false);
+  const workspaceId = await startProduct(page, "A sparkling beverage in slim cans", false);
   const invoke = async (name: string, input: Record<string, unknown>) => page.evaluate(async ({ name, input }) => {
     const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
     const tool = tools.get(name);
@@ -207,16 +238,25 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
     return tool.execute(input);
   }, { name, input });
 
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(11);
-  const current = await invoke("get_sourcing_workspace", {}) as { workspace: { originalIdea: string }; canonicalPlan?: unknown; product: { brandName: string | null; descriptor: string }; externalContactRequiresFounderAction: boolean };
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+  const workspaceNavigation = page.getByRole("navigation", { name: "Product workspace" });
+  await expect(workspaceNavigation.getByRole("link", { name: "Product brief" })).toHaveAttribute("aria-current", "page");
+  await expect(workspaceNavigation.getByRole("link", { name: "Manufacturers" })).not.toHaveAttribute("aria-current");
+  const current = await invoke("get_sourcing_workspace", {}) as { workspace: { originalIdea: string; fields?: unknown }; canonicalPlan?: unknown; product: { brandName: string | null; descriptor: string }; stage: { percent?: number }; creative: { status: string; nextQuestion: { key: string } | null; workflow: string[] }; availableActions: string[]; outreach: { externalContactRequiresFounderAction: boolean; agentSendAvailable: boolean } };
   expect(current.workspace.originalIdea).toBe("A sparkling beverage in slim cans");
   expect(current.canonicalPlan).toBeUndefined();
+  expect(current.workspace.fields).toBeUndefined();
+  expect(current.stage.percent).toBeUndefined();
   expect(current.product).toMatchObject({ brandName: null, descriptor: "Sparkling beverage" });
-  expect(current.externalContactRequiresFounderAction).toBe(true);
+  expect(current.creative).toMatchObject({ status: "needs_brand_name", nextQuestion: { key: "brand_name" } });
+  expect(current.creative.workflow).toContain("generate_package_artwork");
+  expect(current.availableActions).toContain("generate_package_artwork");
+  expect(current.availableActions).toContain("stage_package_artwork");
+  expect(current.outreach).toMatchObject({ externalContactRequiresFounderAction: true, agentSendAvailable: false });
   const preview = await invoke("preview_package_design", { packagingType: "bottle", baseColor: "#f2e8d5", labelColor: "#b64d2c" }) as { committed: boolean; previewOpened: boolean };
   expect(preview).toMatchObject({ committed: false, previewOpened: true });
   await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toBeVisible();
-  expect((await invoke("get_package_design", {}) as { packageDesign: unknown }).packageDesign).toBeNull();
+  expect((await invoke("get_package_design", {}) as { packaging: { direction: unknown } }).packaging.direction).toBeNull();
   await page.getByRole("button", { name: "Close packaging workbench" }).click();
 
   const refinement = await invoke("refine_package_design_in_3d", {
@@ -237,13 +277,13 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   expect(refinement).toMatchObject({ committed: false, previewOpened: true });
   await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toBeVisible();
   await expect(page.getByText("Agent preview · live in 3D")).toBeVisible();
-  expect((await invoke("get_package_design", {}) as { packageDesign: unknown }).packageDesign).toBeNull();
+  expect((await invoke("get_package_design", {}) as { packaging: { direction: unknown } }).packaging.direction).toBeNull();
   await page.getByRole("button", { name: "Close packaging workbench" }).click();
 
   const artworkBase64 = readFileSync(path.join(process.cwd(), "public/brand/line-list-mark.png")).toString("base64");
   const artwork = await invoke("stage_package_artwork", { fileName: "agent-generated-mark.png", contentType: "image/png", base64Data: artworkBase64 }) as { committed: boolean; previewOpened: boolean; product: { artwork: { fileName: string } } };
   expect(artwork).toMatchObject({ committed: false, previewOpened: true, product: { artwork: { fileName: "agent-generated-mark.png" } } });
-  expect((await invoke("get_package_design", {}) as { packageDesign: unknown }).packageDesign).toBeNull();
+  expect((await invoke("get_package_design", {}) as { packaging: { direction: unknown } }).packaging.direction).toBeNull();
   await page.getByRole("button", { name: "Close packaging workbench" }).click();
   await invoke("update_sourcing_workspace", { proposedUpdates: [
     { key: "product_type", value: "Sparkling beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
@@ -251,9 +291,30 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   ] });
   await expect(page.getByText("Sparkling beverage", { exact: true }).first()).toBeVisible();
   await expect(page.locator(".agent-change-review")).toContainText("Latest agent update · 2 changes");
-  const matched = await invoke("match_manufacturers", { resultLimit: 2 }) as { workspace: { matches: Array<{ manufacturerSlug: string }>; selectedManufacturerSlugs: string[]; outreachDrafts: unknown[] } };
-  expect(matched.workspace.selectedManufacturerSlugs).toEqual([]);
-  expect(matched.workspace.outreachDrafts).toEqual([]);
+  const matched = await invoke("match_manufacturers", { resultLimit: 2 }) as { manufacturerCandidates: Array<{ manufacturerSlug: string }>; outreach: { selectedManufacturerSlugs: string[]; drafts: unknown[] }; resultCount: number; resultsShown: boolean };
+  expect(matched.outreach.selectedManufacturerSlugs).toEqual([]);
+  expect(matched.outreach.drafts).toEqual([]);
+  expect(matched).toMatchObject({ resultCount: matched.manufacturerCandidates.length, resultsShown: true });
+  await expect(page).toHaveURL(manufacturersPath(workspaceId));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+  await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toHaveCount(0);
+  await expect(workspaceNavigation.getByRole("link", { name: "Manufacturers" })).toHaveAttribute("aria-current", "page");
+  await expect(workspaceNavigation.getByRole("link", { name: "Product brief" })).not.toHaveAttribute("aria-current");
+  const resultsHeading = page.locator("#manufacturer-possibilities-heading");
+  await expect(page.getByRole("heading", { level: 1, name: "Manufacturer possibilities" })).toHaveCount(1);
+  await expect(resultsHeading).toHaveRole("heading");
+  await expect(resultsHeading).toBeVisible();
+  await expect(resultsHeading).toBeFocused();
+  await expect(page.getByRole("list", { name: "Introduction approval steps" })).toContainText("Agent prepares drafts");
+  await expect(page.getByRole("list", { name: "Introduction approval steps" })).toContainText("You review and approve");
+  await expect(page.getByRole("list", { name: "Introduction approval steps" })).toContainText("You confirm Send now");
+  await expect(page.getByText(/Finish 0 manufacturer-brief decisions/)).toHaveCount(0);
+  expect(await resultsHeading.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe("none");
+  expect(await resultsHeading.evaluate((element) => getComputedStyle(element).boxShadow)).toBe("none");
+  await expect(page.locator(".sourcing-manufacturers-view")).not.toHaveAttribute("tabindex");
+  const focusedResults = await resultsHeading.boundingBox();
+  expect(focusedResults?.y).toBeGreaterThanOrEqual(0);
+  expect(focusedResults?.y).toBeLessThan(240);
   const guardedDraft = await page.evaluate(async (manufacturerSlug) => {
     const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
     try {
@@ -262,21 +323,63 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
     }
-  }, matched.workspace.matches[0].manufacturerSlug);
+  }, matched.manufacturerCandidates[0].manufacturerSlug);
   expect(guardedDraft).toContain("founder must select");
+  const routeBeforePackagePreview = page.url();
+  await invoke("preview_package_design", { baseColor: "#f2e8d5" });
+  await expect(page).toHaveURL(routeBeforePackagePreview);
+  await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toBeVisible();
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
   const hasSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
   expect(hasSendTool).toBe(false);
-  for (const tool of ["get_package_design", "preview_package_design", "stage_package_artwork", "refine_package_design_in_3d", "undo_last_agent_change", "export_product_packet"]) {
+  for (const tool of ["get_package_design", "preview_package_design", "generate_package_artwork", "stage_package_artwork", "refine_package_design_in_3d", "undo_last_agent_change", "export_product_packet"]) {
     expect(await page.evaluate((name) => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has(name), tool)).toBe(true);
   }
 });
 
+test("product brief and manufacturers are separate history-safe views", async ({ page }) => {
+  await installWebMcpHarness(page);
+  const workspaceId = await startProduct(page);
+  const workspaceNavigation = page.getByRole("navigation", { name: "Product workspace" });
+
+  await expect(page).toHaveURL(productBriefPath(workspaceId));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(workspaceNavigation.getByRole("link", { name: "Product brief" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("heading", { name: "Manufacturer possibilities" })).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+
+  await page.getByRole("button", { name: "Research manufacturers now" }).click();
+  await expect(page).toHaveURL(manufacturersPath(workspaceId));
+  await expect(page.getByRole("heading", { level: 1, name: "Manufacturer possibilities" })).toHaveCount(1);
+  await expect(workspaceNavigation.getByRole("link", { name: "Manufacturers" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("region", { name: /.+/ })).toBeVisible();
+
+  const firstChoice = page.getByRole("button", { name: /^View details for / }).first();
+  const firstName = (await firstChoice.getAttribute("aria-label"))!.replace("View details for ", "");
+  const selectFirst = page.getByRole("button", { name: `Select ${firstName}`, exact: true });
+  await expect(selectFirst).toHaveAttribute("aria-pressed", "false");
+  await selectFirst.click();
+  await expect(page.getByRole("button", { name: `Remove ${firstName} from selected manufacturers`, exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("status").filter({ hasText: "1 selected" })).toBeVisible();
+
+  await workspaceNavigation.getByRole("link", { name: "Product brief" }).click();
+  await expect(page).toHaveURL(productBriefPath(workspaceId));
+  await expect(workspaceNavigation.getByRole("link", { name: "Product brief" })).toHaveAttribute("aria-current", "page");
+  await page.goBack();
+  await expect(page).toHaveURL(manufacturersPath(workspaceId));
+  await expect(page.getByRole("button", { name: `Remove ${firstName} from selected manufacturers`, exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.reload();
+  await expect(page.getByRole("status").filter({ hasText: "1 selected" })).toBeVisible();
+  await page.goForward();
+  await expect(page).toHaveURL(productBriefPath(workspaceId));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+});
+
 test("multiple manufacturers receive separate reviewable drafts", async ({ page }) => {
-  await startProduct(page, "A healthier sparkling energy drink in 12 oz cans");
-  await page.evaluate(async () => {
-    const workspaceId = location.pathname.split("/").pop();
-    const current = await fetch(`/api/sourcing/${workspaceId}`).then((response) => response.json());
-    await fetch(`/api/sourcing/${workspaceId}`, {
+  const workspaceId = await startProduct(page, "A healthier sparkling energy drink in 12 oz cans");
+  await page.evaluate(async (apiPath) => {
+    const current = await fetch(apiPath).then((response) => response.json());
+    await fetch(apiPath, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ revision: current.workspace.revision, proposedUpdates: [
@@ -293,25 +396,30 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
         { key: "contact_email", value: "founder@example.com", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       ] }),
     });
-    location.reload();
-  });
+  }, workspaceApiPath(workspaceId));
+  await page.reload();
   await expect(page.getByRole("button", { name: "Refine packaging in 3D" })).toBeVisible();
   await page.getByRole("button", { name: "Refine packaging in 3D" }).click();
   const packageDialog = page.getByRole("dialog", { name: "Make the package direction tangible." });
   await expect(packageDialog).toBeVisible();
-  await expect(packageDialog.getByText("The 3D preview is still loading. Wait a moment and try again.")).toBeHidden({ timeout: 15_000 });
+  await waitFor3dPreview(packageDialog);
   await packageDialog.getByRole("button", { name: "Use this package direction" }).click();
   await expect(page.getByRole("button", { name: "Find evidence-backed manufacturers" })).toBeVisible();
   await page.getByRole("button", { name: "Find evidence-backed manufacturers" }).click();
-  const rows = page.locator(".match-row");
-  await expect(rows.first()).toBeVisible();
-  const count = await rows.count();
+  await expect(page).toHaveURL(manufacturersPath(workspaceId));
+  const manufacturerChoices = page.getByRole("button", { name: /^View details for / });
+  await expect(manufacturerChoices.first()).toBeVisible();
+  const count = await manufacturerChoices.count();
   expect(count).toBeGreaterThanOrEqual(2);
-  await rows.nth(0).getByRole("button", { name: "Select" }).click();
-  await rows.nth(1).getByRole("button", { name: "Select" }).click();
+  const firstName = (await manufacturerChoices.nth(0).getAttribute("aria-label"))!.replace("View details for ", "");
+  const secondName = (await manufacturerChoices.nth(1).getAttribute("aria-label"))!.replace("View details for ", "");
+  await page.getByRole("button", { name: `Select ${firstName}`, exact: true }).click();
+  await manufacturerChoices.nth(1).click();
+  await page.getByRole("button", { name: `Select ${secondName}`, exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "2 selected" })).toBeVisible();
   await page.getByRole("button", { name: "Prepare 2 introductions" }).click();
   await expect(page.locator(".introduction-card")).toHaveCount(2);
-  await expect(page.getByText("Nothing has been sent")).toBeVisible();
+  await expect(page.getByText("Draft · not sent", { exact: true })).toHaveCount(2);
   const firstDraft = page.locator(".introduction-card").first();
   await firstDraft.getByRole("button", { name: "Approve this introduction" }).click();
   await expect(firstDraft.getByRole("button", { name: "Send introduction" })).toBeVisible();
@@ -320,10 +428,21 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
   await expect(firstDraft.getByText(/This will email .* now/)).toBeVisible();
 });
 
-test("mobile keeps the living document inside the viewport", async ({ page }) => {
+test("mobile keeps both workspace views inside the viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await startProduct(page);
+  const workspaceId = await startProduct(page);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  const geometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
-  expect(geometry.document).toBeLessThanOrEqual(geometry.viewport);
+  const briefGeometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
+  expect(briefGeometry.document).toBeLessThanOrEqual(briefGeometry.viewport);
+
+  await page.getByRole("button", { name: "Research manufacturers now" }).click();
+  await expect(page).toHaveURL(manufacturersPath(workspaceId));
+  await expect(page.getByRole("navigation", { name: "Product workspace" }).getByRole("link", { name: "Manufacturers" })).toHaveAttribute("aria-current", "page");
+  const manufacturerGeometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
+  expect(manufacturerGeometry.document).toBeLessThanOrEqual(manufacturerGeometry.viewport);
+
+  await page.getByRole("button", { name: /^View details for / }).first().click();
+  await expect(page.getByRole("button", { name: "All possibilities" })).toBeVisible();
+  const detailGeometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
+  expect(detailGeometry.document).toBeLessThanOrEqual(detailGeometry.viewport);
 });

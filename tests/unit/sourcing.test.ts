@@ -20,9 +20,73 @@ describe("sourcing workspace trust rules", () => {
     expect(workspace.fields.product_type).toMatchObject({ status: "confirmed", updatedBy: "founder", explicitlyStated: true });
     expect(workspace.originalIdea).toBe("A packaged banana bread for grocery stores");
     expect(workspace.fields.product_type.value).toBe("Packaged banana bread");
-    expect(workspace.fields.product_description.value).toBeNull();
-    expect(getSourcingReadiness(workspace).nextQuestionKey).toBe("brand_name");
+    expect(workspace.fields.product_description).toMatchObject({ status: "proposed", updatedBy: "agent" });
+    expect(getSourcingReadiness(workspace).nextQuestionKey).toBe("product_format");
     expect(workspace.matches).toEqual([]);
+  });
+
+  it("bootstraps a useful banana-bread brief without inventing a brand or closing material decisions", () => {
+    const originalIdea = "Mya makes banana bread at home and we want to manufacture it and sell it in stores.";
+    const workspace = createWorkspace({ idea: originalIdea });
+
+    expect(workspace.originalIdea).toBe(originalIdea);
+    expect(workspace.fields.product_type).toMatchObject({
+      value: "Packaged banana bread",
+      status: "confirmed",
+      explicitlyStated: true,
+      updatedBy: "founder",
+    });
+    expect(workspace.fields.brand_name).toMatchObject({ value: null, status: "unknown", explicitlyStated: false });
+    expect(workspace.fields.formula_status).toMatchObject({
+      value: "Existing home recipe",
+      status: "confirmed",
+      explicitlyStated: true,
+      source: "Founder starting idea",
+    });
+    expect(workspace.fields.retail_channel).toMatchObject({
+      value: "Retail stores",
+      status: "confirmed",
+      explicitlyStated: true,
+      source: "Founder starting idea",
+    });
+    expect(workspace.fields.product_category).toMatchObject({
+      value: "Packaged bakery / quick bread",
+      status: "proposed",
+      explicitlyStated: false,
+      updatedBy: "agent",
+    });
+    expect(workspace.fields.product_description).toMatchObject({
+      value: expect.stringContaining("product format, storage, and first-run volume remain open"),
+      status: "proposed",
+      explicitlyStated: false,
+    });
+    expect(workspace.fields.packaging_format).toMatchObject({
+      value: "Windowed bakery bag or flow wrap",
+      status: "proposed",
+      explicitlyStated: false,
+      reason: expect.stringContaining("require manufacturer validation"),
+    });
+    for (const key of ["product_format", "storage_distribution", "production_volume"] as const) {
+      expect(workspace.fields[key]).toMatchObject({ value: null, status: "unknown" });
+    }
+    expect(getSourcingReadiness(workspace).nextQuestionKey).toBe("product_format");
+  });
+
+  it("asks missing material bakery decisions before reviewing starter proposals", () => {
+    let workspace = createWorkspace({ idea: "Mya makes banana bread at home and we want to manufacture it and sell it in stores." });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_format", value: "Mini loaf", status: "confirmed", shareWithManufacturer: true });
+    expect(getSourcingReadiness(workspace).nextQuestionKey).toBe("storage_distribution");
+    expect(workspace.fields.product_description.value).toContain("sold as mini loaf");
+    expect(workspace.fields.product_description.value).not.toContain("product format, storage, and first-run volume remain open");
+
+    workspace = applyFounderFieldUpdate(workspace, { key: "storage_distribution", value: "Shelf-stable goal", status: "confirmed", shareWithManufacturer: true });
+    expect(getSourcingReadiness(workspace).nextQuestionKey).toBe("production_volume");
+    expect(workspace.fields.product_description.value).toContain("planned for shelf-stable goal");
+
+    workspace = applyFounderFieldUpdate(workspace, { key: "production_volume", value: "1,000 to 2,000 units", status: "confirmed", shareWithManufacturer: true });
+    expect(getSourcingReadiness(workspace).nextQuestionKey).toBe("packaging_size");
+    expect(workspace.fields.product_description.value).toContain("with an initial volume of 1,000 to 2,000 units");
+    expect(workspace.fields.product_description.value).not.toContain("remain open");
   });
 
   it("keeps brand, product, and original idea distinct while allowing the brand to stay open", () => {
@@ -40,7 +104,8 @@ describe("sourcing workspace trust rules", () => {
   });
 
   it("derives restrained product descriptors instead of promoting raw prompts", () => {
-    expect(deriveProductDescriptorFromIdea("I make banana bread and want to sell it in stores.")).toBe("Banana bread");
+    expect(deriveProductDescriptorFromIdea("I make banana bread and want to sell it in stores.")).toBe("Packaged banana bread");
+    expect(deriveProductDescriptorFromIdea("Mya makes banana bread at home and we want to manufacture it and sell it in stores.")).toBe("Packaged banana bread");
     expect(deriveProductDescriptorFromIdea("I want to make a packaged sauce that is really spicy and sell it in grocery stores.")).toBe("Packaged sauce");
     expect(deriveProductDescriptorFromIdea("A healthier sparkling energy drink in 12 oz cans")).toBe("Healthier sparkling energy drink");
   });
@@ -99,6 +164,7 @@ describe("sourcing workspace trust rules", () => {
     const restored = undoLastAgentChange(updated, updated.lastAgentChange!.id);
     expect(restored.fields.packaging_size.value).toBeNull();
     expect(restored.fields.carbonation.value).toBeNull();
+    expect(restored.fields.product_description.value).toBe(initial.fields.product_description.value);
     expect(restored.lastAgentChange).toBeNull();
     expect(restored.activity[0].kind).toBe("agent_undone");
   });
@@ -258,6 +324,32 @@ describe("sourcing workspace trust rules", () => {
     expect(matches.flatMap((match) => match.supportedMatches).some((claim) => /includes .*banana bread/i.test(claim))).toBe(false);
   });
 
+  it("parses a saved bakery-bag summary without overstating a generic bag listing", () => {
+    let workspace = createWorkspace({ idea: "A packaged snack mix" });
+    for (const update of [
+      { key: "product_format", value: "Snack mix" },
+      { key: "packaging_format", value: "Kraft-style bakery bag · dimensions still open · clear viewing window" },
+      { key: "preferred_geography", value: "Iowa" },
+    ] as const) {
+      workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
+    }
+
+    const matches = matchManufacturers(workspace, {
+      resultLimit: 3,
+      geographyPreference: "Iowa",
+    });
+    const packagingEvidence = matches
+      .flatMap((match) => match.evidence)
+      .find((item) => item.requirementKey === "packaging_format" && item.claim.startsWith("Bag packaging is published"));
+
+    expect(matches.length).toBeGreaterThan(0);
+    expect(packagingEvidence).toMatchObject({
+      status: "not_publicly_listed",
+      claim: "Bag packaging is published, but the exact windowed bakery-bag construction is not publicly established.",
+      notes: expect.stringContaining("Confirm the window material"),
+    });
+  });
+
   it("treats absent or unevaluable hard requirements as gaps", () => {
     const workspace = applyFounderFieldUpdate(createWorkspace({ demo: true }), {
       key: "carbonation",
@@ -333,6 +425,28 @@ describe("sourcing workspace trust rules", () => {
     expect(design.artworkId).toBeNull();
     expect(design.previewAssetId).toBeNull();
     expect(design.logoAspect).toBeCloseTo(1345 / 662);
+  });
+
+  it("rejects bakery-bag values that the visible workbench cannot render faithfully", () => {
+    const bakeryBag = {
+      packagingType: "bakery-bag" as const,
+      finish: "colored" as const,
+      baseColor: "#b98a5f",
+      labelColor: "#f2e8d5",
+      frontText: { brand: "Mya's", product: "Banana Bread" },
+      windowScale: 0.5,
+      logoScale: 1,
+      logoPosition: { x: 0.2, y: 0.2 },
+      dimensions: { width: null, height: null, depth: null },
+      summary: "Kraft-style bakery bag · dimensions still open · clear viewing window",
+    };
+
+    expect(PackageDesignSchema.safeParse(bakeryBag).success).toBe(true);
+    expect(PackageDesignSchema.safeParse({ ...bakeryBag, finish: "clear" }).success).toBe(false);
+    expect(PackageDesignSchema.safeParse({ ...bakeryBag, windowScale: 0 }).success).toBe(false);
+    expect(PackageDesignSchema.safeParse({ ...bakeryBag, logoScale: 2 }).success).toBe(false);
+    expect(PackageDesignSchema.safeParse({ ...bakeryBag, logoPosition: { x: 0.5, y: 0.2 } }).success).toBe(false);
+    expect(PackageDesignSchema.safeParse({ ...bakeryBag, logoPosition: { x: 0.2, y: -0.5 } }).success).toBe(false);
   });
 
   it("presents canonical package state without exposing hex values or artwork filenames", () => {

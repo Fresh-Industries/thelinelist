@@ -106,12 +106,17 @@ const inquirySchema = z.object({
 });
 
 export const PackageDesignSchema = z.object({
-  packagingType: z.enum(["slim-can", "bottle", "jar", "stand-up-pouch"]),
+  packagingType: z.enum(["slim-can", "bottle", "jar", "stand-up-pouch", "bakery-bag"]),
   finish: z.enum(["colored", "clear"]),
   baseColor: z.string().regex(/^#[0-9a-f]{6}$/i),
   labelColor: z.string().regex(/^#[0-9a-f]{6}$/i),
   artworkId: z.string().min(1).max(500).nullable().default(null),
   previewAssetId: z.string().min(1).max(500).nullable().default(null),
+  frontText: z.object({
+    brand: z.string().trim().max(120),
+    product: z.string().trim().max(160),
+  }).nullable().default(null),
+  windowScale: z.number().min(0).max(1).default(0),
   logoAspect: z.number().min(0.25).max(4).default(1345 / 662),
   logoScale: z.number().min(0.05).max(3),
   logoPosition: z.object({ x: z.number().min(-2).max(2), y: z.number().min(-2).max(2) }),
@@ -121,6 +126,18 @@ export const PackageDesignSchema = z.object({
     depth: z.number().positive().max(10_000).nullable(),
   }),
   summary: z.string().max(1_000),
+}).superRefine((design, context) => {
+  if (design.packagingType !== "bakery-bag") return;
+  const checks = [
+    { valid: design.finish === "colored", path: ["finish"], message: "The bakery-bag mockup supports only its opaque colored finish." },
+    { valid: design.windowScale >= 0.35, path: ["windowScale"], message: "A bakery-bag viewing window must be between 0.35 and 1." },
+    { valid: design.logoScale >= 0.48 && design.logoScale <= 1.2, path: ["logoScale"], message: "Bakery-bag front copy size must be between 0.48 and 1.2." },
+    { valid: design.logoPosition.x >= -0.34 && design.logoPosition.x <= 0.34, path: ["logoPosition", "x"], message: "Bakery-bag front copy x position must be between -0.34 and 0.34." },
+    { valid: design.logoPosition.y >= -0.18 && design.logoPosition.y <= 0.21, path: ["logoPosition", "y"], message: "Bakery-bag front copy y position must be between -0.18 and 0.21." },
+  ];
+  for (const check of checks) {
+    if (!check.valid) context.addIssue({ code: "custom", path: check.path, message: check.message });
+  }
 });
 
 const productPlanV2Schema = z.object({

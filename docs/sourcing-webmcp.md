@@ -6,9 +6,11 @@ This document describes the production Product Workspace integration. Product an
 
 `/sourcing` has one canonical entry path. With WebMCP, the founder describes the product conversationally and `create_sourcing_workspace` creates the private guest workspace before navigating to `/sourcing/[workspaceId]`. A progressively disclosed manual form creates the same workspace when an agent is unavailable or the founder prefers typing on the page.
 
-The workspace is one living product brief. Its canonical ProductPlan keeps the founder's raw `originalIdea`, optional `brand_name`, and concise `product_type` descriptor separate. The product collaborator asks about an existing brand early without making it a readiness requirement. Direct founder corrections edit that same document inline. Packaging opens as a focused 3D workbench using the production jar, bottle, slim-can, and stand-up-pouch models. When the founder saves a direction, the browser captures that exact WebGL view as a private package-preview asset; the same ProductPlan references it for a restrained brief preview and the exported PDF. Manufacturer matching and introduction preparation continue below the document when ready.
+The workspace has two focused, URL-addressable views over one canonical ProductPlan. `/sourcing/[workspaceId]` owns the living Product brief, package direction, and current decision. `/sourcing/[workspaceId]/manufacturers` owns evidence-backed possibilities, the founder shortlist, comparison, and introduction review. The shared workspace header uses normal links with `aria-current="page"`; browser Back, Forward, reload, and direct child-route entry therefore preserve a predictable navigation model without copying product state.
 
-The page does not open an external AI website or present a manual prompt handoff. WebMCP is exposed to the Codex app through the model-context API; the normal HTML workspace remains fully usable when that API is unavailable. Agent-authored changes are attributed, highlighted as the latest change, and stored with a one-step undo snapshot.
+The canonical ProductPlan keeps the founder's raw `originalIdea`, optional `brand_name`, and concise `product_type` descriptor separate. Creation captures explicit facts immediately and may add reversible, visibly attributed proposals; for the broad banana-bread example it starts with a usable brief while keeping format, storage, and first-run volume open. Material product decisions come before an optional brand question, and the agent asks one simple material question at a time, persists the answer, and rereads the workspace before continuing. Direct founder corrections edit that same document inline. Packaging opens as a focused 3D workbench from either workspace view using jar, bottle, slim-can, stand-up-pouch, and procedural windowed bakery-bag models. The bakery bag supports exact front copy, copy placement, and an adjustable real window with a visible loaf behind it. When the founder saves a direction, the browser captures that exact WebGL view as a private package-preview asset; the same ProductPlan references it for a restrained brief preview and the exported PDF.
+
+Neither view opens an external AI website or presents a manual prompt handoff. WebMCP is exposed to the Codex app through the model-context API; both normal HTML views remain fully usable when that API is unavailable. Agent-authored changes are attributed, highlighted as the latest change, and stored with a one-step undo snapshot.
 
 ## Canonical state and persistence
 
@@ -41,21 +43,22 @@ Workspace IDs are identifiers, not authorization credentials. Client-provided us
 
 One tool registers on `/sourcing`:
 
-1. `create_sourcing_workspace` — creates the canonical workspace from the founder's idea and navigates into it. It does not match, select, draft, or contact manufacturers.
+1. `create_sourcing_workspace` — creates the canonical workspace from the founder's idea, optionally accepts the agent's explicitly classified first-pass updates, and navigates into it. It returns the same compact action state used inside the workspace. It does not match, select, draft, or contact manufacturers.
 
-Eleven tools register only on an authorized workspace page:
+Twelve tools register in the shared authorized workspace layout and remain available across both child routes:
 
-1. `get_sourcing_workspace` — reads a compact canonical plan snapshot, readiness, product journey, package direction, match summaries, and outreach status without duplicating the full workspace into multiple response keys.
+1. `get_sourcing_workspace` — reads a compact action state grouped as confirmed, proposed, needs-validation, open, founder decisions, package direction, creative next question, evidence-backed candidates, and outreach gates. It omits the full field map, undo snapshots, duplicate route payloads, and internal readiness percentages.
 2. `update_sourcing_workspace` — applies explicit founder statements as confirmed and keeps inference/research as proposed or needs-decision. It uses the current server revision.
-3. `get_package_design` — reads the saved package direction and valid options.
-4. `preview_package_design` — opens a partial agent-staged direction in the 3D workbench without committing it or changing matching.
-5. `stage_package_artwork` — uploads generated PNG, JPEG, or WebP artwork and stages it in the visible workbench; the founder still commits the direction.
-6. `refine_package_design_in_3d` — opens a complete, explicit founder packaging direction as a staged live refinement; it never commits invisibly, and the founder uses the visible workbench action to save it.
-7. `undo_last_agent_change` — reverses the current visible agent update after the founder asks.
-8. `export_product_packet` — returns an authenticated private PDF download URL containing the saved 3D package render and never shares the file externally.
-9. `match_manufacturers` — runs once the brief is ready to research and returns supported facts, conflicts, unknowns, URLs, and review dates. It clears selection and never creates a draft. Unknown never means match.
-10. `prepare_manufacturer_outreach` — prepares drafts only for the exact manufacturers already selected by the founder in the visible workspace. Private `founderInstructions` guide review but are never copied verbatim into the recipient message.
-11. `open_manufacturer_introduction_review` — opens the human review surface and never sends.
+3. `get_package_design` — reads the saved package direction and category-relevant options.
+4. `preview_package_design` — opens a partial agent-staged direction in the shared 3D workbench without committing it, changing matching, or changing the current workspace route. Bread can use the windowed `bakery-bag` with exact `frontText`, adjustable `windowScale`, and copy placement.
+5. `generate_package_artwork` — creates a founder-requested raster label from an explicit brand and approved art direction entirely through WebMCP, uploads it, and stages it on the visible 3D package. It never commits the package direction.
+6. `stage_package_artwork` — uploads supplied PNG, JPEG, or WebP bytes and stages them in the visible workbench; the founder still commits the direction.
+7. `refine_package_design_in_3d` — opens a complete, explicit founder packaging direction as a staged live refinement; it never commits invisibly, and the founder uses the visible workbench action to save it.
+8. `undo_last_agent_change` — reverses the current visible agent update after the founder asks.
+9. `export_product_packet` — returns an authenticated private PDF download URL containing the saved 3D package render and never shares the file externally.
+10. `match_manufacturers` — runs once the brief is ready to research, navigates to `/sourcing/[workspaceId]/manufacturers` when needed, and focuses the simple results heading rather than a large bordered layout region. It returns supported facts, conflicts, unknowns, URLs, and review dates. A pending founder shortlist survives fit-changing edits only until the next research run, which retains the intersection of still-current candidates. It never creates a draft. Unknown never means match.
+11. `prepare_manufacturer_outreach` — the final agent-owned step. It prepares current recipient-specific drafts only for the exact manufacturers selected by the founder, immediately opens the exact-message review, and cannot approve or send. Private `founderInstructions` guide review but are never copied verbatim into the recipient message.
+12. `open_manufacturer_introduction_review` — navigates to the manufacturer view's `#manufacturer-introductions` review surface when needed, focuses its heading, and never sends.
 
 Readiness is deliberately staged: `searchReady` allows sourced discovery with visible unknowns; `manufacturerReady` means the core fit-conversation inputs are confirmed and a supported 3D package direction has been visibly reviewed and saved; `launchReady` means the planning brief's commercial fields are filled. The saved 3D direction is a communication mockup, not a dieline or package validation. None of these stages is a safety, regulatory, shelf-life, or production approval.
 There is no agent-callable send tool. Draft approval and delivery are separate founder actions: the founder approves the exact version, opens the visible final confirmation, and clicks `Send now`. The server then uses the existing email provider to send from The Line List to the manufacturer’s current sourced public email, copies the founder, and routes replies to the founder. Resend idempotency protects the same draft version from double-click delivery.
@@ -63,17 +66,18 @@ There is no agent-callable send tool. Draft approval and delivery are separate f
 Tool guidance tells the agent to:
 
 - read before writing;
-- drive one unresolved decision at a time;
+- ask one simple material founder decision at a time, persist it, and reread before asking the next;
 - use category-aware wording and ordering; beverage projects cover retail format, formula readiness, carbonation, storage/process goal, package and size, and first-run range without leaking examples from another category;
 - preserve confirmed founder decisions;
 - keep “I’m not sure” explicit;
+- surface the optional creative step instead of waiting for the founder to discover it: ask one simple question at a time (brand name first, then art direction), then use `generate_package_artwork` so creation, upload, and visible 3D staging stay inside WebMCP;
 - keep healthy, clean-energy, hydration, organic, and shelf-stable language visibly unvalidated until the relevant qualified review or certification occurs;
 - stage every agent-authored visual package choice and generated artwork in the real workbench, while leaving canonical commit to the founder;
 - match only from supported evidence;
 - prepare up to three recipient-specific drafts;
-- open founder review and stop; only the founder can approve and invoke the visible send confirmation.
+- end with one explicit sequence: the agent prepares the drafts and opens review; the founder reviews and approves each exact version; the founder separately invokes and confirms `Send now`. No WebMCP tool can approve or send.
 
-Workspace-page tools register once per workspace rather than on every React state change. Callback refs keep the visible UI current without invalidating tool handles during the conversation.
+Workspace tools register once per workspace rather than on every React state or child-route change. The authorized dynamic layout owns one client provider, one WebMCP registration, canonical workspace state, and the staged package workbench. Callback refs keep the visible UI current without invalidating tool handles during the conversation.
 
 ## Security and operational limits
 
@@ -104,14 +108,14 @@ NOTIFY_FROM_EMAIL="The Line List <notifications@mail.thelinelist.com>"
 ## Acceptance flow
 
 1. Open `/sourcing`, optionally seed the same idea field with a broad prompt starter, and enter a product idea.
-2. Confirm the resulting page has one living brief and the agent asks one next question.
+2. Confirm the resulting page has one living brief, already separates confirmed facts, proposals, validation needs, and open decisions, and does not ask for an optional brand first.
 3. Answer naturally and confirm the same document updates without navigation.
 4. Say “I’m not sure” and confirm the field remains open rather than becoming a match requirement.
-5. Have the agent stage a partial package direction and generated artwork, confirm the 3D workbench opens without changing matching, then use the direction and confirm the brief reflects the same type, color, finish, artwork placement, and dimension state.
-6. Complete required decisions, find matches, and verify supported/unknown evidence boundaries.
-7. Select two or three manufacturers and prepare separate drafts.
-8. Review and approve each exact draft; verify approval alone sends nothing.
-9. With email delivery mocked or a controlled test recipient, click `Send introduction`, review the final delivery statement, click `Send now`, and confirm recipient, founder copy, reply-to, sent state, and contact history. Never use a live manufacturer for acceptance testing.
+5. Have the agent stage a windowed bakery bag with exact front copy, resize the window, move the copy, and confirm the visible 3D workbench changes without changing canonical state. Then use the direction and confirm the brief reflects the committed type, copy, window, color, placement, and dimension metadata.
+6. Complete required decisions, find matches, and confirm navigation to `/sourcing/[workspaceId]/manufacturers`. Verify the focused results heading has no layout-sized browser outline and supported facts, conflicts, and not-publicly-confirmed details remain visibly separate.
+7. Select two or three manufacturers, move between Product brief and Manufacturers with browser Back and Forward, and confirm the same canonical shortlist remains selected before preparing separate drafts.
+8. Have WebMCP prepare current recipient-specific introductions and confirm it automatically opens the exact draft review. Review and approve each exact draft; verify approval alone sends nothing.
+9. With email delivery mocked or a controlled test recipient, click `Send introduction`, review the final delivery statement, click `Send now`, and confirm recipient, founder copy, reply-to, sent state, and contact history. Never use a live manufacturer for acceptance testing, and never expose a WebMCP send tool.
 10. Choose Save, create or sign into an account, and confirm the same workspace ID remains.
 11. Open `/products` and return to the saved product.
 
