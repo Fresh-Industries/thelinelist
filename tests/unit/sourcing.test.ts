@@ -9,6 +9,7 @@ import { getCategoryDecisionGuardrails, getSourcingCategory, getSourcingQuestion
 import { PackageDesignSchema, ProductPlanSchema, productPlanFromWorkspace } from "@/lib/sourcing/product-plan";
 import { getPackageColorName, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT } from "@/lib/sourcing/package-artwork";
+import { getRecommendedWorkbenchPackageTypes } from "@/lib/sourcing/package-recommendations";
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, editDraftSchema, founderUpdateSchema, matchRequestSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
@@ -293,6 +294,82 @@ describe("sourcing workspace trust rules", () => {
       .filter((item) => item.requirementKey === "preferred_geography");
     expect(evidence.length).toBeGreaterThan(0);
     expect(evidence.every((item) => !item.claim.includes("MY") && !item.claim.includes("IM"))).toBe(true);
+  });
+
+  it("evaluates Midwest as a real set of states and ranks an in-region facility first", () => {
+    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack" });
+    for (const update of [
+      { key: "product_category", value: "Snack" },
+      { key: "product_type", value: "High-protein crunchy chickpea snack" },
+      { key: "storage_distribution", value: "Shelf-stable at room temperature" },
+      { key: "preferred_geography", value: "Midwest preferred" },
+    ] as const) {
+      workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
+    }
+
+    const matches = matchManufacturers(workspace, {
+      geographyPreference: "Midwest preferred",
+      preferredRequirements: ["preferred_geography"],
+    });
+    const assemblers = matches.find((match) => match.manufacturerSlug === "assemblers-inc");
+
+    expect(matches[0]?.manufacturerSlug).toBe("assemblers-inc");
+    expect(assemblers?.evidence.find((item) => item.requirementKey === "preferred_geography")).toMatchObject({
+      status: expect.stringMatching(/publicly_listed|verified/),
+      claim: expect.stringContaining("Midwest"),
+    });
+    expect(matches.every((match) => match.evidence.some((item) =>
+      item.requirementKey === "preferred_geography" && item.claim.includes("within the Midwest preference"),
+    ))).toBe(true);
+  });
+
+  it("keeps unsupported geography visible instead of silently dropping it", () => {
+    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack" });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "High-protein crunchy chickpea snack", status: "confirmed", shareWithManufacturer: true });
+    workspace = applyFounderFieldUpdate(workspace, { key: "preferred_geography", value: "Within a two-hour drive", status: "confirmed", shareWithManufacturer: true });
+
+    const matches = matchManufacturers(workspace, { geographyPreference: "Within a two-hour drive" });
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.every((match) => match.requirementsUsed.includes("preferred_geography"))).toBe(true);
+    expect(matches.flatMap((match) => match.unknowns)).toEqual(expect.arrayContaining([
+      expect.stringContaining("could not be interpreted as a state or supported region"),
+    ]));
+  });
+
+  it("uses reviewed capability pages instead of homepages for judge-path evidence", () => {
+    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack" });
+    for (const update of [
+      { key: "product_type", value: "High-protein crunchy chickpea snack" },
+      { key: "storage_distribution", value: "Shelf-stable at room temperature" },
+    ] as const) {
+      workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
+    }
+
+    const matches = matchManufacturers(workspace);
+    const assemblersProductEvidence = matches
+      .find((match) => match.manufacturerSlug === "assemblers-inc")
+      ?.evidence.find((item) => item.requirementKey === "product_type");
+    const abcoProductEvidence = matches
+      .find((match) => match.manufacturerSlug === "abco-laboratories-inc")
+      ?.evidence.find((item) => item.requirementKey === "product_type");
+
+    expect(assemblersProductEvidence).toMatchObject({
+      sourceUrl: "https://www.assemblers.com/facility",
+      sourceLabel: "Products and facilities",
+      notes: null,
+    });
+    expect(abcoProductEvidence).toMatchObject({
+      sourceUrl: "https://www.abcolabs.com/food-products/",
+      sourceLabel: "Food products and packaging",
+      notes: null,
+    });
+  });
+
+  it("recommends only category-relevant 3D package families before progressive disclosure", () => {
+    expect(getRecommendedWorkbenchPackageTypes("snack")).toEqual(["stand-up-pouch"]);
+    expect(getRecommendedWorkbenchPackageTypes("beverage")).toEqual(["slim-can", "bottle"]);
+    expect(getRecommendedWorkbenchPackageTypes("sauce")).toEqual(["bottle", "jar"]);
+    expect(getRecommendedWorkbenchPackageTypes("bakery")).toEqual(["bakery-bag"]);
   });
 
   it("does not match an empty plan and allows sourced research with visible unknowns", () => {

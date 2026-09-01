@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
 import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
+import { getPackagingOptions } from "@/lib/sourcing/product-catalog";
 import { getProductIdentity, isOpenBrandAnswer } from "@/lib/sourcing/product-identity";
 import { getSourcingQuestion } from "@/lib/sourcing/questions";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
@@ -30,6 +31,7 @@ export function SourcingWorkspace() {
   const [answer, setAnswer] = useState("");
   const [editingKey, setEditingKey] = useState<SourcingFieldKey | null>(null);
   const readiness = useMemo(() => getSourcingReadiness(workspace), [workspace]);
+  const relevantPackageLabels = useMemo(() => getPackagingOptions(workspace).slice(0, 3).map((option) => option.label), [workspace]);
   const agentChangedKeys = useMemo(() => new Set(workspace.lastAgentChange?.changedKeys ?? []), [workspace.lastAgentChange]);
   const nextKey = readiness.nextQuestionKey;
   const packageDesignPending = nextKey === "packaging_format"
@@ -153,7 +155,7 @@ export function SourcingWorkspace() {
 
         <section className={`brief-section packaging-section${agentChangedKeys.has("packaging_format") ? " agent-authored-section" : ""}`}>
           <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => openPackageWorkbench()}><Cube aria-hidden="true" /> {workspace.packageDesign || workspace.fields.packaging_format.status === "confirmed" ? "Refine in 3D" : "Open 3D workbench"}</button></div>
-          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => openPackageWorkbench()} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "proposed" ? "Agent proposal · needs your review" : workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>{workspace.fields.packaging_format.reason || (workspace.fields.packaging_format.status === "confirmed" ? "3D refinement is still needed for the manufacturer-ready brief." : "Open the workbench when a visual comparison would help.")}</small></div></div> : <p className="open-value">No package direction is locked yet. The collaborator can help narrow it, or you can compare the jar, bottle, can, pouch, and windowed bakery-bag models now.</p>}
+          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => openPackageWorkbench()} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "proposed" ? "Agent proposal · needs your review" : workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>{workspace.fields.packaging_format.reason || (workspace.fields.packaging_format.status === "confirmed" ? "3D refinement is still needed for the manufacturer-ready brief." : "Open the workbench when a visual comparison would help.")}</small></div></div> : <p className="open-value">No package direction is locked yet. Start with {formatChoiceList(relevantPackageLabels)}, or open the other supported 3D models when you need them.</p>}
         </section>
 
         <aside className="agent-exchange" aria-live="polite"><Sparkle aria-hidden="true" weight="fill" /><div><span>Product collaborator</span><p>{agentNote}</p></div></aside>
@@ -170,6 +172,11 @@ export function SourcingWorkspace() {
       </article>
     </div>
   );
+}
+
+function formatChoiceList(labels: string[]): string {
+  if (labels.length < 2) return labels[0]?.toLowerCase() ?? "a relevant package";
+  return `${labels.slice(0, -1).map((label) => label.toLowerCase()).join(", ")} or ${labels.at(-1)?.toLowerCase()}`;
 }
 
 function EditableField({ fieldKey, workspace, agentChanged, editing, onEdit, onCancel, onSave }: {

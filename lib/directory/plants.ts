@@ -1,6 +1,7 @@
 import type { Plant } from "./types";
 import { LAST_VERIFIED } from "./types";
 import { IMPORTED_PLANTS } from "./imported-plants.generated";
+import { applyReviewedFieldSources } from "./reviewed-field-sources";
 
 /**
  * Plant-site-verified directory.
@@ -1444,4 +1445,4 @@ const CURATED_PLANTS: Plant[] = [
   },
 ];
 
-export const DIRECTORY_PLANTS: Plant[] = [...CURATED_PLANTS, ...IMPORTED_PLANTS];
+export const DIRECTORY_PLANTS: Plant[] = [...CURATED_PLANTS, ...IMPORTED_PLANTS].map(applyReviewedFieldSources);

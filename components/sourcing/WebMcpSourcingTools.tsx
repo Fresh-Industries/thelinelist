@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
+import { interpretGeographyPreference } from "@/lib/sourcing/geography";
 import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements";
 import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
 import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
@@ -335,10 +336,19 @@ export function WebMcpSourcingTools({
           const requiredRequirements = Array.isArray(args.requiredRequirements)
             ? args.requiredRequirements.filter((value): value is string => typeof value === "string")
             : [];
+          const geographyPreference = typeof args.geographyPreference === "string"
+            ? interpretGeographyPreference(args.geographyPreference)
+            : null;
           const result = withGuidance(body, {
             resultsShown: true,
             resultCount,
-            matchingGuidance: resultCount === 0 && requiredRequirements.length
+            matchingGuidance: geographyPreference && !geographyPreference.understood
+              ? {
+                  strictSearchReturnedNoResults: resultCount === 0,
+                  geographyInputNeedsClarification: true,
+                  instruction: "This geography cannot be evaluated precisely yet. Ask for a state name, two-letter state code, or a supported region such as Midwest, Northeast, Southeast, Southwest, or West before treating geography as a strict requirement.",
+                }
+              : resultCount === 0 && requiredRequirements.length
               ? {
                   strictSearchReturnedNoResults: true,
                   instruction: "No candidate publicly proved every founder-required capability. Explain that result without weakening the must-haves. Ask whether the founder wants to broaden discovery by treating these fields as preferences while keeping missing proof visibly unknown.",

@@ -206,6 +206,10 @@
 .tool-controls fieldset button { min-height: 38px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; background: transparent; text-align: left; font: inherit; font-size: 11px; cursor: pointer; }
 .tool-controls fieldset button.selected { border-color: #173f35; background: #fffaf2; font-weight: 800; }
 .tool-controls fieldset svg { width: 13px; height: 13px; }
+.package-choice-context { margin: -2px 0 7px; color: #65645e; font-size: 9px; line-height: 1.45; }
+.tool-controls fieldset button.package-more-toggle { margin-top: 5px; border-top: 1px solid #d6cec2; color: #173f35; font-size: 9px; font-weight: 800; }
+.other-package-types { display: grid; gap: 4px; margin-top: 5px; padding-top: 10px; border-top: 1px dashed #c9c1b4; }
+.other-package-types > span { padding: 0 10px 3px; color: #77736d; font-size: 8px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .color-control { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin: 12px 0; font-size: 10px; font-weight: 800; }
 .color-control input { width: 42px; height: 28px; padding: 0; border: 1px solid #8f887d; background: transparent; }
 .artwork-control { position: relative; margin: 18px 0; padding: 12px; display: flex; align-items: center; gap: 10px; border: 1px dashed #8f887d; cursor: pointer; }

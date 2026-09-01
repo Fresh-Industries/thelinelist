@@ -5,6 +5,8 @@ import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ProductMockup } from "@/components/product-visuals/ProductMockup";
 import { createDefaultLogoSettings, packageConfigs, PACKAGING_TYPES, type BottleFinish, type PackagingType } from "@/components/product-visuals/package-config";
 import { formatPackageDirection } from "@/lib/sourcing/package-presentation";
+import { getRecommendedWorkbenchPackageTypes } from "@/lib/sourcing/package-recommendations";
+import { getProductCategory } from "@/lib/sourcing/product-catalog";
 import type { PackageDesign, PackageFrontText, SourcingWorkspace } from "@/lib/sourcing/types";
 
 const DEFAULT_LABEL = "#f2e8d5";
@@ -41,9 +43,14 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   const [dimensions, setDimensions] = useState(initial?.dimensions ?? { width: null, height: null, depth: null });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [showAllPackageTypes, setShowAllPackageTypes] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const capturePreviewRef = useRef<(() => Promise<Blob | null>) | null>(null);
   const config = packageConfigs[packagingType];
+  const productCategory = getProductCategory(workspace);
+  const recommendedPackageTypes = getRecommendedWorkbenchPackageTypes(productCategory);
+  const primaryPackageTypes = [...new Set([...recommendedPackageTypes, packagingType])];
+  const otherPackageTypes = PACKAGING_TYPES.filter((type) => !primaryPackageTypes.includes(type));
   const logo = logoSettings[packagingType];
   const windowScale = windowSettings[packagingType];
   const summary = useMemo(
@@ -148,7 +155,13 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
         <header className="workbench-heading"><div><p>{initialPreview ? "Agent-staged 3D refinement" : "Packaging workbench"}</p><h1 id="package-workbench-heading">{initialPreview ? "Review what your agent changed." : "Make the package direction tangible."}</h1></div><button type="button" onClick={onClose} aria-label="Close packaging workbench"><X aria-hidden="true" /></button></header>
         <div className="packaging-layout">
           <aside className="tool-controls">
-            <fieldset><legend>Package</legend>{PACKAGING_TYPES.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => setPackagingType(type)}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}</fieldset>
+            <fieldset className="package-type-choices">
+              <legend>Package</legend>
+              <p className="package-choice-context">Recommended 3D models for this {productCategory === "food" ? "product" : productCategory}.</p>
+              {primaryPackageTypes.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => setPackagingType(type)}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}
+              {otherPackageTypes.length ? <button type="button" className="package-more-toggle" aria-expanded={showAllPackageTypes} onClick={() => setShowAllPackageTypes((current) => !current)}>{showAllPackageTypes ? "Hide other package types" : `More package types (${otherPackageTypes.length})`}</button> : null}
+              {showAllPackageTypes ? <div className="other-package-types"><span>Other supported models</span>{otherPackageTypes.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => setPackagingType(type)}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}</div> : null}
+            </fieldset>
             {config.appearance.supportsClearFinish ? <fieldset><legend>Finish</legend>{(["colored", "clear"] as const).map((value) => <button key={value} type="button" className={finish === value ? "selected" : ""} onClick={() => setFinish(value)}>{value === "colored" ? "Colored" : "Clear"}</button>)}</fieldset> : null}
             <label className="color-control">Package color <input type="color" value={baseColor} onChange={(event) => setBaseColor(event.target.value)} disabled={finish === "clear" && config.appearance.supportsClearFinish} /></label>
             {config.appearance.supportsLabelColor ? <label className="color-control">Label color <input type="color" value={labelColor} onChange={(event) => setLabelColor(event.target.value)} /></label> : null}

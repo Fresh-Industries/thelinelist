@@ -1,5 +1,6 @@
 import { getDirectoryPlants, type Plant } from "@/lib/directory";
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
+import { interpretGeographyPreference } from "./geography";
 import { MATCHABLE_REQUIREMENT_KEYS, type MatchableRequirementKey } from "./matching-requirements";
 import { hasMinimumMatchingInfo } from "./readiness";
 import type { ManufacturerMatch, MatchEvidence, SourcingFieldKey, SourcingWorkspace } from "./types";
@@ -9,17 +10,9 @@ interface RequirementResult {
   label: string;
   outcome: "supported" | "mismatch" | "conflicting" | "unknown";
   claim: string;
-  sourceField: "products" | "processes" | "packaging" | "minimums" | "certifications";
+  sourceField: "products" | "processes" | "packaging" | "minimums" | "certifications" | "location" | null;
   notes?: string;
 }
-
-const STATE_ALIASES: Record<string, string> = {
-  texas: "TX", california: "CA", colorado: "CO", arizona: "AZ", florida: "FL", georgia: "GA",
-  illinois: "IL", michigan: "MI", minnesota: "MN", missouri: "MO", "new jersey": "NJ",
-  "new york": "NY", ohio: "OH", oregon: "OR", pennsylvania: "PA", tennessee: "TN", washington: "WA",
-  wisconsin: "WI",
-};
-const STATE_CODES = new Set(Object.values(STATE_ALIASES));
 
 function searchablePlantText(plant: Plant): string {
   return [
@@ -46,13 +39,6 @@ function hasPublishedManufacturingCapability(plant: Plant): boolean {
 function fieldValue(workspace: SourcingWorkspace, key: SourcingFieldKey): string | null {
   const field = workspace.fields[key];
   return field.status === "confirmed" ? field.value : null;
-}
-
-function inferPreferredState(value: string): string | null {
-  const normalized = value.toLowerCase().replace(/\b(?:near|around|in|close to|within)\b/g, " ").trim();
-  const abbreviation = normalized.match(/\b[a-z]{2}\b/gi)?.map((token) => token.toUpperCase()).find((token) => STATE_CODES.has(token));
-  if (abbreviation) return abbreviation;
-  return Object.entries(STATE_ALIASES).find(([name]) => normalized.includes(name))?.[1] ?? null;
 }
 
 function productRequirement(plant: Plant, value: string): RequirementResult {
@@ -207,14 +193,26 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       return { key, label, outcome: supported ? "supported" : "unknown", claim: supported ? `${mapping[2]} is publicly listed.` : `${mapping[2]} is not publicly listed.`, sourceField: "processes" };
     }
     case "preferred_geography": {
-      const state = inferPreferredState(value);
-      if (!state) return null;
-      const supported = plant.sites.some((site) => site.state === state);
+      const preference = interpretGeographyPreference(value);
+      if (!preference.understood) {
+        return {
+          key,
+          label,
+          outcome: "unknown",
+          claim: `The geography preference “${value}” could not be interpreted as a state or supported region.`,
+          sourceField: null,
+          notes: "Use a state name, two-letter state code, or a supported region such as Midwest, Northeast, Southeast, Southwest, or West.",
+        };
+      }
+      const matchingSite = plant.sites.find((site) => preference.stateCodes.includes(site.state));
+      const supported = Boolean(matchingSite);
       return {
         key, label,
         outcome: supported ? "supported" : "mismatch",
-        claim: supported ? `A listed facility is in ${state}.` : `Listed facilities are outside the ${state} preference.`,
-        sourceField: "products",
+        claim: matchingSite
+          ? `The listed ${matchingSite.city ? `${matchingSite.city}, ` : ""}${matchingSite.state} facility is within the ${preference.label} preference.`
+          : `Listed facilities are outside the ${preference.label} preference.`,
+        sourceField: "location",
         notes: supported ? undefined : "Geography is a preference, not a statement about manufacturing capability.",
       };
     }
@@ -270,12 +268,13 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
 }
 
 function evidenceFor(plant: Plant, result: RequirementResult): MatchEvidence {
-  const sourceUrls = plant.fieldSourceUrls?.[result.sourceField];
-  const sourceUrl = sourceUrls?.[0] ?? plant.website.href ?? null;
-  const sourceLabel = sourceUrl === plant.website.href ? plant.website.label : sourceUrl ? "Field source" : null;
+  const sourceUrls = result.sourceField && result.sourceField !== "location" ? plant.fieldSourceUrls?.[result.sourceField] : undefined;
+  const sourceUrl = result.sourceField === null ? null : sourceUrls?.[0] ?? plant.website.href ?? null;
+  const matchingLink = sourceUrl ? plant.extraLinks?.find((link) => link.href === sourceUrl) : undefined;
+  const sourceLabel = sourceUrl === plant.website.href ? plant.website.label : matchingLink?.label ?? (sourceUrl ? "Capability source" : null);
   const sourceType = plant.claimSource === "directory-reported" ? "directory_reported"
     : plant.claimSource === "company-published" ? "company_published" : "mixed_public_sources";
-  const hasFieldSpecificSource = Boolean(sourceUrls?.length);
+  const hasFieldSpecificSource = result.sourceField === "location" || Boolean(sourceUrls?.length);
   const knownStatus = plant.listingStatus === "LISTABLE" || (plant.listingStatus === "VERIFIED" && !hasFieldSpecificSource)
     ? "publicly_listed"
     : "verified";
