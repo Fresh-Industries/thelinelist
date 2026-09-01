@@ -2,7 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
+import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements";
+import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
 import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
+import { packageConfigs, type PackagingType } from "@/components/product-visuals/package-config";
 
 interface ToolResponse { workspace?: SourcingWorkspace; error?: string; [key: string]: unknown }
 
@@ -40,6 +43,7 @@ export function WebMcpSourcingTools({
     if (!modelContext) return;
     const controller = new AbortController();
     const fieldKeys = [...SOURCING_FIELD_KEYS];
+    const matchableRequirementKeys = [...MATCHABLE_REQUIREMENT_KEYS];
     const withGuidance = (body: ToolResponse, metadata: Record<string, unknown> = {}) => {
       if (body.workspace) callbacksRef.current.onWorkspaceChanged(body.workspace);
       if (!body.workspace) return body.error ? { error: body.error, ...metadata } : metadata;
@@ -224,7 +228,13 @@ export function WebMcpSourcingTools({
           const response = await fetch(`/api/sourcing/${workspaceId}/artwork`, { method: "POST", body: form, cache: "no-store" });
           const body = await response.json().catch(() => ({})) as ToolResponse & { artworkUrl?: string };
           if (!response.ok || !body.workspace?.artwork) throw new Error(body.error || `Artwork creation failed (${response.status}).`);
-          const preview = callbacksRef.current.onPreviewPackageDesign({ artworkId: body.workspace.artwork.id, logoAspect: artwork.aspect, logoScale: 0.82 }, body.workspace);
+          const packagingType = inferArtworkPackagingType(current.workspace);
+          const logoConfig = packageConfigs[packagingType].logo;
+          const preview = callbacksRef.current.onPreviewPackageDesign({
+            artworkId: body.workspace.artwork.id,
+            logoAspect: artwork.aspect,
+            logoScale: Math.min(logoConfig.defaultScale * 1.2, logoConfig.scale.max),
+          }, body.workspace);
           return withGuidance(body, {
             artworkUrl: body.artworkUrl,
             artDirection: args.artDirection,
@@ -311,9 +321,9 @@ export function WebMcpSourcingTools({
           type: "object",
           properties: {
             geographyPreference: { type: "string" },
-            resultLimit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
-            requiredRequirements: { type: "array", items: { type: "string", enum: fieldKeys }, maxItems: 15 },
-            preferredRequirements: { type: "array", items: { type: "string", enum: fieldKeys }, maxItems: 15 },
+            resultLimit: { type: "integer", minimum: 1, maximum: 3, default: 3 },
+            requiredRequirements: { type: "array", items: { type: "string", enum: matchableRequirementKeys }, maxItems: matchableRequirementKeys.length },
+            preferredRequirements: { type: "array", items: { type: "string", enum: matchableRequirementKeys }, maxItems: matchableRequirementKeys.length },
           },
           additionalProperties: false,
         },
@@ -418,8 +428,6 @@ function decodeBase64Artwork(value: string): Uint8Array {
   return bytes;
 }
 
-type PackageArtworkStyle = "warm-handmade" | "modern-premium" | "playful-retail";
-
 async function renderPackageArtwork({
   brand,
   product,
@@ -433,8 +441,8 @@ async function renderPackageArtwork({
   style: PackageArtworkStyle;
   accentColor?: string;
 }): Promise<{ blob: Blob; aspect: number }> {
-  const width = 1400;
-  const height = 800;
+  const width = 1000;
+  const height = Math.round(width / PACKAGE_ARTWORK_ASPECT);
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -446,6 +454,7 @@ async function renderPackageArtwork({
     "playful-retail": { paper: "#fff2dc", ink: "#123f3a", accent: "#e65d3f", quiet: "#86c7b8" },
   };
   const palette = { ...palettes[style], ...(accentColor ? { accent: accentColor } : {}) };
+  const concept = getPackageArtworkConcept({ product, artDirection, style });
   const directionSeed = [...artDirection].reduce((total, character) => total + character.charCodeAt(0), 0);
   context.clearRect(0, 0, width, height);
   roundedRect(context, 28, 28, width - 56, height - 56, 42);
@@ -462,23 +471,34 @@ async function renderPackageArtwork({
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillStyle = palette.accent;
-  context.font = "700 28px Arial, sans-serif";
-  context.fillText(style === "modern-premium" ? "SMALL BATCH BAKERY" : "BAKED FOR THE GOOD STUFF", width / 2, 150);
+  context.font = "700 26px Arial, sans-serif";
+  context.fillText(concept.kicker, width / 2, 145);
   context.fillStyle = palette.ink;
-  fitText(context, brand, width - 220, style === "playful-retail" ? 132 : 144, style === "modern-premium" ? "Georgia, serif" : "Arial, sans-serif", 800);
-  context.fillText(brand, width / 2, 330);
+  fitText(context, brand, width - 150, style === "playful-retail" ? 126 : 136, style === "modern-premium" ? "Georgia, serif" : "Arial, sans-serif", 800);
+  context.fillText(brand, width / 2, 370);
   context.fillStyle = palette.accent;
-  fitText(context, product, width - 300, 74, "Georgia, serif", 700);
-  context.fillText(product, width / 2, 465);
+  fitText(context, product, width - 190, 70, "Georgia, serif", 700);
+  context.fillText(product, width / 2, 535);
   context.fillStyle = palette.ink;
-  context.font = "600 26px Arial, sans-serif";
-  context.fillText(style === "modern-premium" ? "CRAFTED FOR RETAIL" : "SMALL BATCH • BAKED WITH CARE", width / 2, 620);
+  context.font = "600 24px Arial, sans-serif";
+  context.fillText(concept.footer, width / 2, 960);
+  drawArtworkMotifs(context, concept.motifs, width, height, palette.accent, palette.quiet);
   context.fillStyle = palette.accent;
   const motifWidth = 160 + (directionSeed % 80);
-  context.fillRect(width / 2 - motifWidth / 2, 690, motifWidth, 8);
+  context.fillRect(width / 2 - motifWidth / 2, 1060, motifWidth, 8);
 
   const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Package artwork could not be encoded.")), "image/png"));
   return { blob, aspect: width / height };
+}
+
+function inferArtworkPackagingType(workspace: SourcingWorkspace): PackagingType {
+  if (workspace.packageDesign) return workspace.packageDesign.packagingType;
+  const packaging = workspace.fields.packaging_format.value?.toLowerCase() ?? "";
+  if (/bakery.?bag|bread.?bag|windowed.?bag/.test(packaging)) return "bakery-bag";
+  if (/\bcan\b/.test(packaging)) return "slim-can";
+  if (/\bbottle\b/.test(packaging)) return "bottle";
+  if (/\bjar\b/.test(packaging)) return "jar";
+  return "stand-up-pouch";
 }
 
 function roundedRect(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
@@ -526,6 +546,91 @@ function drawRetailDots(context: CanvasRenderingContext2D, width: number, height
     context.fillStyle = index % 2 === 0 ? quiet : accent;
     context.globalAlpha = 0.24;
     context.fill();
+  }
+  context.restore();
+}
+
+function drawArtworkMotifs(
+  context: CanvasRenderingContext2D,
+  motifs: PackageArtworkMotif[],
+  width: number,
+  height: number,
+  accent: string,
+  quiet: string,
+) {
+  const positions = [
+    { x: 155, y: height * 0.63 },
+    { x: width - 155, y: height * 0.63 },
+    { x: width / 2, y: height * 0.7 },
+  ];
+  motifs.forEach((motif, index) => drawArtworkMotif(context, motif, positions[index].x, positions[index].y, accent, quiet));
+}
+
+function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtworkMotif, x: number, y: number, accent: string, quiet: string) {
+  context.save();
+  context.translate(x, y);
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.strokeStyle = accent;
+  context.fillStyle = quiet;
+  context.lineWidth = 8;
+  context.globalAlpha = 0.86;
+
+  if (motif === "chickpea" || motif === "berry" || motif === "bubbles") {
+    const radii = motif === "bubbles" ? [24, 15, 11] : [30, 24, 18];
+    [[0, 0], [45, -28], [48, 28]].forEach(([dx, dy], index) => {
+      context.beginPath();
+      context.arc(dx, dy, radii[index], 0, Math.PI * 2);
+      if (motif === "bubbles") context.stroke();
+      else context.fill();
+    });
+  } else if (motif === "honey" || motif === "drop") {
+    context.beginPath();
+    context.moveTo(0, -48);
+    context.bezierCurveTo(34, -12, 38, 16, 0, 48);
+    context.bezierCurveTo(-38, 16, -34, -12, 0, -48);
+    context.fill();
+  } else if (motif === "chili") {
+    context.beginPath();
+    context.moveTo(-52, -8);
+    context.bezierCurveTo(-14, 44, 42, 34, 58, -26);
+    context.bezierCurveTo(18, -4, -18, -30, -52, -8);
+    context.fill();
+    context.beginPath();
+    context.moveTo(52, -24);
+    context.quadraticCurveTo(60, -50, 76, -54);
+    context.stroke();
+  } else if (motif === "citrus") {
+    context.beginPath();
+    context.arc(0, 0, 47, 0, Math.PI * 2);
+    context.stroke();
+    for (let index = 0; index < 6; index += 1) {
+      const angle = (Math.PI * 2 * index) / 6;
+      context.beginPath();
+      context.moveTo(0, 0);
+      context.lineTo(Math.cos(angle) * 42, Math.sin(angle) * 42);
+      context.stroke();
+    }
+  } else if (motif === "coffee") {
+    context.beginPath();
+    context.ellipse(0, 0, 34, 49, 0.5, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = accent;
+    context.beginPath();
+    context.moveTo(-8, -39);
+    context.bezierCurveTo(14, -18, -14, 18, 8, 39);
+    context.stroke();
+  } else {
+    const isGrain = motif === "grain";
+    context.beginPath();
+    context.moveTo(0, 52);
+    context.quadraticCurveTo(isGrain ? -4 : 18, 2, 0, -52);
+    context.stroke();
+    for (let index = -2; index <= 2; index += 1) {
+      context.beginPath();
+      context.ellipse(index % 2 === 0 ? -18 : 18, index * 18, 12, 24, index % 2 === 0 ? -0.7 : 0.7, 0, Math.PI * 2);
+      context.fill();
+    }
   }
   context.restore();
 }

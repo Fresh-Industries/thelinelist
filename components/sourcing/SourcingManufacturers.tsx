@@ -51,7 +51,7 @@ export function SourcingManufacturers() {
   async function researchAgain() {
     setBusy("match");
     setError("");
-    const response = await workspaceApi(`/api/sourcing/${workspace.id}/match`, { method: "POST", body: JSON.stringify({ resultLimit: 5 }) });
+    const response = await workspaceApi(`/api/sourcing/${workspace.id}/match`, { method: "POST", body: JSON.stringify({ resultLimit: 3 }) });
     if (response.error) {
       if (response.workspace) acceptWorkspace(response.workspace);
       setError(response.error);
@@ -113,11 +113,18 @@ export function SourcingManufacturers() {
     setBusy(null);
   }
 
+  const packagingContext = packagePresentation?.direction
+    ?? (workspace.fields.packaging_format.status === "proposed" && workspace.fields.packaging_format.value
+      ? `Suggested: ${workspace.fields.packaging_format.value}`
+      : workspace.fields.packaging_format.status === "confirmed" && workspace.fields.packaging_format.value
+        ? workspace.fields.packaging_format.value
+        : "Package direction open");
+
   return (
     <div className={`manufacturer-workspace${mobileDetailOpen ? " mobile-detail-open" : ""}`}>
       <ContextBar
         product={workspace.fields.product_category.value || productDescriptor}
-        packaging={packagePresentation?.direction || workspace.fields.packaging_format.value || "Package direction open"}
+        packaging={packagingContext}
         channel={workspace.fields.retail_channel.value || "Retail channel open"}
         briefHref={`/sourcing/${workspace.id}`}
       />

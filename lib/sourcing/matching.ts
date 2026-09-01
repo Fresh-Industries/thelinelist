@@ -1,5 +1,6 @@
 import { getDirectoryPlants, type Plant } from "@/lib/directory";
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
+import { MATCHABLE_REQUIREMENT_KEYS, type MatchableRequirementKey } from "./matching-requirements";
 import { hasMinimumMatchingInfo } from "./readiness";
 import type { ManufacturerMatch, MatchEvidence, SourcingFieldKey, SourcingWorkspace } from "./types";
 
@@ -68,7 +69,19 @@ function productRequirement(plant: Plant, value: string): RequirementResult {
   } else if (includesAny(normalized, ["bread", "bakery", "cake", "cookie", "muffin"])) {
     supported = categories.has("bakery") && includesAny(text, ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"]);
   } else if (includesAny(normalized, ["protein snack", "snack", "protein bar", "granola", "cracker", "chips"])) {
-    supported = categories.has("snacks") && includesAny(text, ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
+    const broadSnackSupport = categories.has("snacks") && includesAny(text, ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
+    const exactProductSupport = broadSnackSupport && text.includes(normalized);
+    return {
+      key: "product_type",
+      label: FIELD_DEFINITION_BY_KEY.product_type.label,
+      outcome: exactProductSupport ? "supported" : "unknown",
+      claim: exactProductSupport
+        ? "Reviewed product information explicitly includes this product type."
+        : broadSnackSupport
+          ? "Reviewed information supports the broader snack category, but exact capability for this product is not publicly established."
+          : "A direct fit for this snack product is not publicly established.",
+      sourceField: "products",
+    };
   } else if (includesAny(normalized, ["drink", "beverage", "juice", "tea", "coffee"])) {
     supported = plant.finderProducts.includes("beverage");
   } else if (includesAny(normalized, ["sauce", "salsa", "condiment", "marinade"])) {
@@ -95,6 +108,10 @@ function isProductCandidate(plant: Plant, value: string): boolean {
   const result = productRequirement(plant, value);
   if (result.outcome === "supported") return true;
   const normalized = value.toLowerCase();
+  if (includesAny(normalized, ["protein snack", "snack", "protein bar", "granola", "cracker", "chips"])) {
+    return (plant.categories ?? []).includes("snacks")
+      && includesAny(searchablePlantText(plant), ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
+  }
   return normalized.includes("banana bread")
     && (plant.categories ?? []).includes("bakery")
     && includesAny(searchablePlantText(plant), ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"]);
@@ -278,22 +295,19 @@ function evidenceFor(plant: Plant, result: RequirementResult): MatchEvidence {
 
 export function matchManufacturers(
   workspace: SourcingWorkspace,
-  options: { resultLimit?: number; geographyPreference?: string; requiredRequirements?: SourcingFieldKey[]; preferredRequirements?: SourcingFieldKey[] } = {},
+  options: { resultLimit?: number; geographyPreference?: string; requiredRequirements?: MatchableRequirementKey[]; preferredRequirements?: MatchableRequirementKey[] } = {},
 ): ManufacturerMatch[] {
   if (!hasMinimumMatchingInfo(workspace)) return [];
   const confirmed = Object.values(workspace.fields).filter((field) => field.status === "confirmed" && field.value);
-  const requirementKeys = new Set<SourcingFieldKey>([
-    "product_type", "packaging_format", "packaging_size", "carbonation", "formulation_assistance",
-    "manufacturing_process", "preferred_geography", "certifications", "production_volume", "storage_distribution", "allergens",
-  ]);
+  const requirementKeys = new Set<SourcingFieldKey>(MATCHABLE_REQUIREMENT_KEYS);
   const usable = confirmed.filter((field) => requirementKeys.has(field.key) && (!options.geographyPreference || field.key !== "preferred_geography"));
   if (options.geographyPreference) {
     usable.push({ ...workspace.fields.preferred_geography, value: options.geographyPreference, status: "confirmed" });
   }
   const product = fieldValue(workspace, "product_type");
   const candidates = getDirectoryPlants().filter((plant) => product ? isProductCandidate(plant, product) : false);
-  const required = new Set(options.requiredRequirements ?? []);
-  const preferred = new Set(options.preferredRequirements ?? []);
+  const required = new Set<SourcingFieldKey>(options.requiredRequirements ?? []);
+  const preferred = new Set<SourcingFieldKey>(options.preferredRequirements ?? []);
 
   const ranked = candidates.map((plant) => {
     const results = usable.flatMap((field) => {

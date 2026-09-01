@@ -1,21 +1,27 @@
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
 
-function productText(workspace: SourcingWorkspace): string {
-  return [
-    workspace.originalIdea,
-    workspace.fields.product_name.value,
-    workspace.fields.product_category.value,
-    workspace.fields.product_format.value,
-    workspace.fields.product_type.value,
-    workspace.fields.product_description.value,
-  ].filter(Boolean).join(" ").toLowerCase();
+function classifyProductText(product: string): "beverage" | "bakery" | "food" | null {
+  if (/\b(?:bread|bakery|cake|cakes|cookie|cookies|muffin|muffins|loaf|loaves)\b/.test(product)) return "bakery";
+  if (/\b(?:drink|drinks|beverage|beverages|juice|water|seltzer|coffee|tea|energy)\b/.test(product)) return "beverage";
+  if (/\b(?:snack|snacks|chips?|crackers?|granola|bars?|sauce|salsa|condiment|meal|food)\b/.test(product)) return "food";
+  return null;
 }
 
 export function getSourcingCategory(workspace: SourcingWorkspace): "beverage" | "bakery" | "food" {
-  const product = productText(workspace);
-  if (/\b(?:bread|bakery|cake|cakes|cookie|cookies|muffin|muffins|loaf|loaves)\b/.test(product)) return "bakery";
-  if (/\b(?:drink|drinks|beverage|beverages|juice|water|seltzer|coffee|tea|energy)\b/.test(product)) return "beverage";
-  return "food";
+  const authoritativeFields = ["product_category", "product_type", "product_format"] as const;
+  for (const key of authoritativeFields) {
+    const field = workspace.fields[key];
+    if (field.status !== "confirmed" || !field.value) continue;
+    const category = classifyProductText(field.value.toLowerCase());
+    if (category) return category;
+  }
+
+  const fallback = [
+    workspace.fields.product_name.value,
+    workspace.fields.product_description.value,
+    workspace.originalIdea,
+  ].filter(Boolean).join(" ").toLowerCase();
+  return classifyProductText(fallback) ?? "food";
 }
 
 const GENERIC_QUESTIONS: Partial<Record<SourcingFieldKey, string>> = {
@@ -37,6 +43,9 @@ const GENERIC_QUESTIONS: Partial<Record<SourcingFieldKey, string>> = {
 
 export function getSourcingQuestion(workspace: SourcingWorkspace, key: SourcingFieldKey): string {
   const category = getSourcingCategory(workspace);
+  if (key === "carbonation" && category !== "beverage") {
+    return "Is carbonation relevant to this product, or should it be marked not applicable?";
+  }
   if (key === "product_format" && category === "beverage") {
     return "How should one customer buy and drink it—for example, a 12 oz slim can, another can size, or a bottle?";
   }

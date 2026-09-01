@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { NEVER_SHARE_FIELD_KEYS } from "./fields";
+import { MATCHABLE_REQUIREMENT_KEYS } from "./matching-requirements";
 import { SOURCING_FIELD_KEYS } from "./types";
 import { PackageDesignSchema } from "./product-plan";
 
 export const workspaceIdSchema = z.string().min(20).max(64).regex(/^[A-Za-z0-9_-]+$/);
 export const fieldKeySchema = z.enum(SOURCING_FIELD_KEYS);
+export const matchableRequirementKeySchema = z.enum(MATCHABLE_REQUIREMENT_KEYS);
 export const fieldStatusSchema = z.enum(["confirmed", "proposed", "unknown", "needs_decision", "rejected"]);
 export const contactEmailSchema = z.email().trim().max(320);
 const publicHttpUrlSchema = z.url().max(2_000).refine((value) => {
@@ -80,9 +82,9 @@ export const undoAgentChangeSchema = z.object({
 
 export const matchRequestSchema = z.object({
   geographyPreference: z.string().trim().max(100).optional(),
-  resultLimit: z.number().int().min(1).max(10).default(5),
-  requiredRequirements: z.array(fieldKeySchema).max(15).optional(),
-  preferredRequirements: z.array(fieldKeySchema).max(15).optional(),
+  resultLimit: z.number().int().min(1).max(3).default(3),
+  requiredRequirements: z.array(matchableRequirementKeySchema).max(MATCHABLE_REQUIREMENT_KEYS.length).optional(),
+  preferredRequirements: z.array(matchableRequirementKeySchema).max(MATCHABLE_REQUIREMENT_KEYS.length).optional(),
 });
 
 export const prepareOutreachSchema = z.object({

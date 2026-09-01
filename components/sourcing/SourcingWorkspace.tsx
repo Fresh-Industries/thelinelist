@@ -95,7 +95,7 @@ export function SourcingWorkspace() {
   async function findMatches() {
     setBusy("match");
     setError("");
-    const response = await workspaceApi(`/api/sourcing/${workspace.id}/match`, { method: "POST", body: JSON.stringify({ resultLimit: 5 }) });
+    const response = await workspaceApi(`/api/sourcing/${workspace.id}/match`, { method: "POST", body: JSON.stringify({ resultLimit: 3 }) });
     if (response.error) {
       if (response.workspace) acceptWorkspace(response.workspace);
       setError(response.error);

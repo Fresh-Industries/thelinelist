@@ -5,11 +5,12 @@ import { editAndApproveDraft, prepareOutreachDrafts } from "@/lib/sourcing/outre
 import { getPackagingOptions, getProductCategory, resolveProductVisualAsset } from "@/lib/sourcing/product-catalog";
 import { deriveProductDescriptorFromIdea, getProductIdentity } from "@/lib/sourcing/product-identity";
 import { getProductJourney } from "@/lib/sourcing/product-journey";
-import { getCategoryDecisionGuardrails, getSourcingQuestion } from "@/lib/sourcing/questions";
+import { getCategoryDecisionGuardrails, getSourcingCategory, getSourcingQuestion } from "@/lib/sourcing/questions";
 import { PackageDesignSchema, ProductPlanSchema, productPlanFromWorkspace } from "@/lib/sourcing/product-plan";
 import { getPackageColorName, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
+import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT } from "@/lib/sourcing/package-artwork";
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
-import { agentUpdateSchema, editDraftSchema, founderUpdateSchema } from "@/lib/sourcing/schemas";
+import { agentUpdateSchema, editDraftSchema, founderUpdateSchema, matchRequestSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
 import { applyAgentUpdates, applyFounderFieldUpdate, applyPackageDesignUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { describe, expect, it } from "vitest";
@@ -123,6 +124,35 @@ describe("sourcing workspace trust rules", () => {
 
     const bakery = createWorkspace({ idea: "A packaged banana bread" });
     expect(getSourcingQuestion(bakery, "product_format")).toContain("mini loaf");
+  });
+
+  it("creates category-aware package copy and motifs from the approved art direction", () => {
+    const artwork = getPackageArtworkConcept({
+      product: "High-protein crunchy chickpea snack",
+      artDirection: "Warm honey and chili-red accents with chickpea, honey, and chili motifs",
+      style: "playful-retail",
+    });
+
+    expect(artwork).toMatchObject({
+      category: "snack",
+      kicker: "CRUNCH WITH CHARACTER",
+      footer: "BIG FLAVOR • READY TO SHARE",
+      motifs: ["chickpea", "honey", "chili"],
+    });
+    expect(`${artwork.kicker} ${artwork.footer}`).not.toMatch(/bakery|baked/i);
+    expect(PACKAGE_ARTWORK_ASPECT).toBeLessThan(1);
+  });
+
+  it("keeps an explicitly confirmed snack out of the beverage path when it is sold in coffee shops", () => {
+    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack sold at gyms and coffee shops" });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_category", value: "Snack", status: "confirmed", shareWithManufacturer: true });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "High-protein crunchy chickpea snack", status: "confirmed", shareWithManufacturer: true });
+
+    expect(getSourcingCategory(workspace)).toBe("food");
+    expect(getSourcingQuestion(workspace, "product_format")).toBe("How should one customer buy and use the product?");
+    expect(getSourcingQuestion(workspace, "carbonation")).not.toContain("drink");
+    expect(getCategoryDecisionGuardrails(workspace)).toEqual([]);
+    expect(requiredMatchingFields(workspace)).not.toContain("carbonation");
   });
 
   it("migrates a version-one plan without losing its original idea", () => {
@@ -350,14 +380,29 @@ describe("sourcing workspace trust rules", () => {
     });
   });
 
-  it("treats absent or unevaluable hard requirements as gaps", () => {
-    const workspace = applyFounderFieldUpdate(createWorkspace({ demo: true }), {
-      key: "carbonation",
-      value: "Carbonated",
-      status: "confirmed",
-      shareWithManufacturer: true,
-    });
-    expect(matchManufacturers(workspace, { requiredRequirements: ["retail_channel"] })).toEqual([]);
+  it("describes broad snack evidence without claiming the source contains the founder's exact concept", () => {
+    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack sold in coffee shops" });
+    for (const update of [
+      { key: "product_category", value: "Snack" },
+      { key: "product_type", value: "High-protein crunchy chickpea snack" },
+      { key: "product_format", value: "2.5 oz single-serve snack pouch" },
+    ] as const) {
+      workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
+    }
+
+    const matches = matchManufacturers(workspace, { resultLimit: 3 });
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.flatMap((match) => match.supportedMatches)).not.toContain("Reviewed product information includes High-protein crunchy chickpea snack.");
+    expect(matches.flatMap((match) => match.unknowns)).toEqual(expect.arrayContaining([
+      expect.stringContaining("broader snack category"),
+    ]));
+  });
+
+  it("rejects matcher requirements the engine cannot evaluate and advertises only three results", () => {
+    expect(matchRequestSchema.safeParse({ requiredRequirements: ["retail_channel"] }).success).toBe(false);
+    expect(matchRequestSchema.safeParse({ preferredRequirements: ["product_category"] }).success).toBe(false);
+    expect(matchRequestSchema.safeParse({ resultLimit: 4 }).success).toBe(false);
+    expect(matchRequestSchema.parse({})).toMatchObject({ resultLimit: 3 });
   });
 
   it("accepts only public http source URLs and validates confirmed founder emails", () => {
