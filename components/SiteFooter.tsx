@@ -1,4 +1,4 @@
-import { LAST_CHECKED_LABEL } from "@/lib/site";
+import { LISTINGS_LAST_REVIEWED_LABEL } from "@/lib/directory/review-date";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -39,7 +39,7 @@ export function SiteFooter() {
       </div>
       <div className="wrap footer-meta">
         <p>
-          Listings last reviewed {LAST_CHECKED_LABEL}. Blank fields show as not publicly listed.
+          Listings last reviewed {LISTINGS_LAST_REVIEWED_LABEL}. Blank fields show as not publicly listed.
         </p>
       </div>
     </footer>

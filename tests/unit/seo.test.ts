@@ -1,9 +1,13 @@
 import {
   CATEGORY_HUB_CONTENT,
   filterPlants,
+  formatListingReviewDate,
   getIndexableProductCategories,
+  getDirectoryPlants,
   getPlantBySlug,
   isPlantIndexable,
+  LISTINGS_LAST_REVIEWED_DATE,
+  LISTINGS_LAST_REVIEWED_LABEL,
 } from "@/lib/directory";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
@@ -12,7 +16,7 @@ import {
   collectionPageJsonLd,
   plantProfileJsonLd,
 } from "@/lib/seo/jsonld";
-import { absoluteUrl, LAST_CHECKED_LABEL } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site";
 import nextConfig from "@/next.config";
 import { describe, expect, it } from "vitest";
 
@@ -37,8 +41,23 @@ describe("SEO URL and structured-data conventions", () => {
     expect(absoluteUrl("/manufacturers/example/")).toBe("https://www.thelinelist.com/manufacturers/example");
   });
 
-  it("keeps the visible listing-review label synchronized with the catalog date", () => {
-    expect(LAST_CHECKED_LABEL).toBe("24 Aug 2026");
+  it("derives the visible listing-review date from every published profile record", () => {
+    const reviewDates = getDirectoryPlants().map((plant) => plant.lastVerified);
+
+    expect(reviewDates.every((reviewDate) => reviewDate <= LISTINGS_LAST_REVIEWED_DATE)).toBe(true);
+    expect(LISTINGS_LAST_REVIEWED_DATE).toBe("2026-08-26");
+    expect(LISTINGS_LAST_REVIEWED_LABEL).toBe("26 Aug 2026");
+
+    const originalTimeZone = process.env.TZ;
+    try {
+      for (const timeZone of ["America/Chicago", "UTC", "Asia/Tokyo"]) {
+        process.env.TZ = timeZone;
+        expect(formatListingReviewDate(LISTINGS_LAST_REVIEWED_DATE)).toBe("26 Aug 2026");
+      }
+    } finally {
+      if (originalTimeZone === undefined) delete process.env.TZ;
+      else process.env.TZ = originalTimeZone;
+    }
   });
 
   it("numbers ItemList entries for the current paginated slice", () => {

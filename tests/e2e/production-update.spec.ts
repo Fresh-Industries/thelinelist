@@ -1,6 +1,18 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("production manufacturer update", () => {
+  test("shows the latest directory review date in the footer and verification copy", async ({ page }) => {
+    await page.goto("/manufacturers/heritage-family-specialty-foods");
+
+    await expect(page.getByText("The Line List checked this manufacturer against current public information on Aug 26, 2026.")).toBeVisible();
+    await expect(page.locator("footer")).toContainText("Listings last reviewed 26 Aug 2026.");
+
+    await page.goto("/how-we-verify");
+
+    await expect(page.getByText("Current listings were last reviewed 26 Aug 2026.", { exact: false })).toBeVisible();
+    await expect(page.locator("footer")).toContainText("Listings last reviewed 26 Aug 2026.");
+  });
+
   test("shares the sourced small-run signal filter and combines it with state", async ({ page }) => {
     await page.goto("/find-manufacturers?smallRun=1&state=TX");
 

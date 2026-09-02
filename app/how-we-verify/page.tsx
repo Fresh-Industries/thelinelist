@@ -1,6 +1,6 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
-import { LAST_CHECKED_LABEL } from "@/lib/site";
+import { LISTINGS_LAST_REVIEWED_LABEL } from "@/lib/directory/review-date";
 import { pageMetadata } from "@/lib/seo/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -39,7 +39,7 @@ export default function HowWeVerifyPage() {
           <p>The absence of a certification on The Line List means we do not have public evidence. Confirm current scope and status directly.</p>
 
           <h2>Freshness and corrections</h2>
-          <p>Current listings were last reviewed {LAST_CHECKED_LABEL}. Public pages change, so each profile keeps its own review date and source links.</p>
+          <p>Current listings were last reviewed {LISTINGS_LAST_REVIEWED_LABEL}. Public pages change, so each profile keeps its own review date and source links.</p>
           <p><Link href="/claim-submit">Claim or submit a plant</Link> to propose a correction. You can also email <a href="mailto:hello@thelinelist.com">hello@thelinelist.com</a>.</p>
 
           <div className="cta-band">

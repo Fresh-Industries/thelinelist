@@ -27,6 +27,12 @@ export {
   type ProductMacroSlug,
 } from "./categories";
 export { categorySnapshot, comparableMoq, type CategorySnapshot } from "./snapshot";
+export {
+  formatListingReviewDate,
+  latestListingReviewDate,
+  LISTINGS_LAST_REVIEWED_DATE,
+  LISTINGS_LAST_REVIEWED_LABEL,
+} from "./review-date";
 export { LAST_VERIFIED } from "./types";
 export {
   certificationCardClaims,
