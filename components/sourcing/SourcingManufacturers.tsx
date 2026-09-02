@@ -227,10 +227,13 @@ export function SourcingManufacturers() {
         </section>
       ) : (
         <section className="manufacturer-empty" aria-labelledby="manufacturer-empty-heading">
-          <p className="manufacturer-eyebrow">Start with the brief</p>
-          <h2 id="manufacturer-empty-heading">Research the current product direction</h2>
-          <p>We’ll show public evidence, open questions, and possible conflicts without treating missing information as proof.</p>
-          <button type="button" onClick={() => void researchAgain()} disabled={busy !== null}>{busy === "match" ? "Researching…" : "Research manufacturers"}</button>
+          <p className="manufacturer-eyebrow">{workspace.matchesUpdatedAt ? "Research complete" : "Start with the brief"}</p>
+          <h2 id="manufacturer-empty-heading">{workspace.matchesUpdatedAt ? "No evidence-backed possibilities yet" : "Research the current product direction"}</h2>
+          <p>{workspace.matchesUpdatedAt
+            ? "The current requirements did not produce a responsible match. We did not add weaker manufacturers just to fill the list. Review the brief or research again after visibly adjusting a preference."
+            : "We’ll show public evidence, open questions, and possible conflicts without treating missing information as proof."}</p>
+          <button type="button" onClick={() => void researchAgain()} disabled={busy !== null}>{busy === "match" ? "Researching…" : workspace.matchesUpdatedAt ? "Research again" : "Research manufacturers"}</button>
+          {workspace.matchesUpdatedAt ? <Link href={`/sourcing/${workspace.id}#next-question-heading`} prefetch={false}>Review product brief <span aria-hidden="true">↗</span></Link> : null}
         </section>
       )}
 

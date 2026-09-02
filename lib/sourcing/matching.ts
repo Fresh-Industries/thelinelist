@@ -15,6 +15,21 @@ interface RequirementResult {
   notes?: string;
 }
 
+const SNACK_FORMAT_PATTERNS = [
+  /\bchickpeas?\b/,
+  /\bpopcorn\b/,
+  /\bgranola\b/,
+  /\bcrackers?\b/,
+  /\bchips?\b/,
+  /\bjerky\b/,
+  /\bsnack sticks?\b/,
+  /\btrail mix\b/,
+  /\bprotein bars?\b/,
+  /\benergy bars?\b/,
+  /\bnuts?\b/,
+  /\bseeds?\b/,
+];
+
 const FIT_EXPLANATION_LABELS: Partial<Record<SourcingFieldKey, string>> = {
   product_type: "the product type",
   packaging_format: "the packaging format",
@@ -84,7 +99,10 @@ function productRequirement(plant: Plant, value: string): RequirementResult {
     supported = categories.has("bakery") && includesAny(text, ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"]);
   } else if (productCategory === "snack") {
     const broadSnackSupport = categories.has("snacks") && includesAny(text, ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
-    const exactProductSupport = broadSnackSupport && text.includes(normalized);
+    const namedSnackFormats = SNACK_FORMAT_PATTERNS.filter((pattern) => pattern.test(normalized));
+    const genericSnackRequest = /^(?:snacks?|snack foods?)$/.test(normalized.trim());
+    const exactProductSupport = broadSnackSupport
+      && (genericSnackRequest || text.includes(normalized) || (namedSnackFormats.length > 0 && namedSnackFormats.every((pattern) => pattern.test(text))));
     return {
       key: "product_type",
       label: FIELD_DEFINITION_BY_KEY.product_type.label,
@@ -122,10 +140,7 @@ function isProductCandidate(plant: Plant, value: string): boolean {
   const result = productRequirement(plant, value);
   if (result.outcome === "supported") return true;
   const normalized = value.toLowerCase();
-  if (resolveProductCategoryFromText(value) === "snack") {
-    return (plant.categories ?? []).includes("snacks")
-      && includesAny(searchablePlantText(plant), ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
-  }
+  if (resolveProductCategoryFromText(value) === "snack") return false;
   return normalized.includes("banana bread")
     && (plant.categories ?? []).includes("bakery")
     && includesAny(searchablePlantText(plant), ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"]);

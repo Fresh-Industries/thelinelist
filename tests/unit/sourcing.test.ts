@@ -237,6 +237,18 @@ describe("sourcing workspace trust rules", () => {
       "founder:confirm_send_now",
     ]);
     expect(JSON.stringify(workspace)).toBe(before);
+
+    const zeroResultAudit = buildOutreachReadinessAudit({
+      ...workspace,
+      matchesUpdatedAt: "2026-09-01T12:00:00.000Z",
+    });
+    expect(zeroResultAudit).toMatchObject({
+      matchingCurrent: true,
+      candidateCount: 0,
+      selectionCount: 0,
+    });
+    expect(zeroResultAudit.gates).toContainEqual({ step: "select_manufacturers", owner: "founder", status: "blocked" });
+    expect(zeroResultAudit.blockers).toContainEqual(expect.stringContaining("no evidence-backed manufacturer possibilities"));
   });
 
   it("migrates a version-one plan without losing its original idea", () => {
@@ -405,10 +417,10 @@ describe("sourcing workspace trust rules", () => {
   });
 
   it("evaluates Midwest as a real set of states and ranks an in-region facility first", () => {
-    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack" });
+    let workspace = createWorkspace({ idea: "A packaged snack food" });
     for (const update of [
       { key: "product_category", value: "Snack" },
-      { key: "product_type", value: "High-protein crunchy chickpea snack" },
+      { key: "product_type", value: "Snack foods" },
       { key: "storage_distribution", value: "Shelf-stable at room temperature" },
       { key: "preferred_geography", value: "Midwest preferred" },
     ] as const) {
@@ -434,8 +446,8 @@ describe("sourcing workspace trust rules", () => {
   });
 
   it("keeps unsupported geography visible instead of silently dropping it", () => {
-    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack" });
-    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "High-protein crunchy chickpea snack", status: "confirmed", shareWithManufacturer: true });
+    let workspace = createWorkspace({ idea: "A packaged snack food" });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "Snack foods", status: "confirmed", shareWithManufacturer: true });
     workspace = applyFounderFieldUpdate(workspace, { key: "preferred_geography", value: "Within a two-hour drive", status: "confirmed", shareWithManufacturer: true });
 
     const matches = matchManufacturers(workspace, { geographyPreference: "Within a two-hour drive" });
@@ -447,9 +459,9 @@ describe("sourcing workspace trust rules", () => {
   });
 
   it("uses reviewed capability pages instead of homepages for judge-path evidence", () => {
-    let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack" });
+    let workspace = createWorkspace({ idea: "A packaged snack food" });
     for (const update of [
-      { key: "product_type", value: "High-protein crunchy chickpea snack" },
+      { key: "product_type", value: "Snack foods" },
       { key: "storage_distribution", value: "Shelf-stable at room temperature" },
     ] as const) {
       workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
@@ -542,9 +554,9 @@ describe("sourcing workspace trust rules", () => {
   });
 
   it("parses a saved bakery-bag summary without overstating a generic bag listing", () => {
-    let workspace = createWorkspace({ idea: "A packaged snack mix" });
+    let workspace = createWorkspace({ idea: "A packaged banana bread" });
     for (const update of [
-      { key: "product_format", value: "Snack mix" },
+      { key: "product_format", value: "Mini loaf" },
       { key: "packaging_format", value: "Kraft-style bakery bag · dimensions still open · clear viewing window" },
       { key: "preferred_geography", value: "Iowa" },
     ] as const) {
@@ -567,7 +579,7 @@ describe("sourcing workspace trust rules", () => {
     });
   });
 
-  it("describes broad snack evidence without claiming the source contains the founder's exact concept", () => {
+  it("does not surface broad snack manufacturers when the exact snack format is not publicly supported", () => {
     let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack sold in coffee shops" });
     for (const update of [
       { key: "product_category", value: "Snack" },
@@ -578,11 +590,7 @@ describe("sourcing workspace trust rules", () => {
     }
 
     const matches = matchManufacturers(workspace, { resultLimit: 3 });
-    expect(matches.length).toBeGreaterThan(0);
-    expect(matches.flatMap((match) => match.supportedMatches)).not.toContain("Reviewed product information includes High-protein crunchy chickpea snack.");
-    expect(matches.flatMap((match) => match.unknowns)).toEqual(expect.arrayContaining([
-      expect.stringContaining("broader snack category"),
-    ]));
+    expect(matches).toEqual([]);
   });
 
   it("rejects matcher requirements the engine cannot evaluate and advertises only three results", () => {

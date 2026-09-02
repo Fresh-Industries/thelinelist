@@ -273,6 +273,7 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
 export function buildOutreachReadinessAudit(workspace: SourcingWorkspace) {
   const state = buildSourcingAgentState(workspace);
   const selectionCount = state.outreach.selectedManufacturerSlugs.length;
+  const candidateCount = state.manufacturerCandidates.length;
   const drafts = state.outreach.drafts;
   const matchingCurrent = workspace.matchesUpdatedAt !== null;
   const allDraftsApproved = drafts.length > 0
@@ -280,7 +281,8 @@ export function buildOutreachReadinessAudit(workspace: SourcingWorkspace) {
   const blockers: string[] = [];
 
   if (!matchingCurrent) blockers.push("Research evidence-backed manufacturer possibilities.");
-  if (matchingCurrent && !selectionCount) blockers.push("The founder selects up to three manufacturers to contact.");
+  if (matchingCurrent && !candidateCount) blockers.push("The current research found no evidence-backed manufacturer possibilities. Review the brief or retry with visibly adjusted preferences.");
+  if (candidateCount > 0 && !selectionCount) blockers.push("The founder selects up to three manufacturers to contact.");
   if (!state.stage.canPrepareManufacturerBrief) {
     const openLabels = state.requirements.open.map((field) => field.label);
     blockers.push(openLabels.length
@@ -300,6 +302,7 @@ export function buildOutreachReadinessAudit(workspace: SourcingWorkspace) {
     matchingCurrent,
     manufacturerBriefReady: state.stage.canPrepareManufacturerBrief,
     packageDirectionSaved: state.packaging.saved,
+    candidateCount,
     selectionCount,
     selectedManufacturerSlugs: state.outreach.selectedManufacturerSlugs,
     pendingShortlistSlugs: state.outreach.pendingShortlistSlugs,
@@ -307,7 +310,7 @@ export function buildOutreachReadinessAudit(workspace: SourcingWorkspace) {
     blockers,
     gates: [
       { step: "research_manufacturers", owner: "agent", status: matchingCurrent ? "complete" : "blocked" },
-      { step: "select_manufacturers", owner: "founder", status: selectionCount ? "complete" : matchingCurrent ? "ready" : "blocked" },
+      { step: "select_manufacturers", owner: "founder", status: selectionCount ? "complete" : candidateCount > 0 ? "ready" : "blocked" },
       { step: "prepare_recipient_specific_drafts", owner: "agent", status: drafts.length ? "complete" : state.stage.canPrepareOutreach ? "ready" : "blocked" },
       { step: "review_and_approve_exact_versions", owner: "founder", status: allDraftsApproved ? "complete" : drafts.length ? "ready" : "blocked" },
       { step: "confirm_send_now", owner: "founder", status: drafts.length && drafts.every((draft) => draft.deliveryStatus === "sent") ? "complete" : allDraftsApproved ? "ready" : "blocked" },

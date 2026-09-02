@@ -425,22 +425,34 @@ test("WebMCP-only acceptance keeps categories coherent, rejects unsupported geog
   expect(afterRejected.workspace.revision).toBe(before.workspace.revision);
   expect(afterRejected.manufacturerCandidates).toEqual(before.manufacturerCandidates);
 
+  const zeroResult = await invokeWebMcp<{
+    resultCount: number;
+    resultsShown: boolean;
+    manufacturerCandidates: unknown[];
+  }>(page, "match_manufacturers", { requiredRequirements: ["product_type"], resultLimit: 3 });
+  expect(zeroResult).toMatchObject({ resultCount: 0, resultsShown: true, manufacturerCandidates: [] });
+  await expect(page).toHaveURL(manufacturersPath(snack.workspace.id));
+  await expect(page.getByRole("heading", { name: "No evidence-backed possibilities yet" })).toBeVisible();
+  await expect(page.getByText("We did not add weaker manufacturers just to fill the list.")).toBeVisible();
+
   const auditBeforeArtwork = await invokeWebMcp<{
+    candidateCount: number;
     selectionCount: number;
     matchingCurrent: boolean;
     externalContactRequiresFounderAction: boolean;
     agentApprovalAvailable: boolean;
     agentSendAvailable: boolean;
-    gates: Array<{ owner: string; step: string }>;
+    gates: Array<{ owner: string; step: string; status: string }>;
   }>(page, "audit_outreach_readiness", {});
   expect(auditBeforeArtwork).toMatchObject({
+    candidateCount: 0,
     selectionCount: 0,
-    matchingCurrent: false,
+    matchingCurrent: true,
     externalContactRequiresFounderAction: true,
     agentApprovalAvailable: false,
     agentSendAvailable: false,
   });
-  expect(auditBeforeArtwork.gates).toContainEqual(expect.objectContaining({ owner: "founder", step: "select_manufacturers" }));
+  expect(auditBeforeArtwork.gates).toContainEqual(expect.objectContaining({ owner: "founder", step: "select_manufacturers", status: "blocked" }));
   expect(auditBeforeArtwork.gates).toContainEqual(expect.objectContaining({ owner: "founder", step: "confirm_send_now" }));
 
   const artwork = await invokeWebMcp<{
