@@ -68,6 +68,14 @@ export const founderUpdateSchema = z.object({
   }).superRefine(validateContactEmail),
 });
 
+export const founderAnswerSchema = z.object({
+  revision: z.number().int().positive().optional(),
+  founderAnswer: z.object({
+    answeringKey: fieldKeySchema,
+    text: z.string().trim().min(1).max(4_000),
+  }),
+});
+
 export const selectionUpdateSchema = z.object({
   revision: z.number().int().positive().optional(),
   selectedManufacturerSlugs: z.array(z.string().trim().min(1).max(120)).max(3),

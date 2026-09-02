@@ -36,7 +36,8 @@ export function SourcingWorkspace() {
   const nextKey = readiness.nextQuestionKey;
   const packageDesignPending = readiness.packageDesignRequired
     && !readiness.packageDesignReady
-    && workspace.fields.packaging_format.status === "confirmed";
+    && workspace.fields.packaging_format.status === "confirmed"
+    && readiness.nextQuestionKey !== "formula_status";
   const { brandName, productDescriptor } = getProductIdentity(workspace);
   const packagePresentation = workspace.packageDesign
     ? getPackageDesignPresentation(workspace.packageDesign, workspace.artwork)
@@ -54,7 +55,7 @@ export function SourcingWorkspace() {
       method: "PATCH",
       body: JSON.stringify({
         revision: workspace.revision,
-        fieldUpdate: { key: nextKey, value: brandStillOpen ? null : value, status: uncertain ? "needs_decision" : "confirmed", shareWithManufacturer: !uncertain },
+        founderAnswer: { answeringKey: nextKey, text: value },
       }),
     });
     if (response.error) {
@@ -64,13 +65,25 @@ export function SourcingWorkspace() {
       acceptWorkspace(response.workspace);
       setAnswer("");
       const next = getSourcingReadiness(response.workspace);
+      const changedLabels = Object.keys(workspace.fields)
+        .filter((key) => {
+          const fieldKey = key as SourcingFieldKey;
+          const before = workspace.fields[fieldKey];
+          const after = response.workspace!.fields[fieldKey];
+          return before.value !== after.value || before.status !== after.status;
+        })
+        .map((key) => FIELD_DEFINITION_BY_KEY[key as SourcingFieldKey].label.toLowerCase());
+      const nextPrompt = next.nextQuestionKey ? ` Next: ${getSourcingQuestion(response.workspace, next.nextQuestionKey)}` : "";
+      const changeCopy = changedLabels.length === 1
+        ? `I added ${changedLabels[0]} to the brief.`
+        : `I updated ${formatLabels(changedLabels)} in the brief.`;
       setAgentNote(brandStillOpen
-        ? `That’s completely fine—the brand name can stay open. ${next.nextQuestionLabel ? `Next, let’s clarify ${next.nextQuestionLabel.toLowerCase()}.` : "We can keep shaping the product without it."}`
+        ? `That’s completely fine—the brand name can stay open.${nextPrompt || " We can keep shaping the product without it."}`
         : uncertain
-          ? `That can stay open. I won’t treat it as decided. ${next.nextQuestionLabel ? `Next, let’s clarify ${next.nextQuestionLabel.toLowerCase()}.` : "We can continue without guessing."}`
+          ? `That can stay open. I won’t treat it as decided.${nextPrompt || " We can continue without guessing."}`
           : nextKey === "brand_name"
-            ? `Got it—${value} is now the brand on this product brief. ${next.nextQuestionLabel ? `Next, let’s clarify ${next.nextQuestionLabel.toLowerCase()}.` : "We can continue shaping the manufacturing plan."}`
-            : `Got it—I added ${FIELD_DEFINITION_BY_KEY[nextKey].label.toLowerCase()} to the brief. ${next.matchingReady ? "You now have enough confirmed information for a useful manufacturer search." : `The next useful decision is ${next.nextQuestionLabel?.toLowerCase()}.`}`);
+            ? `Got it—${value} is now the brand on this product brief.${nextPrompt || " We can continue shaping the manufacturing plan."}`
+            : `Got it—${changeCopy} ${next.matchingReady ? "You now have enough confirmed information for a useful manufacturer search." : nextPrompt.trim()}`);
     }
     setBusy(null);
   }
@@ -171,6 +184,12 @@ export function SourcingWorkspace() {
       </article>
     </div>
   );
+}
+
+function formatLabels(labels: string[]): string {
+  if (labels.length === 0) return "that decision";
+  if (labels.length === 1) return labels[0];
+  return `${labels.slice(0, -1).join(", ")}, and ${labels.at(-1)}`;
 }
 
 function formatChoiceList(labels: string[]): string {

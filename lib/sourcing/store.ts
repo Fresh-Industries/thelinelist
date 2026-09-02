@@ -209,6 +209,7 @@ export async function saveSourcingWorkspace(
             name: displayName(normalized),
             category: normalized.fields.product_category.value,
             plan,
+            updatedAt: new Date(normalized.updatedAt),
           },
         });
       } else {
@@ -219,6 +220,7 @@ export async function saveSourcingWorkspace(
             name: displayName(normalized),
             category: normalized.fields.product_category.value,
             plan,
+            updatedAt: new Date(normalized.updatedAt),
           },
         });
         if (updated.count !== 1) throw new SourcingWorkspaceConflictError();

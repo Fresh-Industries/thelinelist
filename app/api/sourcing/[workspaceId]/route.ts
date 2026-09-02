@@ -1,8 +1,8 @@
 import { getSourcingReadiness, MATCH_SHAPING_FIELDS } from "@/lib/sourcing/readiness";
-import { agentUpdateSchema, founderUpdateSchema, packageDesignCommitSchema, packageDesignStageSchema, selectionUpdateSchema, undoAgentChangeSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
+import { agentUpdateSchema, founderAnswerSchema, founderUpdateSchema, packageDesignCommitSchema, packageDesignStageSchema, selectionUpdateSchema, undoAgentChangeSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, getSourcingWorkspace, saveSourcingWorkspace, sourcingStoreAdapter } from "@/lib/sourcing/store";
 import { getAuthorizedWorkspace } from "@/lib/sourcing/access";
-import { applyAgentUpdates, applyFounderFieldUpdate, commitStagedPackageDesign, getCurrentManufacturerResearch, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, invalidateManufacturerResearch, packageDesignHash, stagePackageDesign, touch, undoLastAgentChange } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderConversationAnswer, applyFounderFieldUpdate, commitStagedPackageDesign, getCurrentManufacturerResearch, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, invalidateManufacturerResearch, packageDesignHash, stagePackageDesign, touch, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
@@ -32,6 +32,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const body = await request.json().catch(() => null);
 
   const agent = agentUpdateSchema.safeParse(body);
+  const founderAnswer = founderAnswerSchema.safeParse(body);
   const founder = founderUpdateSchema.safeParse(body);
   const selection = selectionUpdateSchema.safeParse(body);
   const packageStage = packageDesignStageSchema.safeParse(body);
@@ -57,7 +58,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       receipt: packageReceipt("commit_package_design", "replayed", workspace, workspace.packageCommit.stagedPackageId, workspace.packageCommit.id),
     });
   }
-  const requestedRevision = agent.success ? agent.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : packageStage.success ? packageStage.data.revision : packageCommit.success ? packageCommit.data.revision : undo.success ? undo.data.revision : undefined;
+  const requestedRevision = agent.success ? agent.data.revision : founderAnswer.success ? founderAnswer.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : packageStage.success ? packageStage.data.revision : packageCommit.success ? packageCommit.data.revision : undo.success ? undo.data.revision : undefined;
   if (requestedRevision && requestedRevision !== workspace.revision) {
     return NextResponse.json({ error: "The workspace changed. Refresh and try again.", workspace }, { status: 409 });
   }
@@ -65,6 +66,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   let updated: SourcingWorkspace;
   if (agent.success) {
     updated = applyAgentUpdates(workspace, agent.data.proposedUpdates);
+  } else if (founderAnswer.success) {
+    updated = applyFounderConversationAnswer(workspace, founderAnswer.data.founderAnswer);
   } else if (founder.success) {
     updated = applyFounderFieldUpdate(workspace, founder.data.fieldUpdate);
   } else if (selection.success) {

@@ -282,18 +282,13 @@ export function SourcingManufacturers() {
       )}
 
       {reviewingBroadening && currentResearch && broaderRequest ? (
-        <dialog className="manufacturer-broadening-dialog" aria-labelledby="broader-search-heading" open onCancel={() => setReviewingBroadening(false)}>
-          <div>
-            <p className="manufacturer-eyebrow">Founder approval</p>
-            <h2 id="broader-search-heading">Review broader search</h2>
-            <p>This changes only the research criteria. Your confirmed product brief stays unchanged, and unsupported details will remain unknown.</p>
-            <CriteriaDiff before={currentResearch.request} after={broaderRequest} />
-            <footer>
-              <button type="button" onClick={() => void confirmBroadening()} disabled={busy !== null}>{busy === "match" ? "Researching…" : "Confirm broader search"}</button>
-              <button className="secondary-button" type="button" onClick={() => setReviewingBroadening(false)} disabled={busy !== null}>Cancel</button>
-            </footer>
-          </div>
-        </dialog>
+        <BroadeningDialog
+          before={currentResearch.request}
+          after={broaderRequest}
+          busy={busy !== null}
+          onClose={() => setReviewingBroadening(false)}
+          onConfirm={() => void confirmBroadening()}
+        />
       ) : null}
 
       {workspace.matches.length ? (
@@ -327,6 +322,61 @@ function ContextBar({ product, packaging, channel, briefHref }: { product: strin
 
 function EvidenceList({ title, items, empty }: { title: string; items: string[]; empty?: string }) {
   return <section><h3>{title}</h3><ul>{items.length ? items.map((item) => <li key={item}>{item}</li>) : empty ? <li>{empty}</li> : null}</ul></section>;
+}
+
+function BroadeningDialog({
+  before,
+  after,
+  busy,
+  onClose,
+  onConfirm,
+}: {
+  before: ManufacturerResearchRequest;
+  after: ManufacturerResearchRequest;
+  busy: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.documentElement.style.overflow;
+    if (dialog && !dialog.open) dialog.showModal();
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = previousOverflow;
+      if (dialog?.open) dialog.close();
+      window.requestAnimationFrame(() => opener?.focus());
+    };
+  }, []);
+
+  return (
+    <dialog
+      ref={dialogRef}
+      className="manufacturer-broadening-dialog"
+      aria-labelledby="broader-search-heading"
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
+    >
+      <div className="manufacturer-broadening-shell">
+        <header>
+          <p className="manufacturer-eyebrow">Founder approval</p>
+          <h2 id="broader-search-heading">Review broader search</h2>
+          <p>No manufacturer in the reviewed public information proved every required constraint. A broader search moves the required criteria shown below to preferred, so candidates may appear with those capabilities still unconfirmed.</p>
+        </header>
+        <div className="manufacturer-broadening-scroll">
+          <CriteriaDiff before={before} after={after} />
+          <p className="manufacturer-broadening-safeguard"><strong>What will not change:</strong> Your product brief, package direction, and founder decisions will not change. Unsupported details will remain visibly unknown.</p>
+        </div>
+        <footer>
+          <button type="button" onClick={onConfirm} disabled={busy}>{busy ? "Researching…" : "Confirm broader search"}</button>
+          <button className="secondary-button" type="button" onClick={onClose} disabled={busy}>Cancel</button>
+        </footer>
+      </div>
+    </dialog>
+  );
 }
 
 function CriteriaDiff({ before, after }: { before: ManufacturerResearchRequest; after: ManufacturerResearchRequest }) {

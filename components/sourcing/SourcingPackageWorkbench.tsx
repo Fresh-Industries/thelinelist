@@ -57,6 +57,8 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   const designChangedRef = useRef(false);
   const lastStagedDesignRef = useRef(workspace.stagedPackageDesign?.design ? JSON.stringify(workspace.stagedPackageDesign.design) : "");
   const config = packageConfigs[packagingType];
+  const requestedPackage = `${workspace.fields.packaging_format.value ?? ""} ${workspace.fields.product_format.value ?? ""}`;
+  const genericWoozyGeometry = packagingType === "bottle" && /\bwoozy\b/i.test(requestedPackage);
   const productCategory = getProductCategory(workspace);
   const recommendedPackageTypes = getRecommendedWorkbenchPackageTypes(productCategory);
   const primaryPackageTypes = [...new Set([...recommendedPackageTypes, packagingType])];
@@ -206,7 +208,8 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
             <div className="dimension-controls"><span>Working dimensions</span>{(["width", "height", "depth"] as const).map((key) => <label key={key}>{key}<input type="number" min="0" max="10000" step="0.1" value={dimensions[key] ?? ""} onChange={(event) => { markWorkbenchChange(); setSummaryDirty(true); setDimensions((current) => ({ ...current, [key]: event.target.value ? Number(event.target.value) : null })); }} /></label>)}</div>
           </aside>
           <section className="package-canvas">
-            <div className="package-preview-meta"><div><p>{agentStagedSession ? "Agent preview · live in 3D" : "Live 3D preview"}</p><h2>{config.previewTitle}</h2></div><span>Drag to turn</span></div>
+            <div className="package-preview-meta"><div><p>{agentStagedSession ? "Agent preview · live in 3D" : "Live 3D preview"}</p><h2>{genericWoozyGeometry ? "Bottle concept" : config.previewTitle}</h2></div><span>Drag to turn</span></div>
+            {genericWoozyGeometry ? <p className="package-geometry-notice" role="status"><strong>Generic bottle geometry:</strong> the exact woozy shape is not available in this 3D model. The saved brief still keeps your woozy-bottle requirement.</p> : null}
             {currentDesign.placeholder && currentDesign.source === "system_defaults" ? <p className="package-placeholder-notice" role="status">Placeholder styling - visual direction has not been discussed</p> : null}
             <ProductMockup packagingType={packagingType} logoUrl={logoUrl} logoAspect={logoAspect} baseColor={baseColor} labelColor={labelColor} bottleFinish={finish} logoScale={logo.scale} logoPosition={{ x: logo.x, y: logo.y }} frontText={packagingType === "bakery-bag" ? normalizedFrontText(frontText) : null} windowScale={config.window ? windowScale : 0} onCaptureReady={(capture) => { capturePreviewRef.current = capture; }} />
             <div className="tradeoff-note"><span>Working direction</span><p>{summary}</p><small>This is a communication mockup, not a production dieline. {getPackageValidationGuidance(packagingType)}</small></div>

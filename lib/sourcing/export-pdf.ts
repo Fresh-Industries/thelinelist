@@ -22,23 +22,37 @@ export async function createProductPlanPdf(workspace: SourcingWorkspace): Promis
     page = pdf.addPage([PAGE.width, PAGE.height]);
     y = PAGE.height - PAGE.margin;
   };
-  const line = (text: string, options: { size?: number; font?: PDFFont; color?: ReturnType<typeof rgb>; gap?: number } = {}) => {
+  type LineOptions = { size?: number; font?: PDFFont; color?: ReturnType<typeof rgb>; gap?: number };
+  const lineHeight = (text: string, options: LineOptions = {}) => {
+    const size = options.size ?? 10;
+    const font = options.font ?? regular;
+    return wrap(text || "Still open", font, size, PAGE.width - PAGE.margin * 2).length * (size + 3) + (options.gap ?? 6);
+  };
+  const line = (text: string, options: LineOptions = {}, preflight = true) => {
     const size = options.size ?? 10;
     const font = options.font ?? regular;
     const lines = wrap(text || "Still open", font, size, PAGE.width - PAGE.margin * 2);
-    ensure(lines.length * (size + 3) + (options.gap ?? 6));
+    if (preflight) ensure(lineHeight(text, options));
     for (const part of lines) {
       page.drawText(part, { x: PAGE.margin, y, size, font, color: options.color ?? rgb(0.09, 0.1, 0.08) });
       y -= size + 3;
     }
     y -= options.gap ?? 6;
   };
-  const section = (title: string) => {
-    ensure(30);
+  const fieldBlock = (label: string, value: string) => {
+    const labelOptions = { size: 8, font: bold, color: rgb(0.35, 0.35, 0.32), gap: 2 };
+    const valueOptions = { size: 10, gap: 7 };
+    ensure(lineHeight(label, labelOptions) + lineHeight(value, valueOptions));
+    line(label, labelOptions, false);
+    line(value, valueOptions, false);
+  };
+  const section = (title: string, keepWithHeight = 0) => {
+    const titleOptions = { size: 9, font: bold, color: rgb(0.71, 0.3, 0.17), gap: 8 };
+    ensure(26 + lineHeight(title.toUpperCase(), titleOptions) + keepWithHeight);
     y -= 8;
     page.drawLine({ start: { x: PAGE.margin, y }, end: { x: PAGE.width - PAGE.margin, y }, thickness: 0.6, color: rgb(0.74, 0.71, 0.67) });
     y -= 18;
-    line(title.toUpperCase(), { size: 9, font: bold, color: rgb(0.71, 0.3, 0.17), gap: 8 });
+    line(title.toUpperCase(), titleOptions, false);
   };
 
   const identity = getProductIdentity(workspace);
@@ -49,30 +63,33 @@ export async function createProductPlanPdf(workspace: SourcingWorkspace): Promis
   line(`${readiness.stageLabel} · Exported ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, { size: 9, color: rgb(0.35, 0.35, 0.32), gap: 4 });
   line(readiness.stageSummary, { size: 9, color: rgb(0.35, 0.35, 0.32), gap: 10 });
 
-  section("Original idea");
+  section("Original idea", lineHeight(workspace.originalIdea || "No original idea recorded."));
   line(workspace.originalIdea || "No original idea recorded.");
 
-  section("Confirmed product brief");
   const confirmed = Object.values(workspace.fields).filter((field) => field.status === "confirmed" && field.value && field.key !== "internal_notes");
+  const firstConfirmedHeight = confirmed[0]
+    ? lineHeight(FIELD_DEFINITION_BY_KEY[confirmed[0].key].label, { size: 8, font: bold, gap: 2 }) + lineHeight(confirmed[0].value!, { size: 10, gap: 7 })
+    : 0;
+  section("Confirmed product brief", firstConfirmedHeight);
   for (const field of confirmed) {
-    line(FIELD_DEFINITION_BY_KEY[field.key].label, { size: 8, font: bold, color: rgb(0.35, 0.35, 0.32), gap: 2 });
-    line(field.value!, { size: 10, gap: 7 });
+    fieldBlock(FIELD_DEFINITION_BY_KEY[field.key].label, field.value!);
   }
 
   const review = Object.values(workspace.fields).filter((field) => field.status === "proposed" && field.value);
   if (review.length) {
-    section("Agent suggestions awaiting review");
+    section("Agent suggestions awaiting review", lineHeight(`${FIELD_DEFINITION_BY_KEY[review[0].key].label}: ${review[0].value}`));
     for (const field of review) line(`${FIELD_DEFINITION_BY_KEY[field.key].label}: ${field.value}`);
   }
 
-  section("Still open");
   const openKeys = [...new Set([...readiness.manufacturerMissing, ...readiness.launchMissing])];
-  line(openKeys.length ? openKeys.map((key) => key === "packaging_format"
+  const openText = openKeys.length ? openKeys.map((key) => key === "packaging_format"
     && readiness.packageDesignRequired
     && !readiness.packageDesignReady
     && workspace.fields.packaging_format.status === "confirmed"
     ? "3D packaging direction"
-    : FIELD_DEFINITION_BY_KEY[key].label).join(" · ") : "No core planning fields are currently open.");
+    : FIELD_DEFINITION_BY_KEY[key].label).join(" · ") : "No core planning fields are currently open.";
+  section("Still open", lineHeight(openText));
+  line(openText);
 
   if (workspace.packageDesign) {
     ensure(380);
@@ -102,12 +119,22 @@ export async function createProductPlanPdf(workspace: SourcingWorkspace): Promis
 
   const currentMatches = getCurrentManufacturerResearch(workspace)?.candidates ?? [];
   if (currentMatches.length) {
-    section("Evidence-backed manufacturer possibilities");
+    const firstMatch = currentMatches[0];
+    const firstSources = firstMatch.evidence.filter((item) => item.sourceUrl).map((item) => `${item.sourceLabel || item.sourceUrl} (${item.lastReviewed})`);
+    const firstCardHeight = lineHeight(`${firstMatch.manufacturerName} · ${firstMatch.location}`, { font: bold, gap: 3 })
+      + lineHeight(firstMatch.fitExplanation, { size: 9, gap: 3 })
+      + lineHeight(firstSources.length ? `Sources: ${[...new Set(firstSources)].join(" · ")}` : "No supporting public source was recorded.", { size: 8, gap: 9 });
+    section("Evidence-backed manufacturer possibilities", firstCardHeight);
     for (const match of currentMatches) {
-      line(`${match.manufacturerName} · ${match.location}`, { font: bold, gap: 3 });
-      line(match.fitExplanation, { size: 9, gap: 3 });
       const sources = match.evidence.filter((item) => item.sourceUrl).map((item) => `${item.sourceLabel || item.sourceUrl} (${item.lastReviewed})`);
-      line(sources.length ? `Sources: ${[...new Set(sources)].join(" · ")}` : "No supporting public source was recorded.", { size: 8, color: rgb(0.35, 0.35, 0.32), gap: 9 });
+      const sourceText = sources.length ? `Sources: ${[...new Set(sources)].join(" · ")}` : "No supporting public source was recorded.";
+      const headingOptions = { font: bold, gap: 3 };
+      const explanationOptions = { size: 9, gap: 3 };
+      const sourceOptions = { size: 8, color: rgb(0.35, 0.35, 0.32), gap: 9 };
+      ensure(lineHeight(`${match.manufacturerName} · ${match.location}`, headingOptions) + lineHeight(match.fitExplanation, explanationOptions) + lineHeight(sourceText, sourceOptions));
+      line(`${match.manufacturerName} · ${match.location}`, headingOptions, false);
+      line(match.fitExplanation, explanationOptions, false);
+      line(sourceText, sourceOptions, false);
     }
   }
 

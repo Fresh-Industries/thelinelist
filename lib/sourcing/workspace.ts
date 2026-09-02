@@ -238,27 +238,32 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
 }
 
 function applyFounderIdeaFacts(workspace: SourcingWorkspace, updates: AgentFieldUpdate[]): SourcingWorkspace {
+  return applyFounderFacts(workspace, updates, "founder_statement", "Explicit details from your starting idea were added to the plan.");
+}
+
+function applyFounderFacts(
+  workspace: SourcingWorkspace,
+  updates: AgentFieldUpdate[],
+  channel: "founder_statement" | "workspace_ui",
+  activityMessage: string,
+): SourcingWorkspace {
   const timestamp = now();
   const fields = { ...workspace.fields };
   for (const update of updates) {
     const definition = FIELD_DEFINITION_BY_KEY[update.key];
     const value = update.value?.trim() || null;
-    if (!value) continue;
-    if (update.key === "product_type" && fields.product_type.status === "confirmed" && fields.product_type.value) {
-      fields.product_type = { ...fields.product_type, sourceSpans: update.sourceSpans ?? fields.product_type.sourceSpans ?? [] };
-      continue;
-    }
+    const status = value ? update.status ?? "confirmed" : "needs_decision";
     fields[update.key] = {
       ...fields[update.key],
       value,
-      status: "confirmed",
+      status,
       reason: update.reason?.trim() || null,
       source: update.source?.trim() || "Founder starting idea",
-      explicitlyStated: true,
-      shareWithManufacturer: !definition.privateByDefault && (update.suggestedSharing ?? definition.shareByDefault),
+      explicitlyStated: update.explicitlyStated === true,
+      shareWithManufacturer: Boolean(value && status === "confirmed" && !definition.privateByDefault && (update.suggestedSharing ?? definition.shareByDefault)),
       updatedAt: timestamp,
       updatedBy: "founder",
-      confirmation: founderConfirmation("founder_statement", timestamp, workspace.revision),
+      confirmation: status === "confirmed" ? founderConfirmation(channel, timestamp, workspace.revision) : null,
       validationStatus: validationStatusFor(update.key, value, update.reason, fields[update.key].validationStatus),
       evidence: [],
       sourceSpans: update.sourceSpans ?? [],
@@ -267,8 +272,34 @@ function applyFounderIdeaFacts(workspace: SourcingWorkspace, updates: AgentField
   return touch({
     ...workspace,
     fields,
-    activity: addActivity(workspace.activity, activity("founder_updated", "Explicit details from your starting idea were added to the plan.")),
+    activity: addActivity(workspace.activity, activity("founder_updated", activityMessage)),
   }, timestamp);
+}
+
+export function applyFounderConversationAnswer(
+  workspace: SourcingWorkspace,
+  input: { answeringKey: SourcingFieldKey; text: string },
+): SourcingWorkspace {
+  const text = input.text.trim();
+  const brandStillOpen = input.answeringKey === "brand_name" && isOpenBrandAnswer(text);
+  const uncertain = brandStillOpen || /^(?:(?:i(?:'|’)m)\s+)?(?:not\s+)?sure(?:\s+yet)?[.!]?$/i.test(text);
+  const extracted = uncertain ? [] : extractExplicitFounderFacts(text, "Founder conversation answer");
+  const updates = [...extracted];
+  if (updates.length === 0) {
+    updates.push({
+      key: input.answeringKey,
+      value: brandStillOpen ? null : text,
+      status: uncertain ? "needs_decision" : "confirmed",
+      explicitlyStated: true,
+      source: "Founder conversation answer",
+      sourceSpans: uncertain ? [] : [{ start: 0, end: text.length, text }],
+      reason: uncertain ? "The founder explicitly kept this decision open." : "The founder answered this product decision in the workspace.",
+      suggestedSharing: !uncertain,
+    });
+  }
+  return applyFounderFacts(workspace, updates, "workspace_ui", updates.length === 1
+    ? `${FIELD_DEFINITION_BY_KEY[input.answeringKey].label} updated by founder.`
+    : `${updates.length} explicit details from the founder's answer were added to the plan.`);
 }
 
 export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFieldUpdate[]): SourcingWorkspace {

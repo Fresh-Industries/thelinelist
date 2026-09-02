@@ -89,9 +89,7 @@ export function requiredMatchingFields(workspace: SourcingWorkspace): SourcingFi
   const beverage = category === "beverage";
   const bakery = category === "bakery" || /\b(?:bar|bars|snack|snacks)\b/.test(product);
   const required: SourcingFieldKey[] = ["product_type", "product_format", "product_description"];
-  if (!isUsefulConfirmedValue(workspace, "formula_status") && !isUsefulConfirmedValue(workspace, "formulation_assistance")) {
-    required.push("formula_status");
-  }
+  required.push("formula_status");
   if (beverage) required.push("carbonation");
   required.push("storage_distribution", "packaging_format");
   if (beverage || bakery) required.push("packaging_size");

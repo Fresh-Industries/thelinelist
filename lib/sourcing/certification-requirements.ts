@@ -83,17 +83,31 @@ function certificationPriority(
   matchedText: string,
   defaultPriority: Exclude<CertificationPriority, "negated"> | null,
 ): CertificationPriority | null {
+  const localClause = contrastSegment(clause, matchedText);
   const escaped = escapeRegExp(matchedText);
   if (
-    new RegExp(`(?:\\bno\\b|\\bwithout\\b)[^.;]{0,35}${escaped}`, "i").test(clause)
-    || new RegExp(`\\bnot\\s+required\\b[^.;]{0,35}${escaped}`, "i").test(clause)
-    || new RegExp(`${escaped}[^.;]{0,35}\\b(?:not|required\\s+no)\\s+(?:currently\\s+)?required\\b`, "i").test(clause)
-    || new RegExp(`${escaped}[^.;]{0,35}\\bnot\\s+needed\\b`, "i").test(clause)
-    || new RegExp(`\\bno\\b[^.;]{0,20}${escaped}[^.;]{0,20}\\brequirement\\b`, "i").test(clause)
+    new RegExp(`(?:\\bno\\b|\\bwithout\\b)[^.;]{0,35}${escaped}`, "i").test(localClause)
+    || new RegExp(`\\bnot\\s+required\\b[^.;]{0,35}${escaped}`, "i").test(localClause)
+    || new RegExp(`${escaped}[^.;]{0,35}\\b(?:not|required\\s+no)\\s+(?:currently\\s+)?required\\b`, "i").test(localClause)
+    || new RegExp(`${escaped}[^.;]{0,35}\\bnot\\s+needed\\b`, "i").test(localClause)
+    || new RegExp(`\\bno\\b[^.;]{0,20}${escaped}[^.;]{0,20}\\brequirement\\b`, "i").test(localClause)
   ) return "negated";
-  if (/\b(?:preferred|preference|nice to have|optional)\b/i.test(clause)) return "preferred";
-  if (/\b(?:required|requirement|must|need(?:ed)?|certified)\b/i.test(clause)) return "required";
+  if (/\b(?:preferred|preference|nice to have|would be nice|optional)\b/i.test(localClause)) return "preferred";
+  if (/\b(?:required|requirement|must|need(?:ed)?|certified)\b/i.test(localClause)) return "required";
   return defaultPriority;
+}
+
+function contrastSegment(clause: string, matchedText: string): string {
+  const matchIndex = clause.toLowerCase().indexOf(matchedText.toLowerCase());
+  if (matchIndex < 0) return clause;
+  const before = clause.slice(0, matchIndex);
+  const after = clause.slice(matchIndex + matchedText.length);
+  const previousContrasts = [...before.matchAll(/\b(?:but|while)\b\s*/gi)];
+  const previousContrast = previousContrasts.at(-1);
+  const nextContrastOffsets = [after.toLowerCase().indexOf(" but "), after.toLowerCase().indexOf(" while ")].filter((offset) => offset >= 0);
+  const start = previousContrast ? (previousContrast.index ?? 0) + previousContrast[0].length : 0;
+  const end = nextContrastOffsets.length ? matchIndex + matchedText.length + Math.min(...nextContrastOffsets) : clause.length;
+  return clause.slice(start, end);
 }
 
 function surroundingClause(value: string, index: number, length: number): string {

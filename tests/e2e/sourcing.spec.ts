@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
+import { decodePDFRawStream, PDFArray, PDFDocument, PDFRawStream } from "pdf-lib";
 import { packageDesignHash } from "../../lib/sourcing/workspace";
 
 async function visualVariationRatio(image: Buffer) {
@@ -31,6 +32,21 @@ async function visualDifferenceRatio(left: Buffer, right: Buffer) {
     if (delta > 45) different += 1;
   }
   return different / (first.length / 3);
+}
+
+async function extractPdfPageText(bytes: Buffer): Promise<string[]> {
+  const document = await PDFDocument.load(bytes);
+  return document.getPages().map((page) => {
+    const contents = page.node.Contents();
+    const refs = contents instanceof PDFArray ? contents.asArray() : contents ? [contents] : [];
+    const operators = refs.map((ref) => {
+      const stream = document.context.lookup(ref) as PDFRawStream;
+      return Buffer.from(decodePDFRawStream(stream).decode()).toString("latin1");
+    }).join("\n");
+    return [...operators.matchAll(/<([0-9A-F]+)>\s*Tj/gi)]
+      .map((match) => Buffer.from(match[1], "hex").toString("latin1"))
+      .join("\n");
+  });
 }
 
 function newMutationId() {
@@ -239,6 +255,80 @@ test("single sourcing entry creates the agent-led living document", async ({ pag
   await expect(page.getByRole("button", { name: /open ChatGPT/i })).toHaveCount(0);
   await expect(page.locator('a[href*="chatgpt.com"]')).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "A packaged banana bread mini loaf for individual sale in coffee shops" })).toHaveCount(0);
+});
+
+test("PDF export keeps each sourcing label with its first value line", async ({ page }) => {
+  await installWebMcpHarness(page);
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  const created = await invokeWebMcp<{ workspace: { id: string } }>(page, "create_sourcing_workspace", {
+    mutationId: newMutationId(),
+    idea: "I’m starting Lantern Finch Foods and want to make a shelf-stable smoky carrot-habanero hot sauce. I’m pretty early and my notes are messy: probably a 5 oz glass woozy bottle, maybe 50,000 bottles for the first run, made in the Midwest, and I need help finishing the formula. SQF is a must; gluten-free would be nice but organic is not required.",
+    initialUpdates: [
+      { key: "brand_name", value: "Lantern Finch Foods", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_category", value: "Sauce / condiment", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_format", value: "5 oz glass woozy bottle", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_type", value: "Hot sauce", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_description", value: "Shelf-stable smoky carrot-habanero hot sauce", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "formula_status", value: "Early; needs help finishing the formula", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "formulation_assistance", value: "Required", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "manufacturing_process", value: "Shelf-stable acidified hot sauce process", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "5 oz glass woozy bottle", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_size", value: "5 oz", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "production_volume", value: "30,000 bottles for the first run", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "certifications", value: "SQF required; gluten-free preferred; organic not required", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "preferred_geography", value: "Midwest", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "storage_distribution", value: "Shelf-stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "retail_channel", value: "Specialty grocers", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect(page).toHaveURL(productBriefPath(created.workspace.id));
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Export PDF" }).click(),
+  ]);
+  const downloadPath = await download.path();
+  expect(downloadPath).toBeTruthy();
+  const pages = await extractPdfPageText(readFileSync(downloadPath!));
+  const labelPage = pages.findIndex((text) => text.includes("Storage and distribution"));
+  expect(labelPage).toBeGreaterThanOrEqual(0);
+  const labelOffset = pages[labelPage].indexOf("Storage and distribution");
+  expect(pages[labelPage].slice(labelOffset)).toContain("Shelf-stable");
+});
+
+test("visible founder answers normalize corrections without repeating resolved questions", async ({ page }) => {
+  const persona = "Scratch notes: Maybe call it Northstar Nibbles—actually no, brand is undecided, please do not use that name. I first wrote roasted fava-bean snack, but correction: it is a baked chickpea crisp with rosemary and lemon. 1.5 oz compostable pillow bag if possible. First run 8,000 bags. Cold-chain? No: shelf-stable. Peanut-free is a must. Organic certification is not required. Prefer a Northeast manufacturer, and I need help finalizing the formula. Launch target was 2027-03-15, correction: 2027-04-01.";
+  const workspaceId = await startProduct(page, persona);
+  const prompt = page.getByRole("heading", { name: /How far along is the recipe/ });
+  await expect(prompt).toBeVisible();
+
+  await page.getByPlaceholder(/Answer naturally/).fill("One 1.5 oz single-serve compostable pillow bag per customer—actually, use a recyclable snack bag if compostable film is not production-ready.");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(prompt).toBeVisible();
+
+  await page.getByPlaceholder(/Answer naturally/).fill("It’s a draft kitchen recipe, not tested or scale-ready, and yes, I need formulation assistance.");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByRole("heading", { name: "Review and save your packaging direction in 3D." })).toBeVisible();
+  await expect(page.getByText(/The next useful decision is is/i)).toHaveCount(0);
+
+  const stored = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(workspaceId)) as { workspace: { fields: Record<string, { value: string | null; status: string }>; revision: number; updatedAt: string } };
+  expect(stored.workspace.fields).toMatchObject({
+    brand_name: { value: null, status: "needs_decision" },
+    product_type: { value: "Baked chickpea crisp", status: "confirmed" },
+    product_format: { value: "1.5 oz single-serve snack bag", status: "confirmed" },
+    packaging_format: { value: "Recyclable Snack Bag", status: "confirmed" },
+    packaging_size: { value: "1.5 oz", status: "confirmed" },
+    formula_status: { value: "Draft kitchen recipe; not tested or scale-ready", status: "confirmed" },
+    formulation_assistance: { value: "Required", status: "confirmed" },
+    production_volume: { value: "8,000 bags", status: "confirmed" },
+    storage_distribution: { value: "Shelf-stable", status: "confirmed" },
+    allergens: { value: "Peanut-free required", status: "confirmed" },
+    certifications: { value: "Not required: Organic", status: "confirmed" },
+    preferred_geography: { value: "Northeast", status: "confirmed" },
+    target_launch_date: { value: "2027-04-01", status: "confirmed" },
+  });
+  const repeated = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(workspaceId)) as { workspace: { revision: number; updatedAt: string } };
+  expect(repeated.workspace).toMatchObject({ revision: stored.workspace.revision, updatedAt: stored.workspace.updatedAt });
 });
 
 test("the collaborator drives one decision and keeps uncertainty open", async ({ page }) => {
@@ -766,14 +856,53 @@ test("zero-result research requires a visible founder-approved criteria diff and
     if (request.method() === "POST" && request.url().endsWith(`/api/sourcing/${created.workspace.id}/match`)) broadeningRequests += 1;
   });
   const beforeCancel = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { revision: number } };
-  await page.getByRole("button", { name: "Review broader search" }).click();
+  const broadeningOpener = page.getByRole("button", { name: "Review broader search" });
+  await broadeningOpener.click();
   const review = page.getByRole("dialog", { name: "Review broader search" });
   await expect(review).toBeVisible();
+  expect(await review.evaluate((element) => element.matches(":modal"))).toBe(true);
+  await expect(review).toContainText("No manufacturer in the reviewed public information proved every required constraint");
+  await expect(review).toContainText("Your product brief, package direction, and founder decisions will not change");
   await expect(review.getByLabel("Exact research criteria change")).toContainText("Required certifications");
   await expect(review.getByLabel("Exact research criteria change")).toContainText("Before");
   await expect(review.getByLabel("Exact research criteria change")).toContainText("After");
-  await review.getByRole("button", { name: "Cancel" }).click();
+  for (const viewport of [
+    { width: 1280, height: 720 },
+    { width: 831, height: 912 },
+    { width: 390, height: 844 },
+    { width: 320, height: 568 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const geometry = await review.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const scroll = element.querySelector(".manufacturer-broadening-scroll");
+      const actions = element.querySelector("footer");
+      const actionsRect = actions?.getBoundingClientRect();
+      return {
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        left: rect.left,
+        scrollOverflowY: scroll ? getComputedStyle(scroll).overflowY : null,
+        actionsInside: Boolean(actionsRect && actionsRect.top >= rect.top && actionsRect.bottom <= rect.bottom),
+        pointOwner: document.elementFromPoint(1, 1)?.closest("dialog") === element,
+      };
+    });
+    expect(geometry.top).toBeGreaterThanOrEqual(0);
+    expect(geometry.left).toBeGreaterThanOrEqual(0);
+    expect(geometry.right).toBeLessThanOrEqual(geometry.viewportWidth);
+    expect(geometry.bottom).toBeLessThanOrEqual(geometry.viewportHeight);
+    expect(geometry.scrollOverflowY).toMatch(/auto|scroll/);
+    expect(geometry.actionsInside).toBe(true);
+    expect(geometry.pointOwner).toBe(true);
+    await expect(review.getByRole("heading", { name: "Review broader search" })).toBeVisible();
+    await expect(review.getByRole("button", { name: "Confirm broader search" })).toBeVisible();
+  }
+  await page.keyboard.press("Escape");
   await expect(review).toBeHidden();
+  await expect(broadeningOpener).toBeFocused();
   const afterCancel = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { revision: number } };
   expect(afterCancel.workspace.revision).toBe(beforeCancel.workspace.revision);
   expect(broadeningRequests).toBe(0);
@@ -831,6 +960,11 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
     for (const span of stored.workspace.fields[key].sourceSpans) expect(idea.slice(span.start, span.end)).toBe(span.text);
   }
   expect(stored.workspace.fields.brand_name.value).toBeNull();
+
+  await page.getByRole("button", { name: "Refine in 3D" }).click();
+  const woozyDialog = page.getByRole("dialog", { name: "Make the package direction tangible." });
+  await expect(woozyDialog.locator(".package-geometry-notice")).toContainText("Generic bottle geometry: the exact woozy shape is not available in this 3D model");
+  await woozyDialog.getByRole("button", { name: "Close packaging workbench" }).click();
 
   const preferred = await invokeWebMcp<{ manufacturerCandidates: Array<{ manufacturerSlug: string }> }>(page, "match_manufacturers", {
     preferredRequirements: ["product_type", "packaging_format", "packaging_size", "production_volume", "preferred_geography", "storage_distribution"],
@@ -1480,6 +1614,7 @@ test("mobile keeps both workspace views inside the viewport", async ({ page }) =
   await page.setViewportSize({ width: 390, height: 844 });
   const workspaceId = await startProduct(page);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Export PDF" })).toBeVisible();
   const briefGeometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
   expect(briefGeometry.document).toBeLessThanOrEqual(briefGeometry.viewport);
 
@@ -1488,6 +1623,7 @@ test("mobile keeps both workspace views inside the viewport", async ({ page }) =
   await expect(page.getByRole("button", { name: "Research manufacturers now" })).toBeVisible();
   await page.getByRole("button", { name: "Research manufacturers now" }).click();
   await expect(page).toHaveURL(manufacturersPath(workspaceId));
+  await expect(page.getByRole("link", { name: "Export PDF" })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Product workspace" }).getByRole("link", { name: "Manufacturers" })).toHaveAttribute("aria-current", "page");
   const manufacturerGeometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
   expect(manufacturerGeometry.document).toBeLessThanOrEqual(manufacturerGeometry.viewport);

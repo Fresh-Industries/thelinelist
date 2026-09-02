@@ -48,6 +48,24 @@ describe("sourcing workspace mutation boundaries", () => {
     expect(workspace.packageCommit).toBeNull();
   });
 
+  it("extracts all explicit facts from one founder conversation answer", async () => {
+    workspace = createWorkspace({ idea: "A baked chickpea crisp" });
+    const response = await patch({
+      revision: workspace.revision,
+      founderAnswer: {
+        answeringKey: "product_format",
+        text: "One 1.5 oz single-serve compostable pillow bag—actually, use a recyclable snack bag.",
+      },
+    });
+    const body = await response.json() as { workspace: SourcingWorkspace };
+
+    expect(response.status).toBe(200);
+    expect(body.workspace.fields.product_format.value).toBe("1.5 oz single-serve snack bag");
+    expect(body.workspace.fields.packaging_format.value).toBe("Recyclable Snack Bag");
+    expect(body.workspace.fields.packaging_size.value).toBe("1.5 oz");
+    expect(mocks.saveSourcingWorkspace).toHaveBeenCalledTimes(1);
+  });
+
   it("persists a complete preview without treating it as founder-saved", async () => {
     const response = await patch({
       revision: workspace.revision,

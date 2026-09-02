@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createWorkspace } from "@/lib/sourcing/workspace";
 
+const prismaMocks = vi.hoisted(() => ({
+  create: vi.fn(async () => ({})),
+  updateMany: vi.fn(async () => ({ count: 1 })),
+  createMany: vi.fn(async () => ({ count: 1 })),
+  upsert: vi.fn(async () => ({})),
+}));
+
 vi.mock("server-only", () => ({}));
 vi.mock("@vercel/blob", () => ({
   BlobNotFoundError: class BlobNotFoundError extends Error {},
@@ -9,6 +16,16 @@ vi.mock("@vercel/blob", () => ({
 }));
 vi.mock("@/lib/request", () => ({ getRequestContext: vi.fn(async () => ({ ipHash: "test-ip" })) }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: vi.fn(async () => ({ ok: true, remaining: 19, adapter: "memory" })) }));
+vi.mock("@/lib/db/prisma", () => ({
+  databaseConfigured: () => Boolean(process.env.DATABASE_URL?.trim()),
+  prisma: {
+    $transaction: vi.fn(async (callback: (transaction: unknown) => unknown) => callback({
+      productWorkspace: { create: prismaMocks.create, updateMany: prismaMocks.updateMany },
+      workspaceActivity: { createMany: prismaMocks.createMany },
+      manufacturerPacket: { upsert: prismaMocks.upsert },
+    })),
+  },
+}));
 
 import { POST as createSourcingWorkspace } from "@/app/api/sourcing/route";
 import {
@@ -31,6 +48,18 @@ describe("production sourcing storage", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("DATABASE_URL", "postgresql://app:test@127.0.0.1:5432/thelinelist_test");
     expect(sourcingStoreAdapter()).toBe("postgres");
+  });
+
+  it("persists the mutation timestamp instead of letting the database shift it within one revision", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DATABASE_URL", "postgresql://app:test@127.0.0.1:5432/thelinelist_test");
+    const workspace = createWorkspace({ idea: "A shelf-stable chickpea snack in a 1 oz pouch" });
+
+    await saveSourcingWorkspace(workspace, null);
+
+    expect(prismaMocks.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ updatedAt: new Date(workspace.updatedAt) }),
+    }));
   });
 
   it("does not use Blob credentials as a structured workspace adapter", () => {
