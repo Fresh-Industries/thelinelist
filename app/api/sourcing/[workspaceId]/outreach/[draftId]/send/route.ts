@@ -6,7 +6,7 @@ import { getAuthorizedWorkspace } from "@/lib/sourcing/access";
 import { contactEmailSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { getSourcingWorkspace, SourcingWorkspaceConflictError, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import type { ManufacturerInquiry, OutreachDraft, SourcingWorkspace } from "@/lib/sourcing/types";
-import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
+import { addWorkspaceActivity, getCurrentManufacturerResearch } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -27,8 +27,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ wo
   if (draft.sentAt && draft.deliveryStatus === "sent") return NextResponse.json({ workspace, draft });
   if (!draft.approvedAt || draft.approvedVersion !== draft.version) return failure("Approve this exact introduction before sending it.", 409);
   if (!workspace.selectedManufacturerSlugs.includes(draft.manufacturerSlug)) return failure("This manufacturer is no longer selected. Prepare a current introduction before sending.", 409);
-  if (!workspace.matches.some((match) => match.manufacturerSlug === draft.manufacturerSlug)) return failure("This manufacturer is not in the current sourced results. Research and prepare a new introduction before sending.", 409);
-  if (workspace.matchesUpdatedAt && Date.parse(draft.createdAt) < Date.parse(workspace.matchesUpdatedAt)) return failure("This introduction is older than the current manufacturer research. Prepare and approve a new version.", 409);
+  const research = getCurrentManufacturerResearch(workspace);
+  if (!research?.candidates.some((match) => match.manufacturerSlug === draft.manufacturerSlug)) return failure("This manufacturer is not in the current sourced results. Research and prepare a new introduction before sending.", 409);
+  if (Date.parse(draft.createdAt) < Date.parse(research.ranAt)) return failure("This introduction is older than the current manufacturer research. Prepare and approve a new version.", 409);
 
   const plant = getPlantBySlug(draft.manufacturerSlug);
   const candidateRecipient = plant && !plant.introductionsPaused && !plant.needsCurrentOwnershipVerification ? plant.publicEmail?.trim() : null;

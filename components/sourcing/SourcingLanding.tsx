@@ -23,8 +23,9 @@ export function SourcingLanding() {
   const [error, setError] = useState("");
   const [agentConnected, setAgentConnected] = useState(false);
   const ideaRef = useRef<HTMLTextAreaElement>(null);
-  const creatingRef = useRef(false);
   const creationAttemptRef = useRef<{ payloadKey: string; mutationId: string } | null>(null);
+  const creationPayloadsRef = useRef(new Map<string, string>());
+  const creationRequestsRef = useRef(new Map<string, Promise<CreationPayload>>());
 
   function seedIdea(seed: string) {
     setIdea(seed);
@@ -38,39 +39,35 @@ export function SourcingLanding() {
 
   const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[], navigate = true, requestedMutationId?: string) => {
     const trimmed = rawIdea.trim();
-    if (!trimmed || creatingRef.current) return;
-    const payloadKey = JSON.stringify({ idea: trimmed, initialUpdates: initialUpdates ?? [] });
+    if (!trimmed) return;
+    const payloadKey = stableJsonStringify({ idea: trimmed, initialUpdates: initialUpdates ?? [] });
     if (creationAttemptRef.current?.payloadKey !== payloadKey || (requestedMutationId && creationAttemptRef.current.mutationId !== requestedMutationId)) {
       creationAttemptRef.current = { payloadKey, mutationId: requestedMutationId ?? createMutationId() };
     }
     const mutationId = creationAttemptRef.current.mutationId;
-    creatingRef.current = true;
-    setPending(true);
-    setError("");
+    const priorPayload = creationPayloadsRef.current.get(mutationId);
+    if (priorPayload && priorPayload !== payloadKey) {
+      throw new Error("That mutationId belongs to a different workspace creation payload. Use a new mutationId instead of changing an idempotent retry.");
+    }
+    creationPayloadsRef.current.set(mutationId, payloadKey);
+
+    let request = creationRequestsRef.current.get(mutationId);
+    if (!request) {
+      setPending(true);
+      setError("");
+      request = requestWorkspaceCreation({ trimmed, mutationId, initialUpdates });
+      creationRequestsRef.current.set(mutationId, request);
+    }
     try {
-      const response = await fetch("/api/sourcing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea: trimmed, mutationId, ...(initialUpdates?.length ? { initialUpdates } : {}) }),
-      });
-      if (!response.ok) {
-        const failure = await response.json().catch(() => null) as { error?: string } | null;
-        throw new Error(failure?.error || `Your product workspace could not be created (${response.status}).`);
-      }
-      const payload = await response.json().catch(() => null) as {
-        workspace?: SourcingWorkspace;
-        receipt?: CreationReceipt;
-        error?: string;
-      } | null;
-      if (!payload?.workspace || !payload.receipt?.authoritative || payload.receipt.currentWorkspaceId !== payload.workspace.id) {
-        throw new Error(payload?.error || "Your product workspace could not be created with an authoritative receipt.");
-      }
+      const payload = await request;
+      if (creationRequestsRef.current.get(mutationId) === request) creationRequestsRef.current.delete(mutationId);
+      setPending(false);
       if (navigate) router.push(payload.receipt.workspaceUrl);
       return payload;
     } catch (caught) {
+      creationRequestsRef.current.delete(mutationId);
       setError(caught instanceof Error ? caught.message : "Your product workspace could not be created.");
       setPending(false);
-      creatingRef.current = false;
       throw caught;
     }
   }, [router]);
@@ -84,6 +81,12 @@ export function SourcingLanding() {
     const modelContext = document.modelContext ?? navigator.modelContext;
     if (!modelContext) return;
     const controller = new AbortController();
+    const ensureActiveEntry = () => {
+      const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+      if (controller.signal.aborted || currentPath !== "/sourcing") {
+        throw new Error("This WebMCP tool handle is stale. Refetch the tools on the current page before retrying; no workspace creation was attempted.");
+      }
+    };
     const tool: WebMcpToolDefinition = {
       name: "create_sourcing_workspace",
       title: "Start a Line List product workspace",
@@ -117,6 +120,7 @@ export function SourcingLanding() {
       },
       annotations: { readOnlyHint: false, untrustedContentHint: true },
       async execute(input) {
+        ensureActiveEntry();
         const args = input as { idea?: unknown; mutationId?: unknown; initialUpdates?: AgentFieldUpdate[] };
         const rawIdea = args.idea;
         if (typeof rawIdea !== "string" || rawIdea.trim().length < 2) throw new Error("Tell me the product idea in at least two characters.");
@@ -125,13 +129,25 @@ export function SourcingLanding() {
         }
         const payload = await createWorkspace(rawIdea, args.initialUpdates, false, args.mutationId);
         if (!payload?.workspace || !payload.receipt) throw new Error("The product workspace could not be created.");
-        window.setTimeout(() => router.push(payload.receipt!.workspaceUrl), 0);
-        return {
+        const result = {
           ...buildSourcingAgentState(payload.workspace),
-          receipt: payload.receipt,
+          receipt: {
+            ...payload.receipt,
+            replaySafe: true,
+            exactPayloadRequired: true,
+            reuseMutationIdForExactRetry: true,
+            navigationTarget: payload.receipt.workspaceUrl,
+            navigationDeferred: true,
+            refetchToolsAfterNavigation: true,
+          },
           workspaceUrl: payload.receipt.workspaceUrl,
           created: payload.receipt.outcome === "created",
         };
+        deferToolNavigation(() => {
+          const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+          if (!controller.signal.aborted && currentPath === "/sourcing") router.push(payload.receipt.workspaceUrl);
+        });
+        return result;
       },
     };
     try {
@@ -202,6 +218,48 @@ interface CreationReceipt {
   currentWorkspaceId: string;
   revision: number;
   workspaceUrl: string;
+}
+
+interface CreationPayload {
+  workspace: SourcingWorkspace;
+  receipt: CreationReceipt;
+}
+
+async function requestWorkspaceCreation({
+  trimmed,
+  mutationId,
+  initialUpdates,
+}: {
+  trimmed: string;
+  mutationId: string;
+  initialUpdates?: AgentFieldUpdate[];
+}): Promise<CreationPayload> {
+  const response = await fetch("/api/sourcing", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idea: trimmed, mutationId, ...(initialUpdates?.length ? { initialUpdates } : {}) }),
+  });
+  const payload = await response.json().catch(() => null) as (Partial<CreationPayload> & { error?: string }) | null;
+  if (!response.ok) throw new Error(payload?.error || `Your product workspace could not be created (${response.status}).`);
+  if (!payload?.workspace || !payload.receipt?.authoritative || payload.receipt.currentWorkspaceId !== payload.workspace.id) {
+    throw new Error(payload?.error || "Your product workspace could not be created with an authoritative receipt.");
+  }
+  return payload as CreationPayload;
+}
+
+function deferToolNavigation(navigate: () => void) {
+  window.setTimeout(navigate, 250);
+}
+
+function stableJsonStringify(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(stableJsonStringify).join(",")}]`;
+  const record = value as Record<string, unknown>;
+  return `{${Object.keys(record)
+    .filter((key) => record[key] !== undefined)
+    .sort()
+    .map((key) => `${JSON.stringify(key)}:${stableJsonStringify(record[key])}`)
+    .join(",")}}`;
 }
 
 function createMutationId(): string {

@@ -5,6 +5,7 @@ import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { getProductIdentity } from "./product-identity";
 import { getSourcingReadiness } from "./readiness";
 import { getProductArtwork } from "./store";
+import { getCurrentManufacturerResearch } from "./workspace";
 import type { PackageDesign, SourcingWorkspace } from "./types";
 
 const PAGE = { width: 612, height: 792, margin: 48 };
@@ -99,9 +100,10 @@ export async function createProductPlanPdf(workspace: SourcingWorkspace): Promis
     line("Planning mockup only. Final dimensions, materials, labels, and production compatibility require manufacturer validation.", { size: 8, color: rgb(0.35, 0.35, 0.32) });
   }
 
-  if (workspace.matches.length) {
+  const currentMatches = getCurrentManufacturerResearch(workspace)?.candidates ?? [];
+  if (currentMatches.length) {
     section("Evidence-backed manufacturer possibilities");
-    for (const match of workspace.matches) {
+    for (const match of currentMatches) {
       line(`${match.manufacturerName} · ${match.location}`, { font: bold, gap: 3 });
       line(match.fitExplanation, { size: 9, gap: 3 });
       const sources = match.evidence.filter((item) => item.sourceUrl).map((item) => `${item.sourceLabel || item.sourceUrl} (${item.lastReviewed})`);

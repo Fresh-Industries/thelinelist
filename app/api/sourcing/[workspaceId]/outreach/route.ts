@@ -1,7 +1,7 @@
 import { prepareOutreachDrafts } from "@/lib/sourcing/outreach";
 import { prepareOutreachSchema, workspaceIdSchema } from "@/lib/sourcing/schemas";
 import { SourcingWorkspaceConflictError, saveSourcingWorkspace } from "@/lib/sourcing/store";
-import { addWorkspaceActivity } from "@/lib/sourcing/workspace";
+import { addWorkspaceActivity, getCurrentManufacturerResearch } from "@/lib/sourcing/workspace";
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
@@ -26,8 +26,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
   if (!founderSelected.length || requested.length !== founderSelected.length || requested.some((slug, index) => slug !== founderSelected[index])) {
     return NextResponse.json({ error: "The founder must select these manufacturers in the workspace before any introduction drafts can be prepared." }, { status: 409 });
   }
-  const currentMatchSlugs = new Set(workspace.matches.map((match) => match.manufacturerSlug));
-  if (!workspace.matchesUpdatedAt || requested.some((slug) => !currentMatchSlugs.has(slug))) {
+  const research = getCurrentManufacturerResearch(workspace);
+  const currentMatchSlugs = new Set(research?.candidates.map((match) => match.manufacturerSlug) ?? []);
+  if (!research || requested.some((slug) => !currentMatchSlugs.has(slug))) {
     return NextResponse.json({
       error: "Research the current product plan again before preparing introductions for this shortlist.",
       workspace,

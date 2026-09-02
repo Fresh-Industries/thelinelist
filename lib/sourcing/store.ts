@@ -1,8 +1,8 @@
 import "server-only";
 
 import { BlobNotFoundError, get, put } from "@vercel/blob";
-import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Prisma } from "@/generated/prisma/client";
@@ -13,6 +13,7 @@ import type { SourcingWorkspace, WorkspaceActivity } from "./types";
 import { normalizeWorkspace } from "./workspace";
 
 const localStoreDirectory = join(tmpdir(), "thelinelist-sourcing-workspaces");
+const localWorkspaceLocks = new Map<string, Promise<void>>();
 
 function read(name: string): string {
   return process.env[name]?.trim() ?? "";
@@ -136,6 +137,7 @@ function rowToWorkspace(row: {
 }): SourcingWorkspace | null {
   const parsed = ProductPlanSchema.safeParse(row.plan);
   if (!parsed.success) return null;
+  const research = parsed.data.manufacturerResearch;
   return normalizeWorkspace({
     id: row.id,
     ownership: { userId: row.userId, brandId: null },
@@ -143,6 +145,8 @@ function rowToWorkspace(row: {
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     ...parsed.data,
+    matches: research?.candidates ?? [],
+    matchesUpdatedAt: research?.ranAt ?? null,
     activity: row.activities.map((item) => ({
       id: item.id,
       kind: item.kind as WorkspaceActivity["kind"],
@@ -252,21 +256,41 @@ export async function saveSourcingWorkspace(
     return;
   }
   if (fileStoreReady()) {
-    await mkdir(localStoreDirectory, { recursive: true });
-    const workspacePath = join(localStoreDirectory, `${normalized.id}.json`);
-    if (expectedRevision !== null) {
-      try {
-        const current = JSON.parse(await readFile(workspacePath, "utf8")) as SourcingWorkspace;
-        if (current.revision !== expectedRevision) throw new SourcingWorkspaceConflictError();
-      } catch (error) {
-        if (error instanceof SourcingWorkspaceConflictError) throw error;
-        throw new SourcingWorkspaceConflictError();
+    await withLocalWorkspaceLock(normalized.id, async () => {
+      await mkdir(localStoreDirectory, { recursive: true });
+      const workspacePath = join(localStoreDirectory, `${normalized.id}.json`);
+      if (expectedRevision !== null) {
+        try {
+          const current = JSON.parse(await readFile(workspacePath, "utf8")) as SourcingWorkspace;
+          if (current.revision !== expectedRevision) throw new SourcingWorkspaceConflictError();
+        } catch (error) {
+          if (error instanceof SourcingWorkspaceConflictError) throw error;
+          throw new SourcingWorkspaceConflictError();
+        }
       }
-    }
-    await writeFile(workspacePath, JSON.stringify(normalized), { encoding: "utf8", mode: 0o600 });
+      const temporaryPath = join(localStoreDirectory, `${normalized.id}.${randomUUID()}.tmp`);
+      const { matches: _derivedMatches, matchesUpdatedAt: _derivedMatchesUpdatedAt, ...persistedWorkspace } = normalized;
+      await writeFile(temporaryPath, JSON.stringify(persistedWorkspace), { encoding: "utf8", mode: 0o600 });
+      await rename(temporaryPath, workspacePath);
+    });
     return;
   }
   throw new SourcingStoreUnavailableError();
+}
+
+async function withLocalWorkspaceLock<T>(workspaceId: string, operation: () => Promise<T>): Promise<T> {
+  const previous = localWorkspaceLocks.get(workspaceId) ?? Promise.resolve();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  const queued = previous.then(() => gate);
+  localWorkspaceLocks.set(workspaceId, queued);
+  await previous;
+  try {
+    return await operation();
+  } finally {
+    release();
+    if (localWorkspaceLocks.get(workspaceId) === queued) localWorkspaceLocks.delete(workspaceId);
+  }
 }
 
 export async function getWorkspaceByPacketToken(token: string): Promise<SourcingWorkspace | null> {

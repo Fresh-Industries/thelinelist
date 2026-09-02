@@ -1,7 +1,7 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { FIELD_DEFINITION_BY_KEY, SOURCING_FIELD_DEFINITIONS } from "./fields";
 import { deriveProductDescriptorFromIdea, isOpenBrandAnswer } from "./product-identity";
-import type { AgentFieldUpdate, OutreachDraft, PackageDesign, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
+import type { AgentFieldUpdate, ManufacturerMatch, ManufacturerResearchRequest, OutreachDraft, PackageDesign, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingValidationStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
 
 function now(): string {
   return new Date().toISOString();
@@ -22,6 +22,8 @@ function blankField(key: SourcingFieldKey, timestamp: string): SourcingField {
     shareWithManufacturer: false,
     updatedAt: timestamp,
     updatedBy: "system",
+    confirmation: null,
+    validationStatus: "not_required",
     evidence: [],
   };
 }
@@ -119,23 +121,39 @@ export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorksp
     humanSendTokenHash: draft.humanSendTokenHash ?? null,
     humanSendTokenExpiresAt: draft.humanSendTokenExpiresAt ?? null,
   }));
-  return {
+  const normalized: SourcingWorkspace = {
     ...workspace,
     ownership: workspace.ownership ?? { userId: null, brandId: null },
     originalIdea,
+    creationRequestHash: workspace.creationRequestHash ?? null,
     artwork: workspace.artwork ?? null,
     packageDesign: workspace.packageDesign ?? null,
+    stagedPackageDesign: workspace.stagedPackageDesign ?? null,
+    packageCommit: workspace.packageCommit ?? null,
     lastAgentChange: workspace.lastAgentChange ?? null,
     fields,
     selectedManufacturerSlugs: workspace.selectedManufacturerSlugs ?? [],
     matches: workspace.matches ?? [],
+    matchesUpdatedAt: workspace.matchesUpdatedAt ?? null,
+    manufacturerResearch: workspace.manufacturerResearch ?? null,
     outreachDrafts,
     inquiries: workspace.inquiries ?? [],
     activity: workspace.activity ?? [],
   };
+  const research = normalized.manufacturerResearch;
+  if (!research) return normalized;
+  const current = research.status === "current"
+    && research.candidateCount === research.candidates.length
+    && research.planFingerprint === manufacturerPlanFingerprint(normalized);
+  return {
+    ...normalized,
+    manufacturerResearch: current ? research : { ...research, status: "stale", invalidatedAt: research.invalidatedAt ?? timestamp },
+    matches: current ? research.candidates : [],
+    matchesUpdatedAt: current ? research.ranAt : null,
+  };
 }
 
-export function createWorkspace(options: { demo?: boolean; id?: string; idea?: string; initialUpdates?: AgentFieldUpdate[] } = {}): SourcingWorkspace {
+export function createWorkspace(options: { demo?: boolean; id?: string; idea?: string; initialUpdates?: AgentFieldUpdate[]; creationRequestHash?: string } = {}): SourcingWorkspace {
   const timestamp = now();
   const fields = Object.fromEntries(
     SOURCING_FIELD_DEFINITIONS.map(({ key }) => [key, blankField(key, timestamp)]),
@@ -145,8 +163,11 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
     id: options.id ?? randomBytes(18).toString("base64url"),
     ownership: { userId: null, brandId: null },
     originalIdea: options.idea?.trim() || null,
+    creationRequestHash: options.creationRequestHash ?? null,
     artwork: null,
     packageDesign: null,
+    stagedPackageDesign: null,
+    packageCommit: null,
     lastAgentChange: null,
     revision: 1,
     createdAt: timestamp,
@@ -155,6 +176,7 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
     selectedManufacturerSlugs: [],
     matches: [],
     matchesUpdatedAt: null,
+    manufacturerResearch: null,
     outreachDrafts: [],
     inquiries: [],
     activity: [activity("created", options.demo ? "Energy-drink demo plan created." : "Product plan created.")],
@@ -178,6 +200,8 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
               shareWithManufacturer: true,
               updatedAt: timestamp,
               updatedBy: "founder",
+              confirmation: founderConfirmation("founder_statement", timestamp, workspace.revision),
+              validationStatus: "not_required",
             },
           },
           activity: [activity("founder_updated", "Your starting idea was added to the plan."), ...workspace.activity],
@@ -208,18 +232,20 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
 export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFieldUpdate[]): SourcingWorkspace {
   const timestamp = now();
   let fields = { ...workspace.fields };
-  const changedKeySet = new Set(updates.map((update) => update.key));
-  const previousFields: Partial<Record<SourcingFieldKey, SourcingField>> = Object.fromEntries(
-    [...changedKeySet].map((key) => [key, workspace.fields[key]]),
-  );
+  const changedKeySet = new Set<SourcingFieldKey>();
+  const previousFields: Partial<Record<SourcingFieldKey, SourcingField>> = {};
   for (const update of updates) {
     const definition = FIELD_DEFINITION_BY_KEY[update.key];
+    const current = fields[update.key];
     const brandStillOpen = update.key === "brand_name" && isOpenBrandAnswer(update.value);
     const normalizedValue = brandStillOpen ? null : update.value;
     const hasValue = typeof normalizedValue === "string" && normalizedValue.trim().length > 0;
     const requestedStatus = brandStillOpen ? "needs_decision" : update.status ?? (update.explicitlyStated ? "confirmed" : "proposed");
+    const founderStatement = requestedStatus === "confirmed" && update.explicitlyStated === true;
+    if (current.status === "confirmed" && !founderStatement) continue;
+    const founderOnlyPromotion = founderStatement && (current.status === "proposed" || current.status === "needs_decision");
     const status: SourcingFieldStatus = hasValue
-      ? requestedStatus === "confirmed" && update.explicitlyStated !== true ? "proposed" : requestedStatus
+      ? requestedStatus === "confirmed" && (update.explicitlyStated !== true || founderOnlyPromotion) ? "proposed" : requestedStatus
       : "needs_decision";
     const evidence = (update.sources ?? []).map((source) => ({
       title: source.title.trim(),
@@ -228,18 +254,24 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
       publisher: source.publisher?.trim() || null,
       reviewedAt: source.reviewedAt ?? timestamp,
     }));
+    previousFields[update.key] = current;
+    changedKeySet.add(update.key);
     fields[update.key] = {
-      ...fields[update.key],
+      ...current,
       value: hasValue ? normalizedValue!.trim() : null,
       status,
-      reason: update.reason?.trim() || null,
+      reason: founderOnlyPromotion
+        ? update.reason?.trim() || "This proposal still needs an explicit founder confirmation in the workspace."
+        : update.reason?.trim() || null,
       source: update.source?.trim() || null,
-      explicitlyStated: update.explicitlyStated === true,
+      explicitlyStated: status === "confirmed" && update.explicitlyStated === true,
       shareWithManufacturer: hasValue && !definition.privateByDefault
         ? (update.suggestedSharing ?? definition.shareByDefault)
         : false,
       updatedAt: timestamp,
       updatedBy: "agent",
+      confirmation: status === "confirmed" ? founderConfirmation("founder_statement", timestamp, workspace.revision) : null,
+      validationStatus: validationStatusFor(update.key, hasValue ? normalizedValue!.trim() : null, update.reason, current.validationStatus),
       evidence,
     };
   }
@@ -286,32 +318,48 @@ export function undoLastAgentChange(workspace: SourcingWorkspace, changeId: stri
   });
 }
 
-export function applyPackageDesignUpdate(workspace: SourcingWorkspace, design: PackageDesign, updatedBy: "founder" | "agent"): SourcingWorkspace {
+export function stagePackageDesign(
+  workspace: SourcingWorkspace,
+  input: { stageId: string; packageDesign: PackageDesign; stagedBy: "agent" | "founder" },
+): SourcingWorkspace {
   const timestamp = now();
-  const packagingField: SourcingField = {
-    ...workspace.fields.packaging_format,
-    value: design.summary,
-    status: "confirmed",
-    reason: null,
-    source: updatedBy === "agent" ? "Agent packaging update from founder instruction" : "Package mockup workbench",
-    explicitlyStated: true,
-    shareWithManufacturer: true,
-    updatedAt: timestamp,
-    updatedBy,
-  };
+  return touch({
+    ...workspace,
+    stagedPackageDesign: {
+      id: input.stageId,
+      design: input.packageDesign,
+      stagedAt: timestamp,
+      stagedBy: input.stagedBy,
+      designHash: packageDesignHash(input.packageDesign),
+    },
+    activity: addActivity(workspace.activity, activity(input.stagedBy === "agent" ? "agent_proposed" : "founder_updated", "A package direction was staged for visible founder review.")),
+  }, timestamp);
+}
+
+export function commitStagedPackageDesign(
+  workspace: SourcingWorkspace,
+  input: { commitId: string; stagedPackageId: string },
+): SourcingWorkspace {
+  const staged = workspace.stagedPackageDesign;
+  if (!staged || staged.id !== input.stagedPackageId || staged.designHash !== packageDesignHash(staged.design)) {
+    throw new Error("The staged package direction changed. Review the current preview before committing it.");
+  }
+  const timestamp = now();
+  const design = staged.design;
   return touch({
     ...workspace,
     packageDesign: design,
-    fields: { ...workspace.fields, packaging_format: packagingField },
-    lastAgentChange: updatedBy === "agent" ? {
-      id: randomUUID(),
-      at: timestamp,
-      changedKeys: ["packaging_format"],
-      previousFields: { packaging_format: workspace.fields.packaging_format },
-      packageDesignChanged: true,
-      previousPackageDesign: workspace.packageDesign,
-    } : workspace.lastAgentChange,
-    activity: addActivity(workspace.activity, activity(updatedBy === "agent" ? "agent_proposed" : "founder_updated", updatedBy === "agent" ? "Your agent updated the packaging direction from your instruction." : "Packaging direction updated by founder.")),
+    stagedPackageDesign: null,
+    packageCommit: {
+      id: input.commitId,
+      actor: "founder",
+      channel: "workspace_ui",
+      committedAt: timestamp,
+      sourceRevision: workspace.revision,
+      designHash: staged.designHash,
+      stagedPackageId: staged.id,
+    },
+    activity: addActivity(workspace.activity, activity("founder_updated", "Packaging direction committed by the founder from the visible workbench.")),
   }, timestamp);
 }
 
@@ -334,6 +382,8 @@ export function applyFounderFieldUpdate(
     shareWithManufacturer: Boolean(value && status === "confirmed" && !definition.privateByDefault && input.shareWithManufacturer),
     updatedAt: timestamp,
     updatedBy: "founder",
+    confirmation: status === "confirmed" ? founderConfirmation("workspace_ui", timestamp, workspace.revision) : null,
+    validationStatus: validationStatusFor(input.key, value, workspace.fields[input.key].reason, workspace.fields[input.key].validationStatus),
     evidence: workspace.fields[input.key].evidence ?? [],
   };
   const fields = refreshStarterProductDescription({ ...workspace.fields, [input.key]: field }, timestamp);
@@ -432,6 +482,119 @@ export function invalidateDraftsForProductChange(workspace: SourcingWorkspace): 
 
 export function touch(workspace: SourcingWorkspace, timestamp = now()): SourcingWorkspace {
   return { ...workspace, revision: workspace.revision + 1, updatedAt: timestamp };
+}
+
+export function packageDesignHash(design: PackageDesign): string {
+  return stableHash(design);
+}
+
+export function hasValidFounderPackageCommit(workspace: SourcingWorkspace): boolean {
+  const commit = workspace.packageCommit;
+  return Boolean(
+    workspace.packageDesign
+    && commit
+    && commit.actor === "founder"
+    && commit.channel === "workspace_ui"
+    && commit.sourceRevision < workspace.revision
+    && commit.designHash === packageDesignHash(workspace.packageDesign),
+  );
+}
+
+export function manufacturerPlanFingerprint(workspace: SourcingWorkspace): string {
+  const keys: SourcingFieldKey[] = [
+    "product_name", "product_category", "product_format", "product_type", "product_description",
+    "formula_status", "formulation_assistance", "carbonation", "manufacturing_process", "packaging_format",
+    "packaging_size", "production_volume", "certifications", "preferred_geography", "storage_distribution", "allergens",
+  ];
+  return stableHash({
+    fields: keys.map((key) => {
+      const field = workspace.fields[key];
+      return [key, field.value, field.status, field.validationStatus];
+    }),
+    packageCommit: hasValidFounderPackageCommit(workspace) ? workspace.packageCommit?.designHash : null,
+  });
+}
+
+export function applyManufacturerResearch(
+  workspace: SourcingWorkspace,
+  request: ManufacturerResearchRequest,
+  candidates: ManufacturerMatch[],
+): SourcingWorkspace {
+  const timestamp = now();
+  const research = {
+    id: randomUUID(),
+    status: "current" as const,
+    request,
+    planFingerprint: manufacturerPlanFingerprint(workspace),
+    candidates,
+    candidateCount: candidates.length,
+    ranAt: timestamp,
+    invalidatedAt: null,
+  };
+  return touch({
+    ...workspace,
+    manufacturerResearch: research,
+    matches: candidates,
+    matchesUpdatedAt: timestamp,
+    selectedManufacturerSlugs: workspace.selectedManufacturerSlugs.filter((slug) => candidates.some((candidate) => candidate.manufacturerSlug === slug)),
+    activity: addActivity(workspace.activity, activity("matched", `${candidates.length} evidence-backed manufacturer match${candidates.length === 1 ? "" : "es"} prepared.`)),
+  }, timestamp);
+}
+
+export function getCurrentManufacturerResearch(workspace: SourcingWorkspace) {
+  const research = workspace.manufacturerResearch;
+  if (!research || research.status !== "current") return null;
+  if (research.candidateCount !== research.candidates.length) return null;
+  if (research.planFingerprint !== manufacturerPlanFingerprint(workspace)) return null;
+  if (workspace.selectedManufacturerSlugs.some((slug) => !research.candidates.some((candidate) => candidate.manufacturerSlug === slug))) return null;
+  return research;
+}
+
+export function invalidateManufacturerResearch(workspace: SourcingWorkspace): SourcingWorkspace {
+  const timestamp = now();
+  return {
+    ...workspace,
+    manufacturerResearch: workspace.manufacturerResearch
+      ? { ...workspace.manufacturerResearch, status: "stale", invalidatedAt: timestamp }
+      : null,
+    matches: [],
+    matchesUpdatedAt: null,
+  };
+}
+
+function founderConfirmation(channel: "workspace_ui" | "founder_statement", confirmedAt: string, sourceRevision: number) {
+  return { id: randomUUID(), actor: "founder" as const, channel, confirmedAt, sourceRevision };
+}
+
+const VALIDATION_SENSITIVE_KEYS = new Set<SourcingFieldKey>([
+  "formula_status", "formulation_assistance", "manufacturing_process", "storage_distribution",
+  "packaging_format", "packaging_size", "certifications", "allergens",
+]);
+
+function validationStatusFor(
+  key: SourcingFieldKey,
+  value: string | null,
+  reason: string | undefined | null,
+  previous: SourcingValidationStatus,
+): SourcingValidationStatus {
+  if (!value || !VALIDATION_SENSITIVE_KEYS.has(key)) return "not_required";
+  if (previous === "validated" && !reason) return "validated";
+  return "needs_validation";
+}
+
+function stableHash(value: unknown): string {
+  return createHash("sha256").update(stableSerialize(value)).digest("hex");
+}
+
+function stableSerialize(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableSerialize).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${stableSerialize(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
 }
 
 export function addWorkspaceActivity(workspace: SourcingWorkspace, kind: WorkspaceActivity["kind"], message: string): SourcingWorkspace {

@@ -1,5 +1,6 @@
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { getSourcingCategory } from "./questions";
+import { getCurrentManufacturerResearch, hasValidFounderPackageCommit } from "./workspace";
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
 
 export const MATCH_SHAPING_FIELDS: SourcingFieldKey[] = [
@@ -94,7 +95,7 @@ export function requiredMatchingFields(workspace: SourcingWorkspace): SourcingFi
 export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingReadiness {
   const required = requiredMatchingFields(workspace);
   const packageDesignRequired = required.includes("packaging_format");
-  const packageDesignReady = Boolean(workspace.packageDesign);
+  const packageDesignReady = hasValidFounderPackageCommit(workspace);
   const confirmed = required.filter((key) => isUsefulConfirmedValue(workspace, key) && (key !== "packaging_format" || packageDesignReady));
   const proposed = prioritizeDecisions(workspace, required.filter((key) => workspace.fields[key]?.status === "proposed"));
   const confirmedSet = new Set(confirmed);
@@ -102,7 +103,9 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const missing = prioritizeDecisions(workspace, required.filter((key) => !confirmedSet.has(key) && !proposedSet.has(key)));
   const hasProduct = isUsefulConfirmedValue(workspace, "product_type");
   const searchReady = hasProduct && MATCH_SHAPING_FIELDS.some((key) => isUsefulConfirmedValue(workspace, key));
-  const manufacturerReady = confirmed.length === required.length;
+  const manufacturerBriefInputsReady = confirmed.length === required.length;
+  const researchCurrent = Boolean(getCurrentManufacturerResearch(workspace));
+  const manufacturerReady = manufacturerBriefInputsReady && researchCurrent;
   const launchFields: SourcingFieldKey[] = ["retail_channel", "target_retail_price", "target_unit_cost", "case_pack", "allergens", "target_launch_date"];
   const launchMissing = launchFields.filter((key) => !isUsefulConfirmedValue(workspace, key));
   const launchReady = manufacturerReady && launchMissing.length === 0;
@@ -112,7 +115,7 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const hasProductDefinition = hasProduct && confirmed.some((key) => ["product_format", "packaging_format", "packaging_size", "storage_distribution"].includes(key));
   const hasPreparedIntroduction = workspace.outreachDrafts.some((draft) => draft.approvedVersion !== null);
   const milestone = (workspace.inquiries.length || hasPreparedIntroduction) ? "introduction"
-    : workspace.matches.length ? "match"
+    : getCurrentManufacturerResearch(workspace)?.candidateCount ? "match"
     : searchReady ? "commercial"
     : hasProductDefinition ? "product"
     : "concept";
@@ -129,6 +132,8 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
     && isUsefulConfirmedValue(workspace, "packaging_format");
   const summary = manufacturerReady
     ? "Your brief is ready for an introductory manufacturer fit conversation."
+    : manufacturerBriefInputsReady && !researchCurrent
+      ? "Research the current brief before treating it as manufacturer-ready."
     : packageDesignPending
       ? "Your package format is captured. Refine and save the 3D direction before the manufacturer brief is ready."
     : searchReady

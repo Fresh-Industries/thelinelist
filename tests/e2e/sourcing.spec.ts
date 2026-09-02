@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
@@ -539,12 +539,14 @@ test("artwork generation preserves an explicitly staged slim can, honors motifs,
     for (const byte of bytes) binary += String.fromCharCode(byte);
     return btoa(binary);
   }, firstArtwork.artworkUrl), "base64");
+  expect(firstArtwork.visualSignature).toBe(`sha256:${createHash("sha256").update(firstBytes).digest("hex")}`);
 
   const refinedArtwork = await invokeWebMcp<{
     artworkUrl: string;
     renderedMotifs: string[];
     visualSignature: string;
     preview: { packagingType: string; finish: string; baseColor: string; dimensions: { width: number; height: number; depth: number } };
+    product: { brandName: string; descriptor: string };
   }>(page, "generate_package_artwork", {
     artDirection: "Make the lightning dramatically larger and diagonal, move the citrus wheel left, and keep sparkling bubbles around it",
     style: "modern-premium",
@@ -560,6 +562,7 @@ test("artwork generation preserves an explicitly staged slim can, honors motifs,
       baseColor: "#25b7b8",
       dimensions: { width: 2.25, height: 6.2, depth: 2.25 },
     },
+    product: { brandName: "Bright Current", descriptor: "Carbonated citrus drink" },
   });
   const refinedBytes = Buffer.from(await page.evaluate(async (url) => {
     const bytes = new Uint8Array(await fetch(url).then((response) => response.arrayBuffer()) as ArrayBuffer);
@@ -567,6 +570,7 @@ test("artwork generation preserves an explicitly staged slim can, honors motifs,
     for (const byte of bytes) binary += String.fromCharCode(byte);
     return btoa(binary);
   }, refinedArtwork.artworkUrl), "base64");
+  expect(refinedArtwork.visualSignature).toBe(`sha256:${createHash("sha256").update(refinedBytes).digest("hex")}`);
   expect(await visualDifferenceRatio(firstBytes, refinedBytes)).toBeGreaterThan(0.03);
 
   await waitFor3dPreview(dialog);
@@ -776,6 +780,164 @@ test("WebMCP-only broadened discovery visibly returns evidence-backed possibilit
   const persisted = await invokeWebMcp<{ manufacturerCandidates: unknown[]; outreach: { selectedManufacturerSlugs: string[]; drafts: unknown[] } }>(page, "get_sourcing_workspace", {});
   expect(persisted.manufacturerCandidates).toHaveLength(broadened.resultCount);
   expect(persisted.outreach).toMatchObject({ selectedManufacturerSlugs: [], drafts: [] });
+});
+
+test("two WebMCP journeys keep staged founder state, research, and stale handles workspace-scoped", async ({ page }) => {
+  await installWebMcpHarness(page);
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+
+  const strict = await invokeWebMcp<{ workspace: { id: string } }>(page, "create_sourcing_workspace", {
+    mutationId: newMutationId(),
+    idea: "Fictional Northstar chickpea snack with a shelf-stable goal in a resealable pouch",
+    initialUpdates: [
+      { key: "brand_name", value: "Northstar", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_type", value: "Crunchy chickpea snack", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_format", value: "Single-serve crunchy snack", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "Resealable stand-up pouch", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "storage_distribution", value: "Shelf-stable goal", status: "proposed", explicitlyStated: false, reason: "Requires qualified process and shelf-life validation." },
+      { key: "certifications", value: "Fictional Lunar-certified facility required", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect(page).toHaveURL(productBriefPath(strict.workspace.id));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+
+  const stageId = newMutationId();
+  const stagedDesign = {
+    packagingType: "stand-up-pouch",
+    finish: "colored",
+    baseColor: "#173f35",
+    labelColor: "#f2e8d5",
+    artworkId: null,
+    previewAssetId: null,
+    frontText: null,
+    windowScale: 0,
+    closure: { style: "resealable zipper", color: "#173f35" },
+    logoAspect: 1,
+    logoScale: 0.84,
+    logoPosition: { x: -0.12, y: 0.09 },
+    dimensions: { width: 140, height: 210, depth: 65 },
+    summary: "Stand-up pouch · 140 × 210 × 65 working dimensions",
+  };
+  const staged = await invokeWebMcp<{
+    committed: boolean;
+    packaging: { saved: boolean; direction: unknown; stagedDirection: { id: string; design: typeof stagedDesign } };
+  }>(page, "refine_package_design_in_3d", { packageDesign: stagedDesign, stageId, explicitlyStated: true });
+  expect(staged).toMatchObject({ committed: false, packaging: { saved: false, direction: null } });
+  expect(staged.packaging.stagedDirection).toMatchObject({ id: stageId, design: stagedDesign });
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
+
+  await page.getByRole("navigation", { name: "Product workspace" }).getByRole("link", { name: "Manufacturers" }).click();
+  await expect(page).toHaveURL(manufacturersPath(strict.workspace.id));
+  const stagedOnChildRoute = await invokeWebMcp<{
+    packaging: { saved: boolean; stagedDirection: { design: typeof stagedDesign } };
+    requirements: { proposed: Array<{ key: string }>; needsValidation: Array<{ key: string }> };
+  }>(page, "get_sourcing_workspace", {});
+  expect(stagedOnChildRoute.packaging).toMatchObject({ saved: false, stagedDirection: { design: stagedDesign } });
+  expect(stagedOnChildRoute.requirements.proposed).toContainEqual(expect.objectContaining({ key: "storage_distribution" }));
+  expect(stagedOnChildRoute.requirements.needsValidation).toContainEqual(expect.objectContaining({ key: "storage_distribution" }));
+
+  const zero = await invokeWebMcp<{
+    resultCount: number;
+    manufacturerCandidates: unknown[];
+    receipt: { authoritative: boolean; researchId: string; resultCount: number };
+  }>(page, "match_manufacturers", { requiredRequirements: ["certifications"], resultLimit: 3 });
+  expect(zero).toMatchObject({ resultCount: 0, manufacturerCandidates: [], receipt: { authoritative: true, resultCount: 0 } });
+  expect(zero.receipt.researchId).toEqual(expect.any(String));
+  await expect(page.getByRole("heading", { name: "No evidence-backed possibilities yet" })).toBeVisible();
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+  const strictReloaded = await invokeWebMcp<{
+    workspace: { originalIdea: string };
+    packaging: { saved: boolean; stagedDirection: { design: typeof stagedDesign } };
+    manufacturerCandidates: unknown[];
+  }>(page, "get_sourcing_workspace", {});
+  expect(strictReloaded.workspace.originalIdea).toContain("Northstar chickpea snack");
+  expect(strictReloaded.packaging).toMatchObject({ saved: false, stagedDirection: { design: stagedDesign } });
+  expect(strictReloaded.manufacturerCandidates).toEqual([]);
+
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  const successful = await invokeWebMcp<{ workspace: { id: string } }>(page, "create_sourcing_workspace", {
+    mutationId: newMutationId(),
+    idea: "Fictional Daybreak sparkling citrus drink in a slim can",
+    initialUpdates: [
+      { key: "brand_name", value: "Daybreak", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_type", value: "Sparkling citrus beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_format", value: "Ready-to-drink liquid", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "12 oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "carbonation", value: "Carbonated", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect(page).toHaveURL(productBriefPath(successful.workspace.id));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+  const matched = await invokeWebMcp<{
+    resultCount: number;
+    manufacturerCandidates: Array<{ manufacturerSlug: string }>;
+    receipt: { authoritative: boolean; resultCount: number };
+  }>(page, "match_manufacturers", { resultLimit: 2 });
+  expect(matched.resultCount).toBeGreaterThan(0);
+  expect(matched.resultCount).toBe(matched.manufacturerCandidates.length);
+  expect(matched.receipt).toMatchObject({ authoritative: true, resultCount: matched.resultCount });
+  await expect(page.getByRole("button", { name: /^View details for / }).first()).toBeVisible();
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+  const successReloaded = await invokeWebMcp<{
+    workspace: { originalIdea: string };
+    packaging: { stagedDirection: unknown };
+    manufacturerCandidates: Array<{ manufacturerSlug: string }>;
+  }>(page, "get_sourcing_workspace", {});
+  expect(successReloaded.workspace.originalIdea).toContain("Daybreak sparkling citrus drink");
+  expect(successReloaded.packaging.stagedDirection).toBeNull();
+  expect(successReloaded.manufacturerCandidates).toEqual(matched.manufacturerCandidates);
+
+  const cookies = await page.context().cookies();
+  expect(cookies.map((cookie) => cookie.name)).toEqual(expect.arrayContaining([
+    `tll_guest_workspace_${strict.workspace.id}`,
+    `tll_guest_workspace_${successful.workspace.id}`,
+  ]));
+
+  await page.goto(productBriefPath(strict.workspace.id));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+  const successBeforeStaleCall = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(successful.workspace.id)) as { workspace: { revision: number } };
+  const staleMessage = await page.evaluate(async ({ otherWorkspaceId, currentWorkspaceId }) => {
+    const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
+    const oldTool = tools.get("update_sourcing_workspace")!;
+    window.history.pushState({}, "", `/sourcing/${otherWorkspaceId}`);
+    try {
+      await oldTool.execute({ proposedUpdates: [{ key: "production_volume", value: "Should not persist", status: "proposed", explicitlyStated: false }] });
+      return "unexpected success";
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    } finally {
+      window.history.pushState({}, "", `/sourcing/${currentWorkspaceId}`);
+    }
+  }, { otherWorkspaceId: successful.workspace.id, currentWorkspaceId: strict.workspace.id });
+  expect(staleMessage).toContain(`stale for workspace ${strict.workspace.id}`);
+  const successAfterStaleCall = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(successful.workspace.id)) as { workspace: { revision: number } };
+  expect(successAfterStaleCall.workspace.revision).toBe(successBeforeStaleCall.workspace.revision);
+
+  const beforeCommit = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(strict.workspace.id)) as { workspace: { fields: unknown } };
+  await invokeWebMcp(page, "refine_package_design_in_3d", { packageDesign: stagedDesign, stageId, explicitlyStated: true });
+  const dialog = page.getByRole("dialog", { name: "Review what your agent changed." });
+  await expect(dialog).toBeVisible();
+  await waitFor3dPreview(dialog);
+  await dialog.getByRole("button", { name: "Use this package direction" }).click();
+  await expect(dialog).toHaveCount(0);
+  const committed = await invokeWebMcp<{
+    packaging: { saved: boolean; direction: typeof stagedDesign; stagedDirection: null; commitment: { actor: string; channel: string; stagedPackageId: string } };
+    requirements: { proposed: Array<{ key: string }> };
+  }>(page, "get_package_design", {});
+  const afterCommit = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(strict.workspace.id)) as { workspace: { fields: unknown } };
+  expect(committed.packaging).toMatchObject({
+    saved: true,
+    direction: { ...stagedDesign, previewAssetId: expect.any(String) },
+    stagedDirection: null,
+    commitment: { actor: "founder", channel: "workspace_ui", stagedPackageId: expect.any(String) },
+  });
+  expect(committed.packaging.direction.previewAssetId).toEqual(expect.any(String));
+  expect(afterCommit.workspace.fields).toEqual(beforeCommit.workspace.fields);
+  expect(committed.requirements.proposed).toContainEqual(expect.objectContaining({ key: "storage_distribution" }));
 });
 
 test("product brief and manufacturers are separate history-safe views", async ({ page }) => {

@@ -1,5 +1,5 @@
 import type { OutreachDraft, SourcingWorkspace } from "@/lib/sourcing/types";
-import { createWorkspace } from "@/lib/sourcing/workspace";
+import { applyManufacturerResearch, createWorkspace } from "@/lib/sourcing/workspace";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -133,7 +133,7 @@ function approvedWorkspace(): SourcingWorkspace {
   workspace.fields.contact_email = { ...workspace.fields.contact_email, value: "founder@example.com", status: "confirmed" };
   workspace.selectedManufacturerSlugs = ["example-manufacturer"];
   const now = new Date().toISOString();
-  workspace.matches = [{
+  const matches = [{
     manufacturerSlug: "example-manufacturer",
     manufacturerName: "Example Manufacturer",
     location: "United States",
@@ -144,9 +144,15 @@ function approvedWorkspace(): SourcingWorkspace {
     evidence: [],
     requirementsUsed: [],
     introductionAvailable: true,
-    deliveryMethod: "line_list_introduction",
+    deliveryMethod: "line_list_introduction" as const,
     lastReviewed: now,
   }];
+  const researched = applyManufacturerResearch(workspace, {
+    geographyPreference: null,
+    resultLimit: 1,
+    requiredRequirements: [],
+    preferredRequirements: [],
+  }, matches);
   const draft: OutreachDraft = {
     id: "draft-approved-123",
     manufacturerSlug: "example-manufacturer",
@@ -183,5 +189,5 @@ function approvedWorkspace(): SourcingWorkspace {
     createdAt: now,
     updatedAt: now,
   };
-  return { ...workspace, outreachDrafts: [draft] };
+  return { ...researched, outreachDrafts: [draft] };
 }

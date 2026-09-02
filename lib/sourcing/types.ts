@@ -39,6 +39,15 @@ export const SOURCING_FIELD_KEYS = [
 export type SourcingFieldKey = (typeof SOURCING_FIELD_KEYS)[number];
 export type SourcingFieldStatus = "confirmed" | "proposed" | "unknown" | "needs_decision" | "rejected";
 export type WorkspaceActor = "founder" | "agent" | "system";
+export type SourcingValidationStatus = "not_required" | "needs_validation" | "validated";
+
+export interface SourcingFieldConfirmation {
+  id: string;
+  actor: "founder";
+  channel: "workspace_ui" | "founder_statement" | "legacy_import";
+  confirmedAt: string;
+  sourceRevision: number;
+}
 
 export interface SourcingFieldEvidence {
   title: string;
@@ -58,6 +67,8 @@ export interface SourcingField {
   shareWithManufacturer: boolean;
   updatedAt: string;
   updatedBy: WorkspaceActor;
+  confirmation: SourcingFieldConfirmation | null;
+  validationStatus: SourcingValidationStatus;
   evidence?: SourcingFieldEvidence[];
 }
 
@@ -179,6 +190,7 @@ export interface PackageDesign {
   previewAssetId: string | null;
   frontText: PackageFrontText | null;
   windowScale: number;
+  closure: { style: string; color: string | null } | null;
   logoAspect: number;
   logoScale: number;
   logoPosition: { x: number; y: number };
@@ -194,11 +206,48 @@ export interface PackageDesignPreviewInput {
   artworkId?: string | null;
   frontText?: PackageFrontText | null;
   windowScale?: number;
+  closure?: PackageDesign["closure"];
   logoAspect?: number;
   logoScale?: number;
   logoPosition?: Partial<PackageDesign["logoPosition"]>;
   dimensions?: Partial<PackageDesign["dimensions"]>;
   summary?: string;
+}
+
+export interface StagedPackageDesign {
+  id: string;
+  design: PackageDesign;
+  stagedAt: string;
+  stagedBy: "agent" | "founder";
+  designHash: string;
+}
+
+export interface PackageCommitProvenance {
+  id: string;
+  actor: "founder";
+  channel: "workspace_ui";
+  committedAt: string;
+  sourceRevision: number;
+  designHash: string;
+  stagedPackageId: string;
+}
+
+export interface ManufacturerResearchRequest {
+  geographyPreference: string | null;
+  resultLimit: number;
+  requiredRequirements: SourcingFieldKey[];
+  preferredRequirements: SourcingFieldKey[];
+}
+
+export interface ManufacturerResearch {
+  id: string;
+  status: "current" | "stale";
+  request: ManufacturerResearchRequest;
+  planFingerprint: string;
+  candidates: ManufacturerMatch[];
+  candidateCount: number;
+  ranAt: string;
+  invalidatedAt: string | null;
 }
 
 export interface WorkspaceOwnership {
@@ -210,8 +259,11 @@ export interface SourcingWorkspace {
   id: string;
   ownership: WorkspaceOwnership;
   originalIdea: string | null;
+  creationRequestHash: string | null;
   artwork: ProductArtwork | null;
   packageDesign: PackageDesign | null;
+  stagedPackageDesign: StagedPackageDesign | null;
+  packageCommit: PackageCommitProvenance | null;
   lastAgentChange: AgentChangeSnapshot | null;
   revision: number;
   createdAt: string;
@@ -220,6 +272,7 @@ export interface SourcingWorkspace {
   selectedManufacturerSlugs: string[];
   matches: ManufacturerMatch[];
   matchesUpdatedAt: string | null;
+  manufacturerResearch: ManufacturerResearch | null;
   outreachDrafts: OutreachDraft[];
   inquiries: ManufacturerInquiry[];
   activity: WorkspaceActivity[];

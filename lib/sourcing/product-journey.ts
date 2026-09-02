@@ -1,4 +1,5 @@
 import type { SourcingWorkspace } from "./types";
+import { getCurrentManufacturerResearch, hasValidFounderPackageCommit } from "./workspace";
 
 export type ProductJourneyKey = "idea" | "product" | "packaging" | "production" | "manufacturer";
 export type ProductJourneyStatus = "complete" | "current" | "future";
@@ -17,12 +18,12 @@ function confirmed(workspace: SourcingWorkspace, key: keyof SourcingWorkspace["f
 export function getProductJourney(workspace: SourcingWorkspace): ProductJourneyStep[] {
   const ideaComplete = confirmed(workspace, "product_type");
   const productComplete = ideaComplete && (confirmed(workspace, "product_format") || confirmed(workspace, "product_description"));
-  const packagingComplete = confirmed(workspace, "packaging_format") && Boolean(workspace.packageDesign);
+  const packagingComplete = confirmed(workspace, "packaging_format") && hasValidFounderPackageCommit(workspace);
   const productionComplete = packagingComplete
     && confirmed(workspace, "production_volume")
     && confirmed(workspace, "storage_distribution")
     && (confirmed(workspace, "formula_status") || confirmed(workspace, "formulation_assistance"));
-  const manufacturerComplete = workspace.matches.length > 0;
+  const manufacturerComplete = Boolean(getCurrentManufacturerResearch(workspace)?.candidateCount);
   const completed = [ideaComplete, productComplete, packagingComplete, productionComplete, manufacturerComplete];
   const currentIndex = Math.min(completed.findIndex((value) => !value), completed.length - 1);
   const steps: Array<{ key: ProductJourneyKey; label: string }> = [

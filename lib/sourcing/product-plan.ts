@@ -5,6 +5,14 @@ const nullableText = z.string().max(20_000).nullable();
 const dateText = z.string().datetime();
 const actorSchema = z.enum(["founder", "agent", "system"]);
 const fieldStatusSchema = z.enum(["confirmed", "proposed", "unknown", "needs_decision", "rejected"]);
+const validationStatusSchema = z.enum(["not_required", "needs_validation", "validated"]);
+const confirmationSchema = z.object({
+  id: z.string().min(1).max(500),
+  actor: z.literal("founder"),
+  channel: z.enum(["workspace_ui", "founder_statement", "legacy_import"]),
+  confirmedAt: dateText,
+  sourceRevision: z.number().int().nonnegative(),
+});
 
 const evidenceSchema = z.object({
   title: z.string().max(500),
@@ -24,6 +32,8 @@ const sourcingFieldSchema = z.object({
   shareWithManufacturer: z.boolean(),
   updatedAt: dateText,
   updatedBy: actorSchema,
+  confirmation: confirmationSchema.nullable().default(null),
+  validationStatus: validationStatusSchema.default("not_required"),
   evidence: z.array(evidenceSchema).max(20).optional(),
 });
 
@@ -117,6 +127,10 @@ export const PackageDesignSchema = z.object({
     product: z.string().trim().max(160),
   }).nullable().default(null),
   windowScale: z.number().min(0).max(1).default(0),
+  closure: z.object({
+    style: z.string().trim().min(1).max(200),
+    color: z.string().regex(/^#[0-9a-f]{6}$/i).nullable(),
+  }).nullable().default(null),
   logoAspect: z.number().min(0.25).max(4).default(1345 / 662),
   logoScale: z.number().min(0.05).max(3),
   logoPosition: z.object({ x: z.number().min(-2).max(2), y: z.number().min(-2).max(2) }),
@@ -140,9 +154,46 @@ export const PackageDesignSchema = z.object({
   }
 });
 
-const productPlanV2Schema = z.object({
-  schemaVersion: z.literal(2),
+const stagedPackageDesignSchema = z.object({
+  id: z.string().min(20).max(128).regex(/^[A-Za-z0-9_-]+$/),
+  design: PackageDesignSchema,
+  stagedAt: dateText,
+  stagedBy: z.enum(["agent", "founder"]),
+  designHash: z.string().min(8).max(128),
+});
+
+const packageCommitSchema = z.object({
+  id: z.string().min(20).max(128).regex(/^[A-Za-z0-9_-]+$/),
+  actor: z.literal("founder"),
+  channel: z.literal("workspace_ui"),
+  committedAt: dateText,
+  sourceRevision: z.number().int().positive(),
+  designHash: z.string().min(8).max(128),
+  stagedPackageId: z.string().min(20).max(128).regex(/^[A-Za-z0-9_-]+$/),
+});
+
+const manufacturerResearchRequestSchema = z.object({
+  geographyPreference: z.string().max(100).nullable(),
+  resultLimit: z.number().int().min(1).max(3),
+  requiredRequirements: z.array(z.enum(SOURCING_FIELD_KEYS)).max(SOURCING_FIELD_KEYS.length),
+  preferredRequirements: z.array(z.enum(SOURCING_FIELD_KEYS)).max(SOURCING_FIELD_KEYS.length),
+});
+
+const manufacturerResearchSchema = z.object({
+  id: z.string().min(1).max(500),
+  status: z.enum(["current", "stale"]),
+  request: manufacturerResearchRequestSchema,
+  planFingerprint: z.string().min(1).max(500),
+  candidates: z.array(manufacturerMatchSchema).max(25),
+  candidateCount: z.number().int().min(0).max(25),
+  ranAt: dateText,
+  invalidatedAt: dateText.nullable(),
+});
+
+const productPlanV3Schema = z.object({
+  schemaVersion: z.literal(3),
   originalIdea: nullableText,
+  creationRequestHash: z.string().min(8).max(128).nullable().default(null),
   artwork: z.object({
     id: z.string().min(1).max(500),
     fileName: z.string().min(1).max(500),
@@ -151,6 +202,8 @@ const productPlanV2Schema = z.object({
     createdAt: dateText,
   }).nullable(),
   packageDesign: PackageDesignSchema.nullable(),
+  stagedPackageDesign: stagedPackageDesignSchema.nullable().default(null),
+  packageCommit: packageCommitSchema.nullable().default(null),
   lastAgentChange: z.object({
     id: z.string().min(1).max(500),
     at: dateText,
@@ -161,27 +214,28 @@ const productPlanV2Schema = z.object({
   }).nullable().optional().default(null),
   fields: z.record(z.enum(SOURCING_FIELD_KEYS), sourcingFieldSchema),
   selectedManufacturerSlugs: z.array(z.string().min(1).max(200)).max(3),
-  matches: z.array(manufacturerMatchSchema).max(25),
-  matchesUpdatedAt: dateText.nullable(),
+  manufacturerResearch: manufacturerResearchSchema.nullable().default(null),
   outreachDrafts: z.array(outreachDraftSchema).max(12),
   inquiries: z.array(inquirySchema).max(50),
 });
 
-export const ProductPlanSchema = z.preprocess(migrateProductPlan, productPlanV2Schema);
+export const ProductPlanSchema = z.preprocess(migrateProductPlan, productPlanV3Schema);
 
 export type ProductPlan = z.infer<typeof ProductPlanSchema>;
 
 export function productPlanFromWorkspace(workspace: SourcingWorkspace): ProductPlan {
   return ProductPlanSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     originalIdea: workspace.originalIdea,
+    creationRequestHash: workspace.creationRequestHash,
     artwork: workspace.artwork,
     packageDesign: workspace.packageDesign,
+    stagedPackageDesign: workspace.stagedPackageDesign,
+    packageCommit: workspace.packageCommit,
     lastAgentChange: workspace.lastAgentChange,
     fields: workspace.fields,
     selectedManufacturerSlugs: workspace.selectedManufacturerSlugs,
-    matches: workspace.matches,
-    matchesUpdatedAt: workspace.matchesUpdatedAt,
+    manufacturerResearch: workspace.manufacturerResearch,
     outreachDrafts: workspace.outreachDrafts,
     inquiries: workspace.inquiries,
   });
@@ -199,13 +253,16 @@ function migrateProductPlan(input: unknown): unknown {
   const originalIdea = typeof plan.originalIdea === "string"
     ? plan.originalIdea
     : [descriptionField, productField].find((field) => field?.source === "Founder starting idea" && field.value)?.value ?? null;
+  const legacyMatches = Array.isArray(plan.matches) ? plan.matches : [];
+  const legacyMatchesUpdatedAt = typeof plan.matchesUpdatedAt === "string" ? plan.matchesUpdatedAt : null;
 
   return {
     ...plan,
-    schemaVersion: 2,
+    schemaVersion: 3,
     originalIdea,
+    creationRequestHash: plan.creationRequestHash ?? null,
     fields: {
-      ...rawFields,
+      ...Object.fromEntries(Object.entries(rawFields).map(([key, value]) => [key, migrateField(value, key, plan)])),
       brand_name: rawFields.brand_name ?? {
         key: "brand_name",
         value: null,
@@ -216,9 +273,43 @@ function migrateProductPlan(input: unknown): unknown {
         shareWithManufacturer: false,
         updatedAt: timestamp,
         updatedBy: "system",
+        confirmation: null,
+        validationStatus: "not_required",
         evidence: [],
       },
     },
+    stagedPackageDesign: plan.stagedPackageDesign ?? null,
+    packageCommit: plan.packageCommit ?? null,
+    manufacturerResearch: plan.manufacturerResearch ?? (legacyMatchesUpdatedAt ? {
+      id: `legacy-research-${legacyMatchesUpdatedAt}`.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 500),
+      status: "stale",
+      request: { geographyPreference: null, resultLimit: Math.max(1, Math.min(3, legacyMatches.length || 3)), requiredRequirements: [], preferredRequirements: [] },
+      planFingerprint: "legacy-unverified",
+      candidates: legacyMatches,
+      candidateCount: legacyMatches.length,
+      ranAt: legacyMatchesUpdatedAt,
+      invalidatedAt: legacyMatchesUpdatedAt,
+    } : null),
+  };
+}
+
+function migrateField(value: unknown, key: string, plan: Record<string, unknown>): unknown {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  const field = value as Record<string, unknown>;
+  const confirmed = field.status === "confirmed";
+  const updatedAt = typeof field.updatedAt === "string" ? field.updatedAt : new Date(0).toISOString();
+  const sourceRevision = typeof plan.revision === "number" ? plan.revision : 0;
+  const validationSensitive = ["formula_status", "formulation_assistance", "manufacturing_process", "storage_distribution", "packaging_format", "packaging_size", "certifications", "allergens"].includes(key);
+  return {
+    ...field,
+    confirmation: field.confirmation ?? (confirmed && field.explicitlyStated === true ? {
+      id: `legacy-${key}-${updatedAt}`.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 500),
+      actor: "founder",
+      channel: "legacy_import",
+      confirmedAt: updatedAt,
+      sourceRevision,
+    } : null),
+    validationStatus: field.validationStatus ?? (validationSensitive && field.value ? "needs_validation" : "not_required"),
   };
 }
 

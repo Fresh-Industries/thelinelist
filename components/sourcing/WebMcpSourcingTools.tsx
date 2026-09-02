@@ -4,11 +4,12 @@ import { useEffect, useRef } from "react";
 import { buildOutreachReadinessAudit, buildSourcingAgentState } from "@/lib/sourcing/agent-state";
 import { getGeographyMatchPreflight } from "@/lib/sourcing/geography";
 import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements";
-import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
+import { getPackageArtworkRenderPlan, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkMotifRenderPlan, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
 import { getProductCategory, type ProductCategory } from "@/lib/sourcing/product-category";
 import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
+import type { PackageStageResult } from "./SourcingWorkspaceContext";
 
-interface ToolResponse { workspace?: SourcingWorkspace; error?: string; [key: string]: unknown }
+interface ToolResponse { workspace?: SourcingWorkspace; receipt?: Record<string, unknown>; error?: string }
 
 async function api<T extends ToolResponse>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -32,7 +33,7 @@ export function WebMcpSourcingTools({
   onWorkspaceChanged: (workspace: SourcingWorkspace) => void;
   onOpenManufacturerMatches: () => void;
   onOpenIntroductionReview: () => void;
-  onPreviewPackageDesign: (preview: PackageDesignPreviewInput, workspace?: SourcingWorkspace) => SourcingWorkspace["packageDesign"] & {};
+  onPreviewPackageDesign: (preview: PackageDesignPreviewInput, workspace?: SourcingWorkspace, stageId?: string, stagedBy?: "agent" | "founder") => Promise<PackageStageResult>;
 }) {
   const callbacksRef = useRef({ onWorkspaceChanged, onOpenManufacturerMatches, onOpenIntroductionReview, onPreviewPackageDesign });
   useEffect(() => {
@@ -45,17 +46,41 @@ export function WebMcpSourcingTools({
     const controller = new AbortController();
     const fieldKeys = [...SOURCING_FIELD_KEYS];
     const matchableRequirementKeys = [...MATCHABLE_REQUIREMENT_KEYS];
+    const ensureActiveWorkspace = () => {
+      const routeWorkspaceId = window.location.pathname.match(/^\/sourcing\/([^/]+)/)?.[1];
+      if (controller.signal.aborted || routeWorkspaceId !== workspaceId) {
+        throw new Error(`This WebMCP tool handle is stale for workspace ${workspaceId}. Refetch the tools registered on the current workspace before retrying; no mutation was attempted.`);
+      }
+    };
+    const workspaceApi = <T extends ToolResponse>(url: string, init?: RequestInit) => {
+      ensureActiveWorkspace();
+      return api<T>(url, { ...init, signal: controller.signal });
+    };
     const withGuidance = (body: ToolResponse, metadata: Record<string, unknown> = {}) => {
       if (body.workspace) callbacksRef.current.onWorkspaceChanged(body.workspace);
       if (!body.workspace) return body.error ? { error: body.error, ...metadata } : metadata;
       return {
         ...buildSourcingAgentState(body.workspace),
-        receipt: {
+        receipt: body.receipt ? {
+          ...body.receipt,
+          currentWorkspaceId: body.workspace.id,
+          refetchSafe: true,
+          replayGuidance: body.receipt.mutation === "stage_package_design"
+            ? {
+                replaySafe: true,
+                idField: "stageId",
+                exactPayloadRequired: true,
+                changedPayloadRequiresNewId: true,
+                instruction: "Reuse this stageId only when replaying the exact same full package design. After refetch, treat the returned workspace and staged record as authoritative.",
+              }
+            : undefined,
+        } : {
           authoritative: true,
           outcome: metadata.committed === false ? "staged" : "succeeded",
           workspaceId: body.workspace.id,
           currentWorkspaceId: body.workspace.id,
           revision: body.workspace.revision,
+          refetchSafe: true,
         },
         ...metadata,
       };
@@ -70,7 +95,7 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
           void input;
-          return withGuidance(await api(`/api/sourcing/${workspaceId}`));
+          return withGuidance(await workspaceApi(`/api/sourcing/${workspaceId}`));
         },
       },
       {
@@ -117,9 +142,9 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
           const args = input as Record<string, unknown>;
-          const current = await api(`/api/sourcing/${workspaceId}`);
+          const current = await workspaceApi(`/api/sourcing/${workspaceId}`);
           if (!current.workspace) throw new Error("The current ProductPlan could not be read.");
-          const body = await api(`/api/sourcing/${workspaceId}`, { method: "PATCH", body: JSON.stringify({ revision: current.workspace.revision, proposedUpdates: args.proposedUpdates }) });
+          const body = await workspaceApi(`/api/sourcing/${workspaceId}`, { method: "PATCH", body: JSON.stringify({ revision: current.workspace.revision, proposedUpdates: args.proposedUpdates }) });
           return withGuidance(body);
         },
       },
@@ -131,7 +156,7 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
           void input;
-          const body = await api(`/api/sourcing/${workspaceId}`);
+          const body = await workspaceApi(`/api/sourcing/${workspaceId}`);
           return withGuidance(body, {
             previewCapabilities: {
               bakeryBag: {
@@ -148,10 +173,11 @@ export function WebMcpSourcingTools({
       {
         name: "preview_package_design",
         title: "Preview packaging in 3D",
-        description: "Stage any subset of packaging choices in the visible 3D workbench for founder review. Use bakery-bag with frontText and windowScale for bread instead of substituting a generic pouch. Exact copy is rendered deterministically, and logoPosition.y moves the front copy vertically. Omit choices the founder has not made. This does not commit or change matching; only the founder's visible Use this package direction button can commit it.",
+        description: "Stage any subset of packaging choices in the visible 3D workbench for founder review. Supply one opaque stageId and reuse it only for an exact retry of the same choices; changed choices require a new stageId. Use bakery-bag with frontText and windowScale for bread instead of substituting a generic pouch. Exact copy is rendered deterministically, and logoPosition.y moves the front copy vertically. Omit choices the founder has not made. The server persists the resulting complete design, so route changes and reloads keep the stage. This does not commit or change matching; only the founder's visible Use this package direction button can commit it.",
         inputSchema: {
           type: "object",
           properties: {
+            stageId: { type: "string", minLength: 20, maxLength: 128, pattern: "^[A-Za-z0-9_-]+$" },
             packagingType: { type: "string", enum: ["slim-can", "bottle", "jar", "stand-up-pouch", "bakery-bag"] },
             finish: { type: "string", enum: ["colored", "clear"] },
             baseColor: { type: "string", pattern: "^#[0-9a-fA-F]{6}$" },
@@ -160,72 +186,84 @@ export function WebMcpSourcingTools({
             logoAspect: { type: "number", minimum: 0.25, maximum: 4 },
             logoScale: { type: "number", minimum: 0.05, maximum: 3 },
             logoPosition: { type: "object", properties: { x: { type: "number", minimum: -2, maximum: 2 }, y: { type: "number", minimum: -2, maximum: 2 } }, additionalProperties: false },
-            frontText: { type: "object", properties: { brand: { type: "string", maxLength: 120 }, product: { type: "string", maxLength: 160 } }, required: ["brand", "product"], additionalProperties: false },
-            windowScale: { type: "number", minimum: 0.35, maximum: 1 },
+            frontText: { type: ["object", "null"], properties: { brand: { type: "string", maxLength: 120 }, product: { type: "string", maxLength: 160 } }, required: ["brand", "product"], additionalProperties: false },
+            windowScale: { type: "number", minimum: 0, maximum: 1 },
+            closure: {
+              type: ["object", "null"],
+              properties: { style: { type: "string", minLength: 1, maxLength: 120 }, color: { type: ["string", "null"], pattern: "^#[0-9a-fA-F]{6}$" } },
+              required: ["style", "color"],
+              additionalProperties: false,
+            },
             dimensions: { type: "object", properties: { width: { type: ["number", "null"], minimum: 0, maximum: 10000 }, height: { type: ["number", "null"], minimum: 0, maximum: 10000 }, depth: { type: ["number", "null"], minimum: 0, maximum: 10000 } }, additionalProperties: false },
             summary: { type: "string", maxLength: 500 },
           },
-          minProperties: 1,
+          required: ["stageId"],
+          minProperties: 2,
           additionalProperties: false,
         },
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
-          const preview = input as PackageDesignPreviewInput;
-          const stagedPreview = callbacksRef.current.onPreviewPackageDesign(preview);
-          return { previewOpened: true, committed: false, preview: stagedPreview, humanActionRequired: "The founder must review the staged 3D direction and click Use this package direction to commit it." };
+          ensureActiveWorkspace();
+          const { stageId, ...preview } = input as PackageDesignPreviewInput & { stageId: string };
+          const staged = await callbacksRef.current.onPreviewPackageDesign(preview, undefined, stageId, "agent");
+          return withGuidance(staged, { previewOpened: true, committed: false, preview: staged.preview, humanActionRequired: "The founder must review the persisted staged 3D direction and click Use this package direction to commit that exact version." });
         },
       },
       {
         name: "stage_package_artwork",
         title: "Stage generated package artwork",
-        description: "Complete the creative handoff by uploading founder-requested generated logo or label artwork and opening it on the visible 3D package. Before using this tool, read creative.nextQuestion and ask the founder one simple question if a brand name or art direction is still missing; never invent either. Generate the requested raster artwork with the host image generator, then pass PNG, JPEG, or WebP bytes encoded as base64, up to 2 MB. The upload becomes a workspace asset, but it does not commit a packaging direction or affect matching until the founder uses the visible package direction.",
+        description: "Complete the creative handoff by uploading founder-requested generated logo or label artwork and opening it on the visible 3D package. Supply one opaque stageId and reuse it only for an exact retry; changed artwork or package state requires a new stageId. Before using this tool, read creative.nextQuestion and ask the founder one simple question if a brand name or art direction is still missing; never invent either. Generate the requested raster artwork with the host image generator, then pass PNG, JPEG, or WebP bytes encoded as base64, up to 2 MB. The upload becomes a workspace asset and the complete package state is persisted as a stage, but it does not commit a packaging direction or affect matching until the founder uses the visible package direction.",
         inputSchema: {
           type: "object",
           properties: {
+            stageId: { type: "string", minLength: 20, maxLength: 128, pattern: "^[A-Za-z0-9_-]+$" },
             fileName: { type: "string", minLength: 1, maxLength: 140 },
             contentType: { type: "string", enum: ["image/png", "image/jpeg", "image/webp"] },
             base64Data: { type: "string", minLength: 4, maxLength: 2800000 },
             logoAspect: { type: "number", minimum: 0.25, maximum: 4 },
           },
-          required: ["fileName", "contentType", "base64Data"],
+          required: ["stageId", "fileName", "contentType", "base64Data"],
           additionalProperties: false,
         },
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
-          const args = input as { fileName: string; contentType: "image/png" | "image/jpeg" | "image/webp"; base64Data: string; logoAspect?: number };
+          ensureActiveWorkspace();
+          const args = input as { stageId: string; fileName: string; contentType: "image/png" | "image/jpeg" | "image/webp"; base64Data: string; logoAspect?: number };
           const bytes = decodeBase64Artwork(args.base64Data);
           if (bytes.byteLength > 2 * 1024 * 1024) throw new Error("Artwork must be 2 MB or smaller.");
           const form = new FormData();
           form.set("artwork", new File([bytes.buffer as ArrayBuffer], args.fileName, { type: args.contentType }));
+          ensureActiveWorkspace();
           const response = await fetch(`/api/sourcing/${workspaceId}/artwork`, { method: "POST", body: form, cache: "no-store" });
           const body = await response.json().catch(() => ({})) as ToolResponse & { artworkUrl?: string };
           if (!response.ok || !body.workspace?.artwork) throw new Error(body.error || `Artwork upload failed (${response.status}).`);
           callbacksRef.current.onWorkspaceChanged(body.workspace);
           const preview: PackageDesignPreviewInput = { artworkId: body.workspace.artwork.id, ...(args.logoAspect ? { logoAspect: args.logoAspect } : {}) };
-          const stagedPreview = callbacksRef.current.onPreviewPackageDesign(preview, body.workspace);
-          return withGuidance(body, { artworkUrl: body.artworkUrl, preview: stagedPreview, previewOpened: true, committed: false, humanActionRequired: "The founder must visually review the artwork and click Use this package direction to commit it." });
+          const staged = await callbacksRef.current.onPreviewPackageDesign(preview, body.workspace, args.stageId, "agent");
+          return withGuidance(staged, { artworkUrl: body.artworkUrl, preview: staged.preview, previewOpened: true, committed: false, humanActionRequired: "The founder must visually review the persisted artwork stage and click Use this package direction to commit that exact version." });
         },
       },
       {
         name: "generate_package_artwork",
         title: "Create and stage package artwork",
-        description: "Create a polished raster label inside this WebMCP tool from the founder-approved brand and visual direction, upload it to the product workspace, and open it on the visible 3D package. Use this when WebMCP-only operation is required. Ask creative.nextQuestion first, never invent the brand or style, and pass founderApproved true only after the founder explicitly answers. The result is staged for visual review and never commits the package direction.",
+        description: "Create a polished raster label inside this WebMCP tool from the founder-approved brand and visual direction, upload it to the product workspace, and open it on the visible 3D package. Supply one opaque stageId and reuse it only for an exact retry; changed artwork or package state requires a new stageId. Use this when WebMCP-only operation is required. Ask creative.nextQuestion first, never invent the brand or style, and pass founderApproved true only after the founder explicitly answers. The complete resulting package is persisted as a stage for visual review and never commits the package direction.",
         inputSchema: {
           type: "object",
           properties: {
+            stageId: { type: "string", minLength: 20, maxLength: 128, pattern: "^[A-Za-z0-9_-]+$" },
             artDirection: { type: "string", minLength: 3, maxLength: 500 },
             style: { type: "string", enum: ["warm-handmade", "modern-premium", "playful-retail"] },
             accentColor: { type: "string", pattern: "^#[0-9a-fA-F]{6}$" },
             founderApproved: { type: "boolean", const: true },
           },
-          required: ["artDirection", "style", "founderApproved"],
+          required: ["stageId", "artDirection", "style", "founderApproved"],
           additionalProperties: false,
         },
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
-          const args = input as { artDirection: string; style: PackageArtworkStyle; accentColor?: string; founderApproved: boolean };
+          const args = input as { stageId: string; artDirection: string; style: PackageArtworkStyle; accentColor?: string; founderApproved: boolean };
           if (args.founderApproved !== true) throw new Error("Ask the founder for the package art direction before creating artwork.");
-          const current = await api(`/api/sourcing/${workspaceId}`);
+          const current = await workspaceApi(`/api/sourcing/${workspaceId}`);
           if (!current.workspace) throw new Error("The current ProductPlan could not be read.");
           const brand = current.workspace.fields.brand_name.value?.trim();
           if (!brand) throw new Error("Ask what brand name should appear on the package before creating artwork.");
@@ -233,20 +271,21 @@ export function WebMcpSourcingTools({
           const artwork = await renderPackageArtwork({ brand, product, category: getProductCategory(current.workspace), artDirection: args.artDirection, style: args.style, accentColor: args.accentColor });
           const form = new FormData();
           form.set("artwork", new File([artwork.blob], `${slugify(brand)}-${args.style}-label.png`, { type: "image/png" }));
+          ensureActiveWorkspace();
           const response = await fetch(`/api/sourcing/${workspaceId}/artwork`, { method: "POST", body: form, cache: "no-store" });
           const body = await response.json().catch(() => ({})) as ToolResponse & { artworkUrl?: string };
           if (!response.ok || !body.workspace?.artwork) throw new Error(body.error || `Artwork creation failed (${response.status}).`);
-          const preview = callbacksRef.current.onPreviewPackageDesign({
+          const staged = await callbacksRef.current.onPreviewPackageDesign({
             artworkId: body.workspace.artwork.id,
             logoAspect: artwork.aspect,
-          }, body.workspace);
-          return withGuidance(body, {
+          }, body.workspace, args.stageId, "agent");
+          return withGuidance(staged, {
             artworkUrl: body.artworkUrl,
             artDirection: args.artDirection,
             artworkStyle: args.style,
             visualSignature: artwork.visualSignature,
             renderedMotifs: artwork.motifs,
-            preview,
+            preview: staged.preview,
             previewOpened: true,
             committed: false,
             refinement: {
@@ -260,7 +299,7 @@ export function WebMcpSourcingTools({
       {
         name: "refine_package_design_in_3d",
         title: "Refine packaging direction in 3D",
-        description: "Open a complete founder-requested packaging direction in the visible 3D workbench. For bakery-bag, preserve exact frontText, windowScale, and copy placement. Do not invent a brand, colors, dimensions, artwork, or placement. This always stages for visual review; only the founder's visible Use this package direction button can make it canonical.",
+        description: "Open a complete founder-requested packaging direction in the visible 3D workbench. Supply one opaque stageId and reuse it only for an exact retry of this full design; any changed design requires a new stageId. For bakery-bag, preserve exact frontText, windowScale, closure, and copy placement. Do not invent a brand, colors, dimensions, artwork, closure, or placement. This persists the complete stage across routes and reloads for visual review; only the founder's visible Use this package direction button can make that exact staged design canonical.",
         inputSchema: {
           type: "object",
           properties: {
@@ -275,27 +314,34 @@ export function WebMcpSourcingTools({
                 logoAspect: { type: "number", minimum: 0.25, maximum: 4 },
                 logoScale: { type: "number", minimum: 0.05, maximum: 3 },
                 logoPosition: { type: "object", properties: { x: { type: "number", minimum: -2, maximum: 2 }, y: { type: "number", minimum: -2, maximum: 2 } }, required: ["x", "y"], additionalProperties: false },
-                frontText: { type: "object", properties: { brand: { type: "string", maxLength: 120 }, product: { type: "string", maxLength: 160 } }, required: ["brand", "product"], additionalProperties: false },
-                windowScale: { type: "number", minimum: 0.35, maximum: 1 },
+                frontText: { type: ["object", "null"], properties: { brand: { type: "string", maxLength: 120 }, product: { type: "string", maxLength: 160 } }, required: ["brand", "product"], additionalProperties: false },
+                windowScale: { type: "number", minimum: 0, maximum: 1 },
+                closure: {
+                  type: ["object", "null"],
+                  properties: { style: { type: "string", minLength: 1, maxLength: 120 }, color: { type: ["string", "null"], pattern: "^#[0-9a-fA-F]{6}$" } },
+                  required: ["style", "color"],
+                  additionalProperties: false,
+                },
                 dimensions: { type: "object", properties: { width: { type: ["number", "null"] }, height: { type: ["number", "null"] }, depth: { type: ["number", "null"] } }, required: ["width", "height", "depth"], additionalProperties: false },
                 summary: { type: "string" },
               },
-              required: ["packagingType", "finish", "baseColor", "labelColor", "artworkId", "logoAspect", "logoScale", "logoPosition", "dimensions", "summary"],
+              required: ["packagingType", "finish", "baseColor", "labelColor", "artworkId", "frontText", "windowScale", "closure", "logoAspect", "logoScale", "logoPosition", "dimensions", "summary"],
               additionalProperties: false,
             },
+            stageId: { type: "string", minLength: 20, maxLength: 128, pattern: "^[A-Za-z0-9_-]+$" },
             explicitlyStated: { type: "boolean", const: true },
           },
-          required: ["packageDesign", "explicitlyStated"],
+          required: ["packageDesign", "stageId", "explicitlyStated"],
           additionalProperties: false,
         },
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
-          const args = input as { packageDesign: PackageDesignPreviewInput; explicitlyStated: boolean };
+          const args = input as { packageDesign: PackageDesignPreviewInput; stageId: string; explicitlyStated: boolean };
           if (args.explicitlyStated !== true) throw new Error("Ask the founder to confirm the packaging direction before staging it.");
-          const current = await api(`/api/sourcing/${workspaceId}`);
+          const current = await workspaceApi(`/api/sourcing/${workspaceId}`);
           if (!current.workspace) throw new Error("The current ProductPlan could not be read.");
-          const stagedPreview = callbacksRef.current.onPreviewPackageDesign(args.packageDesign, current.workspace);
-          return withGuidance(current, { preview: stagedPreview, previewOpened: true, committed: false, humanActionRequired: "The founder must review the live 3D refinement and click Use this package direction to commit it." });
+          const staged = await callbacksRef.current.onPreviewPackageDesign(args.packageDesign, current.workspace, args.stageId, "agent");
+          return withGuidance(staged, { preview: staged.preview, previewOpened: true, committed: false, humanActionRequired: "The founder must review the persisted live 3D refinement and click Use this package direction to commit that exact version." });
         },
       },
       {
@@ -306,9 +352,9 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
           void input;
-          const current = await api(`/api/sourcing/${workspaceId}`);
+          const current = await workspaceApi(`/api/sourcing/${workspaceId}`);
           if (!current.workspace?.lastAgentChange) throw new Error("There is no current agent change to undo.");
-          return withGuidance(await api(`/api/sourcing/${workspaceId}`, { method: "PATCH", body: JSON.stringify({ revision: current.workspace.revision, undoAgentChangeId: current.workspace.lastAgentChange.id }) }));
+          return withGuidance(await workspaceApi(`/api/sourcing/${workspaceId}`, { method: "PATCH", body: JSON.stringify({ revision: current.workspace.revision, undoAgentChangeId: current.workspace.lastAgentChange.id }) }));
         },
       },
       {
@@ -319,7 +365,7 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
           void input;
-          const body = await api(`/api/sourcing/${workspaceId}`);
+          const body = await workspaceApi(`/api/sourcing/${workspaceId}`);
           if (!body.workspace) throw new Error("The current ProductPlan could not be read.");
           return withGuidance(body, { downloadUrl: new URL(`/api/sourcing/${workspaceId}/export`, window.location.origin).toString(), fileType: "application/pdf", sharedExternally: false });
         },
@@ -332,7 +378,7 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
           void input;
-          const body = await api(`/api/sourcing/${workspaceId}`);
+          const body = await workspaceApi(`/api/sourcing/${workspaceId}`);
           if (!body.workspace) throw new Error("The current ProductPlan could not be read.");
           return buildOutreachReadinessAudit(body.workspace);
         },
@@ -357,7 +403,7 @@ export function WebMcpSourcingTools({
           const geographyPreflight = getGeographyMatchPreflight(args.geographyPreference);
           if (geographyPreflight) return geographyPreflight;
 
-          const body = await api(`/api/sourcing/${workspaceId}/match`, { method: "POST", body: JSON.stringify(args) });
+          const body = await workspaceApi(`/api/sourcing/${workspaceId}/match`, { method: "POST", body: JSON.stringify(args) });
           const resultCount = body.workspace?.matches.length ?? 0;
           const requiredRequirements = Array.isArray(args.requiredRequirements)
             ? args.requiredRequirements.filter((value): value is string => typeof value === "string")
@@ -365,6 +411,12 @@ export function WebMcpSourcingTools({
           const result = withGuidance(body, {
             resultsShown: true,
             resultCount,
+            navigation: {
+              target: `/sourcing/${workspaceId}/manufacturers`,
+              deferredUntilAfterReceipt: true,
+              workspaceToolSetStable: true,
+              refetchRequired: false,
+            },
             matchingGuidance: resultCount === 0 && requiredRequirements.length
               ? {
                   strictSearchReturnedNoResults: true,
@@ -380,7 +432,7 @@ export function WebMcpSourcingTools({
                 }
               : { strictSearchReturnedNoResults: false },
           });
-          callbacksRef.current.onOpenManufacturerMatches();
+          deferToolNavigation(() => callbacksRef.current.onOpenManufacturerMatches());
           return result;
         },
       },
@@ -400,12 +452,18 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
           const args = input as Record<string, unknown>;
-          const body = await api(`/api/sourcing/${workspaceId}/outreach`, { method: "POST", body: JSON.stringify(args) });
+          const body = await workspaceApi(`/api/sourcing/${workspaceId}/outreach`, { method: "POST", body: JSON.stringify(args) });
           const result = withGuidance(body, {
             reviewOpened: true,
+            navigation: {
+              target: `/sourcing/${workspaceId}/manufacturers#manufacturer-introductions`,
+              deferredUntilAfterReceipt: true,
+              workspaceToolSetStable: true,
+              refetchRequired: false,
+            },
             humanActionRequired: "The introduction drafts are ready. The founder must review and approve each exact version, then separately click Send introduction and confirm Send now. Nothing has been sent.",
           });
-          callbacksRef.current.onOpenIntroductionReview();
+          deferToolNavigation(() => callbacksRef.current.onOpenIntroductionReview());
           return result;
         },
       },
@@ -417,16 +475,27 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: true, untrustedContentHint: true },
         async execute(input) {
           void input;
-          const body = await api(`/api/sourcing/${workspaceId}`);
+          const body = await workspaceApi(`/api/sourcing/${workspaceId}`);
+          const research = body.workspace?.manufacturerResearch;
           const currentDraftAvailable = body.workspace?.outreachDrafts.some((draft) =>
             draft.packet.revokedAt === null
             && body.workspace?.selectedManufacturerSlugs.includes(draft.manufacturerSlug)
-            && body.workspace?.matches.some((match) => match.manufacturerSlug === draft.manufacturerSlug)
-            && (!body.workspace?.matchesUpdatedAt || Date.parse(draft.createdAt) >= Date.parse(body.workspace.matchesUpdatedAt))
+            && research?.status === "current"
+            && research.candidates.some((match) => match.manufacturerSlug === draft.manufacturerSlug)
+            && Date.parse(draft.createdAt) >= Date.parse(research.ranAt)
           );
           if (!currentDraftAvailable) throw new Error("Prepare a current introduction draft before opening final review.");
-          const result = withGuidance(body, { reviewOpened: true, humanActionRequired: "The founder must approve each exact draft and then click the visible Send now control. Nothing can be sent by this tool." });
-          callbacksRef.current.onOpenIntroductionReview();
+          const result = withGuidance(body, {
+            reviewOpened: true,
+            navigation: {
+              target: `/sourcing/${workspaceId}/manufacturers#manufacturer-introductions`,
+              deferredUntilAfterReceipt: true,
+              workspaceToolSetStable: true,
+              refetchRequired: false,
+            },
+            humanActionRequired: "The founder must approve each exact draft and then click the visible Send now control. Nothing can be sent by this tool.",
+          });
+          deferToolNavigation(() => callbacksRef.current.onOpenIntroductionReview());
           return result;
         },
       },
@@ -440,6 +509,10 @@ export function WebMcpSourcingTools({
   }, [workspaceId]);
 
   return null;
+}
+
+function deferToolNavigation(navigate: () => void) {
+  window.setTimeout(navigate, 250);
 }
 
 function decodeBase64Artwork(value: string): Uint8Array {
@@ -491,8 +564,7 @@ async function renderPackageArtwork({
     snack: { accent: "#c96b2e", quiet: "#e3c357" },
   };
   const palette = { ...palettes[style], ...categoryColors[category], ...(accentColor ? { accent: accentColor } : {}) };
-  const concept = getPackageArtworkConcept({ product, artDirection, style, category });
-  const directionSeed = [...artDirection].reduce((total, character) => total + character.charCodeAt(0), 0);
+  const plan = getPackageArtworkRenderPlan({ brand, product, artDirection, style, category, accentColor });
   context.clearRect(0, 0, width, height);
   roundedRect(context, 28, 28, width - 56, height - 56, 42);
   context.fillStyle = palette.paper;
@@ -511,15 +583,15 @@ async function renderPackageArtwork({
   context.textBaseline = "middle";
   context.fillStyle = palette.paper;
   context.font = "800 22px Arial, sans-serif";
-  context.fillText(`${category.toUpperCase()}  •  ${concept.kicker}`, width / 2, 82);
+  context.fillText(`${plan.category.toUpperCase()}  •  ${plan.kicker}`, width / 2, 82);
   context.fillStyle = palette.ink;
-  fitText(context, brand, width - 150, style === "playful-retail" ? 132 : 144, style === "modern-premium" ? "Georgia, serif" : "Arial, sans-serif", 800);
-  context.fillText(brand, width / 2, 300);
+  fitText(context, plan.brand, width - 150, style === "playful-retail" ? 132 : 144, style === "modern-premium" ? "Georgia, serif" : "Arial, sans-serif", 800);
+  context.fillText(plan.brand, width / 2, 300);
   context.fillStyle = palette.accent;
-  drawFittedMultilineText(context, product, width / 2, 470, width - 180, 88, "Georgia, serif", 700);
+  drawFittedMultilineText(context, plan.product, width / 2, 470, width - 180, 88, "Georgia, serif", 700);
   context.fillStyle = palette.ink;
   context.font = "800 20px Arial, sans-serif";
-  context.fillText(concept.motifs.map(motifLabel).join("  •  "), width / 2, 615);
+  context.fillText(plan.motifs.map(({ motif }) => motifLabel(motif)).join("  •  "), width / 2, 615);
   context.save();
   context.globalAlpha = style === "modern-premium" ? 0.08 : 0.14;
   context.fillStyle = palette.quiet;
@@ -527,24 +599,28 @@ async function renderPackageArtwork({
   context.ellipse(width / 2, height * 0.69, 330, 155, 0, 0, Math.PI * 2);
   context.fill();
   context.restore();
-  drawArtworkMotifs(context, concept.motifs, width, height, palette.accent, palette.quiet, directionSeed);
+  drawArtworkMotifs(context, plan.motifs, width, height, palette.accent, palette.quiet);
   context.fillStyle = palette.ink;
   roundedRect(context, 90, height - 190, width - 180, 92, 24);
   context.fill();
   context.fillStyle = palette.paper;
   context.font = "700 23px Arial, sans-serif";
-  context.fillText(concept.footer, width / 2, height - 144);
+  context.fillText(plan.footer, width / 2, height - 144);
   context.fillStyle = palette.accent;
-  const motifWidth = 160 + (directionSeed % 80);
-  context.fillRect(width / 2 - motifWidth / 2, height - 76, motifWidth, 8);
+  context.fillRect(width / 2 - 110, height - 76, 220, 8);
 
   const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Package artwork could not be encoded.")), "image/png"));
   return {
     blob,
     aspect: width / height,
-    motifs: concept.motifs,
-    visualSignature: `${style}:${concept.motifs.join("+")}:${directionSeed}`,
+    motifs: plan.motifs.map(({ motif }) => motif),
+    visualSignature: `sha256:${await sha256Hex(await blob.arrayBuffer())}`,
   };
+}
+
+async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function roundedRect(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
@@ -634,33 +710,26 @@ function drawRetailDots(context: CanvasRenderingContext2D, width: number, height
 
 function drawArtworkMotifs(
   context: CanvasRenderingContext2D,
-  motifs: PackageArtworkMotif[],
+  motifs: PackageArtworkMotifRenderPlan[],
   width: number,
   height: number,
   accent: string,
   quiet: string,
-  directionSeed: number,
 ) {
-  const horizontalShift = (directionSeed % 181) - 90;
-  const verticalShift = (Math.floor(directionSeed / 7) % 101) - 50;
-  const positions = motifs.length === 1
-    ? [{ x: width / 2 + horizontalShift, y: height * 0.68 + verticalShift }]
-    : motifs.length === 2
-      ? [{ x: width * 0.32 + horizontalShift, y: height * 0.67 + verticalShift }, { x: width * 0.68 - horizontalShift, y: height * 0.7 - verticalShift }]
-      : [{ x: 170 + horizontalShift, y: height * 0.65 + verticalShift }, { x: width - 170 - horizontalShift, y: height * 0.65 - verticalShift }, { x: width / 2, y: height * 0.73 + verticalShift / 2 }];
-  motifs.forEach((motif, index) => drawArtworkMotif(
+  motifs.forEach((motif) => drawArtworkMotif(
     context,
-    motif,
-    positions[index].x,
-    positions[index].y,
+    motif.motif,
+    motif.x * width,
+    motif.y * height,
     accent,
     quiet,
-    1 + ((directionSeed + index * 31) % 90) / 100,
-    (((directionSeed + index * 53) % 31) - 15) * (Math.PI / 180),
+    motif.scale,
+    motif.rotation,
+    motif.arrangement,
   ));
 }
 
-function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtworkMotif, x: number, y: number, accent: string, quiet: string, scale: number, rotation: number) {
+function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtworkMotif, x: number, y: number, accent: string, quiet: string, scale: number, rotation: number, arrangement: PackageArtworkMotifRenderPlan["arrangement"]) {
   context.save();
   context.translate(x, y);
   context.rotate(rotation);
@@ -672,20 +741,63 @@ function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtwo
   context.lineWidth = 8;
   context.globalAlpha = 0.86;
 
-  if (motif === "chickpea" || motif === "berry" || motif === "bubbles") {
-    const radii = motif === "bubbles" ? [24, 15, 11] : [30, 24, 18];
-    [[0, 0], [45, -28], [48, 28]].forEach(([dx, dy], index) => {
+  if (motif === "bubbles") {
+    const bubbles = arrangement === "around"
+      ? Array.from({ length: 8 }, (_, index) => {
+          const angle = (Math.PI * 2 * index) / 8;
+          return [Math.cos(angle) * 82, Math.sin(angle) * 72, index % 2 === 0 ? 13 : 9] as const;
+        })
+      : [[0, 0, 24], [45, -28, 15], [48, 28, 11]] as const;
+    bubbles.forEach(([dx, dy, radius]) => {
       context.beginPath();
-      context.arc(dx, dy, radii[index], 0, Math.PI * 2);
-      if (motif === "bubbles") context.stroke();
-      else context.fill();
+      context.arc(dx, dy, radius, 0, Math.PI * 2);
+      context.stroke();
     });
-  } else if (motif === "honey" || motif === "drop") {
+  } else if (motif === "berry") {
+    [[0, 10, 30], [-34, -14, 24], [34, -14, 24]].forEach(([dx, dy, radius]) => {
+      context.beginPath();
+      context.arc(dx, dy, radius, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+    });
+    context.beginPath();
+    context.ellipse(-13, -48, 11, 25, -0.7, 0, Math.PI * 2);
+    context.ellipse(13, -48, 11, 25, 0.7, 0, Math.PI * 2);
+    context.fillStyle = accent;
+    context.fill();
+  } else if (motif === "chickpea") {
+    [-38, 0, 38].forEach((dx, index) => {
+      context.beginPath();
+      context.moveTo(dx - 24, index === 1 ? -8 : -22);
+      context.bezierCurveTo(dx - 28, -46, dx + 30, -44, dx + 25, -3);
+      context.bezierCurveTo(dx + 20, 35, dx - 25, 39, dx - 24, index === 1 ? -8 : -22);
+      context.fill();
+      context.stroke();
+      context.beginPath();
+      context.arc(dx + 4, -7, 5, 0, Math.PI * 2);
+      context.fillStyle = accent;
+      context.fill();
+      context.fillStyle = quiet;
+    });
+  } else if (motif === "drop") {
     context.beginPath();
     context.moveTo(0, -48);
     context.bezierCurveTo(34, -12, 38, 16, 0, 48);
     context.bezierCurveTo(-38, 16, -34, -12, 0, -48);
     context.fill();
+  } else if (motif === "honey") {
+    [[-34, 0], [34, 0], [0, -54]].forEach(([dx, dy]) => {
+      context.beginPath();
+      for (let index = 0; index < 6; index += 1) {
+        const angle = Math.PI / 6 + (Math.PI * index) / 3;
+        const point = [dx + Math.cos(angle) * 32, dy + Math.sin(angle) * 32] as const;
+        if (index === 0) context.moveTo(...point);
+        else context.lineTo(...point);
+      }
+      context.closePath();
+      context.stroke();
+      if (dx === 34) context.fill();
+    });
   } else if (motif === "chili") {
     context.beginPath();
     context.moveTo(-52, -8);

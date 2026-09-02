@@ -4,6 +4,7 @@ import { SITE_URL } from "@/lib/site";
 import { FIELD_DEFINITION_BY_KEY, NEVER_SHARE_FIELD_KEYS, SOURCING_FIELD_DEFINITIONS } from "./fields";
 import { getProductDescriptor } from "./product-catalog";
 import { contactEmailSchema } from "./schemas";
+import { getCurrentManufacturerResearch } from "./workspace";
 import type { ManufacturerMatch, OutreachDraft, SourcingFieldKey, SourcingWorkspace } from "./types";
 
 function read(name: string): string {
@@ -124,10 +125,11 @@ export function prepareOutreachDrafts(
     return value ? [[key, value]] : [];
   })) as Partial<Record<SourcingFieldKey, string>>;
 
+  const currentMatches = getCurrentManufacturerResearch(workspace)?.candidates ?? [];
   return input.selectedManufacturerIds.flatMap((slug) => {
     const plant = getPlantBySlug(slug);
     if (!plant || plant.introductionsPaused) return [];
-    const match = workspace.matches.find((candidate) => candidate.manufacturerSlug === slug);
+    const match = currentMatches.find((candidate) => candidate.manufacturerSlug === slug);
     const token = randomBytes(24).toString("base64url");
     const questions = questionsFor(workspace, match);
     const product = getProductDescriptor(workspace);

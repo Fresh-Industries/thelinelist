@@ -46,7 +46,12 @@ export const agentFieldUpdateSchema = z.object({
     })).max(8).optional(),
   }).refine((update) => update.explicitlyStated !== undefined || update.status !== undefined, {
     message: "Each update needs a decision status.",
-  }).superRefine(validateContactEmail);
+  }).superRefine((update, context) => {
+    validateContactEmail(update, context);
+    if (update.status === "confirmed" && update.explicitlyStated !== true) {
+      context.addIssue({ code: "custom", message: "Confirmed values require an explicit founder statement.", path: ["explicitlyStated"] });
+    }
+  });
 
 export const agentUpdateSchema = z.object({
   revision: z.number().int().positive().optional(),
@@ -68,11 +73,23 @@ export const selectionUpdateSchema = z.object({
   selectedManufacturerSlugs: z.array(z.string().trim().min(1).max(120)).max(3),
 });
 
-export const packageDesignUpdateSchema = z.object({
+const opaqueMutationIdSchema = z.string().min(20).max(128).regex(/^[A-Za-z0-9_-]+$/);
+
+export const packageDesignStageSchema = z.object({
   revision: z.number().int().positive(),
-  packageDesign: PackageDesignSchema,
-  updatedBy: z.enum(["founder", "agent"]).default("founder"),
-  explicitlyStated: z.boolean().default(true),
+  stagePackageDesign: z.object({
+    stageId: opaqueMutationIdSchema,
+    packageDesign: PackageDesignSchema,
+    stagedBy: z.enum(["agent", "founder"]),
+  }),
+});
+
+export const packageDesignCommitSchema = z.object({
+  revision: z.number().int().positive(),
+  founderPackageCommit: z.object({
+    commitId: opaqueMutationIdSchema,
+    stagedPackageId: opaqueMutationIdSchema,
+  }),
 });
 
 export const undoAgentChangeSchema = z.object({

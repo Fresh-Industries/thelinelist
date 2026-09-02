@@ -9,7 +9,7 @@ import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentatio
 import { getProductIdentity } from "@/lib/sourcing/product-identity";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
 import type { OutreachDraft, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
-import { useSourcingWorkspace } from "./SourcingWorkspaceContext";
+import { routeFocusKey, useSourcingWorkspace } from "./SourcingWorkspaceContext";
 
 const SELECTION_LIMIT = 3;
 
@@ -34,19 +34,20 @@ export function SourcingManufacturers() {
   const briefActionLabel = readiness.manufacturerMissing.length ? "Finish product brief" : "Review product brief";
 
   useEffect(() => {
-    const requestedFocus = window.sessionStorage.getItem("the-line-list:sourcing-route-focus");
+    const focusKey = routeFocusKey(workspace.id);
+    const requestedFocus = window.sessionStorage.getItem(focusKey);
     if (requestedFocus !== "manufacturer-results") return;
-    window.sessionStorage.removeItem("the-line-list:sourcing-route-focus");
+    window.sessionStorage.removeItem(focusKey);
     const heading = document.getElementById("manufacturer-possibilities-heading");
     if (heading instanceof HTMLElement) window.requestAnimationFrame(() => heading.focus());
-  }, []);
+  }, [workspace.id]);
 
   useEffect(() => {
     if (window.location.hash !== "#manufacturer-introductions") return;
-    window.sessionStorage.removeItem("the-line-list:sourcing-route-focus");
+    window.sessionStorage.removeItem(routeFocusKey(workspace.id));
     const heading = document.getElementById("manufacturer-introductions-heading");
     if (heading instanceof HTMLElement) window.requestAnimationFrame(() => heading.focus());
-  }, [drafts.length]);
+  }, [drafts.length, workspace.id]);
 
   async function researchAgain() {
     setBusy("match");

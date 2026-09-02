@@ -19,7 +19,7 @@ export default async function ProductWorkspaceLayout({
   if (!authorized) notFound();
 
   return (
-    <SourcingWorkspaceProvider initialWorkspace={authorized.workspace} ownership={authorized.access}>
+    <SourcingWorkspaceProvider key={workspaceId} initialWorkspace={authorized.workspace} ownership={authorized.access}>
       {children}
     </SourcingWorkspaceProvider>
   );

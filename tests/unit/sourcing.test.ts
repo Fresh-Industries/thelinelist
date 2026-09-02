@@ -11,12 +11,12 @@ import { getProductJourney } from "@/lib/sourcing/product-journey";
 import { getCategoryDecisionGuardrails, getSourcingCategory, getSourcingQuestion } from "@/lib/sourcing/questions";
 import { PackageDesignSchema, ProductPlanSchema, productPlanFromWorkspace } from "@/lib/sourcing/product-plan";
 import { getPackageColorName, getPackageDesignPresentation, getPackageValidationGuidance } from "@/lib/sourcing/package-presentation";
-import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT } from "@/lib/sourcing/package-artwork";
+import { getPackageArtworkConcept, getPackageArtworkRenderPlan, PACKAGE_ARTWORK_ASPECT, serializePackageArtworkRenderPlan } from "@/lib/sourcing/package-artwork";
 import { getRecommendedWorkbenchPackageTypes } from "@/lib/sourcing/package-recommendations";
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
 import { agentUpdateSchema, editDraftSchema, founderUpdateSchema, matchRequestSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
-import { applyAgentUpdates, applyFounderFieldUpdate, applyPackageDesignUpdate, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, undoLastAgentChange } from "@/lib/sourcing/workspace";
+import { applyAgentUpdates, applyFounderFieldUpdate, applyManufacturerResearch, commitStagedPackageDesign, createWorkspace, invalidateDraftApprovalsForFounderEmailChange, invalidateDraftsForProductChange, stagePackageDesign, undoLastAgentChange } from "@/lib/sourcing/workspace";
 import { describe, expect, it } from "vitest";
 
 describe("sourcing workspace trust rules", () => {
@@ -154,6 +154,72 @@ describe("sourcing workspace trust rules", () => {
     }).motifs).toEqual(["citrus", "bubbles", "lightning"]);
   });
 
+  it("turns named motif refinements into deterministic motif-specific geometry", () => {
+    const initial = getPackageArtworkRenderPlan({
+      brand: "Bright Current",
+      product: "Carbonated citrus drink",
+      artDirection: "A bold citrus wheel, sparkling bubbles, and angular lightning arcs",
+      style: "modern-premium",
+      category: "beverage",
+      accentColor: "#F3A51F",
+    });
+    const refined = getPackageArtworkRenderPlan({
+      brand: "Bright Current",
+      product: "Carbonated citrus drink",
+      artDirection: "Make the lightning dramatically larger and diagonal, move the citrus wheel left, and keep sparkling bubbles around it",
+      style: "modern-premium",
+      category: "beverage",
+      accentColor: "#F3A51F",
+    });
+    const initialLightning = initial.motifs.find(({ motif }) => motif === "lightning")!;
+    const refinedLightning = refined.motifs.find(({ motif }) => motif === "lightning")!;
+    const initialCitrus = initial.motifs.find(({ motif }) => motif === "citrus")!;
+    const refinedCitrus = refined.motifs.find(({ motif }) => motif === "citrus")!;
+    const refinedBubbles = refined.motifs.find(({ motif }) => motif === "bubbles")!;
+
+    expect(refined).toMatchObject({
+      brand: "Bright Current",
+      product: "Carbonated citrus drink",
+      accentColor: "#f3a51f",
+    });
+    expect(refinedLightning.scale).toBeGreaterThan(initialLightning.scale + 0.5);
+    expect(Math.abs(refinedLightning.rotation)).toBeGreaterThanOrEqual(Math.PI / 4);
+    expect(refinedCitrus.x).toBeLessThan(initialCitrus.x);
+    expect(refinedBubbles).toMatchObject({ arrangement: "around", x: refinedCitrus.x, y: refinedCitrus.y });
+    expect(serializePackageArtworkRenderPlan(getPackageArtworkRenderPlan({
+      brand: "Bright Current",
+      product: "Carbonated citrus drink",
+      artDirection: "Make the lightning dramatically larger and diagonal, move the citrus wheel left, and keep sparkling bubbles around it",
+      style: "modern-premium",
+      category: "beverage",
+      accentColor: "#F3A51F",
+    }))).toBe(serializePackageArtworkRenderPlan(refined));
+    expect(serializePackageArtworkRenderPlan(refined)).not.toBe(serializePackageArtworkRenderPlan(initial));
+  });
+
+  it("uses distinct geometry for formerly aliased named motifs", () => {
+    const plan = getPackageArtworkRenderPlan({
+      brand: "Fictional Pantry",
+      product: "Snack",
+      artDirection: "Berry, chickpea, and honey motifs",
+      style: "warm-handmade",
+      category: "snack",
+    });
+    const geometries = Object.fromEntries(plan.motifs.map(({ motif, geometry }) => [motif, geometry]));
+    expect(geometries).toMatchObject({ berry: "berry-cluster", chickpea: "chickpea-beans", honey: "honeycomb" });
+
+    const liquidPlan = getPackageArtworkRenderPlan({
+      brand: "Fictional Pantry",
+      product: "Sauce",
+      artDirection: "Honey and liquid drop motifs",
+      style: "warm-handmade",
+      category: "sauce",
+    });
+    expect(liquidPlan.motifs.find(({ motif }) => motif === "honey")?.geometry).not.toBe(
+      liquidPlan.motifs.find(({ motif }) => motif === "drop")?.geometry,
+    );
+  });
+
   it("uses package-specific construction guidance without leaking bakery copy into cans", () => {
     expect(getPackageValidationGuidance("slim-can")).toMatch(/aluminum specification.*lining.*filling-line/i);
     expect(getPackageValidationGuidance("slim-can")).not.toMatch(/kraft|window|paper/i);
@@ -252,10 +318,12 @@ describe("sourcing workspace trust rules", () => {
     ]);
     expect(JSON.stringify(workspace)).toBe(before);
 
-    const zeroResultAudit = buildOutreachReadinessAudit({
-      ...workspace,
-      matchesUpdatedAt: "2026-09-01T12:00:00.000Z",
-    });
+    const zeroResultAudit = buildOutreachReadinessAudit(applyManufacturerResearch(workspace, {
+      geographyPreference: null,
+      resultLimit: 3,
+      requiredRequirements: [],
+      preferredRequirements: [],
+    }, []));
     expect(zeroResultAudit).toMatchObject({
       matchingCurrent: true,
       candidateCount: 0,
@@ -274,7 +342,7 @@ describe("sourcing workspace trust rules", () => {
     legacyFields.product_description = { ...legacyFields.product_description, value: originalIdea, status: "confirmed", source: "Founder starting idea", explicitlyStated: true, shareWithManufacturer: true, updatedBy: "founder" };
 
     const migrated = ProductPlanSchema.parse({ ...current, schemaVersion: 1, originalIdea: undefined, fields: legacyFields });
-    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.schemaVersion).toBe(3);
     expect(migrated.originalIdea).toBe(originalIdea);
     expect(migrated.fields.brand_name).toMatchObject({ value: null, status: "unknown" });
   });
@@ -290,6 +358,54 @@ describe("sourcing workspace trust rules", () => {
     expect(workspace.fields.carbonation.status).toBe("proposed");
     expect(workspace.fields.production_volume.status).toBe("needs_decision");
     expect(workspace.fields.budget.shareWithManufacturer).toBe(false);
+  });
+
+  it("does not let an agent promote a proposed shelf-stability claim into a confirmed founder decision", () => {
+    const proposed = applyAgentUpdates(createWorkspace({ idea: "A refrigerated fictional dip" }), [{
+      key: "storage_distribution",
+      value: "Shelf-stable goal",
+      status: "proposed",
+      explicitlyStated: false,
+      reason: "The process and shelf life still require qualified validation.",
+    }]);
+    const attemptedPromotion = applyAgentUpdates(proposed, [{
+      key: "storage_distribution",
+      value: "Shelf-stable goal",
+      status: "confirmed",
+      explicitlyStated: true,
+      source: "Assistant assertion",
+    }]);
+
+    expect(attemptedPromotion.fields.storage_distribution).toMatchObject({
+      status: "proposed",
+      validationStatus: "needs_validation",
+      confirmation: null,
+    });
+    const founderConfirmed = applyFounderFieldUpdate(attemptedPromotion, {
+      key: "storage_distribution",
+      value: "Shelf-stable goal",
+      status: "confirmed",
+      shareWithManufacturer: true,
+    });
+    expect(founderConfirmed.fields.storage_distribution).toMatchObject({
+      status: "confirmed",
+      validationStatus: "needs_validation",
+      confirmation: { actor: "founder", channel: "workspace_ui" },
+    });
+  });
+
+  it("persists manufacturer research once and derives compatibility aliases at the workspace boundary", () => {
+    const workspace = applyManufacturerResearch(createWorkspace({ demo: true }), {
+      geographyPreference: null,
+      resultLimit: 1,
+      requiredRequirements: [],
+      preferredRequirements: [],
+    }, []);
+    const plan = productPlanFromWorkspace(workspace) as unknown as Record<string, unknown>;
+
+    expect(plan.manufacturerResearch).toMatchObject({ status: "current", candidateCount: 0 });
+    expect(plan).not.toHaveProperty("matches");
+    expect(plan).not.toHaveProperty("matchesUpdatedAt");
   });
 
   it("makes the latest agent update visible and reversibly restores prior fields", () => {
@@ -339,7 +455,7 @@ describe("sourcing workspace trust rules", () => {
       nextQuestionKey: "packaging_format",
     });
 
-    workspace = applyPackageDesignUpdate(workspace, PackageDesignSchema.parse({
+    const packageDesign = PackageDesignSchema.parse({
       packagingType: "slim-can",
       finish: "colored",
       baseColor: "#b64d2c",
@@ -350,13 +466,22 @@ describe("sourcing workspace trust rules", () => {
       logoPosition: { x: 0, y: 0 },
       dimensions: { width: null, height: null, depth: null },
       summary: "Slim can · dimensions still open",
-    }), "founder");
+    });
+    workspace = stagePackageDesign(workspace, { stageId: "unit-stage-package-design-0001", packageDesign, stagedBy: "founder" });
+    workspace = commitStagedPackageDesign(workspace, { commitId: "unit-commit-package-design-001", stagedPackageId: workspace.stagedPackageDesign!.id });
 
     expect(getSourcingReadiness(workspace)).toMatchObject({
-      manufacturerReady: true,
+      manufacturerReady: false,
       packageDesignRequired: true,
       packageDesignReady: true,
     });
+    workspace = applyManufacturerResearch(workspace, {
+      geographyPreference: null,
+      resultLimit: 3,
+      requiredRequirements: [],
+      preferredRequirements: [],
+    }, []);
+    expect(getSourcingReadiness(workspace).manufacturerReady).toBe(true);
   });
 
   it("lets the founder confirm, reject, mark unknown, and control sharing", () => {

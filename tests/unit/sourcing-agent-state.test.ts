@@ -1,7 +1,7 @@
 import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
 import type { ManufacturerMatch, OutreachDraft } from "@/lib/sourcing/types";
 import { PackageDesignSchema } from "@/lib/sourcing/product-plan";
-import { applyFounderFieldUpdate, applyPackageDesignUpdate, createWorkspace } from "@/lib/sourcing/workspace";
+import { applyFounderFieldUpdate, applyManufacturerResearch, commitStagedPackageDesign, createWorkspace, stagePackageDesign } from "@/lib/sourcing/workspace";
 import { describe, expect, it } from "vitest";
 
 const BANANA_BREAD_IDEA = "Mya makes banana bread at home and we want to manufacture it and sell it in stores.";
@@ -128,11 +128,12 @@ describe("sourcing agent state", () => {
   });
 
   it("keeps a zero-result decision as the next action after the workspace is read again", () => {
-    const workspace = {
-      ...createWorkspace({ idea: BANANA_BREAD_IDEA }),
-      matches: [],
-      matchesUpdatedAt: "2026-08-31T12:00:00.000Z",
-    };
+    const workspace = applyManufacturerResearch(createWorkspace({ idea: BANANA_BREAD_IDEA }), {
+      geographyPreference: null,
+      resultLimit: 3,
+      requiredRequirements: [],
+      preferredRequirements: [],
+    }, []);
     const state = buildSourcingAgentState(workspace);
 
     expect(state.recommendedAction).toMatchObject({
@@ -175,8 +176,8 @@ describe("sourcing agent state", () => {
 
     expect(workspace.fields.product_category).toMatchObject({
       value: "Retail bakery product",
-      status: "confirmed",
-      explicitlyStated: true,
+      status: "proposed",
+      explicitlyStated: false,
       updatedBy: "agent",
       source: "Founder statement captured by agent",
     });
@@ -249,10 +250,14 @@ describe("sourcing agent state", () => {
       createdAt: "2026-08-30T12:00:00.000Z",
       updatedAt: "2026-08-30T12:00:00.000Z",
     };
+    const researched = applyManufacturerResearch(workspace, {
+      geographyPreference: null,
+      resultLimit: 3,
+      requiredRequirements: [],
+      preferredRequirements: [],
+    }, [match]);
     const state = buildSourcingAgentState({
-      ...workspace,
-      matches: [match],
-      matchesUpdatedAt: "2026-08-30T12:05:00.000Z",
+      ...researched,
       selectedManufacturerSlugs: [match.manufacturerSlug],
       outreachDrafts: [staleDraft],
     });
@@ -287,11 +292,12 @@ describe("sourcing agent state", () => {
       { key: "storage_distribution", value: "Shelf-stable goal" },
       { key: "production_volume", value: "1,000 to 5,000 units" },
       { key: "packaging_size", value: "14 oz loaf" },
+      { key: "packaging_format", value: "Windowed bakery bag" },
       { key: "product_description", value: "A full retail banana-bread loaf for shelf-stable grocery distribution, starting at 1,000 to 5,000 units." },
     ] as const) {
       workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
     }
-    workspace = applyPackageDesignUpdate(workspace, PackageDesignSchema.parse({
+    const packageDesign = PackageDesignSchema.parse({
       packagingType: "bakery-bag",
       finish: "colored",
       baseColor: "#f4ede1",
@@ -305,7 +311,9 @@ describe("sourcing agent state", () => {
       frontText: { brand: "Mya's", product: "Banana Bread" },
       dimensions: { width: null, height: null, depth: null },
       summary: "Windowed bakery bag · 14 oz loaf",
-    }), "founder");
+    });
+    workspace = stagePackageDesign(workspace, { stageId: "agent-state-stage-design-001", packageDesign, stagedBy: "founder" });
+    workspace = commitStagedPackageDesign(workspace, { commitId: "agent-state-commit-design-01", stagedPackageId: workspace.stagedPackageDesign!.id });
 
     const match: ManufacturerMatch = {
       manufacturerSlug: "example-bakery",
@@ -321,8 +329,14 @@ describe("sourcing agent state", () => {
       deliveryMethod: "line_list_introduction",
       lastReviewed: "2026-08-30",
     };
-    const matchesUpdatedAt = "2026-08-30T12:05:00.000Z";
-    workspace = { ...workspace, matches: [match], matchesUpdatedAt, selectedManufacturerSlugs: [match.manufacturerSlug] };
+    workspace = applyManufacturerResearch(workspace, {
+      geographyPreference: null,
+      resultLimit: 3,
+      requiredRequirements: [],
+      preferredRequirements: [],
+    }, [match]);
+    workspace = { ...workspace, selectedManufacturerSlugs: [match.manufacturerSlug] };
+    const researchRanAt = workspace.manufacturerResearch!.ranAt;
 
     const ready = buildSourcingAgentState(workspace);
     expect(ready.recommendedAction).toMatchObject({ type: "prepare_introductions", manufacturerSlugs: [match.manufacturerSlug] });
@@ -369,14 +383,14 @@ describe("sourcing agent state", () => {
       deliveryError: null,
       humanSendTokenHash: null,
       humanSendTokenExpiresAt: null,
-      createdAt: "2026-08-30T12:06:00.000Z",
-      updatedAt: "2026-08-30T12:06:00.000Z",
+      createdAt: researchRanAt,
+      updatedAt: researchRanAt,
     };
     const olderDraft = {
       ...draft,
       id: "draft-old",
-      createdAt: "2026-08-30T12:05:30.000Z",
-      updatedAt: "2026-08-30T12:05:30.000Z",
+      createdAt: new Date(Date.parse(researchRanAt) - 1).toISOString(),
+      updatedAt: new Date(Date.parse(researchRanAt) - 1).toISOString(),
     };
     const review = buildSourcingAgentState({ ...workspace, outreachDrafts: [olderDraft, draft] });
     expect(review.recommendedAction.type).toBe("open_introduction_review");

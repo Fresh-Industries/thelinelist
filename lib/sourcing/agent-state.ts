@@ -8,6 +8,7 @@ import {
 } from "./product-catalog";
 import { getCategoryDecisionGuardrails, getSourcingQuestion } from "./questions";
 import { getSourcingReadiness } from "./readiness";
+import { getCurrentManufacturerResearch, hasValidFounderPackageCommit } from "./workspace";
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
 
 const VALIDATION_OWNERS: Partial<Record<SourcingFieldKey, string>> = {
@@ -53,7 +54,7 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
   const needsValidation = populatedFields
     .filter(({ definition, field }) => {
       if (!VALIDATION_OWNERS[definition.key]) return false;
-      return field.status === "proposed" || /validat|confirm|commercial|shelf[- ]life|line compatibility/i.test(`${field.value} ${field.reason ?? ""}`);
+      return field.validationStatus === "needs_validation";
     })
     .map(({ definition, field }) => ({
       key: definition.key,
@@ -76,12 +77,14 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
     value,
     description,
   }));
+  const currentResearch = getCurrentManufacturerResearch(workspace);
+  const currentMatches = currentResearch?.candidates ?? [];
   const currentSelections = new Set(workspace.selectedManufacturerSlugs);
-  const currentMatchSlugs = new Set(workspace.matches.map((match) => match.manufacturerSlug));
+  const currentMatchSlugs = new Set(currentMatches.map((match) => match.manufacturerSlug));
   const selectedCurrentMatches = [...currentSelections].filter((slug) => currentMatchSlugs.has(slug));
   const eligibleOutreachDrafts = workspace.outreachDrafts.filter((draft) => {
     if (draft.packet.revokedAt || !currentSelections.has(draft.manufacturerSlug) || !currentMatchSlugs.has(draft.manufacturerSlug)) return false;
-    return !workspace.matchesUpdatedAt || Date.parse(draft.createdAt) >= Date.parse(workspace.matchesUpdatedAt);
+    return !currentResearch || Date.parse(draft.createdAt) >= Date.parse(currentResearch.ranAt);
   });
   const currentOutreachDrafts = [...new Map(
     [...eligibleOutreachDrafts]
@@ -114,12 +117,12 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
           manufacturerSlugs: selectedCurrentMatches,
           instruction: "Prepare one current introduction draft per founder-selected manufacturer, then immediately open the exact-message review. Nothing is approved or sent by this action.",
         }
-      : workspace.matches.length && !selectedCurrentMatches.length
+      : currentMatches.length && !selectedCurrentMatches.length
         ? {
             type: "wait_for_founder_shortlist" as const,
             instruction: "Ask the founder to select up to three visible manufacturer possibilities. Selection is a human decision; do not choose on their behalf.",
           }
-        : workspace.matchesUpdatedAt !== null && workspace.matches.length === 0
+        : currentResearch && currentMatches.length === 0
           ? {
               type: "review_no_match_result" as const,
               instruction: "Explain that the current search returned no responsible evidence-backed possibilities. Do not silently weaken founder requirements; ask whether confirmed must-haves should remain required or be retried as visible preferences.",
@@ -141,7 +144,7 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
             fieldKeys: proposed.map((item) => item.key),
             instruction: "Ask the founder to review the highlighted proposals instead of making them rewrite useful draft copy.",
           }
-        : readiness.searchReady && (workspace.matchesUpdatedAt === null || workspace.matches.length === 0)
+        : readiness.searchReady && !currentResearch
           ? {
               type: "research_manufacturers" as const,
               instruction: "Research a small evidence-backed set and keep conflicts and unknowns distinct from supported facts.",
@@ -209,13 +212,15 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
       founderCommitRequired: true,
     },
     packaging: {
-      saved: Boolean(workspace.packageDesign),
+      saved: hasValidFounderPackageCommit(workspace),
       direction: workspace.packageDesign,
+      stagedDirection: workspace.stagedPackageDesign,
+      commitment: workspace.packageCommit,
       suggestedDirection: workspace.fields.packaging_format.value,
       options: packagingOptions,
       founderCommitRequired: true,
     },
-    manufacturerCandidates: workspace.matches.map((match) => ({
+    manufacturerCandidates: currentMatches.map((match) => ({
       manufacturerSlug: match.manufacturerSlug,
       manufacturerName: match.manufacturerName,
       location: match.location,
@@ -255,7 +260,7 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
         ? "awaiting_founder_review"
         : readiness.manufacturerReady && selectedCurrentMatches.length
           ? "ready_to_prepare"
-          : workspace.matches.length && !selectedCurrentMatches.length
+          : currentMatches.length && !selectedCurrentMatches.length
             ? "awaiting_founder_selection"
             : "not_ready",
       finalSequence: [
@@ -273,9 +278,10 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
 export function buildOutreachReadinessAudit(workspace: SourcingWorkspace) {
   const state = buildSourcingAgentState(workspace);
   const selectionCount = state.outreach.selectedManufacturerSlugs.length;
-  const candidateCount = state.manufacturerCandidates.length;
   const drafts = state.outreach.drafts;
-  const matchingCurrent = workspace.matchesUpdatedAt !== null;
+  const currentResearch = getCurrentManufacturerResearch(workspace);
+  const matchingCurrent = Boolean(currentResearch);
+  const candidateCount = currentResearch?.candidateCount ?? 0;
   const allDraftsApproved = drafts.length > 0
     && drafts.every((draft) => draft.approvedVersion === draft.version);
   const blockers: string[] = [];
@@ -302,7 +308,9 @@ export function buildOutreachReadinessAudit(workspace: SourcingWorkspace) {
     matchingCurrent,
     manufacturerBriefReady: state.stage.canPrepareManufacturerBrief,
     packageDirectionSaved: state.packaging.saved,
-    candidateCount,
+    candidateCount: currentResearch?.candidateCount ?? 0,
+    researchId: currentResearch?.id ?? null,
+    researchFingerprint: currentResearch?.planFingerprint ?? null,
     selectionCount,
     selectedManufacturerSlugs: state.outreach.selectedManufacturerSlugs,
     pendingShortlistSlugs: state.outreach.pendingShortlistSlugs,
