@@ -17,7 +17,7 @@ async function visualVariationRatio(image: Buffer) {
 }
 
 async function waitFor3dPreview(dialog: Locator) {
-  const canvas = dialog.locator('.package-canvas canvas[aria-label^="Interactive 3D"]');
+  const canvas = dialog.locator('.package-canvas [aria-label^="Interactive 3D"] canvas');
   await expect(canvas).toBeVisible({ timeout: 15_000 });
   await expect.poll(async () => visualVariationRatio(await canvas.screenshot()), { timeout: 15_000 }).toBeGreaterThan(0.02);
 }
@@ -76,6 +76,15 @@ async function installSynchronousWebMcpHarness(page: Page) {
     Object.defineProperty(Document.prototype, "modelContext", { configurable: true, get: () => context });
     Object.assign(window, { __webMcpTools: tools });
   });
+}
+
+async function invokeWebMcp<T>(page: Page, name: string, input: Record<string, unknown>): Promise<T> {
+  return page.evaluate(async ({ toolName, toolInput }) => {
+    const tools = (window as unknown as { __webMcpTools: Map<string, { execute(value: unknown): Promise<unknown> | unknown }> }).__webMcpTools;
+    const tool = tools.get(toolName);
+    if (!tool) throw new Error(`Missing tool: ${toolName}`);
+    return tool.execute(toolInput);
+  }, { toolName: name, toolInput: input }) as Promise<T>;
 }
 
 test("keeps the sourcing entry usable when WebMCP registers synchronously", async ({ page }) => {
@@ -171,14 +180,16 @@ test("the focused package workbench includes the bakery model, exact copy, and a
   await page.getByRole("button", { name: "Open 3D workbench" }).click();
   const dialog = page.getByRole("dialog", { name: "Make the package direction tangible." });
   await expect(dialog).toBeVisible();
-  for (const label of ["Slim Can", "Bottle", "Jar", "Bag / pouch", "Bakery bag + window"]) {
+  await expect(dialog.getByRole("button", { name: "Bakery bag + window" })).toBeVisible();
+  await dialog.getByRole("button", { name: "More package types (4)" }).click();
+  for (const label of ["Slim Can", "Bottle", "Jar", "Bag / pouch"]) {
     await expect(dialog.getByRole("button", { name: label })).toBeVisible();
   }
   await dialog.getByRole("button", { name: "Bakery bag + window" }).click();
   await dialog.getByRole("textbox", { name: "Brand text" }).fill("Mya's");
   await dialog.getByRole("textbox", { name: "Product text" }).fill("Banana Bread");
   await dialog.getByLabel("Window size").fill("0.5");
-  await dialog.getByLabel("Front copy size").fill("1.1");
+  await dialog.getByLabel("Front copy size").fill("1.08");
   await waitFor3dPreview(dialog);
   await dialog.getByRole("button", { name: "Use this package direction" }).click();
   await expect(dialog).toBeHidden();
@@ -222,7 +233,7 @@ test("the focused package workbench includes the bakery model, exact copy, and a
   await expect(dialog.getByRole("textbox", { name: "Brand text" })).toHaveValue("Mya's");
   await expect(dialog.getByRole("textbox", { name: "Product text" })).toHaveValue("Banana Bread");
   await expect(dialog.getByLabel("Window size")).toHaveValue("0.5");
-  await expect(dialog.getByLabel("Front copy size")).toHaveValue("1.1");
+  await expect(dialog.getByLabel("Front copy size")).toHaveValue("1.08");
 });
 
 test("landing and workspace WebMCP tools share canonical state and expose no send action", async ({ page }) => {
@@ -238,7 +249,7 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
     return tool.execute(input);
   }, { name, input });
 
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
   const workspaceNavigation = page.getByRole("navigation", { name: "Product workspace" });
   await expect(workspaceNavigation.getByRole("link", { name: "Product brief" })).toHaveAttribute("aria-current", "page");
   await expect(workspaceNavigation.getByRole("link", { name: "Manufacturers" })).not.toHaveAttribute("aria-current");
@@ -248,10 +259,11 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   expect(current.workspace.fields).toBeUndefined();
   expect(current.stage.percent).toBeUndefined();
   expect(current.product).toMatchObject({ brandName: null, descriptor: "Sparkling beverage" });
-  expect(current.creative).toMatchObject({ status: "needs_brand_name", nextQuestion: { key: "brand_name" } });
+  expect(current.creative).toMatchObject({ status: "waiting_for_package_direction", nextQuestion: null });
   expect(current.creative.workflow).toContain("generate_package_artwork");
-  expect(current.availableActions).toContain("generate_package_artwork");
-  expect(current.availableActions).toContain("stage_package_artwork");
+  expect(current.availableActions).not.toContain("generate_package_artwork");
+  expect(current.availableActions).not.toContain("stage_package_artwork");
+  expect(current.availableActions).toContain("audit_outreach_readiness");
   expect(current.outreach).toMatchObject({ externalContactRequiresFounderAction: true, agentSendAvailable: false });
   const preview = await invoke("preview_package_design", { packagingType: "bottle", baseColor: "#f2e8d5", labelColor: "#b64d2c" }) as { committed: boolean; previewOpened: boolean };
   expect(preview).toMatchObject({ committed: false, previewOpened: true });
@@ -296,7 +308,7 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   expect(matched.outreach.drafts).toEqual([]);
   expect(matched).toMatchObject({ resultCount: matched.manufacturerCandidates.length, resultsShown: true });
   await expect(page).toHaveURL(manufacturersPath(workspaceId));
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
   await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toHaveCount(0);
   await expect(workspaceNavigation.getByRole("link", { name: "Manufacturers" })).toHaveAttribute("aria-current", "page");
   await expect(workspaceNavigation.getByRole("link", { name: "Product brief" })).not.toHaveAttribute("aria-current");
@@ -332,9 +344,139 @@ test("landing and workspace WebMCP tools share canonical state and expose no sen
   await page.getByRole("button", { name: "Close packaging workbench" }).click();
   const hasSendTool = await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has("send_manufacturer_inquiry"));
   expect(hasSendTool).toBe(false);
-  for (const tool of ["get_package_design", "preview_package_design", "generate_package_artwork", "stage_package_artwork", "refine_package_design_in_3d", "undo_last_agent_change", "export_product_packet"]) {
+  for (const tool of ["get_package_design", "preview_package_design", "generate_package_artwork", "stage_package_artwork", "refine_package_design_in_3d", "undo_last_agent_change", "export_product_packet", "audit_outreach_readiness"]) {
     expect(await page.evaluate((name) => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.has(name), tool)).toBe(true);
   }
+});
+
+test("WebMCP-only acceptance keeps categories coherent, rejects unsupported geography without mutation, and preserves human gates", async ({ page }) => {
+  await installWebMcpHarness(page);
+  const categoryCases = [
+    { label: "Baked good", product: "Banana bread mini loaf", category: "bakery", firstPackage: "flow-wrap" },
+    { label: "Packaged bakery / quick bread", product: "Wrapped blueberry loaf", category: "bakery", firstPackage: "flow-wrap" },
+    { label: "Beverage", product: "Sparkling citrus beverage", category: "beverage", firstPackage: "standard-can" },
+    { label: "Sauce / condiment", product: "Chili lime hot sauce", category: "sauce", firstPackage: "glass-sauce-bottle" },
+    { label: "Snack", product: "Crunchy chickpea snack", category: "snack", firstPackage: "flow-wrap-bar" },
+    { label: "Frozen food", product: "Frozen vegetable grain bowl", category: "frozen", firstPackage: "frozen-bag" },
+    { label: "Food", product: "Prepared grain meal", category: "food", firstPackage: "pouch" },
+  ] as const;
+
+  for (const testCase of categoryCases) {
+    await page.goto("/sourcing");
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+    const created = await invokeWebMcp<{
+      workspace: { id: string };
+      product: { category: string };
+      packaging: { options: Array<{ id: string }> };
+    }>(page, "create_sourcing_workspace", {
+      idea: `I want to make ${testCase.product}`,
+      initialUpdates: [
+        { key: "product_category", value: testCase.label, status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "product_type", value: testCase.product, status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      ],
+    });
+    await expect(page).toHaveURL(productBriefPath(created.workspace.id));
+    expect(created.product.category, testCase.label).toBe(testCase.category);
+    expect(created.packaging.options[0]?.id, testCase.label).toBe(testCase.firstPackage);
+  }
+
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  const unfamiliar = await invokeWebMcp<{
+    workspace: { id: string };
+    product: { category: string };
+    packaging: { options: Array<{ id: string }> };
+  }>(page, "create_sourcing_workspace", {
+    idea: "A banana bread concept for grocery shelves",
+    initialUpdates: [
+      { key: "product_category", value: "Emerging CPG concept", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_type", value: "Banana bread", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect(page).toHaveURL(productBriefPath(unfamiliar.workspace.id));
+  expect(unfamiliar.product.category).toBe("bakery");
+  expect(unfamiliar.packaging.options[0]?.id).toBe("flow-wrap");
+
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  const snack = await invokeWebMcp<{ workspace: { id: string; revision: number } }>(page, "create_sourcing_workspace", {
+    idea: "A honey chili crunchy chickpea snack in a pouch",
+    initialUpdates: [
+      { key: "brand_name", value: "Bright Bite", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_category", value: "Snack", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_type", value: "Honey chili crunchy chickpea snack", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_format", value: "Single-serve crunchy snack", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "Stand-up pouch", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect(page).toHaveURL(productBriefPath(snack.workspace.id));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+
+  const before = await invokeWebMcp<{ workspace: { revision: number }; manufacturerCandidates: unknown[] }>(page, "get_sourcing_workspace", {});
+  const routeBefore = page.url();
+  const rejected = await invokeWebMcp<{
+    matchingAttempted: boolean;
+    resultsShown: boolean;
+    matchingGuidance: { geographyInputNeedsClarification: boolean };
+  }>(page, "match_manufacturers", { geographyPreference: "Upper Lakes corridor", resultLimit: 3 });
+  expect(rejected).toMatchObject({ matchingAttempted: false, resultsShown: false, matchingGuidance: { geographyInputNeedsClarification: true } });
+  await expect(page).toHaveURL(routeBefore);
+  const afterRejected = await invokeWebMcp<{ workspace: { revision: number }; manufacturerCandidates: unknown[] }>(page, "get_sourcing_workspace", {});
+  expect(afterRejected.workspace.revision).toBe(before.workspace.revision);
+  expect(afterRejected.manufacturerCandidates).toEqual(before.manufacturerCandidates);
+
+  const auditBeforeArtwork = await invokeWebMcp<{
+    selectionCount: number;
+    matchingCurrent: boolean;
+    externalContactRequiresFounderAction: boolean;
+    agentApprovalAvailable: boolean;
+    agentSendAvailable: boolean;
+    gates: Array<{ owner: string; step: string }>;
+  }>(page, "audit_outreach_readiness", {});
+  expect(auditBeforeArtwork).toMatchObject({
+    selectionCount: 0,
+    matchingCurrent: false,
+    externalContactRequiresFounderAction: true,
+    agentApprovalAvailable: false,
+    agentSendAvailable: false,
+  });
+  expect(auditBeforeArtwork.gates).toContainEqual(expect.objectContaining({ owner: "founder", step: "select_manufacturers" }));
+  expect(auditBeforeArtwork.gates).toContainEqual(expect.objectContaining({ owner: "founder", step: "confirm_send_now" }));
+
+  const artwork = await invokeWebMcp<{
+    artworkUrl: string;
+    committed: boolean;
+    previewOpened: boolean;
+    preview: { packagingType: string; artworkId: string; logoScale: number; logoPosition: { x: number; y: number } };
+  }>(page, "generate_package_artwork", {
+    artDirection: "Warm handmade retail label with chickpea, honey, and chili ingredient motifs",
+    style: "warm-handmade",
+    founderApproved: true,
+  });
+  expect(artwork).toMatchObject({
+    committed: false,
+    previewOpened: true,
+    preview: { packagingType: "stand-up-pouch", artworkId: expect.any(String), logoPosition: { x: 0, y: 0 } },
+  });
+  expect(artwork.preview.logoScale).toBeGreaterThanOrEqual(0.8);
+  await expect(page.getByRole("dialog", { name: "Review what your agent changed." })).toBeVisible();
+  const encodedArtwork = await page.evaluate(async (url) => {
+    const response = await fetch(url);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return { contentType: response.headers.get("content-type"), base64: btoa(binary) };
+  }, artwork.artworkUrl);
+  expect(encodedArtwork.contentType).toBe("image/png");
+  const artworkBuffer = Buffer.from(encodedArtwork.base64, "base64");
+  const artworkMetadata = await sharp(artworkBuffer).metadata();
+  expect(artworkMetadata).toMatchObject({ width: 1000, height: 1200 });
+  expect(await visualVariationRatio(artworkBuffer)).toBeGreaterThan(0.12);
+  const packageState = await invokeWebMcp<{ packaging: { saved: boolean; direction: unknown } }>(page, "get_package_design", {});
+  expect(packageState.packaging).toMatchObject({ saved: false, direction: null });
+
+  const toolNames = await page.evaluate(() => [...(window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.keys()]);
+  expect(toolNames.filter((name) => /(?:^|_)(?:select|approve|send)(?:_|$)/.test(name))).toEqual([]);
 });
 
 test("product brief and manufacturers are separate history-safe views", async ({ page }) => {
@@ -346,13 +488,16 @@ test("product brief and manufacturers are separate history-safe views", async ({
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(workspaceNavigation.getByRole("link", { name: "Product brief" })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("heading", { name: "Manufacturer possibilities" })).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
 
+  await page.getByPlaceholder(/Answer naturally/).fill("Mini loaf");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByRole("button", { name: "Research manufacturers now" })).toBeVisible();
   await page.getByRole("button", { name: "Research manufacturers now" }).click();
   await expect(page).toHaveURL(manufacturersPath(workspaceId));
   await expect(page.getByRole("heading", { level: 1, name: "Manufacturer possibilities" })).toHaveCount(1);
   await expect(workspaceNavigation.getByRole("link", { name: "Manufacturers" })).toHaveAttribute("aria-current", "page");
-  await expect(page.getByRole("region", { name: /.+/ })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Manufacturer possibilities" })).toBeVisible();
 
   const firstChoice = page.getByRole("button", { name: /^View details for / }).first();
   const firstName = (await firstChoice.getAttribute("aria-label"))!.replace("View details for ", "");
@@ -372,7 +517,7 @@ test("product brief and manufacturers are separate history-safe views", async ({
   await expect(page.getByRole("status").filter({ hasText: "1 selected" })).toBeVisible();
   await page.goForward();
   await expect(page).toHaveURL(productBriefPath(workspaceId));
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(12);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
 });
 
 test("multiple manufacturers receive separate reviewable drafts", async ({ page }) => {
@@ -435,6 +580,9 @@ test("mobile keeps both workspace views inside the viewport", async ({ page }) =
   const briefGeometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
   expect(briefGeometry.document).toBeLessThanOrEqual(briefGeometry.viewport);
 
+  await page.getByPlaceholder(/Answer naturally/).fill("Mini loaf");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByRole("button", { name: "Research manufacturers now" })).toBeVisible();
   await page.getByRole("button", { name: "Research manufacturers now" }).click();
   await expect(page).toHaveURL(manufacturersPath(workspaceId));
   await expect(page.getByRole("navigation", { name: "Product workspace" }).getByRole("link", { name: "Manufacturers" })).toHaveAttribute("aria-current", "page");

@@ -78,6 +78,7 @@ describe("sourcing agent state", () => {
       "ask_one_creative_question",
       "generate_package_artwork",
       "founder_reviews_in_3d",
+      "refine_on_founder_request",
     ]);
     expect(state.availableActions).not.toContain("prepare_manufacturer_outreach");
     expect(state.packaging).toMatchObject({ saved: false, founderCommitRequired: true });

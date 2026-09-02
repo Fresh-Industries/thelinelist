@@ -1,27 +1,8 @@
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
-
-function classifyProductText(product: string): "beverage" | "bakery" | "food" | null {
-  if (/\b(?:bread|bakery|cake|cakes|cookie|cookies|muffin|muffins|loaf|loaves)\b/.test(product)) return "bakery";
-  if (/\b(?:drink|drinks|beverage|beverages|juice|water|seltzer|coffee|tea|energy)\b/.test(product)) return "beverage";
-  if (/\b(?:snack|snacks|chips?|crackers?|granola|bars?|sauce|salsa|condiment|meal|food)\b/.test(product)) return "food";
-  return null;
-}
+import { getSourcingQuestionCategory } from "./product-category";
 
 export function getSourcingCategory(workspace: SourcingWorkspace): "beverage" | "bakery" | "food" {
-  const authoritativeFields = ["product_category", "product_type", "product_format"] as const;
-  for (const key of authoritativeFields) {
-    const field = workspace.fields[key];
-    if (field.status !== "confirmed" || !field.value) continue;
-    const category = classifyProductText(field.value.toLowerCase());
-    if (category) return category;
-  }
-
-  const fallback = [
-    workspace.fields.product_name.value,
-    workspace.fields.product_description.value,
-    workspace.originalIdea,
-  ].filter(Boolean).join(" ").toLowerCase();
-  return classifyProductText(fallback) ?? "food";
+  return getSourcingQuestionCategory(workspace);
 }
 
 const GENERIC_QUESTIONS: Partial<Record<SourcingFieldKey, string>> = {

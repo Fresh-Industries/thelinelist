@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
+import { buildOutreachReadinessAudit, buildSourcingAgentState } from "@/lib/sourcing/agent-state";
 import { getGeographyMatchPreflight } from "@/lib/sourcing/geography";
 import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements";
 import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
+import { getProductCategory, type ProductCategory } from "@/lib/sourcing/product-category";
 import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
 import { packageConfigs, type PackagingType } from "@/components/product-visuals/package-config";
 
@@ -223,7 +224,7 @@ export function WebMcpSourcingTools({
           const brand = current.workspace.fields.brand_name.value?.trim();
           if (!brand) throw new Error("Ask what brand name should appear on the package before creating artwork.");
           const product = current.workspace.fields.product_type.value?.trim() || current.workspace.fields.product_name.value?.trim() || "Product";
-          const artwork = await renderPackageArtwork({ brand, product, artDirection: args.artDirection, style: args.style, accentColor: args.accentColor });
+          const artwork = await renderPackageArtwork({ brand, product, category: getProductCategory(current.workspace), artDirection: args.artDirection, style: args.style, accentColor: args.accentColor });
           const form = new FormData();
           form.set("artwork", new File([artwork.blob], `${slugify(brand)}-${args.style}-label.png`, { type: "image/png" }));
           const response = await fetch(`/api/sourcing/${workspaceId}/artwork`, { method: "POST", body: form, cache: "no-store" });
@@ -232,9 +233,11 @@ export function WebMcpSourcingTools({
           const packagingType = inferArtworkPackagingType(current.workspace);
           const logoConfig = packageConfigs[packagingType].logo;
           const preview = callbacksRef.current.onPreviewPackageDesign({
+            packagingType,
             artworkId: body.workspace.artwork.id,
             logoAspect: artwork.aspect,
-            logoScale: Math.min(logoConfig.defaultScale * 1.2, logoConfig.scale.max),
+            logoScale: logoConfig.defaultScale,
+            logoPosition: { x: 0, y: 0 },
           }, body.workspace);
           return withGuidance(body, {
             artworkUrl: body.artworkUrl,
@@ -243,6 +246,10 @@ export function WebMcpSourcingTools({
             preview,
             previewOpened: true,
             committed: false,
+            refinement: {
+              available: true,
+              instruction: "If the founder asks for a change, keep their brand and product copy fixed, change only the requested visual direction, and call generate_package_artwork again. Each new direction remains staged until the founder uses it.",
+            },
             humanActionRequired: "The founder must visually review the generated artwork on the 3D package and click Use this package direction to commit it.",
           });
         },
@@ -312,6 +319,19 @@ export function WebMcpSourcingTools({
           const body = await api(`/api/sourcing/${workspaceId}`);
           if (!body.workspace) throw new Error("The current ProductPlan could not be read.");
           return withGuidance(body, { downloadUrl: new URL(`/api/sourcing/${workspaceId}/export`, window.location.origin).toString(), fileType: "application/pdf", sharedExternally: false });
+        },
+      },
+      {
+        name: "audit_outreach_readiness",
+        title: "Audit introduction readiness",
+        description: "Read the current manufacturer-introduction gates without changing the workspace. Return whether research is current, the founder shortlist is present, the manufacturer brief and saved 3D package direction are ready, recipient-specific drafts are current, and which founder-only approvals remain. This tool never selects a manufacturer, prepares or approves a draft, or sends anything.",
+        inputSchema: { type: "object", properties: {}, additionalProperties: false },
+        annotations: { readOnlyHint: true, untrustedContentHint: true },
+        async execute(input) {
+          void input;
+          const body = await api(`/api/sourcing/${workspaceId}`);
+          if (!body.workspace) throw new Error("The current ProductPlan could not be read.");
+          return buildOutreachReadinessAudit(body.workspace);
         },
       },
       {
@@ -435,12 +455,14 @@ function decodeBase64Artwork(value: string): Uint8Array {
 async function renderPackageArtwork({
   brand,
   product,
+  category,
   artDirection,
   style,
   accentColor,
 }: {
   brand: string;
   product: string;
+  category: ProductCategory;
   artDirection: string;
   style: PackageArtworkStyle;
   accentColor?: string;
@@ -457,8 +479,16 @@ async function renderPackageArtwork({
     "modern-premium": { paper: "#f3eee4", ink: "#0b2f29", accent: "#b78b3e", quiet: "#d8d1c4" },
     "playful-retail": { paper: "#fff2dc", ink: "#123f3a", accent: "#e65d3f", quiet: "#86c7b8" },
   };
-  const palette = { ...palettes[style], ...(accentColor ? { accent: accentColor } : {}) };
-  const concept = getPackageArtworkConcept({ product, artDirection, style });
+  const categoryColors: Record<ProductCategory, { accent: string; quiet: string }> = {
+    bakery: { accent: "#c95f35", quiet: "#e2bc78" },
+    beverage: { accent: "#177a72", quiet: "#8ccbc0" },
+    food: { accent: "#b95332", quiet: "#d7bf85" },
+    frozen: { accent: "#315e83", quiet: "#a8cbd6" },
+    sauce: { accent: "#d7472f", quiet: "#efaa66" },
+    snack: { accent: "#c96b2e", quiet: "#e3c357" },
+  };
+  const palette = { ...palettes[style], ...categoryColors[category], ...(accentColor ? { accent: accentColor } : {}) };
+  const concept = getPackageArtworkConcept({ product, artDirection, style, category });
   const directionSeed = [...artDirection].reduce((total, character) => total + character.charCodeAt(0), 0);
   context.clearRect(0, 0, width, height);
   roundedRect(context, 28, 28, width - 56, height - 56, 42);
@@ -472,24 +502,38 @@ async function renderPackageArtwork({
   if (style === "modern-premium") drawPremiumFrame(context, width, height, palette.accent);
   if (style === "playful-retail") drawRetailDots(context, width, height, palette.quiet, palette.accent);
 
+  context.fillStyle = palette.ink;
+  context.fillRect(28, 28, width - 56, 108);
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillStyle = palette.accent;
-  context.font = "700 26px Arial, sans-serif";
-  context.fillText(concept.kicker, width / 2, 145);
+  context.fillStyle = palette.paper;
+  context.font = "800 22px Arial, sans-serif";
+  context.fillText(`${category.toUpperCase()}  •  ${concept.kicker}`, width / 2, 82);
   context.fillStyle = palette.ink;
-  fitText(context, brand, width - 150, style === "playful-retail" ? 126 : 136, style === "modern-premium" ? "Georgia, serif" : "Arial, sans-serif", 800);
-  context.fillText(brand, width / 2, 370);
+  fitText(context, brand, width - 150, style === "playful-retail" ? 132 : 144, style === "modern-premium" ? "Georgia, serif" : "Arial, sans-serif", 800);
+  context.fillText(brand, width / 2, 300);
   context.fillStyle = palette.accent;
-  fitText(context, product, width - 190, 70, "Georgia, serif", 700);
-  context.fillText(product, width / 2, 535);
+  drawFittedMultilineText(context, product, width / 2, 470, width - 180, 88, "Georgia, serif", 700);
   context.fillStyle = palette.ink;
-  context.font = "600 24px Arial, sans-serif";
-  context.fillText(concept.footer, width / 2, 960);
+  context.font = "800 20px Arial, sans-serif";
+  context.fillText(concept.motifs.map(motifLabel).join("  •  "), width / 2, 615);
+  context.save();
+  context.globalAlpha = style === "modern-premium" ? 0.08 : 0.14;
+  context.fillStyle = palette.quiet;
+  context.beginPath();
+  context.ellipse(width / 2, height * 0.69, 330, 155, 0, 0, Math.PI * 2);
+  context.fill();
+  context.restore();
   drawArtworkMotifs(context, concept.motifs, width, height, palette.accent, palette.quiet);
+  context.fillStyle = palette.ink;
+  roundedRect(context, 90, height - 190, width - 180, 92, 24);
+  context.fill();
+  context.fillStyle = palette.paper;
+  context.font = "700 23px Arial, sans-serif";
+  context.fillText(concept.footer, width / 2, height - 144);
   context.fillStyle = palette.accent;
   const motifWidth = 160 + (directionSeed % 80);
-  context.fillRect(width / 2 - motifWidth / 2, 1060, motifWidth, 8);
+  context.fillRect(width / 2 - motifWidth / 2, height - 76, motifWidth, 8);
 
   const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Package artwork could not be encoded.")), "image/png"));
   return { blob, aspect: width / height };
@@ -516,6 +560,42 @@ function fitText(context: CanvasRenderingContext2D, text: string, maximumWidth: 
     context.font = `${weight} ${size}px ${family}`;
     size -= 2;
   } while (context.measureText(text).width > maximumWidth && size > 34);
+}
+
+function drawFittedMultilineText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  centerY: number,
+  maximumWidth: number,
+  startingSize: number,
+  family: string,
+  weight: number,
+) {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  let size = startingSize;
+  let lines: string[] = [text];
+  do {
+    context.font = `${weight} ${size}px ${family}`;
+    lines = [];
+    let current = "";
+    for (const word of words) {
+      const next = current ? `${current} ${word}` : word;
+      if (current && context.measureText(next).width > maximumWidth) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = next;
+      }
+    }
+    if (current) lines.push(current);
+    if (lines.length <= 2 && lines.every((line) => context.measureText(line).width <= maximumWidth)) break;
+    size -= 2;
+  } while (size > 42);
+
+  const lineHeight = size * 1.02;
+  const startY = centerY - ((lines.length - 1) * lineHeight) / 2;
+  lines.slice(0, 2).forEach((line, index) => context.fillText(line, x, startY + index * lineHeight));
 }
 
 function drawHandmadeRays(context: CanvasRenderingContext2D, width: number, height: number, color: string) {
@@ -562,17 +642,18 @@ function drawArtworkMotifs(
   accent: string,
   quiet: string,
 ) {
-  const positions = [
-    { x: 155, y: height * 0.63 },
-    { x: width - 155, y: height * 0.63 },
-    { x: width / 2, y: height * 0.7 },
-  ];
+  const positions = motifs.length === 1
+    ? [{ x: width / 2, y: height * 0.68 }]
+    : motifs.length === 2
+      ? [{ x: width * 0.34, y: height * 0.68 }, { x: width * 0.66, y: height * 0.68 }]
+      : [{ x: 185, y: height * 0.66 }, { x: width - 185, y: height * 0.66 }, { x: width / 2, y: height * 0.72 }];
   motifs.forEach((motif, index) => drawArtworkMotif(context, motif, positions[index].x, positions[index].y, accent, quiet));
 }
 
 function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtworkMotif, x: number, y: number, accent: string, quiet: string) {
   context.save();
   context.translate(x, y);
+  context.scale(1.32, 1.32);
   context.lineCap = "round";
   context.lineJoin = "round";
   context.strokeStyle = accent;
@@ -637,6 +718,21 @@ function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtwo
     }
   }
   context.restore();
+}
+
+function motifLabel(motif: PackageArtworkMotif): string {
+  return ({
+    berry: "BERRY",
+    bubbles: "BUBBLES",
+    chickpea: "CHICKPEA",
+    chili: "CHILI",
+    citrus: "CITRUS",
+    coffee: "COFFEE",
+    drop: "BOLD POUR",
+    grain: "GRAIN MOTIF",
+    honey: "HONEY",
+    leaf: "PLANT INSPIRED",
+  } satisfies Record<PackageArtworkMotif, string>)[motif];
 }
 
 function slugify(value: string): string {

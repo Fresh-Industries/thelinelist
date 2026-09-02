@@ -151,7 +151,7 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
               instruction: "Use the visible workspace state and preserve founder approval boundaries.",
             };
 
-  const availableActions = ["update_sourcing_workspace", "export_product_packet"];
+  const availableActions = ["update_sourcing_workspace", "export_product_packet", "audit_outreach_readiness"];
   if (creativeReady) availableActions.push("preview_package_design", "generate_package_artwork", "stage_package_artwork");
   if (readiness.searchReady) availableActions.push("match_manufacturers");
   if (readiness.manufacturerReady && selectedCurrentMatches.length) availableActions.push("prepare_manufacturer_outreach");
@@ -200,7 +200,7 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
             ? "needs_art_direction"
             : "needs_brand_name",
       nextQuestion: creativeNextQuestion,
-      workflow: ["ask_one_creative_question", "generate_package_artwork", "founder_reviews_in_3d"],
+      workflow: ["ask_one_creative_question", "generate_package_artwork", "founder_reviews_in_3d", "refine_on_founder_request"],
       instruction: creativeNextQuestion
         ? "Ask this one simple question at the next natural packaging moment. Do not wait for the founder to discover that artwork creation is available. After the founder answers, call generate_package_artwork so the label is created, uploaded, and staged entirely through WebMCP. Never invent a brand or art direction."
         : workspace.artwork
@@ -267,5 +267,54 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
     canUndoAgentChange: Boolean(workspace.lastAgentChange),
     whatChanged: workspace.activity[0]?.message ?? null,
     decisionGuardrails: getCategoryDecisionGuardrails(workspace),
+  };
+}
+
+export function buildOutreachReadinessAudit(workspace: SourcingWorkspace) {
+  const state = buildSourcingAgentState(workspace);
+  const selectionCount = state.outreach.selectedManufacturerSlugs.length;
+  const drafts = state.outreach.drafts;
+  const matchingCurrent = workspace.matchesUpdatedAt !== null;
+  const allDraftsApproved = drafts.length > 0
+    && drafts.every((draft) => draft.approvedVersion === draft.version);
+  const blockers: string[] = [];
+
+  if (!matchingCurrent) blockers.push("Research evidence-backed manufacturer possibilities.");
+  if (matchingCurrent && !selectionCount) blockers.push("The founder selects up to three manufacturers to contact.");
+  if (!state.stage.canPrepareManufacturerBrief) {
+    const openLabels = state.requirements.open.map((field) => field.label);
+    blockers.push(openLabels.length
+      ? `Finish the manufacturer-brief decisions: ${openLabels.join(", ")}.`
+      : "Review and save a supported 3D package direction for the manufacturer brief.");
+  }
+  if (state.stage.canPrepareManufacturerBrief && selectionCount > 0 && !drafts.length) {
+    blockers.push("The agent prepares one current draft for each founder-selected manufacturer.");
+  }
+  if (drafts.length && !allDraftsApproved) blockers.push("The founder reviews and approves each exact draft version.");
+  if (allDraftsApproved && drafts.some((draft) => draft.deliveryStatus !== "sent")) {
+    blockers.push("The founder separately confirms Send now for each approved introduction.");
+  }
+
+  return {
+    readyToPrepareDrafts: state.stage.canPrepareOutreach,
+    matchingCurrent,
+    manufacturerBriefReady: state.stage.canPrepareManufacturerBrief,
+    packageDirectionSaved: state.packaging.saved,
+    selectionCount,
+    selectedManufacturerSlugs: state.outreach.selectedManufacturerSlugs,
+    pendingShortlistSlugs: state.outreach.pendingShortlistSlugs,
+    drafts,
+    blockers,
+    gates: [
+      { step: "research_manufacturers", owner: "agent", status: matchingCurrent ? "complete" : "blocked" },
+      { step: "select_manufacturers", owner: "founder", status: selectionCount ? "complete" : matchingCurrent ? "ready" : "blocked" },
+      { step: "prepare_recipient_specific_drafts", owner: "agent", status: drafts.length ? "complete" : state.stage.canPrepareOutreach ? "ready" : "blocked" },
+      { step: "review_and_approve_exact_versions", owner: "founder", status: allDraftsApproved ? "complete" : drafts.length ? "ready" : "blocked" },
+      { step: "confirm_send_now", owner: "founder", status: drafts.length && drafts.every((draft) => draft.deliveryStatus === "sent") ? "complete" : allDraftsApproved ? "ready" : "blocked" },
+    ],
+    externalContactRequiresFounderAction: true,
+    agentApprovalAvailable: false,
+    agentSendAvailable: false,
+    nothingWasSent: drafts.every((draft) => draft.deliveryStatus !== "sent"),
   };
 }

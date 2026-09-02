@@ -2,6 +2,7 @@ import { getDirectoryPlants, type Plant } from "@/lib/directory";
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { interpretGeographyPreference } from "./geography";
 import { MATCHABLE_REQUIREMENT_KEYS, type MatchableRequirementKey } from "./matching-requirements";
+import { resolveProductCategoryFromText } from "./product-category";
 import { hasMinimumMatchingInfo } from "./readiness";
 import type { ManufacturerMatch, MatchEvidence, SourcingFieldKey, SourcingWorkspace } from "./types";
 
@@ -69,6 +70,7 @@ function fieldValue(workspace: SourcingWorkspace, key: SourcingFieldKey): string
 
 function productRequirement(plant: Plant, value: string): RequirementResult {
   const normalized = value.toLowerCase();
+  const productCategory = resolveProductCategoryFromText(value);
   const categories = new Set(plant.categories ?? []);
   const text = searchablePlantText(plant);
   let supported = false;
@@ -78,9 +80,9 @@ function productRequirement(plant: Plant, value: string): RequirementResult {
     supported = (categories.has("water") || categories.has("soda")) && includesAny(text, ["sparkling", "seltzer", "carbonated"]);
   } else if (normalized.includes("banana bread")) {
     supported = categories.has("bakery") && text.includes("banana bread");
-  } else if (includesAny(normalized, ["bread", "bakery", "cake", "cookie", "muffin"])) {
+  } else if (productCategory === "bakery") {
     supported = categories.has("bakery") && includesAny(text, ["bread", "breads", "baked goods", "finished baked", "cake", "cookie", "muffin", "loaf"]);
-  } else if (includesAny(normalized, ["protein snack", "snack", "protein bar", "granola", "cracker", "chips"])) {
+  } else if (productCategory === "snack") {
     const broadSnackSupport = categories.has("snacks") && includesAny(text, ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
     const exactProductSupport = broadSnackSupport && text.includes(normalized);
     return {
@@ -94,9 +96,9 @@ function productRequirement(plant: Plant, value: string): RequirementResult {
           : "A direct fit for this snack product is not publicly established.",
       sourceField: "products",
     };
-  } else if (includesAny(normalized, ["drink", "beverage", "juice", "tea", "coffee"])) {
+  } else if (productCategory === "beverage") {
     supported = plant.finderProducts.includes("beverage");
-  } else if (includesAny(normalized, ["sauce", "salsa", "condiment", "marinade"])) {
+  } else if (productCategory === "sauce") {
     supported = plant.finderProducts.includes("sauce");
   } else if (includesAny(normalized, ["soup", "meal", "dip", "prepared", "refrigerated"])) {
     supported = plant.finderProducts.includes("prepared-rte");
@@ -120,7 +122,7 @@ function isProductCandidate(plant: Plant, value: string): boolean {
   const result = productRequirement(plant, value);
   if (result.outcome === "supported") return true;
   const normalized = value.toLowerCase();
-  if (includesAny(normalized, ["protein snack", "snack", "protein bar", "granola", "cracker", "chips"])) {
+  if (resolveProductCategoryFromText(value) === "snack") {
     return (plant.categories ?? []).includes("snacks")
       && includesAny(searchablePlantText(plant), ["snack", "bar", "granola", "cracker", "chip", "popcorn"]);
   }

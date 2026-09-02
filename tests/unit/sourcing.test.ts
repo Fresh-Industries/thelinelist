@@ -1,9 +1,11 @@
 import { FIELD_DEFINITION_BY_KEY, NEVER_SHARE_FIELD_KEYS } from "@/lib/sourcing/fields";
+import { buildOutreachReadinessAudit } from "@/lib/sourcing/agent-state";
 import { getPlantBySlug } from "@/lib/directory";
 import { getGeographyMatchPreflight, interpretGeographyPreference } from "@/lib/sourcing/geography";
 import { matchManufacturers } from "@/lib/sourcing/matching";
 import { editAndApproveDraft, prepareOutreachDrafts } from "@/lib/sourcing/outreach";
 import { getPackagingOptions, getProductCategory, resolveProductVisualAsset } from "@/lib/sourcing/product-catalog";
+import { resolveProductCategoryFromText } from "@/lib/sourcing/product-category";
 import { deriveProductDescriptorFromIdea, getProductIdentity } from "@/lib/sourcing/product-identity";
 import { getProductJourney } from "@/lib/sourcing/product-journey";
 import { getCategoryDecisionGuardrails, getSourcingCategory, getSourcingQuestion } from "@/lib/sourcing/questions";
@@ -192,6 +194,49 @@ describe("sourcing workspace trust rules", () => {
 
     expect(getProductCategory(workspace)).toBe("bakery");
     expect(getPackagingOptions(workspace)[0]?.id).toBe("flow-wrap");
+  });
+
+  it("uses one category engine for questions, packaging, artwork, and matching language", () => {
+    let workspace = createWorkspace({ idea: "A honey chili crunchy chickpea snack" });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_category", value: "Snack", status: "confirmed", shareWithManufacturer: true });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "Honey chili crunchy chickpea snack", status: "confirmed", shareWithManufacturer: true });
+
+    expect(resolveProductCategoryFromText("Honey chili crunchy chickpea snack")).toBe("snack");
+    expect(getProductCategory(workspace)).toBe("snack");
+    expect(getSourcingCategory(workspace)).toBe("food");
+    expect(getPackagingOptions(workspace)[0]?.id).toBe("flow-wrap-bar");
+    expect(getPackageArtworkConcept({
+      product: workspace.fields.product_type.value!,
+      artDirection: "warm handmade with ingredient illustrations",
+      style: "warm-handmade",
+      category: getProductCategory(workspace),
+    })).toMatchObject({ category: "snack", motifs: ["chickpea", "honey", "chili"] });
+  });
+
+  it("audits outreach gates without mutating founder state", () => {
+    const workspace = createWorkspace({ idea: "A packaged banana bread mini loaf" });
+    const before = JSON.stringify(workspace);
+    const audit = buildOutreachReadinessAudit(workspace);
+
+    expect(audit).toMatchObject({
+      readyToPrepareDrafts: false,
+      matchingCurrent: false,
+      manufacturerBriefReady: false,
+      packageDirectionSaved: false,
+      selectionCount: 0,
+      externalContactRequiresFounderAction: true,
+      agentApprovalAvailable: false,
+      agentSendAvailable: false,
+      nothingWasSent: true,
+    });
+    expect(audit.gates.map((gate) => `${gate.owner}:${gate.step}`)).toEqual([
+      "agent:research_manufacturers",
+      "founder:select_manufacturers",
+      "agent:prepare_recipient_specific_drafts",
+      "founder:review_and_approve_exact_versions",
+      "founder:confirm_send_now",
+    ]);
+    expect(JSON.stringify(workspace)).toBe(before);
   });
 
   it("migrates a version-one plan without losing its original idea", () => {
