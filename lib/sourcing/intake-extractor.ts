@@ -34,12 +34,14 @@ export function extractExplicitFounderFacts(idea: string): AgentFieldUpdate[] {
     }
   }
 
-  const packageMatch = idea.match(/\b(\d+(?:\.\d+)?)\s*(oz|ounces?|fl\.?\s*oz|ml|milliliters?|g|grams?)\s+(?:(glass|plastic|aluminum|aluminium)\s+)?(?:(woozy|boston round|mason)\s+)?(bottles?|jars?|cans?|pouches?|bags?|cartons?|boxes?)\b/i);
+  const packageMatch = idea.match(/\b(\d+(?:\.\d+)?)\s*(oz|ounces?|fl\.?\s*oz|fluid\s+ounces?|ml|milliliters?|g|grams?)\s+(?:(glass|plastic|aluminum|aluminium)\s+)?(?:(woozy|boston round|mason|slim|sleek|standard)\s+)?(bottles?|jars?|cans?|pouches?|bags?|cartons?|boxes?)\b/i);
   if (packageMatch) {
     const size = `${packageMatch[1]} ${normalizeUnit(packageMatch[2])}`;
     const formatParts = [packageMatch[3], packageMatch[4], singular(packageMatch[5])].filter(Boolean).map((part) => titleCase(part!));
+    const customerFormat = [size, packageMatch[3], packageMatch[4], singular(packageMatch[5])].filter(Boolean).join(" ").toLowerCase();
     add("packaging_size", size, packageMatch, "The founder explicitly gave the retail package size.");
     add("packaging_format", formatParts.join(" "), packageMatch, "The founder explicitly named the package material and container.");
+    add("product_format", customerFormat, packageMatch, "The founder explicitly described the customer-facing retail format.");
   }
 
   const quantity = idea.match(/\b(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?)\s+(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b/i);
@@ -107,7 +109,7 @@ function sourceSpan(source: string, match: RegExpMatchArray): FounderSourceSpan 
 
 function normalizeUnit(value: string): string {
   const normalized = value.toLowerCase().replace(/\./g, "").replace(/\s+/g, " ");
-  if (/^(?:ounce|ounces|oz|fl oz)$/.test(normalized)) return "oz";
+  if (/^(?:ounce|ounces|oz|fl oz|fluid ounce|fluid ounces)$/.test(normalized)) return "oz";
   if (/^(?:milliliter|milliliters|ml)$/.test(normalized)) return "ml";
   return "g";
 }

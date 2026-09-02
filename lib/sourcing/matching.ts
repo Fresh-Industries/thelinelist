@@ -1,4 +1,5 @@
 import { getDirectoryPlants, type Plant } from "@/lib/directory";
+import type { EvidenceField } from "@/lib/directory/types";
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { interpretGeographyPreference } from "./geography";
 import { MATCHABLE_REQUIREMENT_KEYS } from "./matching-requirements";
@@ -12,7 +13,7 @@ interface RequirementResult {
   label: string;
   outcome: "supported" | "mismatch" | "conflicting" | "unknown";
   claim: string;
-  sourceField: "products" | "processes" | "packaging" | "minimums" | "certifications" | "location" | null;
+  sourceField: EvidenceField | null;
   notes?: string;
   granularity?: "exact" | "broad";
 }
@@ -168,7 +169,43 @@ function productRequirement(plant: Plant, value: string): RequirementResult[] {
       granularity: exactProductSupport ? "exact" : "broad",
     }];
   } else if (productCategory === "beverage") {
-    supported = plant.finderProducts.includes("beverage");
+    const broadBeverageSupport = plant.finderProducts.includes("beverage")
+      && /\b(?:beverages?|drinks?|juices?|teas?|coffees?|seltzers?|sodas?)\b/.test(publishedProducts);
+    const genericBeverageRequest = /^(?:packaged\s+)?(?:(?:non[-\s]?alcoholic|carbonated|specialty)\s+)?(?:beverages?|drinks?)$/.test(normalized.trim());
+    const exactPublishedProduct = normalized.length >= 4 && publishedProducts.includes(normalized);
+    if (broadBeverageSupport && (genericBeverageRequest || exactPublishedProduct)) {
+      return [{
+        key: "product_type",
+        label: FIELD_DEFINITION_BY_KEY.product_type.label,
+        outcome: "supported",
+        claim: genericBeverageRequest
+          ? "Reviewed product information explicitly supports beverages."
+          : "Reviewed product information explicitly names this product type.",
+        sourceField: "products",
+        granularity: "exact",
+      }];
+    }
+    if (broadBeverageSupport) {
+      return [
+        {
+          key: "product_type",
+          label: FIELD_DEFINITION_BY_KEY.product_type.label,
+          outcome: "supported",
+          claim: "Reviewed product information supports the broader beverage category.",
+          sourceField: "products",
+          granularity: "broad",
+        },
+        {
+          key: "product_type",
+          label: `Exact capability for ${value}`,
+          outcome: "unknown",
+          claim: `Exact capability for ${value} is not publicly established by the reviewed product source.`,
+          sourceField: "products",
+          granularity: "exact",
+        },
+      ];
+    }
+    supported = false;
   } else if (productCategory === "sauce") {
     supported = plant.finderProducts.includes("sauce");
   } else if (includesAny(normalized, ["soup", "meal", "dip", "prepared", "refrigerated"])) {
@@ -246,11 +283,15 @@ function compareProductionVolume(
 ): { compatible: boolean; claim: string } | null {
   if (!publishedMinimum) return null;
   const requested = requestedValue.match(/\b(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
-  const minimum = publishedMinimum.match(/\b(?:minimum(?:\s+(?:batch|runs?))?|floor|starts?\s+(?:as\s+low\s+as|at)|starting\s+at)\s*:?\s*(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
-  if (!requested || !minimum) return null;
+  if (!requested) return null;
   const requestedAmount = Number(requested[1].replaceAll(",", ""));
-  const minimumAmount = Number(minimum[1].replaceAll(",", ""));
   const requestedUnit = unitFamily(requested[2]);
+  const caseComparison = compareCasePackMinimum(requestedAmount, requested[2], packageSize, publishedMinimum);
+  if (requestedUnit === "unit" && caseComparison) return caseComparison;
+
+  const minimum = publishedMinimum.match(/\b(?:minimum(?:\s+(?:batch|runs?))?|floor|starts?\s+(?:as\s+low\s+as|at)|starting\s+at)\s*:?\s*(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
+  if (!minimum) return null;
+  const minimumAmount = Number(minimum[1].replaceAll(",", ""));
   const minimumUnit = unitFamily(minimum[2]);
 
   if (requestedUnit === minimumUnit) {
@@ -274,6 +315,54 @@ function compareProductionVolume(
         : `${formatNumber(requestedAmount)} ${requested[2].toLowerCase()} is about ${formatNumber(requestedGallons)} gallons at ${formatNumber(packageOunces)} oz each, below the published ${formatNumber(minimumAmount)}-gallon minimum.`,
     };
   }
+  return null;
+}
+
+function compareCasePackMinimum(
+  requestedAmount: number,
+  requestedUnitLabel: string,
+  packageSize: string | null,
+  publishedMinimum: string,
+): { compatible: boolean; claim: string } | null {
+  const requestedContainer = containerFamily(requestedUnitLabel);
+  if (!requestedContainer) return null;
+  const requestedOunces = parseOunces(packageSize);
+  const segments = publishedMinimum.split(/[;\n]+/);
+  for (const segment of segments) {
+    const cases = segment.match(/\b(approximately|approx\.?|about|around|roughly|~)?\s*(\d[\d,]*(?:\.\d+)?)\s*x?\s*cases?\b/i);
+    if (!cases) continue;
+    const perCase = segment.match(/\b(\d+)\s*(bottles?|jars?|cans?|pouches?|bags?|units?)\s*(?:\/|per\s+)case\b/i)
+      ?? segment.match(/\bcases?\s+of\s+(\d+)\s+(?:(?:\d+(?:\.\d+)?)\s*(?:fl\.?\s*)?oz\s+)?(bottles?|jars?|cans?|pouches?|bags?|units?)\b/i);
+    if (!perCase || containerFamily(perCase[2]) !== requestedContainer) continue;
+    const publishedOunces = parseOunces(segment);
+    if (requestedOunces !== null && publishedOunces !== null && requestedOunces !== publishedOunces) continue;
+    const caseCount = Number(cases[2].replaceAll(",", ""));
+    const unitsPerCase = Number(perCase[1]);
+    if (!Number.isFinite(caseCount) || !Number.isInteger(unitsPerCase) || caseCount <= 0 || unitsPerCase <= 0) continue;
+    const minimumUnits = caseCount * unitsPerCase;
+    const compatible = requestedAmount >= minimumUnits;
+    const approximate = Boolean(cases[1]);
+    const qualifier = approximate ? "approximate " : "";
+    const caseQualifier = approximate ? "about " : "";
+    const normalizedUnit = ({ bottle: "bottles", jar: "jars", can: "cans", pouch: "pouches", bag: "bags", unit: "units" } as const)[requestedContainer];
+    return {
+      compatible,
+      claim: compatible
+        ? `${formatNumber(requestedAmount)} ${requestedUnitLabel.toLowerCase()} meets the published ${qualifier}minimum of ${formatNumber(minimumUnits)} ${normalizedUnit} (${caseQualifier}${formatNumber(caseCount)} cases × ${formatNumber(unitsPerCase)} ${normalizedUnit} per case).`
+        : `${formatNumber(requestedAmount)} ${requestedUnitLabel.toLowerCase()} is below the published ${qualifier}minimum of ${formatNumber(minimumUnits)} ${normalizedUnit} (${caseQualifier}${formatNumber(caseCount)} cases × ${formatNumber(unitsPerCase)} ${normalizedUnit} per case).`,
+    };
+  }
+  return null;
+}
+
+function containerFamily(value: string): "bottle" | "jar" | "can" | "pouch" | "bag" | "unit" | null {
+  const normalized = value.toLowerCase();
+  if (normalized.startsWith("bottle")) return "bottle";
+  if (normalized.startsWith("jar")) return "jar";
+  if (normalized.startsWith("can")) return "can";
+  if (normalized.startsWith("pouch")) return "pouch";
+  if (normalized.startsWith("bag")) return "bag";
+  if (normalized.startsWith("unit")) return "unit";
   return null;
 }
 
@@ -382,6 +471,53 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
           });
         }
         return broadResults;
+      }
+      const wantsCan = /\bcans?\b/.test(wanted);
+      if (wantsCan) {
+        const hasPackagingSource = Boolean(plant.fieldSourceUrls?.packaging?.length);
+        const canFamily = /\b(?:cans?|canning)\b/.test(packaging);
+        const wantsSlim = /\b(?:slim|sleek)\b/.test(wanted);
+        const sleekPublished = /\b(?:slim|sleek)\s+cans?\b/.test(packaging);
+        if (hasPackagingSource && canFamily && (!wantsSlim || sleekPublished)) {
+          return {
+            key,
+            label,
+            outcome: "supported",
+            claim: wantsSlim
+              ? "Reviewed packaging explicitly includes sleek cans, treated as equivalent to the requested slim-can construction."
+              : "Reviewed packaging explicitly includes cans.",
+            sourceField: "packaging",
+            granularity: "exact",
+          };
+        }
+        if (hasPackagingSource && canFamily && wantsSlim) {
+          return [
+            {
+              key,
+              label,
+              outcome: "supported",
+              claim: "Reviewed packaging supports cans as a broader package family.",
+              sourceField: "packaging",
+              granularity: "broad",
+            },
+            {
+              key,
+              label: "Exact slim-can construction",
+              outcome: "unknown",
+              claim: "Exact slim-can construction is not publicly established by the reviewed packaging source.",
+              sourceField: "packaging",
+              granularity: "exact",
+            },
+          ];
+        }
+        return {
+          key,
+          label,
+          outcome: "unknown",
+          claim: wantsSlim ? "Slim-can capability is not publicly listed." : "Can capability is not publicly listed.",
+          sourceField: "packaging",
+          granularity: wantsSlim ? "exact" : undefined,
+        };
       }
       const terms = wanted.includes("can") ? ["can", "cans", "canning"]
         : wanted.includes("bottle") ? ["bottle", "bottles", "bottling"]
@@ -575,13 +711,13 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
 }
 
 function evidenceFor(plant: Plant, result: RequirementResult): MatchEvidence {
-  const sourceUrls = result.sourceField && result.sourceField !== "location" ? plant.fieldSourceUrls?.[result.sourceField] : undefined;
+  const sourceUrls = result.sourceField ? plant.fieldSourceUrls?.[result.sourceField] : undefined;
   const sourceUrl = result.sourceField === null ? null : sourceUrls?.[0] ?? plant.website.href ?? null;
   const matchingLink = sourceUrl ? plant.extraLinks?.find((link) => link.href === sourceUrl) : undefined;
   const sourceLabel = sourceUrl === plant.website.href ? plant.website.label : matchingLink?.label ?? (sourceUrl ? "Capability source" : null);
   const sourceType = plant.claimSource === "directory-reported" ? "directory_reported"
     : plant.claimSource === "company-published" ? "company_published" : "mixed_public_sources";
-  const hasFieldSpecificSource = result.sourceField === "location" || Boolean(sourceUrls?.length);
+  const hasFieldSpecificSource = Boolean(sourceUrls?.length);
   const knownStatus = plant.listingStatus === "LISTABLE" || (plant.listingStatus === "VERIFIED" && !hasFieldSpecificSource)
     ? "publicly_listed"
     : "verified";
@@ -624,7 +760,7 @@ export function matchManufacturerRecords(
   if (!certificationPriorities.required.length) required.delete("certifications");
   if (certificationPriorities.preferred.length) preferred.add("certifications");
   if (!certificationPriorities.required.length && !certificationPriorities.preferred.length) preferred.delete("certifications");
-  const allowBroadProduct = preferred.has("product_type") && !required.has("product_type");
+  const allowBroadProduct = !required.has("product_type");
   const candidates = plants.filter((plant) => product ? isProductCandidate(plant, product, allowBroadProduct) : false);
 
   const ranked = candidates.map((plant) => {
@@ -654,6 +790,15 @@ export function matchManufacturerRecords(
       possibleConflicts: conflicts.map((result) => result.claim),
       unknowns: unknowns.map((result) => result.claim),
       evidence: results.map((result) => evidenceFor(plant, result)),
+      reasonTrace: results.map((result) => ({
+        requirementKey: result.key,
+        requirementLabel: result.label,
+        priority: required.has(result.key) ? "required" as const : preferred.has(result.key) ? "preferred" as const : "evaluated" as const,
+        outcome: result.outcome === "supported"
+          ? result.granularity === "broad" ? "broad_support" as const : "supported" as const
+          : result.outcome === "mismatch" || result.outcome === "conflicting" ? "conflict" as const : "unknown" as const,
+        claim: result.claim,
+      })),
       requirementsUsed: results.map((result) => result.key),
       introductionAvailable: !plant.introductionsPaused,
       deliveryMethod: plant.introductionsPaused ? "paused" : "line_list_introduction",
@@ -677,10 +822,10 @@ export function matchManufacturerRecords(
 
   return ranked
     .sort((left, right) => left.requiredGaps - right.requiredGaps
-      || left.preferredConflicts - right.preferredConflicts
       || Number(right.productSupport) - Number(left.productSupport)
-      || Number(right.geographySupport) - Number(left.geographySupport)
       || right.preferredSupport - left.preferredSupport
+      || left.preferredConflicts - right.preferredConflicts
+      || Number(right.geographySupport) - Number(left.geographySupport)
       || right.supportedCount - left.supportedCount
       || left.conflictCount - right.conflictCount
       || left.match.manufacturerName.localeCompare(right.match.manufacturerName))

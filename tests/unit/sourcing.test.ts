@@ -452,7 +452,7 @@ describe("sourcing workspace trust rules", () => {
       manufacturerReady: false,
       packageDesignRequired: true,
       packageDesignReady: false,
-      nextQuestionKey: "packaging_format",
+      nextQuestionKey: null,
     });
 
     const packageDesign = PackageDesignSchema.parse({

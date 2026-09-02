@@ -7,6 +7,46 @@ interface ReviewedSourceOverride {
 }
 
 const REVIEWED_SOURCE_OVERRIDES: Record<string, ReviewedSourceOverride> = {
+  "prospectors-specialty-beverage": {
+    links: [
+      { label: "Private-label and packaging capabilities", href: "https://www.drinkprospectors.com/private-label" },
+    ],
+    fields: {
+      products: ["https://www.drinkprospectors.com/private-label"],
+      processes: ["https://www.drinkprospectors.com/private-label"],
+      packaging: ["https://www.drinkprospectors.com/private-label"],
+      certifications: ["https://www.drinkprospectors.com/private-label"],
+      location: ["https://www.drinkprospectors.com/private-label"],
+    },
+  },
+  "better-beverage-company": {
+    links: [
+      { label: "Services and capabilities", href: "https://betterbeveragecompany.com/capabilities/" },
+    ],
+    fields: {
+      products: ["https://betterbeveragecompany.com/capabilities/"],
+      processes: ["https://betterbeveragecompany.com/capabilities/"],
+      packaging: ["https://betterbeveragecompany.com/capabilities/"],
+      minimums: ["https://betterbeveragecompany.com/capabilities/"],
+      certifications: ["https://betterbeveragecompany.com/capabilities/"],
+      location: ["https://betterbeveragecompany.com/capabilities/"],
+    },
+  },
+  "swift-cider": {
+    links: [
+      { label: "Co-packing capabilities", href: "https://www.swiftcider.com/copacking" },
+    ],
+    fields: {
+      products: ["https://www.swiftcider.com/copacking"],
+      processes: ["https://www.swiftcider.com/copacking"],
+      packaging: ["https://www.swiftcider.com/copacking"],
+      minimums: ["https://www.swiftcider.com/copacking"],
+      location: ["https://www.swiftcider.com/copacking"],
+    },
+    data: {
+      moqDisplay: "930 gallons (30 barrels); approximately 400 cases of 24 12 oz cans; approximately 300 cases of 24 16 oz cans",
+    },
+  },
   "creative-foodworks": {
     links: [
       { label: "Hot sauce capabilities", href: "https://creativefw.com/products/hot-sauces" },

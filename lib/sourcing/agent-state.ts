@@ -240,6 +240,7 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
         lastReviewed: item.lastReviewed,
         notes: item.notes,
       })),
+      reasonTrace: match.reasonTrace ?? [],
     })),
     outreach: {
       selectedManufacturerSlugs: selectedCurrentMatches,

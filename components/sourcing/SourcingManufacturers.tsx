@@ -213,6 +213,16 @@ export function SourcingManufacturers() {
               <section className="manufacturer-why">
                 <h3>Why it appears</h3>
                 <p>{activeMatch.fitExplanation}</p>
+                {activeMatch.reasonTrace?.length ? (
+                  <ul className="manufacturer-reason-trace" aria-label="Requirement trace">
+                    {activeMatch.reasonTrace.map((item, index) => (
+                      <li key={`${item.requirementKey}-${index}`}>
+                        <span>{item.requirementLabel}</span>
+                        <small>{item.priority} · {item.outcome.replaceAll("_", " ")}</small>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </section>
 
               <div className="manufacturer-evidence-summary">

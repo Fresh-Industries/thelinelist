@@ -1,4 +1,5 @@
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
+import { normalizeCertificationRequirements } from "./certification-requirements";
 import { getSourcingQuestionCategory } from "./product-category";
 
 export function getSourcingCategory(workspace: SourcingWorkspace): "beverage" | "bakery" | "food" {
@@ -47,10 +48,20 @@ export function getSourcingQuestion(workspace: SourcingWorkspace, key: SourcingF
 
 export function getCategoryDecisionGuardrails(workspace: SourcingWorkspace): string[] {
   if (getSourcingCategory(workspace) !== "beverage") return [];
+  const certificationValue = workspace.fields.certifications.value;
+  const certificationIntent = normalizeCertificationRequirements(
+    certificationValue || workspace.originalIdea,
+    certificationValue ? "required" : null,
+  );
+  const organicGuardrail = certificationIntent.negated.includes("Organic")
+    ? "Organic certification is explicitly not required and does not affect manufacturer matching."
+    : certificationIntent.required.includes("Organic") || certificationIntent.preferred.includes("Organic") || /\borganic\b/i.test(workspace.originalIdea ?? "")
+      ? "Treat organic as a certification and sourcing requirement, not as a validated claim, until the intended label category is confirmed."
+      : null;
   return [
     "Treat healthy, clean energy, and hydration as product goals until the formula and label claims are reviewed.",
-    "Treat organic as a certification and sourcing requirement, not as a validated claim, until the intended label category is confirmed.",
+    organicGuardrail,
     "Shelf-stable is a desired outcome until a qualified production partner validates the formula, process, packaging, and shelf life.",
     "Capture caffeine, sweetener, electrolyte, flavor, and ingredient-exclusion targets before calling the formula production-ready.",
-  ];
+  ].filter((guardrail): guardrail is string => Boolean(guardrail));
 }

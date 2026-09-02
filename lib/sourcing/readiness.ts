@@ -61,6 +61,13 @@ function isUsefulConfirmedValue(workspace: SourcingWorkspace, key: SourcingField
   return !/^(?:(?:i(?:'|’)m)\s+)?(?:not\s+)?sure(?:\s+yet)?[.!]?$/i.test(field.value.trim());
 }
 
+function isResolvedRequirement(workspace: SourcingWorkspace, key: SourcingFieldKey): boolean {
+  if (isUsefulConfirmedValue(workspace, key)) return true;
+  return key === "product_format"
+    && isUsefulConfirmedValue(workspace, "packaging_format")
+    && isUsefulConfirmedValue(workspace, "packaging_size");
+}
+
 function productText(workspace: SourcingWorkspace): string {
   return `${workspace.originalIdea ?? ""} ${workspace.fields.product_name?.value ?? ""} ${workspace.fields.product_category?.value ?? ""} ${workspace.fields.product_format?.value ?? ""} ${workspace.fields.product_type?.value ?? ""} ${workspace.fields.product_description?.value ?? ""}`.toLowerCase();
 }
@@ -102,14 +109,14 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const required = requiredMatchingFields(workspace);
   const packageDesignRequired = required.includes("packaging_format");
   const packageDesignReady = hasValidFounderPackageCommit(workspace);
-  const confirmed = required.filter((key) => isUsefulConfirmedValue(workspace, key) && (key !== "packaging_format" || packageDesignReady));
+  const confirmed = required.filter((key) => isResolvedRequirement(workspace, key));
   const proposed = prioritizeDecisions(workspace, required.filter((key) => workspace.fields[key]?.status === "proposed"));
   const confirmedSet = new Set(confirmed);
   const proposedSet = new Set(proposed);
   const missing = prioritizeDecisions(workspace, required.filter((key) => !confirmedSet.has(key) && !proposedSet.has(key)));
   const hasProduct = isUsefulConfirmedValue(workspace, "product_type");
   const searchReady = hasProduct && MATCH_SHAPING_FIELDS.some((key) => isUsefulConfirmedValue(workspace, key));
-  const manufacturerBriefInputsReady = confirmed.length === required.length;
+  const manufacturerBriefInputsReady = confirmed.length === required.length && (!packageDesignRequired || packageDesignReady);
   const researchCurrent = Boolean(getCurrentManufacturerResearch(workspace));
   const manufacturerReady = manufacturerBriefInputsReady && researchCurrent;
   const launchFields: SourcingFieldKey[] = ["retail_channel", "target_retail_price", "target_unit_cost", "case_pack", "allergens", "target_launch_date"];

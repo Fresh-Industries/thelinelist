@@ -103,10 +103,19 @@ export interface ManufacturerMatch {
   possibleConflicts: string[];
   unknowns: string[];
   evidence: MatchEvidence[];
+  reasonTrace?: MatchReasonTrace[];
   requirementsUsed: SourcingFieldKey[];
   introductionAvailable: boolean;
   deliveryMethod: "line_list_introduction" | "external_contact_only" | "paused";
   lastReviewed: string;
+}
+
+export interface MatchReasonTrace {
+  requirementKey: SourcingFieldKey;
+  requirementLabel: string;
+  priority: "required" | "preferred" | "evaluated";
+  outcome: "supported" | "broad_support" | "conflict" | "unknown";
+  claim: string;
 }
 
 export interface SourcingPacket {

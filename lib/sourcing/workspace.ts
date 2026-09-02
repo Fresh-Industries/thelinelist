@@ -210,7 +210,10 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
           activity: [activity("founder_updated", "Your starting idea was added to the plan."), ...workspace.activity],
         }, timestamp)
       : workspace;
-    const explicitFacts = extractExplicitFounderFacts(idea);
+    const proposedCategory = options.initialUpdates?.some((update) => update.key === "product_category"
+      && (update.status === "proposed" || update.explicitlyStated === false));
+    const explicitFacts = extractExplicitFounderFacts(idea)
+      .filter((update) => !(proposedCategory && update.key === "product_category"));
     const extracted = explicitFacts.length ? applyFounderIdeaFacts(initialized, explicitFacts) : initialized;
     const bootstrapUpdates = startingIdeaBootstrapUpdates(idea);
     const bootstrapped = bootstrapUpdates.length ? applyAgentUpdates(extracted, bootstrapUpdates) : extracted;

@@ -64,6 +64,13 @@ const manufacturerMatchSchema = z.object({
   possibleConflicts: z.array(z.string().max(1_000)).max(50),
   unknowns: z.array(z.string().max(1_000)).max(50),
   evidence: z.array(matchEvidenceSchema).max(100),
+  reasonTrace: z.array(z.object({
+    requirementKey: z.enum(SOURCING_FIELD_KEYS),
+    requirementLabel: z.string().max(300),
+    priority: z.enum(["required", "preferred", "evaluated"]),
+    outcome: z.enum(["supported", "broad_support", "conflict", "unknown"]),
+    claim: z.string().max(2_000),
+  })).max(100).default([]),
   requirementsUsed: z.array(z.enum(SOURCING_FIELD_KEYS)).max(SOURCING_FIELD_KEYS.length),
   introductionAvailable: z.boolean(),
   deliveryMethod: z.enum(["line_list_introduction", "external_contact_only", "paused"]),

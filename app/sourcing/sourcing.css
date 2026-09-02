@@ -354,6 +354,10 @@ main.sourcing-workspace-view { min-height: calc(100vh - 84px); padding: 0; }
 .manufacturer-why { margin-top: 30px; }
 .manufacturer-why h3, .manufacturer-evidence-summary h3 { margin: 0 0 8px; color: #173f35; font-size: 16px; }
 .manufacturer-why p { max-width: 850px; margin: 0; color: #50544f; font-size: 15px; line-height: 1.6; }
+.manufacturer-reason-trace { display: flex; flex-wrap: wrap; gap: 7px 14px; margin: 13px 0 0; padding: 0; list-style: none; }
+.manufacturer-reason-trace li { display: flex; gap: 5px; align-items: baseline; color: #173f35; font-size: 12px; }
+.manufacturer-reason-trace li:not(:last-child)::after { content: "·"; margin-left: 9px; color: #a9a296; }
+.manufacturer-reason-trace small { color: #6d716c; text-transform: capitalize; }
 .manufacturer-evidence-summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); margin-top: 27px; }
 .manufacturer-evidence-summary > section, .manufacturer-evidence-summary > div > section { min-width: 0; }
 .manufacturer-evidence-summary > div { display: grid; gap: 24px; }

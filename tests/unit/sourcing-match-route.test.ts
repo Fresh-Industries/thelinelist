@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { applyFounderFieldUpdate, applyManufacturerResearch, createWorkspace } from "@/lib/sourcing/workspace";
+import { applyFounderFieldUpdate, applyManufacturerResearch, createWorkspace, stagePackageDesign } from "@/lib/sourcing/workspace";
+import { mergePackagePreview } from "@/lib/sourcing/package-preview";
 import type { SourcingFieldKey, SourcingWorkspace } from "@/lib/sourcing/types";
 
 const mocks = vi.hoisted(() => ({
@@ -136,6 +137,51 @@ describe("founder-approved matching broadening API", () => {
     expect(second.receipt.researchId).not.toBe(first.receipt.researchId);
     expect(second.workspace).toMatchObject({ selectedManufacturerSlugs: [], outreachDrafts: [], inquiries: [], packageDesign: null, packageCommit: null });
   });
+
+  it("persists canonical Juniper research with a stable fingerprint and no founder-controlled mutations", async () => {
+    workspace = juniperWorkspace();
+    persisted = workspace;
+    const stagedBefore = workspace.stagedPackageDesign;
+    const request = {
+      resultLimit: 3,
+      requiredRequirements: [],
+      preferredRequirements: ["product_type", "packaging_format", "packaging_size", "carbonation", "formulation_assistance", "preferred_geography", "production_volume", "storage_distribution"],
+    };
+
+    const firstResponse = await post(request);
+    const first = await firstResponse.json() as { workspace: SourcingWorkspace; receipt: { researchId: string; planFingerprint: string } };
+    expect(firstResponse.status).toBe(200);
+    expect(first.workspace.matches.map((match) => match.manufacturerSlug)).toEqual([
+      "prospectors-specialty-beverage",
+      "better-beverage-company",
+      "swift-cider",
+    ]);
+    expect(first.workspace.fields.certifications).toMatchObject({ value: "Organic certification is not required", validationStatus: "not_required" });
+    expect(first.workspace).toMatchObject({
+      selectedManufacturerSlugs: [],
+      outreachDrafts: [],
+      inquiries: [],
+      packageDesign: null,
+      packageCommit: null,
+      stagedPackageDesign: stagedBefore,
+    });
+    expect(first.workspace.matches.every((match) => (match.reasonTrace?.length ?? 0) > 0)).toBe(true);
+
+    workspace = persisted;
+    const secondResponse = await post(request);
+    const second = await secondResponse.json() as { workspace: SourcingWorkspace; receipt: { researchId: string; planFingerprint: string } };
+    expect(secondResponse.status).toBe(200);
+    expect(second.receipt.planFingerprint).toBe(first.receipt.planFingerprint);
+    expect(second.receipt.researchId).not.toBe(first.receipt.researchId);
+    expect(second.workspace).toMatchObject({
+      selectedManufacturerSlugs: [],
+      outreachDrafts: [],
+      inquiries: [],
+      packageDesign: null,
+      packageCommit: null,
+      stagedPackageDesign: stagedBefore,
+    });
+  });
 });
 
 function post(body: Record<string, unknown>) {
@@ -162,4 +208,29 @@ function reportWorkspace(): SourcingWorkspace {
     result = applyFounderFieldUpdate(result, { key, value, status: "confirmed", shareWithManufacturer: true });
   }
   return result;
+}
+
+function juniperWorkspace(): SourcingWorkspace {
+  let result = createWorkspace({ id: "judge-broadening-workspace", idea: "Juniper Kite sparkling tart-cherry and basil drink." });
+  const updates: Array<[SourcingFieldKey, string]> = [
+    ["product_type", "Sparkling tart-cherry and basil drink"],
+    ["product_format", "Single-serve 12 fl oz slim can"],
+    ["formula_status", "Bench formula"],
+    ["formulation_assistance", "Scale-up help needed"],
+    ["carbonation", "Carbonated"],
+    ["storage_distribution", "Shelf-stable"],
+    ["packaging_format", "Slim can"],
+    ["packaging_size", "12 fl oz"],
+    ["production_volume", "25,000 cans"],
+    ["preferred_geography", "Midwest"],
+    ["certifications", "Organic certification is not required"],
+  ];
+  for (const [key, value] of updates) {
+    result = applyFounderFieldUpdate(result, { key, value, status: "confirmed", shareWithManufacturer: key !== "certifications" });
+  }
+  return stagePackageDesign(result, {
+    stageId: "juniper-geometry-stage-001",
+    stagedBy: "agent",
+    packageDesign: mergePackagePreview(result, { packagingType: "slim-can" }),
+  });
 }

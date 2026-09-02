@@ -33,7 +33,7 @@ export type OperationType =
   | "brand-with-co-pack"
   | "other";
 
-export type EvidenceField = "products" | "processes" | "packaging" | "minimums" | "certifications";
+export type EvidenceField = "products" | "processes" | "packaging" | "minimums" | "certifications" | "location";
 
 export type ProcessCapability =
   | "hpp"

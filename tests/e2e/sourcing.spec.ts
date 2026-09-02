@@ -838,8 +838,8 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
   });
   expect(preferred.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).toEqual([
     "heritage-family-specialty-foods",
-    "texafrance-inc",
-    "consolidated-mills-inc",
+    "the-spice-guy",
+    "creative-foodworks",
   ]);
   await page.getByRole("button", { name: "View details for Heritage Family Specialty Foods" }).click();
   const heritageSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
@@ -848,12 +848,12 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
   await expect(heritageSupported.getByRole("listitem").filter({ hasText: /includes 5 oz within a 5–32 oz glass range/i })).toBeVisible();
   await expect(heritageUnknowns.getByRole("listitem").filter({ hasText: /exact glass woozy-bottle construction is not publicly established/i })).toBeVisible();
 
-  await page.getByRole("button", { name: "View details for Consolidated Mills Inc." }).click();
-  const consolidatedSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
-  const consolidatedUnknowns = page.getByRole("heading", { name: "Not publicly confirmed" }).locator("..");
-  await expect(consolidatedSupported.getByRole("listitem").filter({ hasText: /supports the broader sauce family/i })).toBeVisible();
-  await expect(consolidatedUnknowns.getByRole("listitem").filter({ hasText: /exact hot sauce capability is not publicly established/i })).toBeVisible();
-  await expect(consolidatedUnknowns.getByRole("listitem").filter({ hasText: /exact glass woozy-bottle construction is not publicly established/i })).toBeVisible();
+  await page.getByRole("button", { name: "View details for The Spice Guy — Sauce Pack" }).click();
+  const spiceSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
+  const spiceUnknowns = page.getByRole("heading", { name: "Not publicly confirmed" }).locator("..");
+  await expect(spiceSupported.getByRole("listitem").filter({ hasText: /explicitly names hot sauce/i })).toBeVisible();
+  await expect(spiceSupported.getByRole("listitem").filter({ hasText: /explicitly names woozy bottles/i })).toBeVisible();
+  await expect(spiceUnknowns.getByRole("listitem").filter({ hasText: /does not publicly establish the container material as glass/i })).toBeVisible();
 
   const strict = await invokeWebMcp<{ manufacturerCandidates: Array<{ manufacturerSlug: string }> }>(page, "match_manufacturers", {
     requiredRequirements: ["product_type"],
@@ -1257,6 +1257,129 @@ test("two WebMCP journeys keep staged founder state, research, and stale handles
   expect(committed.packaging.direction.previewAssetId).toEqual(expect.any(String));
   expect(afterCommit.workspace.fields).toEqual(beforeCommit.workspace.fields);
   expect(committed.requirements.proposed).toContainEqual(expect.objectContaining({ key: "storage_distribution" }));
+});
+
+test("competitive beverage sourcing stays evidence-specific, deterministic, and founder-safe", async ({ page }) => {
+  test.setTimeout(90_000);
+  await installWebMcpHarness(page);
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+
+  const idea = "Juniper Kite is a fictional shelf-stable, non-alcoholic sparkling tart-cherry and basil drink in a single-serve 12 fl oz slim can. A bench formula exists but needs scale-up help. The first run is 25,000 cans, Midwest manufacturing is preferred but not required, organic certification is explicitly not required, printed-can sourcing help is preferred, and the target launch is 2027-04-15.";
+  const created = await invokeWebMcp<{ workspace: { id: string } }>(page, "create_sourcing_workspace", {
+    mutationId: newMutationId(),
+    idea,
+    initialUpdates: [
+      { key: "product_category", value: "Beverage", status: "proposed", explicitlyStated: false, source: "Agent category inference" },
+      { key: "product_type", value: "Sparkling tart-cherry and basil drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_format", value: "Single-serve 12 fl oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "Slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_size", value: "12 fluid ounces", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "carbonation", value: "Carbonated", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "formulation_assistance", value: "Scale-up help needed", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "production_volume", value: "25,000 cans", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "preferred_geography", value: "Midwest", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "storage_distribution", value: "Shelf-stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "certifications", value: "Organic certification is not required", status: "confirmed", explicitlyStated: true, suggestedSharing: false },
+    ],
+  });
+  await expect(page).toHaveURL(productBriefPath(created.workspace.id));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size), { timeout: 20_000 }).toBe(13);
+  await expect(page.getByRole("heading", { name: "Review and save your packaging direction in 3D." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What package are you leaning toward? You can compare supported options in the 3D workbench before saving one." })).toHaveCount(0);
+
+  const stageId = newMutationId();
+  await invokeWebMcp(page, "preview_package_design", { stageId, packagingType: "slim-can" });
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
+  const beforeResearch = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as {
+    workspace: {
+      fields: Record<string, { value: string; status: string; explicitlyStated: boolean; source: string | null }>;
+      stagedPackageDesign: { id: string; design: { placeholder: boolean; source: string } };
+      packageDesign: unknown;
+      packageCommit: unknown;
+      selectedManufacturerSlugs: string[];
+      outreachDrafts: unknown[];
+      inquiries: unknown[];
+    };
+  };
+  expect(beforeResearch.workspace.fields.product_category).toMatchObject({ value: "Beverage", status: "proposed", explicitlyStated: false, source: "Agent category inference" });
+  expect(beforeResearch.workspace.fields.certifications).toMatchObject({ status: "confirmed", explicitlyStated: true });
+  expect(beforeResearch.workspace.stagedPackageDesign).toMatchObject({ id: stageId, design: { placeholder: true, source: "system_defaults" } });
+
+  const matchInput = {
+    preferredRequirements: ["product_type", "packaging_format", "packaging_size", "carbonation", "formulation_assistance", "preferred_geography", "production_volume", "storage_distribution"],
+    resultLimit: 3,
+  };
+  const first = await invokeWebMcp<{
+    manufacturerCandidates: Array<{
+      manufacturerSlug: string;
+      supported: string[];
+      notPubliclyConfirmed: string[];
+      evidence: Array<{ requirementKey: string; claim: string; status: string; sourceUrl: string | null }>;
+      reasonTrace: Array<{ requirementKey: string; priority: string; outcome: string }>;
+    }>;
+    receipt: { planFingerprint: string; researchId: string };
+  }>(page, "match_manufacturers", matchInput);
+  expect(first.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).toEqual([
+    "prospectors-specialty-beverage",
+    "better-beverage-company",
+    "swift-cider",
+  ]);
+  for (const candidate of first.manufacturerCandidates) {
+    expect(candidate.supported).toContain("Reviewed product information supports the broader beverage category.");
+    expect(candidate.supported.join(" ")).not.toContain("Sparkling tart-cherry and basil drink");
+    expect(candidate.notPubliclyConfirmed).toContain("Exact capability for Sparkling tart-cherry and basil drink is not publicly established by the reviewed product source.");
+    expect(candidate.reasonTrace).toContainEqual(expect.objectContaining({ requirementKey: "product_type", priority: "preferred", outcome: "broad_support" }));
+    expect(candidate.reasonTrace.some((item) => item.requirementKey === "certifications")).toBe(false);
+    expect(candidate.evidence
+      .filter((item) => ["verified", "publicly_listed", "conflicting"].includes(item.status))
+      .every((item) => item.sourceUrl !== null)).toBe(true);
+  }
+  expect(first.manufacturerCandidates[0].supported).toContain("Reviewed packaging explicitly includes sleek cans, treated as equivalent to the requested slim-can construction.");
+  expect(first.manufacturerCandidates[0].evidence.find((item) => item.requirementKey === "packaging_format")?.sourceUrl).toBe("https://www.drinkprospectors.com/private-label");
+  expect(first.manufacturerCandidates[1].notPubliclyConfirmed).toContain("Exact slim-can construction is not publicly established by the reviewed packaging source.");
+  expect(first.manufacturerCandidates[1].evidence.find((item) => item.requirementKey === "packaging_format" && /broader package family/i.test(item.claim))?.sourceUrl).toBe("https://betterbeveragecompany.com/capabilities/");
+  expect(first.manufacturerCandidates[2].supported).toContain("25,000 cans meets the published approximate minimum of 9,600 cans (about 400 cases × 24 cans per case).");
+  expect(first.manufacturerCandidates[2].evidence.find((item) => item.requirementKey === "production_volume")?.sourceUrl).toBe("https://www.swiftcider.com/copacking");
+
+  await expect(page).toHaveURL(manufacturersPath(created.workspace.id));
+  await page.getByRole("button", { name: "View details for Prospectors Specialty Beverage" }).click();
+  await expect(page.getByRole("list", { name: "Requirement trace" })).toContainText("Product");
+  await expect(page.getByRole("list", { name: "Requirement trace" })).toContainText("preferred · broad support");
+  await expect(page.getByRole("heading", { name: "Supported by sources" }).locator("..")).toContainText("broader beverage category");
+  await expect(page.getByRole("heading", { name: "Not publicly confirmed" }).locator("..")).toContainText("Exact capability for Sparkling tart-cherry and basil drink");
+  await page.locator("details.manufacturer-source-review > summary").click();
+  await expect(page.locator('details.manufacturer-source-review a[href="https://www.drinkprospectors.com/private-label"]').first()).toBeVisible();
+
+  const second = await invokeWebMcp<typeof first>(page, "match_manufacturers", matchInput);
+  expect(second.manufacturerCandidates).toEqual(first.manufacturerCandidates);
+  expect(second.receipt.planFingerprint).toBe(first.receipt.planFingerprint);
+  expect(second.receipt.researchId).not.toBe(first.receipt.researchId);
+  const afterResearch = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as typeof beforeResearch;
+  expect(afterResearch.workspace.fields).toEqual(beforeResearch.workspace.fields);
+  expect(afterResearch.workspace).toMatchObject({
+    stagedPackageDesign: beforeResearch.workspace.stagedPackageDesign,
+    packageDesign: null,
+    packageCommit: null,
+    selectedManufacturerSlugs: [],
+    outreachDrafts: [],
+    inquiries: [],
+  });
+
+  await page.getByRole("navigation", { name: "Product workspace" }).getByRole("link", { name: "Product brief" }).click();
+  await expect(page).toHaveURL(productBriefPath(created.workspace.id));
+  await page.goBack();
+  await expect(page).toHaveURL(manufacturersPath(created.workspace.id));
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size), { timeout: 20_000 }).toBe(13);
+  const persisted = await invokeWebMcp<{ packaging: { saved: boolean; stagedDirection: { id: string; design: { placeholder: boolean; source: string } } }; manufacturerCandidates: typeof first.manufacturerCandidates }>(page, "get_sourcing_workspace", {});
+  expect(persisted.packaging).toMatchObject({ saved: false, stagedDirection: { id: stageId, design: { placeholder: true, source: "system_defaults" } } });
+  expect(persisted.manufacturerCandidates).toEqual(second.manufacturerCandidates);
+  await page.goForward();
+  await expect(page).toHaveURL(productBriefPath(created.workspace.id));
+
+  const audit = await invokeWebMcp<{ selectionCount: number; drafts: unknown[]; nothingWasSent: boolean; packageDirectionSaved: boolean }>(page, "audit_outreach_readiness", {});
+  expect(audit).toMatchObject({ selectionCount: 0, drafts: [], nothingWasSent: true, packageDirectionSaved: false });
 });
 
 test("product brief and manufacturers are separate history-safe views", async ({ page }) => {

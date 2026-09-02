@@ -34,8 +34,7 @@ export function SourcingWorkspace() {
   const relevantPackageLabels = useMemo(() => getPackagingOptions(workspace).slice(0, 3).map((option) => option.label), [workspace]);
   const agentChangedKeys = useMemo(() => new Set(workspace.lastAgentChange?.changedKeys ?? []), [workspace.lastAgentChange]);
   const nextKey = readiness.nextQuestionKey;
-  const packageDesignPending = nextKey === "packaging_format"
-    && readiness.packageDesignRequired
+  const packageDesignPending = readiness.packageDesignRequired
     && !readiness.packageDesignReady
     && workspace.fields.packaging_format.status === "confirmed";
   const { brandName, productDescriptor } = getProductIdentity(workspace);
