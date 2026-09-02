@@ -58,6 +58,12 @@ function supportedRequirementSummary(results: RequirementResult[]): string {
   ))]);
 }
 
+function fullySupportsRequirement(results: RequirementResult[], key: SourcingFieldKey): boolean {
+  const keyed = results.filter((result) => result.key === key);
+  return keyed.length > 0
+    && keyed.every((result) => result.outcome === "supported" && result.granularity !== "broad");
+}
+
 function searchablePlantText(plant: Plant): string {
   return [
     plant.productTypesPublished,
@@ -195,12 +201,24 @@ function isProductCandidate(plant: Plant, value: string, allowBroad = false): bo
 }
 
 function normalizeOunceText(value: string): string {
-  return value.toLowerCase().replace(/fluid\s+ounces?|fl\.?\s*oz|ounces?/g, "oz").replace(/\s+/g, " ").trim();
+  return value.toLowerCase()
+    .replace(/\bfive[-\s]+ounces?\b/g, "5 oz")
+    .replace(/fluid\s+ounces?|fl\.?\s*oz|ounces?/g, "oz")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function parseOunces(value: string | null | undefined): number | null {
   const match = normalizeOunceText(value ?? "").match(/\b(\d+(?:\.\d+)?)\s*oz\b/);
   return match ? Number(match[1]) : null;
+}
+
+function publishedOunceValues(value: string): number[] {
+  return [...normalizeOunceText(value).matchAll(/\b(\d+(?:\.\d+)?)\s*oz\b/g)].map((match) => Number(match[1]));
+}
+
+function reviewedPackagingText(plant: Plant): string {
+  return [plant.packaging, plant.moqDisplay].filter(Boolean).join(" ");
 }
 
 interface PublishedOunceRange {
@@ -284,7 +302,7 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       return productRequirement(plant, value);
     case "packaging_format": {
       const wanted = value.toLowerCase();
-      const packaging = plant.packaging?.toLowerCase() ?? "";
+      const packaging = reviewedPackagingText(plant).toLowerCase();
       const wantsBakeryBag = /\bbakery(?:[\s-]+)bags?\b/.test(wanted);
       if (wantsBakeryBag) {
         const wantsWindow = /\bwindow(?:ed|ing)?\b/.test(wanted);
@@ -316,7 +334,16 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
         const exact = hasPackagingSource && (!wantsGlass || glass) && (!wantsWoozy || woozy) && bottleFamily;
         if (exact) return [{ key, label, outcome: "supported", claim: `Published packaging explicitly includes ${value}.`, sourceField: "packaging", granularity: "exact" }];
         const broadResults: RequirementResult[] = [];
-        if (hasPackagingSource && bottleFamily) {
+        if (hasPackagingSource && wantsWoozy && woozy && bottleFamily) {
+          broadResults.push({
+            key,
+            label: "Exact woozy-bottle construction",
+            outcome: "supported",
+            claim: "Reviewed packaging or minimum-order information explicitly names woozy bottles.",
+            sourceField: "packaging",
+            granularity: "exact",
+          });
+        } else if (hasPackagingSource && bottleFamily) {
           broadResults.push({
             key,
             label,
@@ -326,16 +353,34 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
             granularity: "broad",
           });
         }
-        broadResults.push({
-          key,
-          label: wantsWoozy ? "Exact glass woozy construction" : "Exact glass bottle construction",
-          outcome: "unknown",
-          claim: wantsWoozy
-            ? "Exact glass woozy-bottle construction is not publicly established; evidence must name both glass and woozy."
-            : "Exact glass-bottle construction is not publicly established.",
-          sourceField: "packaging",
-          granularity: "exact",
-        });
+        if (wantsWoozy && !woozy) {
+          broadResults.push({
+            key,
+            label: "Exact glass woozy construction",
+            outcome: "unknown",
+            claim: "Exact glass woozy-bottle construction is not publicly established; evidence must name both glass and woozy.",
+            sourceField: "packaging",
+            granularity: "exact",
+          });
+        } else if (wantsGlass && !glass && wantsWoozy) {
+          broadResults.push({
+            key,
+            label: "Glass material for the woozy bottle",
+            outcome: "unknown",
+            claim: "The reviewed woozy-bottle evidence does not publicly establish the container material as glass.",
+            sourceField: "packaging",
+            granularity: "exact",
+          });
+        } else if (wantsGlass && !glass) {
+          broadResults.push({
+            key,
+            label: "Exact glass bottle construction",
+            outcome: "unknown",
+            claim: "Exact glass-bottle construction is not publicly established.",
+            sourceField: "packaging",
+            granularity: "exact",
+          });
+        }
         return broadResults;
       }
       const terms = wanted.includes("can") ? ["can", "cans", "canning"]
@@ -355,6 +400,7 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
     case "packaging_size": {
       const requestedOunces = parseOunces(value);
       const packaging = plant.packaging ?? "";
+      const packagingEvidence = reviewedPackagingText(plant);
       const requestedMaterial = /\bglass\b/i.test(workspace.fields.packaging_format.value ?? "") ? "glass" : null;
       const ranges = publishedOunceRanges(packaging, requestedMaterial);
       if (requestedOunces !== null && ranges.length && plant.fieldSourceUrls?.packaging?.length) {
@@ -371,8 +417,20 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
           granularity: "exact",
         };
       }
+      const exactPublishedSizes = publishedOunceValues(packagingEvidence);
+      if (requestedOunces !== null && exactPublishedSizes.includes(requestedOunces) && plant.fieldSourceUrls?.packaging?.length) {
+        return {
+          key,
+          label,
+          outcome: "supported",
+          claim: `Reviewed packaging or minimum-order information explicitly includes ${formatNumber(requestedOunces)} oz.`,
+          sourceField: "packaging",
+          notes: plant.moqDisplay ?? undefined,
+          granularity: "exact",
+        };
+      }
       const normalized = normalizeOunceText(value);
-      const normalizedPackaging = normalizeOunceText(packaging);
+      const normalizedPackaging = normalizeOunceText(packagingEvidence);
       return {
         key, label,
         outcome: normalizedPackaging.includes(normalized) && Boolean(plant.fieldSourceUrls?.packaging?.length) ? "supported" : "unknown",
@@ -395,7 +453,7 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
     }
     case "formulation_assistance": {
       if (!/need|required|yes|help|assistance/i.test(value)) return null;
-      const supported = includesAny(text, ["formulation", "product development", "recipe development", "r&d", "scale-up", "scale up"]);
+      const supported = includesAny(text, ["formulation", "product development", "recipe development", "r&d", "scale-up", "scale up", "start-up assistance", "startup assistance", "beginning-to-end"]);
       return {
         key, label,
         outcome: supported ? "supported" : "unknown",
@@ -405,16 +463,26 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
     }
     case "manufacturing_process": {
       const mappings: Array<[RegExp, string[], string]> = [
+        [/acidified/i, ["acidified", "acid-based"], "acidified processing"],
         [/hot.?fill/i, ["hot fill", "hot-fill"], "hot fill"],
         [/cold.?fill/i, ["cold fill", "cold-fill"], "cold fill"],
         [/retort/i, ["retort"], "retort"],
         [/hpp|high pressure/i, ["hpp", "high pressure"], "HPP"],
         [/aseptic/i, ["aseptic"], "aseptic processing"],
       ];
-      const mapping = mappings.find(([pattern]) => pattern.test(value));
-      if (!mapping) return null;
-      const supported = includesAny(text, mapping[1]);
-      return { key, label, outcome: supported ? "supported" : "unknown", claim: supported ? `${mapping[2]} is publicly listed.` : `${mapping[2]} is not publicly listed.`, sourceField: "processes" };
+      const recognized = mappings.filter(([pattern]) => pattern.test(value));
+      if (!recognized.length) return null;
+      return recognized.map((mapping) => {
+        const supported = includesAny(text, mapping[1]);
+        return {
+          key,
+          label: `${label}: ${mapping[2]}`,
+          outcome: supported ? "supported" as const : "unknown" as const,
+          claim: supported ? `${mapping[2]} is publicly listed.` : `${mapping[2]} is not publicly listed.`,
+          sourceField: "processes" as const,
+          granularity: "exact" as const,
+        };
+      });
     }
     case "preferred_geography": {
       const preference = interpretGeographyPreference(value);
@@ -478,7 +546,7 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
     }
     case "storage_distribution": {
       const wanted = value.toLowerCase();
-      const terms = /room|ambient|shelf.?stable/.test(wanted) ? ["shelf stable", "shelf-stable", "ambient", "dry shelf"]
+      const terms = /room|ambient|shelf.?stable/.test(wanted) ? ["shelf stable", "shelf-stable", "shelf stability", "ambient", "dry shelf"]
         : /refrigerat|chilled|cold/.test(wanted) ? ["refrigerated", "chilled", "cold storage", "cold chain"]
         : /frozen|freezer/.test(wanted) ? ["frozen", "freezer"] : [];
       if (!terms.length) return null;
@@ -567,7 +635,8 @@ export function matchManufacturerRecords(
     const supported = results.filter((result) => result.outcome === "supported");
     const conflicts = results.filter((result) => result.outcome === "mismatch" || result.outcome === "conflicting");
     const unknowns = results.filter((result) => result.outcome === "unknown");
-    const productSupport = supported.some((result) => result.key === "product_type");
+    const fullySupported = supported.filter((result) => fullySupportsRequirement(results, result.key));
+    const productSupport = fullySupportsRequirement(results, "product_type");
     const productCandidate = product ? isProductCandidate(plant, product, allowBroadProduct) : false;
     const geographySupport = supported.some((result) => result.key === "preferred_geography");
     const evidenceCaveat = [
@@ -578,8 +647,8 @@ export function matchManufacturerRecords(
       manufacturerSlug: plant.slug,
       manufacturerName: plant.name,
       location: plant.locationDisplay,
-      fitExplanation: supported.length > 0
-        ? `Reviewed public information supports ${supportedRequirementSummary(supported)}. ${evidenceCaveat}`
+      fitExplanation: fullySupported.length > 0
+        ? `Reviewed public information supports ${supportedRequirementSummary(fullySupported)}. ${evidenceCaveat}`
         : `The product category may be relevant, but the reviewed record does not confirm the other requirements yet. ${evidenceCaveat}`,
       supportedMatches: supported.map((result) => result.claim),
       possibleConflicts: conflicts.map((result) => result.claim),
@@ -598,9 +667,7 @@ export function matchManufacturerRecords(
       productCandidate,
       geographySupport,
       requiredGaps: [...required].filter((key) => {
-        const keyed = results.filter((candidate) => candidate.key === key);
-        return !keyed.some((result) => result.outcome === "supported" && result.granularity !== "broad")
-          || keyed.some((result) => result.outcome === "mismatch" || result.outcome === "conflicting");
+        return !fullySupportsRequirement(results, key);
       }).length,
       preferredSupport: results.filter((result) => preferred.has(result.key) && result.outcome === "supported").length,
       preferredConflicts: results.filter((result) => preferred.has(result.key) && (result.outcome === "mismatch" || result.outcome === "conflicting")).length,

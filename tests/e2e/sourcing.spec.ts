@@ -862,6 +862,7 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
   });
   expect(strict.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).toEqual([
     "heritage-family-specialty-foods",
+    "the-spice-guy",
     "creative-foodworks",
   ]);
   await page.getByRole("button", { name: "View details for Creative Foodworks" }).click();
@@ -882,6 +883,83 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
     resultLimit: 3,
   });
   expect(requiredVolume.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).not.toContain("creative-foodworks");
+});
+
+test("realistic acidified hot-sauce brief ranks exact reviewed evidence and preserves founder controls", async ({ page }) => {
+  await installWebMcpHarness(page);
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  const created = await invokeWebMcp<{ workspace: { id: string } }>(page, "create_sourcing_workspace", {
+    mutationId: newMutationId(),
+    idea: "Fictional Ember Orchard smoked peach habanero hot sauce in a 5 fl oz glass woozy bottle, acidified and shelf-stable hot-filled, with a 5,000-bottle first run and Midwest preferred.",
+    initialUpdates: [
+      { key: "product_type", value: "Hot sauce", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "manufacturing_process", value: "Acidified, shelf-stable hot-fill", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "storage_distribution", value: "Shelf-stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "5 fl oz glass woozy bottle", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_size", value: "5 oz", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "production_volume", value: "5,000 bottles", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "formulation_assistance", value: "Process-authority and acidified-food help needed", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "preferred_geography", value: "Midwest", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect(page).toHaveURL(productBriefPath(created.workspace.id), { timeout: 20_000 });
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size), { timeout: 20_000 }).toBe(13);
+
+  const matched = await invokeWebMcp<{
+    manufacturerCandidates: Array<{ manufacturerSlug: string }>;
+    receipt: { planFingerprint: string; researchId: string };
+  }>(page, "match_manufacturers", {
+    requiredRequirements: ["product_type", "manufacturing_process", "storage_distribution"],
+    preferredRequirements: ["packaging_format", "packaging_size", "production_volume", "formulation_assistance", "preferred_geography"],
+    resultLimit: 3,
+  });
+  expect(matched.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).toEqual(["the-spice-guy", "creative-foodworks"]);
+  await expect(page).toHaveURL(manufacturersPath(created.workspace.id));
+
+  await page.getByRole("button", { name: "View details for The Spice Guy — Sauce Pack" }).click();
+  const spiceSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
+  const spiceConflicts = page.getByRole("heading", { name: "Possible conflicts" }).locator("..");
+  await expect(spiceSupported).toContainText("acidified processing is publicly listed");
+  await expect(spiceSupported).toContainText("hot fill is publicly listed");
+  await expect(spiceSupported).toContainText("explicitly names woozy bottles");
+  await expect(spiceSupported).toContainText("explicitly includes 5 oz");
+  await expect(spiceSupported).toContainText("Formulation or product-development help is publicly listed");
+  await expect(spiceSupported).toContainText("Published information supports Shelf-stable");
+  await expect(spiceConflicts.getByRole("listitem")).toHaveCount(1);
+  await expect(spiceConflicts).toContainText("outside the Midwest preference");
+  await page.locator("details.manufacturer-source-review > summary").click();
+  await expect(page.locator('details.manufacturer-source-review a[href="https://saucecopackers.com/"]').first()).toBeVisible();
+  await expect(page.locator('details.manufacturer-source-review a[href="https://saucecopackers.com/faq"]').first()).toBeVisible();
+
+  await page.getByRole("button", { name: "View details for Creative Foodworks" }).click();
+  const creativeSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
+  const creativeConflicts = page.getByRole("heading", { name: "Possible conflicts" }).locator("..");
+  await expect(creativeSupported).toContainText("Formulation or product-development help is publicly listed");
+  await expect(creativeConflicts).toContainText("5 oz is outside the published 8–32 oz");
+  await expect(creativeConflicts).toContainText("about 195.3 gallons");
+  await expect(creativeConflicts).toContainText("outside the Midwest preference");
+  const creativeSourceReview = page.locator("details.manufacturer-source-review");
+  if (!await creativeSourceReview.evaluate((element) => (element as HTMLDetailsElement).open)) {
+    await creativeSourceReview.locator("summary").click();
+  }
+  await expect(creativeSourceReview.locator('a[href="https://creativefw.com/capabilities/"]').first()).toBeVisible();
+  await expect(creativeSourceReview.locator('a[href="https://creativefw.com/products/hot-sauces"]').first()).toBeVisible();
+
+  const audit = await invokeWebMcp<{
+    researchFingerprint: string;
+    selectionCount: number;
+    drafts: unknown[];
+    nothingWasSent: boolean;
+    packageDirectionSaved: boolean;
+  }>(page, "audit_outreach_readiness", {});
+  expect(audit).toMatchObject({
+    researchFingerprint: matched.receipt.planFingerprint,
+    selectionCount: 0,
+    drafts: [],
+    nothingWasSent: true,
+    packageDirectionSaved: false,
+  });
 });
 
 test("geometry-only agent previews remain labeled placeholders until explicit art direction survives reload", async ({ page }) => {

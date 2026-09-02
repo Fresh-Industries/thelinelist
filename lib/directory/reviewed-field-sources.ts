@@ -3,19 +3,38 @@ import type { EvidenceField, Plant, SourceLink } from "./types";
 interface ReviewedSourceOverride {
   links: SourceLink[];
   fields: Partial<Record<EvidenceField, string[]>>;
-  data?: Partial<Pick<Plant, "productTypesPublished" | "packaging" | "moqDisplay" | "manufacturingCapabilitiesPublished">>;
+  data?: Partial<Pick<Plant, "productTypesPublished" | "packaging" | "moqDisplay" | "manufacturingCapabilitiesPublished" | "rawCapabilityTags">>;
 }
 
 const REVIEWED_SOURCE_OVERRIDES: Record<string, ReviewedSourceOverride> = {
   "creative-foodworks": {
     links: [
       { label: "Hot sauce capabilities", href: "https://creativefw.com/products/hot-sauces" },
+      { label: "Product development and processing capabilities", href: "https://creativefw.com/capabilities/" },
     ],
     fields: {
       products: ["https://creativefw.com/products/hot-sauces"],
-      processes: ["https://creativefw.com/products/hot-sauces"],
+      processes: ["https://creativefw.com/capabilities/"],
       packaging: ["https://creativefw.com/products/hot-sauces"],
       minimums: ["https://creativefw.com/products/hot-sauces"],
+    },
+    data: {
+      rawCapabilityTags: ["Product development", "Scale-up with food scientists", "Large-scale hot-filled production", "Hot-filled, acidified, or acid-based food", "Shelf-stable products with no refrigeration required"],
+    },
+  },
+  "the-spice-guy": {
+    links: [
+      { label: "Sauce co-packing capabilities", href: "https://saucecopackers.com/" },
+      { label: "Minimum order and packaging FAQ", href: "https://saucecopackers.com/faq" },
+    ],
+    fields: {
+      products: ["https://saucecopackers.com/"],
+      processes: ["https://saucecopackers.com/"],
+      packaging: ["https://saucecopackers.com/faq"],
+      minimums: ["https://saucecopackers.com/faq"],
+    },
+    data: {
+      rawCapabilityTags: ["FDA certified Acidified Foods Packaging", "Hot-fill all products", "Scheduled process authority (shelf stability)", "Beginning-to-end start-up assistance"],
     },
   },
   "consolidated-mills-inc": {

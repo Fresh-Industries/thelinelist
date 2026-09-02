@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { applyManufacturerResearch, createWorkspace } from "@/lib/sourcing/workspace";
-import type { SourcingWorkspace } from "@/lib/sourcing/types";
+import { applyFounderFieldUpdate, applyManufacturerResearch, createWorkspace } from "@/lib/sourcing/workspace";
+import type { SourcingFieldKey, SourcingWorkspace } from "@/lib/sourcing/types";
 
 const mocks = vi.hoisted(() => ({
   getAuthorizedWorkspace: vi.fn(),
@@ -106,6 +106,36 @@ describe("founder-approved matching broadening API", () => {
     expect(response.status).toBe(400);
     expect(mocks.saveSourcingWorkspace).not.toHaveBeenCalled();
   });
+
+  it("returns the deterministic hot-sauce ranking without changing founder-controlled state", async () => {
+    workspace = reportWorkspace();
+    persisted = workspace;
+    const request = {
+      resultLimit: 3,
+      requiredRequirements: ["product_type", "manufacturing_process", "storage_distribution"],
+      preferredRequirements: ["packaging_format", "packaging_size", "production_volume", "formulation_assistance", "preferred_geography"],
+    };
+
+    const firstResponse = await post(request);
+    const first = await firstResponse.json() as { workspace: SourcingWorkspace; receipt: { researchId: string; planFingerprint: string } };
+    expect(firstResponse.status).toBe(200);
+    expect(first.workspace.matches.map((match) => match.manufacturerSlug)).toEqual(["the-spice-guy", "creative-foodworks"]);
+    expect(first.workspace).toMatchObject({
+      selectedManufacturerSlugs: [],
+      outreachDrafts: [],
+      inquiries: [],
+      packageDesign: null,
+      packageCommit: null,
+    });
+
+    workspace = persisted;
+    const secondResponse = await post(request);
+    const second = await secondResponse.json() as { workspace: SourcingWorkspace; receipt: { researchId: string; planFingerprint: string } };
+    expect(secondResponse.status).toBe(200);
+    expect(second.receipt.planFingerprint).toBe(first.receipt.planFingerprint);
+    expect(second.receipt.researchId).not.toBe(first.receipt.researchId);
+    expect(second.workspace).toMatchObject({ selectedManufacturerSlugs: [], outreachDrafts: [], inquiries: [], packageDesign: null, packageCommit: null });
+  });
 });
 
 function post(body: Record<string, unknown>) {
@@ -114,4 +144,22 @@ function post(body: Record<string, unknown>) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   }), { params: Promise.resolve({ workspaceId: "judge-broadening-workspace" }) });
+}
+
+function reportWorkspace(): SourcingWorkspace {
+  let result = createWorkspace({ id: "judge-broadening-workspace", idea: "Fictional smoked peach habanero hot sauce." });
+  const updates: Array<[SourcingFieldKey, string]> = [
+    ["product_type", "Hot sauce"],
+    ["manufacturing_process", "Acidified, shelf-stable hot-fill"],
+    ["storage_distribution", "Shelf-stable"],
+    ["packaging_format", "5 fl oz glass woozy bottle"],
+    ["packaging_size", "5 oz"],
+    ["production_volume", "5,000 bottles"],
+    ["formulation_assistance", "Process-authority and acidified-food help needed"],
+    ["preferred_geography", "Midwest"],
+  ];
+  for (const [key, value] of updates) {
+    result = applyFounderFieldUpdate(result, { key, value, status: "confirmed", shareWithManufacturer: true });
+  }
+  return result;
 }
