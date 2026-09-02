@@ -48,6 +48,10 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [showAllPackageTypes, setShowAllPackageTypes] = useState(false);
+  const [directionProvenance, setDirectionProvenance] = useState(() => ({
+    placeholder: initial?.placeholder ?? false,
+    source: initial?.source ?? "founder_direction" as PackageDesign["source"],
+  }));
   const fileRef = useRef<HTMLInputElement>(null);
   const capturePreviewRef = useRef<(() => Promise<Blob | null>) | null>(null);
   const lastStagedDesignRef = useRef(workspace.stagedPackageDesign?.design ? JSON.stringify(workspace.stagedPackageDesign.design) : "");
@@ -79,7 +83,9 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
     logoPosition: { x: logo.x, y: logo.y },
     dimensions,
     summary,
-  }), [baseColor, config.window, dimensions, finish, frontText, initial?.artworkId, initial?.closure, labelColor, logo.scale, logo.x, logo.y, logoAspect, logoUrl, packagingType, summary, windowScale, workspace.artwork?.id]);
+    placeholder: directionProvenance.placeholder,
+    source: directionProvenance.source,
+  }), [baseColor, config.window, dimensions, directionProvenance.placeholder, directionProvenance.source, finish, frontText, initial?.artworkId, initial?.closure, labelColor, logo.scale, logo.x, logo.y, logoAspect, logoUrl, packagingType, summary, windowScale, workspace.artwork?.id]);
 
   useEffect(() => {
     const serialized = JSON.stringify(currentDesign);
@@ -107,12 +113,18 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   }, [logoUrl]);
 
   function setLogo(key: "scale" | "x" | "y", value: number) {
+    markFounderDirection();
     setLogoSettings((current) => ({ ...current, [packagingType]: { ...current[packagingType], [key]: value } }));
   }
 
   function setWindowScale(value: number) {
+    markFounderDirection();
     setSummaryDirty(true);
     setWindowSettings((current) => ({ ...current, [packagingType]: value }));
+  }
+
+  function markFounderDirection() {
+    setDirectionProvenance({ placeholder: false, source: "founder_direction" });
   }
 
   async function upload(event: ChangeEvent<HTMLInputElement>) {
@@ -135,6 +147,7 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
         return;
       }
       setLogoUrl(body.artworkUrl);
+      markFounderDirection();
       onWorkspaceChanged(body.workspace);
     } catch {
       setError("Artwork could not be uploaded. Check your connection and try again.");
@@ -171,21 +184,22 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
               {otherPackageTypes.length ? <button type="button" className="package-more-toggle" aria-expanded={showAllPackageTypes} onClick={() => setShowAllPackageTypes((current) => !current)}>{showAllPackageTypes ? "Hide other package types" : `More package types (${otherPackageTypes.length})`}</button> : null}
               {showAllPackageTypes ? <div className="other-package-types"><span>Other supported models</span>{otherPackageTypes.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => { setSummaryDirty(true); setPackagingType(type); }}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}</div> : null}
             </fieldset>
-            {config.appearance.supportsClearFinish ? <fieldset><legend>Finish</legend>{(["colored", "clear"] as const).map((value) => <button key={value} type="button" className={finish === value ? "selected" : ""} onClick={() => { setSummaryDirty(true); setFinish(value); }}>{value === "colored" ? "Colored" : "Clear"}</button>)}</fieldset> : null}
-            <label className="color-control">Package color <input type="color" value={baseColor} onChange={(event) => setBaseColor(event.target.value)} disabled={finish === "clear" && config.appearance.supportsClearFinish} /></label>
-            {config.appearance.supportsLabelColor ? <label className="color-control">Label color <input type="color" value={labelColor} onChange={(event) => setLabelColor(event.target.value)} /></label> : null}
+            {config.appearance.supportsClearFinish ? <fieldset><legend>Finish</legend>{(["colored", "clear"] as const).map((value) => <button key={value} type="button" className={finish === value ? "selected" : ""} onClick={() => { markFounderDirection(); setSummaryDirty(true); setFinish(value); }}>{value === "colored" ? "Colored" : "Clear"}</button>)}</fieldset> : null}
+            <label className="color-control">Package color <input type="color" value={baseColor} onChange={(event) => { markFounderDirection(); setBaseColor(event.target.value); }} disabled={finish === "clear" && config.appearance.supportsClearFinish} /></label>
+            {config.appearance.supportsLabelColor ? <label className="color-control">Label color <input type="color" value={labelColor} onChange={(event) => { markFounderDirection(); setLabelColor(event.target.value); }} /></label> : null}
             <label className="artwork-control"><UploadSimple aria-hidden="true" /><span><strong>Add artwork</strong><small>PNG, JPG, or WebP · 2 MB</small></span><input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={upload} /></label>
-            {packagingType === "bakery-bag" ? <div className="dimension-controls"><span>Exact front copy</span><label style={{ gridColumn: "1 / -1" }}>Brand text<input type="text" maxLength={120} value={frontText.brand} onChange={(event) => setFrontText((current) => ({ ...current, brand: event.target.value }))} /></label><label style={{ gridColumn: "1 / -1" }}>Product text<input type="text" maxLength={160} value={frontText.product} onChange={(event) => setFrontText((current) => ({ ...current, product: event.target.value }))} /></label></div> : null}
+            {packagingType === "bakery-bag" ? <div className="dimension-controls"><span>Exact front copy</span><label style={{ gridColumn: "1 / -1" }}>Brand text<input type="text" maxLength={120} value={frontText.brand} onChange={(event) => { markFounderDirection(); setFrontText((current) => ({ ...current, brand: event.target.value })); }} /></label><label style={{ gridColumn: "1 / -1" }}>Product text<input type="text" maxLength={160} value={frontText.product} onChange={(event) => { markFounderDirection(); setFrontText((current) => ({ ...current, product: event.target.value })); }} /></label></div> : null}
             <div className="workbench-sliders">
               {config.window ? <label><span>Window size <i>{Math.round(windowScale * 100)}%</i></span><input type="range" aria-label="Window size" min={config.window.scale.min} max={config.window.scale.max} step={config.window.scale.step} value={windowScale} onChange={(event) => setWindowScale(Number(event.target.value))} /></label> : null}
               <label><span>{packagingType === "bakery-bag" ? "Front copy size" : "Logo size"} <i>{logo.scale.toFixed(2)}×</i></span><input type="range" aria-label={packagingType === "bakery-bag" ? "Front copy size" : "Logo size"} min={config.logo.scale.min} max={config.logo.scale.max} step={config.logo.scale.step} value={logo.scale} onChange={(event) => setLogo("scale", Number(event.target.value))} /></label>
               <label><span>Left / right <i>{logo.x.toFixed(2)}</i></span><input type="range" aria-label={packagingType === "bakery-bag" ? "Front copy left or right position" : "Logo left or right position"} min={config.logo.horizontal.min} max={config.logo.horizontal.max} step={config.logo.horizontal.step} value={logo.x} onChange={(event) => setLogo("x", Number(event.target.value))} /></label>
               <label><span>Up / down <i>{logo.y.toFixed(2)}</i></span><input type="range" aria-label={packagingType === "bakery-bag" ? "Front copy up or down position" : "Logo up or down position"} min={config.logo.vertical.min} max={config.logo.vertical.max} step={config.logo.vertical.step} value={logo.y} onChange={(event) => setLogo("y", Number(event.target.value))} /></label>
             </div>
-            <div className="dimension-controls"><span>Working dimensions</span>{(["width", "height", "depth"] as const).map((key) => <label key={key}>{key}<input type="number" min="0" max="10000" step="0.1" value={dimensions[key] ?? ""} onChange={(event) => { setSummaryDirty(true); setDimensions((current) => ({ ...current, [key]: event.target.value ? Number(event.target.value) : null })); }} /></label>)}</div>
+            <div className="dimension-controls"><span>Working dimensions</span>{(["width", "height", "depth"] as const).map((key) => <label key={key}>{key}<input type="number" min="0" max="10000" step="0.1" value={dimensions[key] ?? ""} onChange={(event) => { markFounderDirection(); setSummaryDirty(true); setDimensions((current) => ({ ...current, [key]: event.target.value ? Number(event.target.value) : null })); }} /></label>)}</div>
           </aside>
           <section className="package-canvas">
             <div className="package-preview-meta"><div><p>{agentStagedSession ? "Agent preview · live in 3D" : "Live 3D preview"}</p><h2>{config.previewTitle}</h2></div><span>Drag to turn</span></div>
+            {currentDesign.placeholder && currentDesign.source === "system_defaults" ? <p className="package-placeholder-notice" role="status">Placeholder styling - visual direction has not been discussed</p> : null}
             <ProductMockup packagingType={packagingType} logoUrl={logoUrl} logoAspect={logoAspect} baseColor={baseColor} labelColor={labelColor} bottleFinish={finish} logoScale={logo.scale} logoPosition={{ x: logo.x, y: logo.y }} frontText={packagingType === "bakery-bag" ? normalizedFrontText(frontText) : null} windowScale={config.window ? windowScale : 0} onCaptureReady={(capture) => { capturePreviewRef.current = capture; }} />
             <div className="tradeoff-note"><span>Working direction</span><p>{summary}</p><small>This is a communication mockup, not a production dieline. {getPackageValidationGuidance(packagingType)}</small></div>
           </section>

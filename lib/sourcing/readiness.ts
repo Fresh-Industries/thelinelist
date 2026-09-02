@@ -2,6 +2,7 @@ import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { getSourcingCategory } from "./questions";
 import { getCurrentManufacturerResearch, hasValidFounderPackageCommit } from "./workspace";
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
+import { normalizeCertificationRequirements } from "./certification-requirements";
 
 export const MATCH_SHAPING_FIELDS: SourcingFieldKey[] = [
   "product_format",
@@ -87,7 +88,12 @@ export function requiredMatchingFields(workspace: SourcingWorkspace): SourcingFi
   if (beverage) required.push("carbonation");
   required.push("storage_distribution", "packaging_format");
   if (beverage || bakery) required.push("packaging_size");
-  if (/\borganic\b/.test(product)) required.push("certifications");
+  const certificationRequirements = normalizeCertificationRequirements(workspace.fields.certifications.value);
+  const originalCertificationLanguage = normalizeCertificationRequirements(workspace.originalIdea, null);
+  const unresolvedOrganicIntent = !workspace.fields.certifications.value
+    && /\borganic\b/i.test(workspace.originalIdea ?? "")
+    && !originalCertificationLanguage.negated.includes("Organic");
+  if (certificationRequirements.required.length || unresolvedOrganicIntent) required.push("certifications");
   required.push("production_volume");
   return [...new Set(required)];
 }

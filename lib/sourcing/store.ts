@@ -117,7 +117,7 @@ export function packetIsActive(packet: { expiresAt: string; revokedAt: string | 
 }
 
 function actorForActivity(kind: WorkspaceActivity["kind"]): "FOUNDER" | "AGENT" | "SYSTEM" {
-  if (kind === "founder_updated" || kind === "agent_undone" || kind === "approved") return "FOUNDER";
+  if (kind === "founder_updated" || kind === "agent_undone" || kind === "approved" || kind === "research_broadened") return "FOUNDER";
   if (kind === "agent_proposed" || kind === "matched" || kind === "drafted") return "AGENT";
   return "SYSTEM";
 }
@@ -133,7 +133,7 @@ function rowToWorkspace(row: {
   createdAt: Date;
   updatedAt: Date;
   plan: unknown;
-  activities: Array<{ id: string; kind: string; summary: string; createdAt: Date }>;
+  activities: Array<{ id: string; kind: string; summary: string; details: unknown; createdAt: Date }>;
 }): SourcingWorkspace | null {
   const parsed = ProductPlanSchema.safeParse(row.plan);
   if (!parsed.success) return null;
@@ -152,6 +152,9 @@ function rowToWorkspace(row: {
       kind: item.kind as WorkspaceActivity["kind"],
       message: item.summary,
       at: item.createdAt.toISOString(),
+      details: item.details && typeof item.details === "object" && !Array.isArray(item.details)
+        ? item.details as Record<string, unknown>
+        : null,
     })),
   });
 }
@@ -228,6 +231,7 @@ export async function saveSourcingWorkspace(
           actor: actorForActivity(item.kind),
           kind: item.kind,
           summary: item.message,
+          details: item.details ? item.details as Prisma.InputJsonValue : undefined,
           createdAt: new Date(item.at),
         })),
         skipDuplicates: true,

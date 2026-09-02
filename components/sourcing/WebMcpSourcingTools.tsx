@@ -173,7 +173,7 @@ export function WebMcpSourcingTools({
       {
         name: "preview_package_design",
         title: "Preview packaging in 3D",
-        description: "Stage any subset of packaging choices in the visible 3D workbench for founder review. Supply one opaque stageId and reuse it only for an exact retry of the same choices; changed choices require a new stageId. Use bakery-bag with frontText and windowScale for bread instead of substituting a generic pouch. Exact copy is rendered deterministically, and logoPosition.y moves the front copy vertically. Omit choices the founder has not made. The server persists the resulting complete design, so route changes and reloads keep the stage. This does not commit or change matching; only the founder's visible Use this package direction button can commit it.",
+        description: "Stage any subset of packaging choices in the visible 3D workbench for founder review. Supply one opaque stageId and reuse it only for an exact retry of the same choices; changed choices require a new stageId. Use bakery-bag with frontText and windowScale for bread instead of substituting a generic pouch. Exact copy is rendered deterministically, and logoPosition.y moves the front copy vertically. Omit choices the founder has not made. A geometry-only request uses visibly labeled placeholder styling until the founder supplies visual parameters or approved artwork. The server persists the resulting complete design, so route changes and reloads keep the stage. This does not commit or change matching; only the founder's visible Use this package direction button can commit it.",
         inputSchema: {
           type: "object",
           properties: {
@@ -386,7 +386,7 @@ export function WebMcpSourcingTools({
       {
         name: "match_manufacturers",
         title: "Match manufacturers with evidence",
-        description: "Research a small set of manufacturers once the plan is ready to research, even if some decisions are still open. Return supported facts, possible conflicts, unknowns, source URLs, and review dates. Use requiredRequirements only for founder-confirmed must-haves; missing public proof may produce zero strict results. Unsupported geography is clarified before any search or workspace mutation. When a strict search returns no results, use matchingGuidance to explain the result and ask before retrying those fields as preferences. This tool closes any staged 3D workbench before revealing the manufacturer view. It never selects a manufacturer or creates outreach drafts.",
+        description: "Research a small set of manufacturers once the plan is ready to research, even if some decisions are still open. Return supported facts, possible conflicts, unknowns, source URLs, and review dates. Use requiredRequirements only for founder-confirmed must-haves; missing public proof may produce zero strict results. Unsupported geography is clarified before any search or workspace mutation. When a strict search returns no results, explain it and direct the founder to the visible Review broader search control; the agent cannot silently retry weaker criteria. This tool closes any staged 3D workbench before revealing the manufacturer view. It never selects a manufacturer or creates outreach drafts.",
         inputSchema: {
           type: "object",
           properties: {
@@ -420,7 +420,7 @@ export function WebMcpSourcingTools({
             matchingGuidance: resultCount === 0 && requiredRequirements.length
               ? {
                   strictSearchReturnedNoResults: true,
-                  instruction: "No candidate publicly proved every founder-required capability. Explain that result without weakening the must-haves. Ask whether the founder wants to broaden discovery by treating these fields as preferences while keeping missing proof visibly unknown.",
+                  instruction: "No candidate publicly proved every founder-required capability. Explain that result without weakening the must-haves. The founder can open Review broader search, inspect the exact before/after criteria, and confirm or cancel. Do not submit the suggested retry directly.",
                   suggestedRetry: {
                     ...args,
                     requiredRequirements: [],
@@ -429,6 +429,8 @@ export function WebMcpSourcingTools({
                       ...requiredRequirements,
                     ])],
                   },
+                  founderConfirmationSurface: "Review broader search",
+                  directAgentRetryAllowed: false,
                 }
               : { strictSearchReturnedNoResults: false },
           });

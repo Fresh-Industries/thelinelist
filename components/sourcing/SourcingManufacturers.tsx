@@ -8,7 +8,10 @@ import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
 import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getProductIdentity } from "@/lib/sourcing/product-identity";
 import { getSourcingReadiness } from "@/lib/sourcing/readiness";
-import type { OutreachDraft, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
+import { formatReviewedDate } from "@/lib/sourcing/date-format";
+import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements";
+import { normalizeCertificationRequirements } from "@/lib/sourcing/certification-requirements";
+import type { ManufacturerResearchRequest, OutreachDraft, SourcingWorkspace as Workspace } from "@/lib/sourcing/types";
 import { routeFocusKey, useSourcingWorkspace } from "./SourcingWorkspaceContext";
 
 const SELECTION_LIMIT = 3;
@@ -20,6 +23,7 @@ export function SourcingManufacturers() {
   const drafts = useMemo(() => latestDrafts(workspace.outreachDrafts).filter((draft) => selectedSet.has(draft.manufacturerSlug)), [selectedSet, workspace.outreachDrafts]);
   const [activeSlug, setActiveSlug] = useState(() => workspace.selectedManufacturerSlugs.find((slug) => workspace.matches.some((match) => match.manufacturerSlug === slug)) ?? workspace.matches[0]?.manufacturerSlug ?? null);
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
+  const [reviewingBroadening, setReviewingBroadening] = useState(false);
   const resolvedActiveSlug = activeSlug && workspace.matches.some((match) => match.manufacturerSlug === activeSlug)
     ? activeSlug
     : workspace.selectedManufacturerSlugs.find((slug) => workspace.matches.some((match) => match.manufacturerSlug === slug)) ?? workspace.matches[0]?.manufacturerSlug ?? null;
@@ -32,6 +36,8 @@ export function SourcingManufacturers() {
       ? `Review ${readiness.proposedRequirements.length} agent proposal${readiness.proposedRequirements.length === 1 ? "" : "s"} before preparing introductions.`
       : "Review the product brief before preparing introductions.";
   const briefActionLabel = readiness.manufacturerMissing.length ? "Finish product brief" : "Review product brief";
+  const currentResearch = workspace.manufacturerResearch?.status === "current" ? workspace.manufacturerResearch : null;
+  const broaderRequest = currentResearch?.candidateCount === 0 ? broadenResearchRequest(currentResearch.request) : null;
 
   useEffect(() => {
     const focusKey = routeFocusKey(workspace.id);
@@ -49,10 +55,17 @@ export function SourcingManufacturers() {
     if (heading instanceof HTMLElement) window.requestAnimationFrame(() => heading.focus());
   }, [drafts.length, workspace.id]);
 
-  async function researchAgain() {
+  async function research(request = initialResearchRequest(workspace), founderBroadeningApproval?: {
+    mutationId: string;
+    originalRequest: ManufacturerResearchRequest;
+    broadenedRequest: ManufacturerResearchRequest;
+  }) {
     setBusy("match");
     setError("");
-    const response = await workspaceApi(`/api/sourcing/${workspace.id}/match`, { method: "POST", body: JSON.stringify({ resultLimit: 3 }) });
+    const response = await workspaceApi(`/api/sourcing/${workspace.id}/match`, {
+      method: "POST",
+      body: JSON.stringify({ ...request, ...(founderBroadeningApproval ? { founderBroadeningApproval } : {}) }),
+    });
     if (response.error) {
       if (response.workspace) acceptWorkspace(response.workspace);
       setError(response.error);
@@ -62,10 +75,20 @@ export function SourcingManufacturers() {
       setAgentNote(response.workspace.matches.length
         ? `I found ${response.workspace.matches.length} evidence-backed possibilities. Unsupported capabilities remain visibly unconfirmed.`
         : "The current evidence did not produce a responsible manufacturer possibility. I did not add weaker results to fill the list.");
+      setReviewingBroadening(false);
     } else {
       setError("Manufacturer possibilities could not be prepared.");
     }
     setBusy(null);
+  }
+
+  async function confirmBroadening() {
+    if (!currentResearch || !broaderRequest) return;
+    await research(broaderRequest, {
+      mutationId: createMutationId(),
+      originalRequest: currentResearch.request,
+      broadenedRequest: broaderRequest,
+    });
   }
 
   async function toggleManufacturer(slug: string) {
@@ -134,6 +157,12 @@ export function SourcingManufacturers() {
         <h1 id="manufacturer-possibilities-heading" tabIndex={-1}>Manufacturer possibilities</h1>
         <p>These are possibilities to investigate. Missing public evidence is not treated as a match, and possible conflicts stay separate from unknowns.</p>
       </header>
+
+      {currentResearch?.broadeningApproval ? (
+        <p className="manufacturer-broadening-indicator" role="status">
+          Broadened search approved · {formatReviewedDate(currentResearch.broadeningApproval.approvedAt)} · original and broader criteria saved
+        </p>
+      ) : null}
 
       {error ? <p className="sourcing-error manufacturer-error" role="alert">{error}</p> : null}
 
@@ -205,8 +234,8 @@ export function SourcingManufacturers() {
               <details className="manufacturer-source-review">
                 <summary><FileText aria-hidden="true" /> Review source evidence</summary>
                 <div className="manufacturer-source-grid">
-                  {activeMatch.evidence.map((item) => (
-                    <article className="manufacturer-source-line" key={item.requirementKey}>
+                  {activeMatch.evidence.map((item, index) => (
+                    <article className="manufacturer-source-line" key={`${item.requirementKey}-${index}`}>
                       <span>{item.status.replaceAll("_", " ")}</span>
                       <h4>{item.requirementLabel}</h4>
                       <p>{item.claim}</p>
@@ -233,10 +262,29 @@ export function SourcingManufacturers() {
           <p>{workspace.matchesUpdatedAt
             ? "The current requirements did not produce a responsible match. We did not add weaker manufacturers just to fill the list. Review the brief or research again after visibly adjusting a preference."
             : "We’ll show public evidence, open questions, and possible conflicts without treating missing information as proof."}</p>
-          <button type="button" onClick={() => void researchAgain()} disabled={busy !== null}>{busy === "match" ? "Researching…" : workspace.matchesUpdatedAt ? "Research again" : "Research manufacturers"}</button>
+          {workspace.matchesUpdatedAt
+            ? broaderRequest && !currentResearch?.broadeningApproval
+              ? <button type="button" onClick={() => setReviewingBroadening(true)} disabled={busy !== null}>Review broader search</button>
+              : null
+            : <button type="button" onClick={() => void research()} disabled={busy !== null}>{busy === "match" ? "Researching…" : "Research manufacturers"}</button>}
           {workspace.matchesUpdatedAt ? <Link href={`/sourcing/${workspace.id}#next-question-heading`} prefetch={false}>Review product brief <span aria-hidden="true">↗</span></Link> : null}
         </section>
       )}
+
+      {reviewingBroadening && currentResearch && broaderRequest ? (
+        <dialog className="manufacturer-broadening-dialog" aria-labelledby="broader-search-heading" open onCancel={() => setReviewingBroadening(false)}>
+          <div>
+            <p className="manufacturer-eyebrow">Founder approval</p>
+            <h2 id="broader-search-heading">Review broader search</h2>
+            <p>This changes only the research criteria. Your confirmed product brief stays unchanged, and unsupported details will remain unknown.</p>
+            <CriteriaDiff before={currentResearch.request} after={broaderRequest} />
+            <footer>
+              <button type="button" onClick={() => void confirmBroadening()} disabled={busy !== null}>{busy === "match" ? "Researching…" : "Confirm broader search"}</button>
+              <button className="secondary-button" type="button" onClick={() => setReviewingBroadening(false)} disabled={busy !== null}>Cancel</button>
+            </footer>
+          </div>
+        </dialog>
+      ) : null}
 
       {workspace.matches.length ? (
         <section className="manufacturer-next-actions" aria-labelledby="manufacturer-next-actions-heading">
@@ -269,6 +317,51 @@ function ContextBar({ product, packaging, channel, briefHref }: { product: strin
 
 function EvidenceList({ title, items, empty }: { title: string; items: string[]; empty?: string }) {
   return <section><h3>{title}</h3><ul>{items.length ? items.map((item) => <li key={item}>{item}</li>) : empty ? <li>{empty}</li> : null}</ul></section>;
+}
+
+function CriteriaDiff({ before, after }: { before: ManufacturerResearchRequest; after: ManufacturerResearchRequest }) {
+  const rows = [
+    { label: "Required", before: criterionLabels(before.requiredRequirements), after: criterionLabels(after.requiredRequirements) },
+    { label: "Preferred", before: criterionLabels(before.preferredRequirements), after: criterionLabels(after.preferredRequirements) },
+    { label: "Geography", before: before.geographyPreference || "No separate override", after: after.geographyPreference || "No separate override" },
+    { label: "Maximum results", before: String(before.resultLimit), after: String(after.resultLimit) },
+  ];
+  return <div className="manufacturer-criteria-diff" aria-label="Exact research criteria change">{rows.map((row) => <section key={row.label}><h3>{row.label}</h3><div><span>Before</span><p>{row.before}</p></div><div><span>After</span><p>{row.after}</p></div></section>)}</div>;
+}
+
+function criterionLabels(keys: ManufacturerResearchRequest["requiredRequirements"]): string {
+  return keys.length ? keys.map((key) => FIELD_DEFINITION_BY_KEY[key].label).join(", ") : "None";
+}
+
+function initialResearchRequest(workspace: Workspace): ManufacturerResearchRequest {
+  const preferredRequirements = MATCHABLE_REQUIREMENT_KEYS.filter((key) => {
+    if (key === "product_type" || workspace.fields[key].status !== "confirmed" || !workspace.fields[key].value) return false;
+    if (key !== "certifications") return true;
+    const certifications = normalizeCertificationRequirements(workspace.fields.certifications.value);
+    return certifications.required.length > 0 || certifications.preferred.length > 0;
+  });
+  return {
+    geographyPreference: null,
+    resultLimit: 3,
+    requiredRequirements: ["product_type"],
+    preferredRequirements,
+  };
+}
+
+function broadenResearchRequest(request: ManufacturerResearchRequest): ManufacturerResearchRequest | null {
+  if (!request.requiredRequirements.length) return null;
+  return {
+    ...request,
+    requiredRequirements: [],
+    preferredRequirements: [...new Set([...request.preferredRequirements, ...request.requiredRequirements])].sort(),
+  };
+}
+
+function createMutationId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(24));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 function IntroductionSequence({ drafts }: { drafts: OutreachDraft[] }) {
@@ -354,10 +447,4 @@ function latestDrafts(drafts: OutreachDraft[]): OutreachDraft[] {
   const found = new Map<string, OutreachDraft>();
   for (const draft of drafts) if (!found.has(draft.manufacturerSlug)) found.set(draft.manufacturerSlug, draft);
   return [...found.values()];
-}
-
-function formatReviewedDate(value: string): string {
-  const timestamp = Date.parse(value);
-  if (Number.isNaN(timestamp)) return value;
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(timestamp);
 }

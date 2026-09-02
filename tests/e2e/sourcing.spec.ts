@@ -733,7 +733,7 @@ test("WebMCP-only acceptance keeps categories coherent, rejects unsupported geog
   expect(toolNames.filter((name) => /(?:^|_)(?:select|approve|send)(?:_|$)/.test(name))).toEqual([]);
 });
 
-test("WebMCP-only broadened discovery visibly returns evidence-backed possibilities and persists them", async ({ page }) => {
+test("zero-result research requires a visible founder-approved criteria diff and persists the approval", async ({ page }) => {
   await installWebMcpHarness(page);
   await page.goto("/sourcing");
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
@@ -754,32 +754,181 @@ test("WebMCP-only broadened discovery visibly returns evidence-backed possibilit
 
   const strict = await invokeWebMcp<{
     resultCount: number;
-    matchingGuidance: { strictSearchReturnedNoResults: boolean; suggestedRetry: Record<string, unknown> };
+    matchingGuidance: { strictSearchReturnedNoResults: boolean; suggestedRetry: Record<string, unknown>; directAgentRetryAllowed: boolean; founderConfirmationSurface: string };
   }>(page, "match_manufacturers", { requiredRequirements: ["certifications"], resultLimit: 3 });
   expect(strict).toMatchObject({ resultCount: 0, matchingGuidance: { strictSearchReturnedNoResults: true } });
   await expect(page.getByRole("heading", { name: "No evidence-backed possibilities yet" })).toBeVisible();
+  expect(strict.matchingGuidance).toMatchObject({ directAgentRetryAllowed: false, founderConfirmationSurface: "Review broader search" });
 
-  const broadened = await invokeWebMcp<{
-    resultCount: number;
-    matchingGuidance: { strictSearchReturnedNoResults: boolean };
-    manufacturerCandidates: Array<{ manufacturerSlug: string }>;
-    outreach: { selectedManufacturerSlugs: string[]; drafts: unknown[] };
-    receipt: { authoritative: boolean; currentWorkspaceId: string };
-  }>(page, "match_manufacturers", strict.matchingGuidance.suggestedRetry);
-  expect(broadened.resultCount).toBeGreaterThan(0);
-  expect(broadened.resultCount).toBe(broadened.manufacturerCandidates.length);
-  expect(broadened.matchingGuidance.strictSearchReturnedNoResults).toBe(false);
-  expect(broadened.outreach).toMatchObject({ selectedManufacturerSlugs: [], drafts: [] });
-  expect(broadened.receipt).toMatchObject({ authoritative: true, currentWorkspaceId: created.workspace.id });
+  let broadeningRequests = 0;
+  page.on("request", (request) => {
+    if (request.method() === "POST" && request.url().endsWith(`/api/sourcing/${created.workspace.id}/match`)) broadeningRequests += 1;
+  });
+  const beforeCancel = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { revision: number } };
+  await page.getByRole("button", { name: "Review broader search" }).click();
+  const review = page.getByRole("dialog", { name: "Review broader search" });
+  await expect(review).toBeVisible();
+  await expect(review.getByLabel("Exact research criteria change")).toContainText("Required certifications");
+  await expect(review.getByLabel("Exact research criteria change")).toContainText("Before");
+  await expect(review.getByLabel("Exact research criteria change")).toContainText("After");
+  await review.getByRole("button", { name: "Cancel" }).click();
+  await expect(review).toBeHidden();
+  const afterCancel = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { revision: number } };
+  expect(afterCancel.workspace.revision).toBe(beforeCancel.workspace.revision);
+  expect(broadeningRequests).toBe(0);
+
+  await page.getByRole("button", { name: "Review broader search" }).click();
+  await review.getByRole("button", { name: "Confirm broader search" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Manufacturer possibilities" })).toBeVisible();
   await expect(page.getByRole("button", { name: /^View details for / }).first()).toBeVisible();
+  await expect(page.getByText(/Broadened search approved/)).toBeVisible();
+
+  const broadened = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as {
+    workspace: { manufacturerResearch: { candidateCount: number; request: Record<string, unknown>; broadeningApproval: { originalRequest: Record<string, unknown>; broadenedRequest: Record<string, unknown>; approvedBy: string; approvedAt: string; workspaceRevision: number; mutationId: string } }; activity: Array<{ kind: string; details: Record<string, unknown> }> };
+  };
+  expect(broadened.workspace.manufacturerResearch.candidateCount).toBeGreaterThan(0);
+  expect(broadened.workspace.manufacturerResearch.broadeningApproval).toMatchObject({
+    approvedBy: "founder",
+    originalRequest: { requiredRequirements: ["certifications"] },
+    broadenedRequest: { requiredRequirements: [], preferredRequirements: ["certifications"] },
+    workspaceRevision: beforeCancel.workspace.revision,
+    mutationId: expect.stringMatching(/^[A-Za-z0-9_-]{20,128}$/),
+    approvedAt: expect.any(String),
+  });
+  expect(broadened.workspace.activity[0]).toMatchObject({ kind: "research_broadened", details: { approvedBy: "founder" } });
 
   await page.reload();
   await expect(page).toHaveURL(manufacturersPath(created.workspace.id));
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
   const persisted = await invokeWebMcp<{ manufacturerCandidates: unknown[]; outreach: { selectedManufacturerSlugs: string[]; drafts: unknown[] } }>(page, "get_sourcing_workspace", {});
-  expect(persisted.manufacturerCandidates).toHaveLength(broadened.resultCount);
+  expect(persisted.manufacturerCandidates).toHaveLength(broadened.workspace.manufacturerResearch.candidateCount);
   expect(persisted.outreach).toMatchObject({ selectedManufacturerSlugs: [], drafts: [] });
+  await expect(page.getByText(/Broadened search approved/)).toBeVisible();
+});
+
+test("manual hot-sauce intake preserves stated facts and shows granular real-record evidence", async ({ page }) => {
+  await installWebMcpHarness(page);
+  const idea = "I want to make a tomato-free smoky carrot hot sauce in a 5 oz glass woozy bottle. I have a finished kitchen recipe, but it needs process-authority review and shelf-life review. I want about 10,000 bottles, prefer Texas or nearby, it should be shelf-stable, and organic certification is not required.";
+  const workspaceId = await startProduct(page, idea);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+
+  const stored = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(workspaceId)) as {
+    workspace: { originalIdea: string; fields: Record<string, { value: string | null; status: string; updatedBy: string; sourceSpans: Array<{ start: number; end: number; text: string }>; validationStatus: string }> };
+  };
+  expect(stored.workspace.originalIdea).toBe(idea);
+  expect(stored.workspace.fields).toMatchObject({
+    product_type: { value: "Hot sauce", status: "confirmed", updatedBy: "founder" },
+    packaging_size: { value: "5 oz", status: "confirmed", updatedBy: "founder" },
+    packaging_format: { value: "Glass Woozy Bottle", status: "confirmed", updatedBy: "founder" },
+    production_volume: { value: "About 10,000 bottles", status: "confirmed", updatedBy: "founder" },
+    preferred_geography: { value: "Texas or nearby", status: "confirmed", updatedBy: "founder" },
+    storage_distribution: { value: "Shelf-stable", status: "confirmed", updatedBy: "founder" },
+    formula_status: { value: "Finished kitchen recipe", status: "confirmed", updatedBy: "founder" },
+    certifications: { value: "Not required: Organic", status: "confirmed", updatedBy: "founder", validationStatus: "not_required" },
+  });
+  for (const key of ["product_type", "packaging_size", "packaging_format", "production_volume", "preferred_geography", "storage_distribution", "formula_status", "certifications"]) {
+    for (const span of stored.workspace.fields[key].sourceSpans) expect(idea.slice(span.start, span.end)).toBe(span.text);
+  }
+  expect(stored.workspace.fields.brand_name.value).toBeNull();
+
+  const preferred = await invokeWebMcp<{ manufacturerCandidates: Array<{ manufacturerSlug: string }> }>(page, "match_manufacturers", {
+    preferredRequirements: ["product_type", "packaging_format", "packaging_size", "production_volume", "preferred_geography", "storage_distribution"],
+    resultLimit: 3,
+  });
+  expect(preferred.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).toEqual([
+    "heritage-family-specialty-foods",
+    "texafrance-inc",
+    "consolidated-mills-inc",
+  ]);
+  await page.getByRole("button", { name: "View details for Heritage Family Specialty Foods" }).click();
+  const heritageSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
+  const heritageUnknowns = page.getByRole("heading", { name: "Not publicly confirmed" }).locator("..");
+  await expect(heritageSupported.getByRole("listitem").filter({ hasText: /explicitly names hot sauce/i })).toBeVisible();
+  await expect(heritageSupported.getByRole("listitem").filter({ hasText: /includes 5 oz within a 5–32 oz glass range/i })).toBeVisible();
+  await expect(heritageUnknowns.getByRole("listitem").filter({ hasText: /exact glass woozy-bottle construction is not publicly established/i })).toBeVisible();
+
+  await page.getByRole("button", { name: "View details for Consolidated Mills Inc." }).click();
+  const consolidatedSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
+  const consolidatedUnknowns = page.getByRole("heading", { name: "Not publicly confirmed" }).locator("..");
+  await expect(consolidatedSupported.getByRole("listitem").filter({ hasText: /supports the broader sauce family/i })).toBeVisible();
+  await expect(consolidatedUnknowns.getByRole("listitem").filter({ hasText: /exact hot sauce capability is not publicly established/i })).toBeVisible();
+  await expect(consolidatedUnknowns.getByRole("listitem").filter({ hasText: /exact glass woozy-bottle construction is not publicly established/i })).toBeVisible();
+
+  const strict = await invokeWebMcp<{ manufacturerCandidates: Array<{ manufacturerSlug: string }> }>(page, "match_manufacturers", {
+    requiredRequirements: ["product_type"],
+    preferredRequirements: ["packaging_format", "packaging_size", "production_volume", "preferred_geography", "storage_distribution"],
+    resultLimit: 3,
+  });
+  expect(strict.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).toEqual([
+    "heritage-family-specialty-foods",
+    "creative-foodworks",
+  ]);
+  await page.getByRole("button", { name: "View details for Creative Foodworks" }).click();
+  const conflicts = page.getByRole("heading", { name: "Possible conflicts" }).locator("..");
+  await expect(conflicts.getByRole("listitem")).toHaveCount(2);
+  await expect(conflicts).toContainText("5 oz is outside the published 8–32 oz range");
+  await expect(conflicts).toContainText("below the published 1,000-gallon minimum");
+  await page.locator("details.manufacturer-source-review > summary").click();
+  await expect(page.locator(".manufacturer-source-line").filter({ hasText: /Reviewed Aug 25, 2026/ }).first()).toBeVisible();
+
+  const requiredSize = await invokeWebMcp<{ manufacturerCandidates: Array<{ manufacturerSlug: string }> }>(page, "match_manufacturers", {
+    requiredRequirements: ["product_type", "packaging_size"],
+    resultLimit: 3,
+  });
+  expect(requiredSize.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).not.toContain("creative-foodworks");
+  const requiredVolume = await invokeWebMcp<{ manufacturerCandidates: Array<{ manufacturerSlug: string }> }>(page, "match_manufacturers", {
+    requiredRequirements: ["product_type", "production_volume"],
+    resultLimit: 3,
+  });
+  expect(requiredVolume.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).not.toContain("creative-foodworks");
+});
+
+test("geometry-only agent previews remain labeled placeholders until explicit art direction survives reload", async ({ page }) => {
+  await installWebMcpHarness(page);
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  const created = await invokeWebMcp<{ workspace: { id: string } }>(page, "create_sourcing_workspace", {
+    mutationId: newMutationId(),
+    idea: "Fictional Ember Seed roasted chickpea snack in a stand-up pouch",
+    initialUpdates: [
+      { key: "brand_name", value: "Ember Seed", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_type", value: "Roasted chickpea snack", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "Stand-up pouch", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+
+  const placeholder = await invokeWebMcp<{ committed: boolean; preview: { placeholder: boolean; source: string } }>(page, "preview_package_design", {
+    stageId: newMutationId(),
+    packagingType: "stand-up-pouch",
+  });
+  expect(placeholder).toMatchObject({ committed: false, preview: { placeholder: true, source: "system_defaults" } });
+  const dialog = page.getByRole("dialog", { name: "Review what your agent changed." });
+  await expect(dialog.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toBeVisible();
+  await dialog.getByRole("button", { name: "Close packaging workbench" }).click();
+
+  const stagedBefore = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { packageDesign: unknown; stagedPackageDesign: { design: { placeholder: boolean; source: string } } } };
+  expect(stagedBefore.workspace).toMatchObject({ packageDesign: null, stagedPackageDesign: { design: { placeholder: true, source: "system_defaults" } } });
+  await page.reload();
+  await page.getByRole("button", { name: "Refine in 3D" }).click();
+  await expect(page.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+
+  const artwork = await invokeWebMcp<{ committed: boolean; preview: { placeholder: boolean; source: string; artworkId: string } }>(page, "generate_package_artwork", {
+    stageId: newMutationId(),
+    artDirection: "Warm ember-orange chickpea illustration with a simple cream wordmark",
+    style: "warm-handmade",
+    founderApproved: true,
+  });
+  expect(artwork).toMatchObject({ committed: false, preview: { placeholder: false, source: "agent_direction", artworkId: expect.any(String) } });
+  await expect(page.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
+  await page.reload();
+  await page.getByRole("button", { name: "Refine in 3D" }).click();
+  await expect(page.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toHaveCount(0);
+  const stagedAfter = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { packageDesign: unknown; stagedPackageDesign: { design: { placeholder: boolean; source: string; artworkId: string } } } };
+  expect(stagedAfter.workspace).toMatchObject({ packageDesign: null, stagedPackageDesign: { design: { placeholder: false, source: "agent_direction", artworkId: expect.any(String) } } });
 });
 
 test("two WebMCP journeys keep staged founder state, research, and stale handles workspace-scoped", async ({ page }) => {

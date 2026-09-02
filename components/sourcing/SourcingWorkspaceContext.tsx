@@ -269,7 +269,19 @@ export function mergePackagePreview(workspace: SourcingWorkspace, patch: Package
     logoPosition: { x: 0, y: 0 },
     dimensions: { width: null, height: null, depth: null },
     summary: formatPackageDirection(inferredType, { width: null, height: null, depth: null }),
+    placeholder: true,
+    source: "system_defaults" as const,
   };
+  const explicitVisualDirection = patch.finish !== undefined
+    || patch.baseColor !== undefined
+    || patch.labelColor !== undefined
+    || patch.artworkId != null
+    || patch.frontText != null
+    || patch.windowScale !== undefined
+    || patch.closure != null
+    || patch.logoAspect !== undefined
+    || patch.logoScale !== undefined
+    || patch.logoPosition !== undefined;
   const packagingType = patch.packagingType ?? base.packagingType;
   const packagingTypeChanged = packagingType !== base.packagingType;
   const config = packageConfigs[packagingType];
@@ -297,6 +309,8 @@ export function mergePackagePreview(workspace: SourcingWorkspace, patch: Package
     },
     dimensions,
     summary: patch.summary || formatPackageDirection(packagingType, dimensions),
+    placeholder: patch.placeholder ?? (explicitVisualDirection ? false : base.placeholder),
+    source: patch.source ?? (explicitVisualDirection ? "agent_direction" : base.source),
   };
 }
 

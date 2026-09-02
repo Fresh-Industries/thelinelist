@@ -361,7 +361,7 @@ describe("sourcing workspace trust rules", () => {
   });
 
   it("does not let an agent promote a proposed shelf-stability claim into a confirmed founder decision", () => {
-    const proposed = applyAgentUpdates(createWorkspace({ idea: "A refrigerated fictional dip" }), [{
+    const proposed = applyAgentUpdates(createWorkspace({ idea: "A fictional dip" }), [{
       key: "storage_distribution",
       value: "Shelf-stable goal",
       status: "proposed",

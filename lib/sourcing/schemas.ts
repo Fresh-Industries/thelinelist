@@ -97,11 +97,19 @@ export const undoAgentChangeSchema = z.object({
   undoAgentChangeId: z.string().min(1).max(500),
 });
 
-export const matchRequestSchema = z.object({
-  geographyPreference: z.string().trim().max(100).optional(),
+const researchCriteriaSchema = z.object({
+  geographyPreference: z.string().trim().max(100).nullable().optional(),
   resultLimit: z.number().int().min(1).max(3).default(3),
   requiredRequirements: z.array(matchableRequirementKeySchema).max(MATCHABLE_REQUIREMENT_KEYS.length).optional(),
   preferredRequirements: z.array(matchableRequirementKeySchema).max(MATCHABLE_REQUIREMENT_KEYS.length).optional(),
+});
+
+export const matchRequestSchema = researchCriteriaSchema.extend({
+  founderBroadeningApproval: z.object({
+    mutationId: opaqueMutationIdSchema,
+    originalRequest: researchCriteriaSchema,
+    broadenedRequest: researchCriteriaSchema,
+  }).optional(),
 });
 
 export const prepareOutreachSchema = z.object({

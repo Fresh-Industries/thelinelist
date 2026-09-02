@@ -57,6 +57,12 @@ export interface SourcingFieldEvidence {
   reviewedAt: string;
 }
 
+export interface FounderSourceSpan {
+  start: number;
+  end: number;
+  text: string;
+}
+
 export interface SourcingField {
   key: SourcingFieldKey;
   value: string | null;
@@ -70,6 +76,7 @@ export interface SourcingField {
   confirmation: SourcingFieldConfirmation | null;
   validationStatus: SourcingValidationStatus;
   evidence?: SourcingFieldEvidence[];
+  sourceSpans?: FounderSourceSpan[];
 }
 
 export type EvidenceStatus = "verified" | "publicly_listed" | "unknown" | "not_publicly_listed" | "conflicting";
@@ -154,9 +161,10 @@ export interface ManufacturerInquiry {
 
 export interface WorkspaceActivity {
   id: string;
-  kind: "created" | "claimed" | "agent_proposed" | "agent_undone" | "founder_updated" | "artwork_attached" | "matched" | "drafted" | "approved" | "sent" | "send_failed";
+  kind: "created" | "claimed" | "agent_proposed" | "agent_undone" | "founder_updated" | "artwork_attached" | "matched" | "research_broadened" | "drafted" | "approved" | "sent" | "send_failed";
   message: string;
   at: string;
+  details?: Record<string, unknown> | null;
 }
 
 export interface AgentChangeSnapshot {
@@ -196,6 +204,8 @@ export interface PackageDesign {
   logoPosition: { x: number; y: number };
   dimensions: { width: number | null; height: number | null; depth: number | null };
   summary: string;
+  placeholder: boolean;
+  source: "system_defaults" | "agent_direction" | "founder_direction";
 }
 
 export interface PackageDesignPreviewInput {
@@ -212,6 +222,8 @@ export interface PackageDesignPreviewInput {
   logoPosition?: Partial<PackageDesign["logoPosition"]>;
   dimensions?: Partial<PackageDesign["dimensions"]>;
   summary?: string;
+  placeholder?: boolean;
+  source?: PackageDesign["source"];
 }
 
 export interface StagedPackageDesign {
@@ -248,6 +260,16 @@ export interface ManufacturerResearch {
   candidateCount: number;
   ranAt: string;
   invalidatedAt: string | null;
+  broadeningApproval: ManufacturerResearchBroadeningApproval | null;
+}
+
+export interface ManufacturerResearchBroadeningApproval {
+  originalRequest: ManufacturerResearchRequest;
+  broadenedRequest: ManufacturerResearchRequest;
+  approvedBy: "founder";
+  approvedAt: string;
+  workspaceRevision: number;
+  mutationId: string;
 }
 
 export interface WorkspaceOwnership {
@@ -286,6 +308,7 @@ export interface AgentFieldUpdate {
   explicitlyStated?: boolean;
   status?: Extract<SourcingFieldStatus, "confirmed" | "proposed" | "needs_decision">;
   suggestedSharing?: boolean;
+  sourceSpans?: FounderSourceSpan[];
   sources?: Array<{
     title: string;
     url: string;

@@ -110,4 +110,6 @@ const design: PackageDesign = {
   logoPosition: { x: -0.12, y: 0.09 },
   dimensions: { width: 63, height: 190, depth: 63 },
   summary: "Clear bottle · 63 × 190 × 63 working dimensions",
+  placeholder: false,
+  source: "founder_direction",
 };

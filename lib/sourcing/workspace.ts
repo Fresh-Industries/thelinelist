@@ -1,14 +1,16 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { FIELD_DEFINITION_BY_KEY, SOURCING_FIELD_DEFINITIONS } from "./fields";
 import { deriveProductDescriptorFromIdea, isOpenBrandAnswer } from "./product-identity";
-import type { AgentFieldUpdate, ManufacturerMatch, ManufacturerResearchRequest, OutreachDraft, PackageDesign, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingValidationStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
+import { extractExplicitFounderFacts } from "./intake-extractor";
+import { normalizeCertificationRequirements } from "./certification-requirements";
+import type { AgentFieldUpdate, ManufacturerMatch, ManufacturerResearchBroadeningApproval, ManufacturerResearchRequest, OutreachDraft, PackageDesign, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingValidationStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
 
 function now(): string {
   return new Date().toISOString();
 }
 
-function activity(kind: WorkspaceActivity["kind"], message: string): WorkspaceActivity {
-  return { id: randomUUID(), kind, message, at: now() };
+function activity(kind: WorkspaceActivity["kind"], message: string, details?: Record<string, unknown>): WorkspaceActivity {
+  return { id: randomUUID(), kind, message, at: now(), details: details ?? null };
 }
 
 function blankField(key: SourcingFieldKey, timestamp: string): SourcingField {
@@ -25,6 +27,7 @@ function blankField(key: SourcingFieldKey, timestamp: string): SourcingField {
     confirmation: null,
     validationStatus: "not_required",
     evidence: [],
+    sourceSpans: [],
   };
 }
 
@@ -207,8 +210,10 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
           activity: [activity("founder_updated", "Your starting idea was added to the plan."), ...workspace.activity],
         }, timestamp)
       : workspace;
+    const explicitFacts = extractExplicitFounderFacts(idea);
+    const extracted = explicitFacts.length ? applyFounderIdeaFacts(initialized, explicitFacts) : initialized;
     const bootstrapUpdates = startingIdeaBootstrapUpdates(idea);
-    const bootstrapped = bootstrapUpdates.length ? applyAgentUpdates(initialized, bootstrapUpdates) : initialized;
+    const bootstrapped = bootstrapUpdates.length ? applyAgentUpdates(extracted, bootstrapUpdates) : extracted;
     return options.initialUpdates?.length ? applyAgentUpdates(bootstrapped, options.initialUpdates) : bootstrapped;
   }
 
@@ -227,6 +232,40 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
     { key: "production_volume", value: "1,000 to 5,000 units", explicitlyStated: true, source: "Founder demo statement", suggestedSharing: true },
     { key: "carbonation", value: "Carbonated", explicitlyStated: false, source: "Agent inference from energy drink", reason: "Many energy drinks are carbonated, but this needs founder confirmation.", suggestedSharing: true },
   ]);
+}
+
+function applyFounderIdeaFacts(workspace: SourcingWorkspace, updates: AgentFieldUpdate[]): SourcingWorkspace {
+  const timestamp = now();
+  const fields = { ...workspace.fields };
+  for (const update of updates) {
+    const definition = FIELD_DEFINITION_BY_KEY[update.key];
+    const value = update.value?.trim() || null;
+    if (!value) continue;
+    if (update.key === "product_type" && fields.product_type.status === "confirmed" && fields.product_type.value) {
+      fields.product_type = { ...fields.product_type, sourceSpans: update.sourceSpans ?? fields.product_type.sourceSpans ?? [] };
+      continue;
+    }
+    fields[update.key] = {
+      ...fields[update.key],
+      value,
+      status: "confirmed",
+      reason: update.reason?.trim() || null,
+      source: update.source?.trim() || "Founder starting idea",
+      explicitlyStated: true,
+      shareWithManufacturer: !definition.privateByDefault && (update.suggestedSharing ?? definition.shareByDefault),
+      updatedAt: timestamp,
+      updatedBy: "founder",
+      confirmation: founderConfirmation("founder_statement", timestamp, workspace.revision),
+      validationStatus: validationStatusFor(update.key, value, update.reason, fields[update.key].validationStatus),
+      evidence: [],
+      sourceSpans: update.sourceSpans ?? [],
+    };
+  }
+  return touch({
+    ...workspace,
+    fields,
+    activity: addActivity(workspace.activity, activity("founder_updated", "Explicit details from your starting idea were added to the plan.")),
+  }, timestamp);
 }
 
 export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFieldUpdate[]): SourcingWorkspace {
@@ -273,6 +312,7 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
       confirmation: status === "confirmed" ? founderConfirmation("founder_statement", timestamp, workspace.revision) : null,
       validationStatus: validationStatusFor(update.key, hasValue ? normalizedValue!.trim() : null, update.reason, current.validationStatus),
       evidence,
+      sourceSpans: update.sourceSpans ?? [],
     };
   }
   if (!changedKeySet.has("product_description")) {
@@ -385,6 +425,7 @@ export function applyFounderFieldUpdate(
     confirmation: status === "confirmed" ? founderConfirmation("workspace_ui", timestamp, workspace.revision) : null,
     validationStatus: validationStatusFor(input.key, value, workspace.fields[input.key].reason, workspace.fields[input.key].validationStatus),
     evidence: workspace.fields[input.key].evidence ?? [],
+    sourceSpans: workspace.fields[input.key].sourceSpans ?? [],
   };
   const fields = refreshStarterProductDescription({ ...workspace.fields, [input.key]: field }, timestamp);
   return touch({
@@ -519,6 +560,7 @@ export function applyManufacturerResearch(
   workspace: SourcingWorkspace,
   request: ManufacturerResearchRequest,
   candidates: ManufacturerMatch[],
+  broadeningApproval: ManufacturerResearchBroadeningApproval | null = null,
 ): SourcingWorkspace {
   const timestamp = now();
   const research = {
@@ -530,14 +572,25 @@ export function applyManufacturerResearch(
     candidateCount: candidates.length,
     ranAt: timestamp,
     invalidatedAt: null,
+    broadeningApproval,
   };
+  const researchActivity = broadeningApproval
+    ? activity("research_broadened", "A broader manufacturer search was reviewed and approved by the founder.", {
+        originalRequest: broadeningApproval.originalRequest,
+        broadenedRequest: broadeningApproval.broadenedRequest,
+        approvedBy: broadeningApproval.approvedBy,
+        approvedAt: broadeningApproval.approvedAt,
+        workspaceRevision: broadeningApproval.workspaceRevision,
+        mutationId: broadeningApproval.mutationId,
+      })
+    : activity("matched", `${candidates.length} evidence-backed manufacturer match${candidates.length === 1 ? "" : "es"} prepared.`);
   return touch({
     ...workspace,
     manufacturerResearch: research,
     matches: candidates,
     matchesUpdatedAt: timestamp,
     selectedManufacturerSlugs: workspace.selectedManufacturerSlugs.filter((slug) => candidates.some((candidate) => candidate.manufacturerSlug === slug)),
-    activity: addActivity(workspace.activity, activity("matched", `${candidates.length} evidence-backed manufacturer match${candidates.length === 1 ? "" : "es"} prepared.`)),
+    activity: addActivity(workspace.activity, researchActivity),
   }, timestamp);
 }
 
@@ -578,6 +631,10 @@ function validationStatusFor(
   previous: SourcingValidationStatus,
 ): SourcingValidationStatus {
   if (!value || !VALIDATION_SENSITIVE_KEYS.has(key)) return "not_required";
+  if (key === "certifications") {
+    const certifications = normalizeCertificationRequirements(value);
+    if (!certifications.required.length && !certifications.preferred.length) return "not_required";
+  }
   if (previous === "validated" && !reason) return "validated";
   return "needs_validation";
 }

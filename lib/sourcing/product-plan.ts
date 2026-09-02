@@ -35,6 +35,11 @@ const sourcingFieldSchema = z.object({
   confirmation: confirmationSchema.nullable().default(null),
   validationStatus: validationStatusSchema.default("not_required"),
   evidence: z.array(evidenceSchema).max(20).optional(),
+  sourceSpans: z.array(z.object({
+    start: z.number().int().nonnegative(),
+    end: z.number().int().positive(),
+    text: z.string().max(1_500),
+  })).max(20).optional(),
 });
 
 const matchEvidenceSchema = z.object({
@@ -140,6 +145,8 @@ export const PackageDesignSchema = z.object({
     depth: z.number().positive().max(10_000).nullable(),
   }),
   summary: z.string().max(1_000),
+  placeholder: z.boolean().default(false),
+  source: z.enum(["system_defaults", "agent_direction", "founder_direction"]).default("founder_direction"),
 }).superRefine((design, context) => {
   if (design.packagingType !== "bakery-bag") return;
   const checks = [
@@ -188,6 +195,14 @@ const manufacturerResearchSchema = z.object({
   candidateCount: z.number().int().min(0).max(25),
   ranAt: dateText,
   invalidatedAt: dateText.nullable(),
+  broadeningApproval: z.object({
+    originalRequest: manufacturerResearchRequestSchema,
+    broadenedRequest: manufacturerResearchRequestSchema,
+    approvedBy: z.literal("founder"),
+    approvedAt: dateText,
+    workspaceRevision: z.number().int().positive(),
+    mutationId: z.string().min(20).max(128).regex(/^[A-Za-z0-9_-]+$/),
+  }).nullable().default(null),
 });
 
 const productPlanV3Schema = z.object({
@@ -276,6 +291,7 @@ function migrateProductPlan(input: unknown): unknown {
         confirmation: null,
         validationStatus: "not_required",
         evidence: [],
+        sourceSpans: [],
       },
     },
     stagedPackageDesign: plan.stagedPackageDesign ?? null,
@@ -289,6 +305,7 @@ function migrateProductPlan(input: unknown): unknown {
       candidateCount: legacyMatches.length,
       ranAt: legacyMatchesUpdatedAt,
       invalidatedAt: legacyMatchesUpdatedAt,
+      broadeningApproval: null,
     } : null),
   };
 }
