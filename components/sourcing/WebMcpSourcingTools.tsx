@@ -7,7 +7,6 @@ import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements
 import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
 import { getProductCategory, type ProductCategory } from "@/lib/sourcing/product-category";
 import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
-import { packageConfigs, type PackagingType } from "@/components/product-visuals/package-config";
 
 interface ToolResponse { workspace?: SourcingWorkspace; error?: string; [key: string]: unknown }
 
@@ -51,6 +50,13 @@ export function WebMcpSourcingTools({
       if (!body.workspace) return body.error ? { error: body.error, ...metadata } : metadata;
       return {
         ...buildSourcingAgentState(body.workspace),
+        receipt: {
+          authoritative: true,
+          outcome: metadata.committed === false ? "staged" : "succeeded",
+          workspaceId: body.workspace.id,
+          currentWorkspaceId: body.workspace.id,
+          revision: body.workspace.revision,
+        },
         ...metadata,
       };
     };
@@ -230,19 +236,16 @@ export function WebMcpSourcingTools({
           const response = await fetch(`/api/sourcing/${workspaceId}/artwork`, { method: "POST", body: form, cache: "no-store" });
           const body = await response.json().catch(() => ({})) as ToolResponse & { artworkUrl?: string };
           if (!response.ok || !body.workspace?.artwork) throw new Error(body.error || `Artwork creation failed (${response.status}).`);
-          const packagingType = inferArtworkPackagingType(current.workspace);
-          const logoConfig = packageConfigs[packagingType].logo;
           const preview = callbacksRef.current.onPreviewPackageDesign({
-            packagingType,
             artworkId: body.workspace.artwork.id,
             logoAspect: artwork.aspect,
-            logoScale: logoConfig.defaultScale,
-            logoPosition: { x: 0, y: 0 },
           }, body.workspace);
           return withGuidance(body, {
             artworkUrl: body.artworkUrl,
             artDirection: args.artDirection,
             artworkStyle: args.style,
+            visualSignature: artwork.visualSignature,
+            renderedMotifs: artwork.motifs,
             preview,
             previewOpened: true,
             committed: false,
@@ -466,7 +469,7 @@ async function renderPackageArtwork({
   artDirection: string;
   style: PackageArtworkStyle;
   accentColor?: string;
-}): Promise<{ blob: Blob; aspect: number }> {
+}): Promise<{ blob: Blob; aspect: number; motifs: PackageArtworkMotif[]; visualSignature: string }> {
   const width = 1000;
   const height = Math.round(width / PACKAGE_ARTWORK_ASPECT);
   const canvas = document.createElement("canvas");
@@ -524,7 +527,7 @@ async function renderPackageArtwork({
   context.ellipse(width / 2, height * 0.69, 330, 155, 0, 0, Math.PI * 2);
   context.fill();
   context.restore();
-  drawArtworkMotifs(context, concept.motifs, width, height, palette.accent, palette.quiet);
+  drawArtworkMotifs(context, concept.motifs, width, height, palette.accent, palette.quiet, directionSeed);
   context.fillStyle = palette.ink;
   roundedRect(context, 90, height - 190, width - 180, 92, 24);
   context.fill();
@@ -536,17 +539,12 @@ async function renderPackageArtwork({
   context.fillRect(width / 2 - motifWidth / 2, height - 76, motifWidth, 8);
 
   const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Package artwork could not be encoded.")), "image/png"));
-  return { blob, aspect: width / height };
-}
-
-function inferArtworkPackagingType(workspace: SourcingWorkspace): PackagingType {
-  if (workspace.packageDesign) return workspace.packageDesign.packagingType;
-  const packaging = workspace.fields.packaging_format.value?.toLowerCase() ?? "";
-  if (/bakery.?bag|bread.?bag|windowed.?bag/.test(packaging)) return "bakery-bag";
-  if (/\bcan\b/.test(packaging)) return "slim-can";
-  if (/\bbottle\b/.test(packaging)) return "bottle";
-  if (/\bjar\b/.test(packaging)) return "jar";
-  return "stand-up-pouch";
+  return {
+    blob,
+    aspect: width / height,
+    motifs: concept.motifs,
+    visualSignature: `${style}:${concept.motifs.join("+")}:${directionSeed}`,
+  };
 }
 
 function roundedRect(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
@@ -641,19 +639,32 @@ function drawArtworkMotifs(
   height: number,
   accent: string,
   quiet: string,
+  directionSeed: number,
 ) {
+  const horizontalShift = (directionSeed % 181) - 90;
+  const verticalShift = (Math.floor(directionSeed / 7) % 101) - 50;
   const positions = motifs.length === 1
-    ? [{ x: width / 2, y: height * 0.68 }]
+    ? [{ x: width / 2 + horizontalShift, y: height * 0.68 + verticalShift }]
     : motifs.length === 2
-      ? [{ x: width * 0.34, y: height * 0.68 }, { x: width * 0.66, y: height * 0.68 }]
-      : [{ x: 185, y: height * 0.66 }, { x: width - 185, y: height * 0.66 }, { x: width / 2, y: height * 0.72 }];
-  motifs.forEach((motif, index) => drawArtworkMotif(context, motif, positions[index].x, positions[index].y, accent, quiet));
+      ? [{ x: width * 0.32 + horizontalShift, y: height * 0.67 + verticalShift }, { x: width * 0.68 - horizontalShift, y: height * 0.7 - verticalShift }]
+      : [{ x: 170 + horizontalShift, y: height * 0.65 + verticalShift }, { x: width - 170 - horizontalShift, y: height * 0.65 - verticalShift }, { x: width / 2, y: height * 0.73 + verticalShift / 2 }];
+  motifs.forEach((motif, index) => drawArtworkMotif(
+    context,
+    motif,
+    positions[index].x,
+    positions[index].y,
+    accent,
+    quiet,
+    1 + ((directionSeed + index * 31) % 90) / 100,
+    (((directionSeed + index * 53) % 31) - 15) * (Math.PI / 180),
+  ));
 }
 
-function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtworkMotif, x: number, y: number, accent: string, quiet: string) {
+function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtworkMotif, x: number, y: number, accent: string, quiet: string, scale: number, rotation: number) {
   context.save();
   context.translate(x, y);
-  context.scale(1.32, 1.32);
+  context.rotate(rotation);
+  context.scale(scale, scale);
   context.lineCap = "round";
   context.lineJoin = "round";
   context.strokeStyle = accent;
@@ -705,6 +716,48 @@ function drawArtworkMotif(context: CanvasRenderingContext2D, motif: PackageArtwo
     context.moveTo(-8, -39);
     context.bezierCurveTo(14, -18, -14, 18, 8, 39);
     context.stroke();
+  } else if (motif === "lightning") {
+    context.beginPath();
+    context.moveTo(14, -58);
+    context.lineTo(-30, 2);
+    context.lineTo(-2, 2);
+    context.lineTo(-20, 58);
+    context.lineTo(38, -14);
+    context.lineTo(8, -14);
+    context.closePath();
+    context.fill();
+    context.stroke();
+  } else if (motif === "star") {
+    context.beginPath();
+    for (let index = 0; index < 10; index += 1) {
+      const radius = index % 2 === 0 ? 52 : 22;
+      const angle = -Math.PI / 2 + (Math.PI * index) / 5;
+      const point = [Math.cos(angle) * radius, Math.sin(angle) * radius] as const;
+      if (index === 0) context.moveTo(...point);
+      else context.lineTo(...point);
+    }
+    context.closePath();
+    context.fill();
+    context.stroke();
+  } else if (motif === "sunburst") {
+    context.beginPath();
+    context.arc(0, 0, 24, 0, Math.PI * 2);
+    context.fill();
+    for (let index = 0; index < 12; index += 1) {
+      const angle = (Math.PI * 2 * index) / 12;
+      context.beginPath();
+      context.moveTo(Math.cos(angle) * 34, Math.sin(angle) * 34);
+      context.lineTo(Math.cos(angle) * 62, Math.sin(angle) * 62);
+      context.stroke();
+    }
+  } else if (motif === "wave") {
+    for (let row = -1; row <= 1; row += 1) {
+      context.beginPath();
+      context.moveTo(-62, row * 24);
+      context.bezierCurveTo(-32, row * 24 - 30, -8, row * 24 + 30, 22, row * 24);
+      context.bezierCurveTo(40, row * 24 - 18, 52, row * 24 - 18, 64, row * 24);
+      context.stroke();
+    }
   } else {
     const isGrain = motif === "grain";
     context.beginPath();
@@ -732,6 +785,10 @@ function motifLabel(motif: PackageArtworkMotif): string {
     grain: "GRAIN MOTIF",
     honey: "HONEY",
     leaf: "PLANT INSPIRED",
+    lightning: "LIGHTNING",
+    star: "STAR",
+    sunburst: "SUNBURST",
+    wave: "WAVES",
   } satisfies Record<PackageArtworkMotif, string>)[motif];
 }
 

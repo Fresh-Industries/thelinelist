@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, type Dispatch, type ReactNode, type SetStateAction, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, type Dispatch, type ReactNode, type SetStateAction, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { DownloadSimple } from "@phosphor-icons/react";
 import { packageConfigs } from "@/components/product-visuals/package-config";
 import { formatPackageDirection } from "@/lib/sourcing/package-presentation";
@@ -48,6 +48,7 @@ export function SourcingWorkspaceProvider({
   const [agentNote, setAgentNote] = useState("I’ve turned what you told me into a first-pass brief. Confirmed facts, suggestions, and open decisions stay visibly separate.");
   const [workbenchOpen, setWorkbenchOpen] = useState(false);
   const [packagePreview, setPackagePreview] = useState<PackageDesign | null>(null);
+  const packagePreviewRef = useRef<PackageDesign | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const manufacturerPath = `/sourcing/${workspace.id}/manufacturers`;
@@ -57,6 +58,7 @@ export function SourcingWorkspaceProvider({
   }, []);
 
   const openPackageWorkbench = useCallback((preview: PackageDesign | null = null) => {
+    packagePreviewRef.current = preview;
     setPackagePreview(preview);
     setWorkbenchOpen(true);
   }, []);
@@ -85,7 +87,7 @@ export function SourcingWorkspaceProvider({
 
   const previewPackageDesign = useCallback((patch: PackageDesignPreviewInput, currentWorkspace?: SourcingWorkspace) => {
     const source = currentWorkspace ?? workspace;
-    const stagedPreview = mergePackagePreview(source, patch);
+    const stagedPreview = mergePackagePreview(source, patch, packagePreviewRef.current);
     openPackageWorkbench(stagedPreview);
     setAgentNote("Your agent staged a packaging preview in the 3D workbench. Review it visually; matching will not change unless you use this direction.");
     return stagedPreview;
@@ -132,10 +134,11 @@ export function SourcingWorkspaceProvider({
         key={packagePreview ? JSON.stringify(packagePreview) : "saved-package"}
         workspace={workspace}
         initialPreview={packagePreview}
-        onClose={() => { setWorkbenchOpen(false); setPackagePreview(null); }}
+        onClose={() => { setWorkbenchOpen(false); setPackagePreview(null); packagePreviewRef.current = null; }}
         onSaved={(next) => {
           acceptWorkspace(next);
           setPackagePreview(null);
+          packagePreviewRef.current = null;
           if (!next.matches.length && next.selectedManufacturerSlugs.length) {
             setAgentNote("Your package direction is saved. I kept your shortlist, but its fit evidence needs a fresh manufacturer search before outreach.");
           }
@@ -163,7 +166,7 @@ function revealHeading(id: string) {
   window.setTimeout(reveal, 300);
 }
 
-function mergePackagePreview(workspace: SourcingWorkspace, patch: PackageDesignPreviewInput): PackageDesign {
+export function mergePackagePreview(workspace: SourcingWorkspace, patch: PackageDesignPreviewInput, stagedPreview: PackageDesign | null = null): PackageDesign {
   const inferredType: PackageDesign["packagingType"] = /jar/i.test(workspace.fields.packaging_format.value || "")
     ? "jar"
     : /bottle/i.test(workspace.fields.packaging_format.value || "")
@@ -177,7 +180,7 @@ function mergePackagePreview(workspace: SourcingWorkspace, patch: PackageDesignP
     brand: workspace.fields.brand_name.value ?? "",
     product: workspace.fields.product_type.value ?? workspace.fields.product_name.value ?? "",
   };
-  const base = workspace.packageDesign ?? {
+  const base = stagedPreview ?? workspace.packageDesign ?? {
     packagingType: inferredType,
     finish: "colored" as const,
     baseColor: inferredType === "bakery-bag" ? "#b98a5f" : "#b64d2c",
@@ -187,7 +190,7 @@ function mergePackagePreview(workspace: SourcingWorkspace, patch: PackageDesignP
     frontText: inferredType === "bakery-bag" ? defaultFrontText : null,
     windowScale: inferredType === "bakery-bag" ? 0.72 : 0,
     logoAspect: 1345 / 662,
-    logoScale: 0.62,
+    logoScale: packageConfigs[inferredType].logo.defaultScale,
     logoPosition: { x: 0, y: 0 },
     dimensions: { width: null, height: null, depth: null },
     summary: formatPackageDirection(inferredType, { width: null, height: null, depth: null }),

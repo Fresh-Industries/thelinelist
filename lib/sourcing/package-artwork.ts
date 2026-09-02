@@ -4,7 +4,7 @@ export type PackageArtworkStyle = "warm-handmade" | "modern-premium" | "playful-
 
 export const PACKAGE_ARTWORK_ASPECT = 5 / 6;
 
-export type PackageArtworkMotif = "berry" | "bubbles" | "chickpea" | "chili" | "citrus" | "coffee" | "drop" | "grain" | "honey" | "leaf";
+export type PackageArtworkMotif = "berry" | "bubbles" | "chickpea" | "chili" | "citrus" | "coffee" | "drop" | "grain" | "honey" | "leaf" | "lightning" | "star" | "sunburst" | "wave";
 
 export interface PackageArtworkConcept {
   category: ProductCategory;
@@ -47,6 +47,11 @@ export function getPackageArtworkConcept({
   if (includesAny(text, ["lemon", "lime", "orange", "citrus"])) add("citrus");
   if (includesAny(text, ["berry", "strawberry", "blueberry", "raspberry"])) add("berry");
   if (text.includes("coffee")) add("coffee");
+  if (includesAny(text, ["bubble", "bubbly", "sparkling", "fizz", "effervescent"])) add("bubbles");
+  if (includesAny(text, ["lightning", "bolt", "electric", "energy arc"])) add("lightning");
+  if (includesAny(text, ["star", "sparkle", "spark "])) add("star");
+  if (includesAny(text, ["sunburst", "sun burst", "rays", "radiating"])) add("sunburst");
+  if (includesAny(text, ["wave", "waves", "ripple", "flowing line"])) add("wave");
   if (!motifs.length) add(({ bakery: "grain", beverage: "bubbles", food: "leaf", frozen: "leaf", sauce: "drop", snack: "chickpea" } as const)[resolvedCategory]);
 
   return { category: resolvedCategory, ...copy, motifs };

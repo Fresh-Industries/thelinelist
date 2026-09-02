@@ -20,6 +20,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ wo
   if (result === "forbidden") return NextResponse.json({ error: "This product could not be saved to your account." }, { status: 403 });
 
   const response = NextResponse.json({ claimed: true, workspaceId });
-  clearGuestWorkspaceCookie(response);
+  clearGuestWorkspaceCookie(response, workspaceId);
   return response;
 }

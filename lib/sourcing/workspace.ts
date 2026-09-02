@@ -135,14 +135,14 @@ export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorksp
   };
 }
 
-export function createWorkspace(options: { demo?: boolean; idea?: string; initialUpdates?: AgentFieldUpdate[] } = {}): SourcingWorkspace {
+export function createWorkspace(options: { demo?: boolean; id?: string; idea?: string; initialUpdates?: AgentFieldUpdate[] } = {}): SourcingWorkspace {
   const timestamp = now();
   const fields = Object.fromEntries(
     SOURCING_FIELD_DEFINITIONS.map(({ key }) => [key, blankField(key, timestamp)]),
   ) as Record<SourcingFieldKey, SourcingField>;
 
   const workspace: SourcingWorkspace = {
-    id: randomBytes(18).toString("base64url"),
+    id: options.id ?? randomBytes(18).toString("base64url"),
     ownership: { userId: null, brandId: null },
     originalIdea: options.idea?.trim() || null,
     artwork: null,

@@ -62,6 +62,16 @@ export function formatPackageDirection(
   return `${PACKAGE_LABELS[packagingType]} · ${dimensionText}`;
 }
 
+export function getPackageValidationGuidance(packagingType: PackageDesign["packagingType"]): string {
+  return ({
+    "slim-can": "Confirm the aluminum specification, internal lining, decoration method, dimensions, seams, and filling-line compatibility with the manufacturer.",
+    bottle: "Confirm the bottle material, barrier needs, closure, label area, dimensions, and filling-line compatibility with the manufacturer.",
+    jar: "Confirm the jar material, closure and seal, label area, dimensions, and filling-line compatibility with the manufacturer.",
+    "stand-up-pouch": "Confirm the film structure, barrier, seals, closure, dimensions, and pouch-filling compatibility with the manufacturer.",
+    "bakery-bag": "Confirm the paper or film structure, viewing-window material, barrier, seals, dimensions, and packing-line compatibility with the manufacturer.",
+  } satisfies Record<PackageDesign["packagingType"], string>)[packagingType];
+}
+
 export function getPackageColorName(value: string): string {
   const rgb = parseHexColor(value);
   if (!rgb) return "Custom color";

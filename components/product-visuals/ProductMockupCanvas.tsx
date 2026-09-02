@@ -33,7 +33,7 @@ export default function ProductMockupCanvas({
       frameloop="demand"
       gl={{ alpha: true, antialias: true, powerPreference: "high-performance", preserveDrawingBuffer: true }}
       shadows
-      fallback={<p className="product-mockup-error">This preview needs a browser with WebGL support.</p>}
+      fallback={<span aria-hidden="true" />}
       onCreated={({ gl, scene, camera }) => {
         gl.setClearColor(0x000000, 0);
         onCaptureReady?.(async () => {

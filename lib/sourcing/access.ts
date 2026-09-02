@@ -1,6 +1,6 @@
 import "server-only";
 
-import { randomBytes, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/server";
@@ -8,7 +8,8 @@ import { databaseConfigured, prisma } from "@/lib/db/prisma";
 import { getSourcingWorkspace, getWorkspaceOwnership, hashOpaqueToken } from "./store";
 import type { SourcingWorkspace } from "./types";
 
-const GUEST_COOKIE = "tll_guest_workspace";
+const LEGACY_GUEST_COOKIE = "tll_guest_workspace";
+const GUEST_COOKIE_PREFIX = "tll_guest_workspace_";
 const GUEST_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 export interface GuestCredential {
@@ -18,8 +19,20 @@ export interface GuestCredential {
   expiresAt: Date;
 }
 
-export function createGuestCredential(workspaceId: string): GuestCredential {
-  const token = randomBytes(32).toString("base64url");
+export function guestWorkspaceCookieName(workspaceId: string): string {
+  return `${GUEST_COOKIE_PREFIX}${workspaceId}`;
+}
+
+export function createGuestCredential(workspaceId: string, creationMutationId?: string): GuestCredential {
+  const configuredSecret = process.env.BETTER_AUTH_SECRET?.trim();
+  if (creationMutationId && !configuredSecret && process.env.NODE_ENV === "production") {
+    throw new Error("BETTER_AUTH_SECRET is required for idempotent guest workspace creation.");
+  }
+  const token = creationMutationId
+    ? createHmac("sha256", configuredSecret || "the-line-list-local-guest-credential")
+        .update(`guest:${workspaceId}:${creationMutationId}`)
+        .digest("base64url")
+    : randomBytes(32).toString("base64url");
   return {
     workspaceId,
     token,
@@ -29,7 +42,7 @@ export function createGuestCredential(workspaceId: string): GuestCredential {
 }
 
 export function setGuestWorkspaceCookie(response: NextResponse, credential: GuestCredential): void {
-  response.cookies.set(GUEST_COOKIE, `${credential.workspaceId}.${credential.token}`, {
+  response.cookies.set(guestWorkspaceCookieName(credential.workspaceId), credential.token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -39,8 +52,15 @@ export function setGuestWorkspaceCookie(response: NextResponse, credential: Gues
   });
 }
 
-export function clearGuestWorkspaceCookie(response: NextResponse): void {
-  response.cookies.set(GUEST_COOKIE, "", {
+export function clearGuestWorkspaceCookie(response: NextResponse, workspaceId?: string): void {
+  if (workspaceId) response.cookies.set(guestWorkspaceCookieName(workspaceId), "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  response.cookies.set(LEGACY_GUEST_COOKIE, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -49,8 +69,11 @@ export function clearGuestWorkspaceCookie(response: NextResponse): void {
   });
 }
 
-async function readGuestCredential(): Promise<{ workspaceId: string; token: string } | null> {
-  const value = (await cookies()).get(GUEST_COOKIE)?.value;
+async function readGuestCredential(workspaceId: string): Promise<{ workspaceId: string; token: string } | null> {
+  const cookieStore = await cookies();
+  const scopedToken = cookieStore.get(guestWorkspaceCookieName(workspaceId))?.value;
+  if (scopedToken) return { workspaceId, token: scopedToken };
+  const value = cookieStore.get(LEGACY_GUEST_COOKIE)?.value;
   if (!value) return null;
   const separator = value.indexOf(".");
   if (separator < 1) return null;
@@ -71,7 +94,7 @@ export async function getAuthorizedWorkspace(workspaceId: string): Promise<{
     getSourcingWorkspace(workspaceId),
     getWorkspaceOwnership(workspaceId),
     getSession(),
-    readGuestCredential(),
+    readGuestCredential(workspaceId),
   ]);
   if (!workspace || !ownership) return null;
 
@@ -95,7 +118,7 @@ export async function getAuthorizedWorkspace(workspaceId: string): Promise<{
 
 export async function claimGuestWorkspace(workspaceId: string): Promise<"claimed" | "unauthenticated" | "forbidden"> {
   if (!databaseConfigured()) return "forbidden";
-  const [session, guest] = await Promise.all([getSession(), readGuestCredential()]);
+  const [session, guest] = await Promise.all([getSession(), readGuestCredential(workspaceId)]);
   if (!session?.user.id) return "unauthenticated";
   if (!guest || guest.workspaceId !== workspaceId) return "forbidden";
   const guestTokenHash = hashOpaqueToken(guest.token);

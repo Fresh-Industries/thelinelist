@@ -32,7 +32,7 @@ Guests can use the full product flow before signing in.
 1. Workspace creation generates a 256-bit random guest credential.
 2. PostgreSQL stores only the SHA-256 hash and a 30-day expiry.
 3. The browser receives the raw credential in a `Secure` (production), `HttpOnly`, `SameSite=Lax` cookie.
-4. Every workspace read and mutation checks either Better Auth user ownership or the exact guest credential hash on the server.
+4. Every workspace read and mutation checks either Better Auth user ownership or the exact guest credential hash on the server. Guest credentials are stored in workspace-scoped cookies, so creating another product never revokes browser access to an earlier product.
 5. Save opens `/auth?workspaceId=...` for email/password signup or login.
 6. The claim route transactionally assigns the existing row to the authenticated user, clears the guest credential and expiry, and appends activity.
 7. `/products` lists only rows owned by the current authenticated user.
@@ -43,7 +43,7 @@ Workspace IDs are identifiers, not authorization credentials. Client-provided us
 
 One tool registers on `/sourcing`:
 
-1. `create_sourcing_workspace` — creates the canonical workspace from the founder's idea, optionally accepts the agent's explicitly classified first-pass updates, and navigates into it. It returns the same compact action state used inside the workspace. It does not match, select, draft, or contact manufacturers.
+1. `create_sourcing_workspace` — creates the canonical workspace from the founder's idea, optionally accepts the agent's explicitly classified first-pass updates, and navigates only after returning an authoritative creation receipt. The caller supplies one opaque `mutationId` and reuses it for an exact retry; the server returns the same workspace ID instead of creating a duplicate. It returns the same compact action state plus the current workspace ID and revision. It does not match, select, draft, or contact manufacturers.
 
 Thirteen tools register in the shared authorized workspace layout and remain available across both child routes:
 

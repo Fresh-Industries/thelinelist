@@ -10,7 +10,7 @@ import { deriveProductDescriptorFromIdea, getProductIdentity } from "@/lib/sourc
 import { getProductJourney } from "@/lib/sourcing/product-journey";
 import { getCategoryDecisionGuardrails, getSourcingCategory, getSourcingQuestion } from "@/lib/sourcing/questions";
 import { PackageDesignSchema, ProductPlanSchema, productPlanFromWorkspace } from "@/lib/sourcing/product-plan";
-import { getPackageColorName, getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
+import { getPackageColorName, getPackageDesignPresentation, getPackageValidationGuidance } from "@/lib/sourcing/package-presentation";
 import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT } from "@/lib/sourcing/package-artwork";
 import { getRecommendedWorkbenchPackageTypes } from "@/lib/sourcing/package-recommendations";
 import { getSourcingReadiness, requiredMatchingFields } from "@/lib/sourcing/readiness";
@@ -145,6 +145,20 @@ describe("sourcing workspace trust rules", () => {
     });
     expect(`${artwork.kicker} ${artwork.footer}`).not.toMatch(/bakery|baked/i);
     expect(PACKAGE_ARTWORK_ASPECT).toBeLessThan(1);
+
+    expect(getPackageArtworkConcept({
+      product: "Carbonated citrus drink",
+      artDirection: "Citrus wheel with sparkling bubbles and angular lightning arcs",
+      style: "modern-premium",
+      category: "beverage",
+    }).motifs).toEqual(["citrus", "bubbles", "lightning"]);
+  });
+
+  it("uses package-specific construction guidance without leaking bakery copy into cans", () => {
+    expect(getPackageValidationGuidance("slim-can")).toMatch(/aluminum specification.*lining.*filling-line/i);
+    expect(getPackageValidationGuidance("slim-can")).not.toMatch(/kraft|window|paper/i);
+    expect(getPackageValidationGuidance("bakery-bag")).toMatch(/paper or film.*viewing-window.*packing-line/i);
+    expect(getPackageValidationGuidance("stand-up-pouch")).toMatch(/film structure.*barrier.*pouch-filling/i);
   });
 
   it("keeps an explicitly confirmed snack out of the beverage path when it is sold in coffee shops", () => {

@@ -4,7 +4,7 @@ import { Check, UploadSimple, X } from "@phosphor-icons/react";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ProductMockup } from "@/components/product-visuals/ProductMockup";
 import { createDefaultLogoSettings, packageConfigs, PACKAGING_TYPES, type BottleFinish, type PackagingType } from "@/components/product-visuals/package-config";
-import { formatPackageDirection } from "@/lib/sourcing/package-presentation";
+import { formatPackageDirection, getPackageValidationGuidance } from "@/lib/sourcing/package-presentation";
 import { getRecommendedWorkbenchPackageTypes } from "@/lib/sourcing/package-recommendations";
 import { getProductCategory } from "@/lib/sourcing/product-catalog";
 import type { PackageDesign, PackageFrontText, SourcingWorkspace } from "@/lib/sourcing/types";
@@ -178,7 +178,7 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
           <section className="package-canvas">
             <div className="package-preview-meta"><div><p>{initialPreview ? "Agent preview · live in 3D" : "Live 3D preview"}</p><h2>{config.previewTitle}</h2></div><span>Drag to turn</span></div>
             <ProductMockup packagingType={packagingType} logoUrl={logoUrl} logoAspect={logoAspect} baseColor={baseColor} labelColor={labelColor} bottleFinish={finish} logoScale={logo.scale} logoPosition={{ x: logo.x, y: logo.y }} frontText={packagingType === "bakery-bag" ? normalizedFrontText(frontText) : null} windowScale={config.window ? windowScale : 0} onCaptureReady={(capture) => { capturePreviewRef.current = capture; }} />
-            <div className="tradeoff-note"><span>Working direction</span><p>{summary}</p><small>This is a communication mockup, not a production dieline. The kraft-style surface, window construction, dimensions, and materials still need manufacturer validation.</small></div>
+            <div className="tradeoff-note"><span>Working direction</span><p>{summary}</p><small>This is a communication mockup, not a production dieline. {getPackageValidationGuidance(packagingType)}</small></div>
           </section>
         </div>
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}

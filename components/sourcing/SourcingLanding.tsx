@@ -24,6 +24,7 @@ export function SourcingLanding() {
   const [agentConnected, setAgentConnected] = useState(false);
   const ideaRef = useRef<HTMLTextAreaElement>(null);
   const creatingRef = useRef(false);
+  const creationAttemptRef = useRef<{ payloadKey: string; mutationId: string } | null>(null);
 
   function seedIdea(seed: string) {
     setIdea(seed);
@@ -35,9 +36,14 @@ export function SourcingLanding() {
     });
   }
 
-  const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[]) => {
+  const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[], navigate = true, requestedMutationId?: string) => {
     const trimmed = rawIdea.trim();
     if (!trimmed || creatingRef.current) return;
+    const payloadKey = JSON.stringify({ idea: trimmed, initialUpdates: initialUpdates ?? [] });
+    if (creationAttemptRef.current?.payloadKey !== payloadKey || (requestedMutationId && creationAttemptRef.current.mutationId !== requestedMutationId)) {
+      creationAttemptRef.current = { payloadKey, mutationId: requestedMutationId ?? createMutationId() };
+    }
+    const mutationId = creationAttemptRef.current.mutationId;
     creatingRef.current = true;
     setPending(true);
     setError("");
@@ -45,16 +51,22 @@ export function SourcingLanding() {
       const response = await fetch("/api/sourcing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea: trimmed, ...(initialUpdates?.length ? { initialUpdates } : {}) }),
+        body: JSON.stringify({ idea: trimmed, mutationId, ...(initialUpdates?.length ? { initialUpdates } : {}) }),
       });
       if (!response.ok) {
         const failure = await response.json().catch(() => null) as { error?: string } | null;
         throw new Error(failure?.error || `Your product workspace could not be created (${response.status}).`);
       }
-      const payload = await response.json().catch(() => null) as { workspace?: SourcingWorkspace; error?: string } | null;
-      if (!payload?.workspace) throw new Error(payload?.error || "Your product workspace could not be created.");
-      router.push(`/sourcing/${payload.workspace.id}`);
-      return payload.workspace;
+      const payload = await response.json().catch(() => null) as {
+        workspace?: SourcingWorkspace;
+        receipt?: CreationReceipt;
+        error?: string;
+      } | null;
+      if (!payload?.workspace || !payload.receipt?.authoritative || payload.receipt.currentWorkspaceId !== payload.workspace.id) {
+        throw new Error(payload?.error || "Your product workspace could not be created with an authoritative receipt.");
+      }
+      if (navigate) router.push(payload.receipt.workspaceUrl);
+      return payload;
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Your product workspace could not be created.");
       setPending(false);
@@ -65,7 +77,7 @@ export function SourcingLanding() {
 
   async function start(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await createWorkspace(idea).catch(() => undefined);
+    await createWorkspace(idea, undefined, true).catch(() => undefined);
   }
 
   useEffect(() => {
@@ -80,6 +92,7 @@ export function SourcingLanding() {
         type: "object",
         properties: {
           idea: { type: "string", minLength: 2, maxLength: 1500 },
+          mutationId: { type: "string", minLength: 20, maxLength: 128, pattern: "^[A-Za-z0-9_-]+$" },
           initialUpdates: {
             type: "array",
             maxItems: SOURCING_FIELD_KEYS.length,
@@ -99,20 +112,25 @@ export function SourcingLanding() {
             },
           },
         },
-        required: ["idea"],
+        required: ["idea", "mutationId"],
         additionalProperties: false,
       },
       annotations: { readOnlyHint: false, untrustedContentHint: true },
       async execute(input) {
-        const args = input as { idea?: unknown; initialUpdates?: AgentFieldUpdate[] };
+        const args = input as { idea?: unknown; mutationId?: unknown; initialUpdates?: AgentFieldUpdate[] };
         const rawIdea = args.idea;
         if (typeof rawIdea !== "string" || rawIdea.trim().length < 2) throw new Error("Tell me the product idea in at least two characters.");
-        const workspace = await createWorkspace(rawIdea, args.initialUpdates);
-        if (!workspace) throw new Error("The product workspace could not be created.");
+        if (typeof args.mutationId !== "string" || !/^[A-Za-z0-9_-]{20,128}$/.test(args.mutationId)) {
+          throw new Error("Create one opaque mutationId and reuse it if this exact workspace creation is retried.");
+        }
+        const payload = await createWorkspace(rawIdea, args.initialUpdates, false, args.mutationId);
+        if (!payload?.workspace || !payload.receipt) throw new Error("The product workspace could not be created.");
+        window.setTimeout(() => router.push(payload.receipt!.workspaceUrl), 0);
         return {
-          ...buildSourcingAgentState(workspace),
-          workspaceUrl: `/sourcing/${workspace.id}`,
-          created: true,
+          ...buildSourcingAgentState(payload.workspace),
+          receipt: payload.receipt,
+          workspaceUrl: payload.receipt.workspaceUrl,
+          created: payload.receipt.outcome === "created",
         };
       },
     };
@@ -126,7 +144,7 @@ export function SourcingLanding() {
       if (!controller.signal.aborted) console.warn("[webmcp] sourcing entry unavailable", caught);
     }
     return () => controller.abort();
-  }, [createWorkspace]);
+  }, [createWorkspace, router]);
 
   return (
     <section className="sourcing-entry" aria-labelledby="sourcing-entry-heading">
@@ -174,4 +192,21 @@ export function SourcingLanding() {
       </div>
     </section>
   );
+}
+
+interface CreationReceipt {
+  authoritative: true;
+  mutation: "create_sourcing_workspace";
+  outcome: "created" | "replayed";
+  workspaceId: string;
+  currentWorkspaceId: string;
+  revision: number;
+  workspaceUrl: string;
+}
+
+function createMutationId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
