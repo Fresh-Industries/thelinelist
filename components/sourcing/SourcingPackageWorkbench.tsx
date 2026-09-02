@@ -49,11 +49,12 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   const [error, setError] = useState("");
   const [showAllPackageTypes, setShowAllPackageTypes] = useState(false);
   const [directionProvenance, setDirectionProvenance] = useState(() => ({
-    placeholder: initial?.placeholder ?? false,
-    source: initial?.source ?? "founder_direction" as PackageDesign["source"],
+    placeholder: initial?.placeholder ?? true,
+    source: initial?.source ?? "system_defaults" as PackageDesign["source"],
   }));
   const fileRef = useRef<HTMLInputElement>(null);
   const capturePreviewRef = useRef<(() => Promise<Blob | null>) | null>(null);
+  const designChangedRef = useRef(false);
   const lastStagedDesignRef = useRef(workspace.stagedPackageDesign?.design ? JSON.stringify(workspace.stagedPackageDesign.design) : "");
   const config = packageConfigs[packagingType];
   const productCategory = getProductCategory(workspace);
@@ -88,6 +89,8 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   }), [baseColor, config.window, dimensions, directionProvenance.placeholder, directionProvenance.source, finish, frontText, initial?.artworkId, initial?.closure, labelColor, logo.scale, logo.x, logo.y, logoAspect, logoUrl, packagingType, summary, windowScale, workspace.artwork?.id]);
 
   useEffect(() => {
+    if (!designChangedRef.current) return;
+    designChangedRef.current = false;
     const serialized = JSON.stringify(currentDesign);
     if (serialized === lastStagedDesignRef.current) return;
     const timeout = window.setTimeout(() => {
@@ -124,7 +127,12 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
   }
 
   function markFounderDirection() {
+    markWorkbenchChange();
     setDirectionProvenance({ placeholder: false, source: "founder_direction" });
+  }
+
+  function markWorkbenchChange() {
+    designChangedRef.current = true;
   }
 
   async function upload(event: ChangeEvent<HTMLInputElement>) {
@@ -180,9 +188,9 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
             <fieldset className="package-type-choices">
               <legend>Package</legend>
               <p className="package-choice-context">Recommended 3D models for this {productCategory === "food" ? "product" : productCategory}.</p>
-              {primaryPackageTypes.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => { setSummaryDirty(true); setPackagingType(type); }}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}
+              {primaryPackageTypes.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => { markWorkbenchChange(); setSummaryDirty(true); setPackagingType(type); }}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}
               {otherPackageTypes.length ? <button type="button" className="package-more-toggle" aria-expanded={showAllPackageTypes} onClick={() => setShowAllPackageTypes((current) => !current)}>{showAllPackageTypes ? "Hide other package types" : `More package types (${otherPackageTypes.length})`}</button> : null}
-              {showAllPackageTypes ? <div className="other-package-types"><span>Other supported models</span>{otherPackageTypes.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => { setSummaryDirty(true); setPackagingType(type); }}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}</div> : null}
+              {showAllPackageTypes ? <div className="other-package-types"><span>Other supported models</span>{otherPackageTypes.map((type) => <button key={type} type="button" className={type === packagingType ? "selected" : ""} onClick={() => { markWorkbenchChange(); setSummaryDirty(true); setPackagingType(type); }}>{packageButtonLabel(type)}{type === packagingType ? <Check aria-hidden="true" /> : null}</button>)}</div> : null}
             </fieldset>
             {config.appearance.supportsClearFinish ? <fieldset><legend>Finish</legend>{(["colored", "clear"] as const).map((value) => <button key={value} type="button" className={finish === value ? "selected" : ""} onClick={() => { markFounderDirection(); setSummaryDirty(true); setFinish(value); }}>{value === "colored" ? "Colored" : "Clear"}</button>)}</fieldset> : null}
             <label className="color-control">Package color <input type="color" value={baseColor} onChange={(event) => { markFounderDirection(); setBaseColor(event.target.value); }} disabled={finish === "clear" && config.appearance.supportsClearFinish} /></label>
@@ -195,7 +203,7 @@ export function SourcingPackageWorkbench({ workspace, initialPreview, onClose, o
               <label><span>Left / right <i>{logo.x.toFixed(2)}</i></span><input type="range" aria-label={packagingType === "bakery-bag" ? "Front copy left or right position" : "Logo left or right position"} min={config.logo.horizontal.min} max={config.logo.horizontal.max} step={config.logo.horizontal.step} value={logo.x} onChange={(event) => setLogo("x", Number(event.target.value))} /></label>
               <label><span>Up / down <i>{logo.y.toFixed(2)}</i></span><input type="range" aria-label={packagingType === "bakery-bag" ? "Front copy up or down position" : "Logo up or down position"} min={config.logo.vertical.min} max={config.logo.vertical.max} step={config.logo.vertical.step} value={logo.y} onChange={(event) => setLogo("y", Number(event.target.value))} /></label>
             </div>
-            <div className="dimension-controls"><span>Working dimensions</span>{(["width", "height", "depth"] as const).map((key) => <label key={key}>{key}<input type="number" min="0" max="10000" step="0.1" value={dimensions[key] ?? ""} onChange={(event) => { markFounderDirection(); setSummaryDirty(true); setDimensions((current) => ({ ...current, [key]: event.target.value ? Number(event.target.value) : null })); }} /></label>)}</div>
+            <div className="dimension-controls"><span>Working dimensions</span>{(["width", "height", "depth"] as const).map((key) => <label key={key}>{key}<input type="number" min="0" max="10000" step="0.1" value={dimensions[key] ?? ""} onChange={(event) => { markWorkbenchChange(); setSummaryDirty(true); setDimensions((current) => ({ ...current, [key]: event.target.value ? Number(event.target.value) : null })); }} /></label>)}</div>
           </aside>
           <section className="package-canvas">
             <div className="package-preview-meta"><div><p>{agentStagedSession ? "Agent preview · live in 3D" : "Live 3D preview"}</p><h2>{config.previewTitle}</h2></div><span>Drag to turn</span></div>

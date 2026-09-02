@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
+import { packageDesignHash } from "../../lib/sourcing/workspace";
 
 async function visualVariationRatio(image: Buffer) {
   const rendered = await sharp(image).removeAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -884,6 +885,7 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
 });
 
 test("geometry-only agent previews remain labeled placeholders until explicit art direction survives reload", async ({ page }) => {
+  test.setTimeout(90_000);
   await installWebMcpHarness(page);
   await page.goto("/sourcing");
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
@@ -896,10 +898,47 @@ test("geometry-only agent previews remain labeled placeholders until explicit ar
       { key: "packaging_format", value: "Stand-up pouch", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
     ],
   });
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size), { timeout: 20_000 }).toBe(13);
 
+  await invokeWebMcp(page, "match_manufacturers", { resultLimit: 3 });
+  await expect(page).toHaveURL(manufacturersPath(created.workspace.id));
+  await page.getByRole("navigation", { name: "Product workspace" }).getByRole("link", { name: "Product brief" }).click();
+  await expect(page).toHaveURL(productBriefPath(created.workspace.id));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size), { timeout: 20_000 }).toBe(13);
+  const beforeOpen = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as {
+    workspace: {
+      revision: number;
+      packageDesign: unknown;
+      stagedPackageDesign: unknown;
+      manufacturerResearch: unknown;
+      matches: unknown;
+      selectedManufacturerSlugs: string[];
+      outreachDrafts: unknown[];
+    };
+  };
+  const matchingBeforeStage = {
+    manufacturerResearch: beforeOpen.workspace.manufacturerResearch,
+    matches: beforeOpen.workspace.matches,
+    selectedManufacturerSlugs: beforeOpen.workspace.selectedManufacturerSlugs,
+    outreachDrafts: beforeOpen.workspace.outreachDrafts,
+  };
+  expect(beforeOpen.workspace).toMatchObject({ packageDesign: null, stagedPackageDesign: null, selectedManufacturerSlugs: [], outreachDrafts: [] });
+
+  await page.getByRole("button", { name: "Refine in 3D" }).click();
+  const untouchedDialog = page.getByRole("dialog", { name: "Make the package direction tangible." });
+  await expect(untouchedDialog.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toBeVisible();
+  await page.waitForTimeout(350);
+  const afterUntouchedOpen = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { revision: number; packageDesign: unknown; stagedPackageDesign: unknown } };
+  expect(afterUntouchedOpen.workspace).toEqual({
+    ...afterUntouchedOpen.workspace,
+    revision: beforeOpen.workspace.revision,
+    packageDesign: null,
+    stagedPackageDesign: null,
+  });
+
+  const geometryStageId = newMutationId();
   const placeholder = await invokeWebMcp<{ committed: boolean; preview: { placeholder: boolean; source: string } }>(page, "preview_package_design", {
-    stageId: newMutationId(),
+    stageId: geometryStageId,
     packagingType: "stand-up-pouch",
   });
   expect(placeholder).toMatchObject({ committed: false, preview: { placeholder: true, source: "system_defaults" } });
@@ -907,13 +946,42 @@ test("geometry-only agent previews remain labeled placeholders until explicit ar
   await expect(dialog.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "Close packaging workbench" }).click();
 
-  const stagedBefore = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { packageDesign: unknown; stagedPackageDesign: { design: { placeholder: boolean; source: string } } } };
-  expect(stagedBefore.workspace).toMatchObject({ packageDesign: null, stagedPackageDesign: { design: { placeholder: true, source: "system_defaults" } } });
+  const stagedBefore = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as {
+    workspace: {
+      packageDesign: unknown;
+      packageCommit: unknown;
+      stagedPackageDesign: { id: string; design: { placeholder: boolean; source: string } };
+      manufacturerResearch: unknown;
+      matches: unknown;
+      selectedManufacturerSlugs: string[];
+      outreachDrafts: unknown[];
+    };
+  };
+  expect(stagedBefore.workspace).toMatchObject({ packageDesign: null, packageCommit: null, stagedPackageDesign: { id: geometryStageId, design: { placeholder: true, source: "system_defaults" } } });
+  expect({
+    manufacturerResearch: stagedBefore.workspace.manufacturerResearch,
+    matches: stagedBefore.workspace.matches,
+    selectedManufacturerSlugs: stagedBefore.workspace.selectedManufacturerSlugs,
+    outreachDrafts: stagedBefore.workspace.outreachDrafts,
+  }).toEqual(matchingBeforeStage);
+  const stagedActionState = await invokeWebMcp<{ packaging: { saved: boolean; direction: unknown; stagedDirection: { id: string } } }>(page, "get_sourcing_workspace", {});
+  expect(stagedActionState.packaging).toMatchObject({ saved: false, direction: null, stagedDirection: { id: geometryStageId } });
+
   await page.reload();
   await page.getByRole("button", { name: "Refine in 3D" }).click();
   await expect(page.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Close packaging workbench" }).click();
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+  const workspaceNavigation = page.getByRole("navigation", { name: "Product workspace" });
+  await workspaceNavigation.getByRole("link", { name: "Manufacturers" }).click();
+  await expect(page).toHaveURL(manufacturersPath(created.workspace.id));
+  const stagedOnManufacturers = await invokeWebMcp<{ packaging: { saved: boolean; stagedDirection: { design: { placeholder: boolean; source: string } } } }>(page, "get_sourcing_workspace", {});
+  expect(stagedOnManufacturers.packaging).toMatchObject({ saved: false, stagedDirection: { design: { placeholder: true, source: "system_defaults" } } });
+  await page.goBack();
+  await expect(page).toHaveURL(productBriefPath(created.workspace.id));
+  await page.getByRole("button", { name: "Refine in 3D" }).click();
+  await expect(page.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Close packaging workbench" }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size), { timeout: 20_000 }).toBe(13);
 
   const artwork = await invokeWebMcp<{ committed: boolean; preview: { placeholder: boolean; source: string; artworkId: string } }>(page, "generate_package_artwork", {
     stageId: newMutationId(),
@@ -929,6 +997,30 @@ test("geometry-only agent previews remain labeled placeholders until explicit ar
   await expect(page.getByText("Placeholder styling - visual direction has not been discussed", { exact: true })).toHaveCount(0);
   const stagedAfter = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { packageDesign: unknown; stagedPackageDesign: { design: { placeholder: boolean; source: string; artworkId: string } } } };
   expect(stagedAfter.workspace).toMatchObject({ packageDesign: null, stagedPackageDesign: { design: { placeholder: false, source: "agent_direction", artworkId: expect.any(String) } } });
+
+  const founderDialog = page.getByRole("dialog");
+  await founderDialog.getByLabel("Package color").fill("#173f35");
+  await expect.poll(async () => {
+    const current = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as { workspace: { stagedPackageDesign: { design: { source: string; baseColor: string } } | null } };
+    return current.workspace.stagedPackageDesign?.design;
+  }).toMatchObject({ source: "founder_direction", baseColor: "#173f35" });
+  await waitFor3dPreview(founderDialog);
+  await founderDialog.getByRole("button", { name: "Use this package direction" }).click();
+  await expect(founderDialog).toHaveCount(0);
+
+  const committed = await page.evaluate(async (apiPath) => fetch(apiPath).then((response) => response.json()), workspaceApiPath(created.workspace.id)) as {
+    workspace: {
+      packageDesign: Parameters<typeof packageDesignHash>[0];
+      stagedPackageDesign: unknown;
+      packageCommit: { actor: string; channel: string; designHash: string; stagedPackageId: string };
+    };
+  };
+  expect(committed.workspace).toMatchObject({
+    stagedPackageDesign: null,
+    packageDesign: { placeholder: false, source: "founder_direction", baseColor: "#173f35", previewAssetId: expect.any(String) },
+    packageCommit: { actor: "founder", channel: "workspace_ui", stagedPackageId: expect.any(String) },
+  });
+  expect(committed.workspace.packageCommit.designHash).toBe(packageDesignHash(committed.workspace.packageDesign));
 });
 
 test("two WebMCP journeys keep staged founder state, research, and stale handles workspace-scoped", async ({ page }) => {
