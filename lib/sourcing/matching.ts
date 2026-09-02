@@ -14,6 +14,32 @@ interface RequirementResult {
   notes?: string;
 }
 
+const FIT_EXPLANATION_LABELS: Partial<Record<SourcingFieldKey, string>> = {
+  product_type: "the product type",
+  packaging_format: "the packaging format",
+  packaging_size: "the package size",
+  carbonation: "carbonation",
+  formulation_assistance: "formulation support",
+  manufacturing_process: "the manufacturing process",
+  preferred_geography: "the geography preference",
+  certifications: "certification requirements",
+  production_volume: "production volume",
+  storage_distribution: "storage and distribution",
+  allergens: "allergen requirements",
+};
+
+function formatNaturalList(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "the evaluated requirements";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items.at(-1)}`;
+}
+
+function supportedRequirementSummary(results: RequirementResult[]): string {
+  return formatNaturalList([...new Set(results.slice(0, 3).map((result) =>
+    FIT_EXPLANATION_LABELS[result.key] ?? result.label.replace(/[?.!]+$/g, "").toLowerCase(),
+  ))]);
+}
+
 function searchablePlantText(plant: Plant): string {
   return [
     plant.productTypesPublished,
@@ -328,7 +354,7 @@ export function matchManufacturers(
       manufacturerName: plant.name,
       location: plant.locationDisplay,
       fitExplanation: supported.length > 0
-        ? `Reviewed public information supports ${supported.slice(0, 3).map((item) => item.label.toLowerCase()).join(", ")}. ${evidenceCaveat}`
+        ? `Reviewed public information supports ${supportedRequirementSummary(supported)}. ${evidenceCaveat}`
         : `The product category may be relevant, but the reviewed record does not confirm the other requirements yet. ${evidenceCaveat}`,
       supportedMatches: supported.map((result) => result.claim),
       possibleConflicts: conflicts.map((result) => result.claim),

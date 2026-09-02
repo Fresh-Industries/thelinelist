@@ -23,6 +23,16 @@ export interface GeographyPreference {
   stateCodes: readonly string[];
 }
 
+export interface GeographyMatchPreflightResponse {
+  matchingAttempted: false;
+  resultsShown: false;
+  matchingGuidance: {
+    strictSearchReturnedNoResults: false;
+    geographyInputNeedsClarification: true;
+    instruction: string;
+  };
+}
+
 export function interpretGeographyPreference(value: string): GeographyPreference {
   const normalized = value.toLowerCase().replace(/\s+/g, " ").trim();
   const namedState = Object.entries(STATE_ALIASES)
@@ -33,12 +43,25 @@ export function interpretGeographyPreference(value: string): GeographyPreference
   }
 
   const uppercaseCode = value.match(/\b[A-Z]{2}\b/)?.[0];
-  const compactCode = normalized.match(/^(?:near|around|in|close to|within)\s+([a-z]{2})$/)?.[1]?.toUpperCase();
-  const stateCode = [uppercaseCode, compactCode].find((code): code is string => Boolean(code && STATE_CODES.has(code)));
+  const stateCode = uppercaseCode && STATE_CODES.has(uppercaseCode) ? uppercaseCode : null;
   if (stateCode) return { understood: true, label: STATE_NAMES[stateCode], stateCodes: [stateCode] };
 
   const region = Object.entries(REGION_STATES).find(([term]) => normalized.includes(term))?.[1];
   if (region) return { understood: true, label: region.label, stateCodes: region.states };
 
   return { understood: false, label: value.trim(), stateCodes: [] };
+}
+
+export function getGeographyMatchPreflight(value: unknown): GeographyMatchPreflightResponse | null {
+  if (typeof value !== "string" || interpretGeographyPreference(value).understood) return null;
+
+  return {
+    matchingAttempted: false,
+    resultsShown: false,
+    matchingGuidance: {
+      strictSearchReturnedNoResults: false,
+      geographyInputNeedsClarification: true,
+      instruction: "This geography cannot be evaluated precisely yet. Ask for a state name, an uppercase two-letter state code, or a supported region such as Midwest, Northeast, Southeast, Southwest, or West before matching.",
+    },
+  };
 }

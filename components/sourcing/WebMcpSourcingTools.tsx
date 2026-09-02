@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
-import { interpretGeographyPreference } from "@/lib/sourcing/geography";
+import { getGeographyMatchPreflight } from "@/lib/sourcing/geography";
 import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements";
 import { getPackageArtworkConcept, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
 import { SOURCING_FIELD_KEYS, type PackageDesignPreviewInput, type SourcingWorkspace } from "@/lib/sourcing/types";
@@ -317,7 +317,7 @@ export function WebMcpSourcingTools({
       {
         name: "match_manufacturers",
         title: "Match manufacturers with evidence",
-        description: "Research a small set of manufacturers once the plan is ready to research, even if some decisions are still open. Return supported facts, possible conflicts, unknowns, source URLs, and review dates. Use requiredRequirements only for founder-confirmed must-haves; missing public proof may produce zero strict results. When that happens, use matchingGuidance to explain the result and ask before retrying those fields as preferences. This tool closes any staged 3D workbench before revealing the manufacturer view. It never selects a manufacturer or creates outreach drafts.",
+        description: "Research a small set of manufacturers once the plan is ready to research, even if some decisions are still open. Return supported facts, possible conflicts, unknowns, source URLs, and review dates. Use requiredRequirements only for founder-confirmed must-haves; missing public proof may produce zero strict results. Unsupported geography is clarified before any search or workspace mutation. When a strict search returns no results, use matchingGuidance to explain the result and ask before retrying those fields as preferences. This tool closes any staged 3D workbench before revealing the manufacturer view. It never selects a manufacturer or creates outreach drafts.",
         inputSchema: {
           type: "object",
           properties: {
@@ -331,24 +331,18 @@ export function WebMcpSourcingTools({
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         async execute(input) {
           const args = input as Record<string, unknown>;
+          const geographyPreflight = getGeographyMatchPreflight(args.geographyPreference);
+          if (geographyPreflight) return geographyPreflight;
+
           const body = await api(`/api/sourcing/${workspaceId}/match`, { method: "POST", body: JSON.stringify(args) });
           const resultCount = body.workspace?.matches.length ?? 0;
           const requiredRequirements = Array.isArray(args.requiredRequirements)
             ? args.requiredRequirements.filter((value): value is string => typeof value === "string")
             : [];
-          const geographyPreference = typeof args.geographyPreference === "string"
-            ? interpretGeographyPreference(args.geographyPreference)
-            : null;
           const result = withGuidance(body, {
             resultsShown: true,
             resultCount,
-            matchingGuidance: geographyPreference && !geographyPreference.understood
-              ? {
-                  strictSearchReturnedNoResults: resultCount === 0,
-                  geographyInputNeedsClarification: true,
-                  instruction: "This geography cannot be evaluated precisely yet. Ask for a state name, two-letter state code, or a supported region such as Midwest, Northeast, Southeast, Southwest, or West before treating geography as a strict requirement.",
-                }
-              : resultCount === 0 && requiredRequirements.length
+            matchingGuidance: resultCount === 0 && requiredRequirements.length
               ? {
                   strictSearchReturnedNoResults: true,
                   instruction: "No candidate publicly proved every founder-required capability. Explain that result without weakening the must-haves. Ask whether the founder wants to broaden discovery by treating these fields as preferences while keeping missing proof visibly unknown.",

@@ -1,5 +1,6 @@
 import { FIELD_DEFINITION_BY_KEY, NEVER_SHARE_FIELD_KEYS } from "@/lib/sourcing/fields";
 import { getPlantBySlug } from "@/lib/directory";
+import { getGeographyMatchPreflight, interpretGeographyPreference } from "@/lib/sourcing/geography";
 import { matchManufacturers } from "@/lib/sourcing/matching";
 import { editAndApproveDraft, prepareOutreachDrafts } from "@/lib/sourcing/outreach";
 import { getPackagingOptions, getProductCategory, resolveProductVisualAsset } from "@/lib/sourcing/product-catalog";
@@ -147,13 +148,50 @@ describe("sourcing workspace trust rules", () => {
   it("keeps an explicitly confirmed snack out of the beverage path when it is sold in coffee shops", () => {
     let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack sold at gyms and coffee shops" });
     workspace = applyFounderFieldUpdate(workspace, { key: "product_category", value: "Snack", status: "confirmed", shareWithManufacturer: true });
-    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "High-protein crunchy chickpea snack", status: "confirmed", shareWithManufacturer: true });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "High-protein crunchy chickpea snack sold at gyms and coffee shops", status: "confirmed", shareWithManufacturer: true });
 
     expect(getSourcingCategory(workspace)).toBe("food");
+    expect(getProductCategory(workspace)).toBe("snack");
+    expect(getPackagingOptions(workspace).map((option) => option.id)).toEqual([
+      "flow-wrap-bar",
+      "snack-bag",
+      "stand-up-pouch",
+    ]);
     expect(getSourcingQuestion(workspace, "product_format")).toBe("How should one customer buy and use the product?");
     expect(getSourcingQuestion(workspace, "carbonation")).not.toContain("drink");
     expect(getCategoryDecisionGuardrails(workspace)).toEqual([]);
     expect(requiredMatchingFields(workspace)).not.toContain("carbonation");
+  });
+
+  it("normalizes every canonical confirmed category label before choosing package options", () => {
+    const cases = [
+      { label: "Baked good", productType: "Banana bread", category: "bakery", firstPackage: "flow-wrap" },
+      { label: "Bakery", productType: "Cookies", category: "bakery", firstPackage: "flow-wrap" },
+      { label: "Packaged bakery / quick bread", productType: "Mini loaf", category: "bakery", firstPackage: "flow-wrap" },
+      { label: "Beverage", productType: "Sparkling energy drink", category: "beverage", firstPackage: "standard-can" },
+      { label: "Sauce / condiment", productType: "Hot sauce", category: "sauce", firstPackage: "glass-sauce-bottle" },
+      { label: "Snack", productType: "Crunchy chickpea snack", category: "snack", firstPackage: "flow-wrap-bar" },
+      { label: "Frozen food", productType: "Frozen grain bowl", category: "frozen", firstPackage: "frozen-bag" },
+      { label: "Food", productType: "Prepared meal", category: "food", firstPackage: "pouch" },
+    ] as const;
+
+    for (const testCase of cases) {
+      let workspace = createWorkspace({ idea: testCase.productType });
+      workspace = applyFounderFieldUpdate(workspace, { key: "product_category", value: testCase.label, status: "confirmed", shareWithManufacturer: true });
+      workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: testCase.productType, status: "confirmed", shareWithManufacturer: true });
+
+      expect(getProductCategory(workspace), testCase.label).toBe(testCase.category);
+      expect(getPackagingOptions(workspace)[0]?.id, testCase.label).toBe(testCase.firstPackage);
+    }
+  });
+
+  it("falls back to confirmed product identity when a category label is unfamiliar", () => {
+    let workspace = createWorkspace({ idea: "Banana bread for grocery stores" });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_category", value: "Emerging CPG concept", status: "confirmed", shareWithManufacturer: true });
+    workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "Banana bread", status: "confirmed", shareWithManufacturer: true });
+
+    expect(getProductCategory(workspace)).toBe("bakery");
+    expect(getPackagingOptions(workspace)[0]?.id).toBe("flow-wrap");
   });
 
   it("migrates a version-one plan without losing its original idea", () => {
@@ -296,6 +334,31 @@ describe("sourcing workspace trust rules", () => {
     expect(evidence.every((item) => !item.claim.includes("MY") && !item.claim.includes("IM"))).toBe(true);
   });
 
+  it("requires explicit state-code syntax and clarifies unsupported geography before matching", () => {
+    expect(interpretGeographyPreference("near me")).toEqual({
+      understood: false,
+      label: "near me",
+      stateCodes: [],
+    });
+    expect(interpretGeographyPreference("near ME")).toEqual({
+      understood: true,
+      label: "Maine",
+      stateCodes: ["ME"],
+    });
+
+    const preflight = getGeographyMatchPreflight("Upper Lakes corridor");
+    expect(preflight).toMatchObject({
+      matchingAttempted: false,
+      resultsShown: false,
+      matchingGuidance: {
+        geographyInputNeedsClarification: true,
+      },
+    });
+    expect(preflight).not.toHaveProperty("workspace");
+    expect(preflight).not.toHaveProperty("manufacturerCandidates");
+    expect(getGeographyMatchPreflight("Midwest preferred")).toBeNull();
+  });
+
   it("evaluates Midwest as a real set of states and ranks an in-region facility first", () => {
     let workspace = createWorkspace({ idea: "A high-protein crunchy chickpea snack" });
     for (const update of [
@@ -321,6 +384,8 @@ describe("sourcing workspace trust rules", () => {
     expect(matches.every((match) => match.evidence.some((item) =>
       item.requirementKey === "preferred_geography" && item.claim.includes("within the Midwest preference"),
     ))).toBe(true);
+    expect(assemblers?.fitExplanation).not.toMatch(/\?|manufacturer be|\?\./i);
+    expect(assemblers?.fitExplanation).toContain("storage and distribution");
   });
 
   it("keeps unsupported geography visible instead of silently dropping it", () => {

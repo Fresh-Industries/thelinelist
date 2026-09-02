@@ -55,14 +55,66 @@ export function productText(workspace: SourcingWorkspace): string {
     .toLowerCase();
 }
 
+const CONFIRMED_CATEGORY_LABELS: Record<string, ProductCategory> = {
+  "baked good": "bakery",
+  "baked goods": "bakery",
+  bakery: "bakery",
+  "packaged bakery quick bread": "bakery",
+  beverage: "beverage",
+  beverages: "beverage",
+  drink: "beverage",
+  drinks: "beverage",
+  sauce: "sauce",
+  "sauce condiment": "sauce",
+  "sauces condiments": "sauce",
+  snack: "snack",
+  snacks: "snack",
+  "snack food": "snack",
+  "snack foods": "snack",
+  frozen: "frozen",
+  "frozen food": "frozen",
+  "frozen foods": "frozen",
+  food: "food",
+  foods: "food",
+  "other food": "food",
+  "prepared food": "food",
+  "prepared foods": "food",
+};
+
+function normalizedCategoryLabel(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function categoryFromText(text: string): ProductCategory | null {
+  const normalized = text.toLowerCase();
+  if (/bread|bakery|cake|muffin|cookie|brownie|pastr|loaf/.test(normalized)) return "bakery";
+  if (/hot sauce|salsa|sauce|condiment|dressing|marinade/.test(normalized)) return "sauce";
+  if (/snack|bar|chip|cracker|granola/.test(normalized)) return "snack";
+  if (/drink|beverage|juice|water|seltzer|coffee|tea|soda|shot/.test(normalized)) return "beverage";
+  if (/frozen|ice cream/.test(normalized)) return "frozen";
+  if (/food/.test(normalized)) return "food";
+  return null;
+}
+
+function categoryFromConfirmedLabel(value: string): ProductCategory | null {
+  return CONFIRMED_CATEGORY_LABELS[normalizedCategoryLabel(value)] ?? categoryFromText(value);
+}
+
 export function getProductCategory(workspace: SourcingWorkspace): ProductCategory {
-  const text = productText(workspace);
-  if (/bread|bakery|cake|muffin|cookie|brownie|pastr|loaf/.test(text)) return "bakery";
-  if (/hot sauce|salsa|sauce|condiment|dressing|marinade/.test(text)) return "sauce";
-  if (/drink|beverage|juice|water|seltzer|coffee|tea|soda|shot/.test(text)) return "beverage";
-  if (/snack|bar|chip|cracker|granola/.test(text)) return "snack";
-  if (/frozen|ice cream/.test(text)) return "frozen";
-  return "food";
+  const declaredCategory = workspace.fields.product_category;
+  if (declaredCategory.status === "confirmed" && declaredCategory.value) {
+    const category = categoryFromConfirmedLabel(declaredCategory.value);
+    if (category) return category;
+  }
+
+  for (const key of ["product_type", "product_format"] as const) {
+    const field = workspace.fields[key];
+    if (field.status !== "confirmed" || !field.value) continue;
+    const category = categoryFromText(field.value);
+    if (category) return category;
+  }
+
+  return categoryFromText(productText(workspace)) ?? "food";
 }
 
 export function getPackagingOptions(workspace: SourcingWorkspace): PackagingOption[] {
