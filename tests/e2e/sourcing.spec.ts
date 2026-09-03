@@ -920,7 +920,7 @@ test("zero-result research requires a visible founder-approved criteria diff and
   expect(await review.evaluate((element) => element.matches(":modal"))).toBe(true);
   await expect(review).toContainText("No manufacturer in the reviewed public information proved every required constraint");
   await expect(review).toContainText("Your product brief, package direction, and founder decisions will not change");
-  await expect(review.getByLabel("Exact research criteria change")).toContainText("Required certifications");
+  await expect(review.getByLabel("Exact research criteria change")).toContainText("Certification needs");
   await expect(review.getByLabel("Exact research criteria change")).toContainText("Before");
   await expect(review.getByLabel("Exact research criteria change")).toContainText("After");
   await expect(review.getByLabel("Broader search criteria and safeguards")).toBeFocused();
@@ -1527,7 +1527,7 @@ test("competitive beverage sourcing stays evidence-specific, deterministic, and 
     expect(candidate.supported.join(" ")).not.toContain("Sparkling tart-cherry and basil drink");
     expect(candidate.notPubliclyConfirmed).toContain("Exact capability for Sparkling tart-cherry and basil drink is not publicly established by the reviewed product source.");
     expect(candidate.reasonTrace).toContainEqual(expect.objectContaining({ requirementKey: "product_type", priority: "preferred", outcome: "broad_support" }));
-    expect(candidate.reasonTrace.some((item) => item.requirementKey === "certifications")).toBe(false);
+    expect(candidate.reasonTrace).toContainEqual(expect.objectContaining({ requirementKey: "certifications", priority: "not_required", outcome: "not_applicable" }));
     expect(candidate.evidence
       .filter((item) => ["verified", "publicly_listed", "conflicting"].includes(item.status))
       .every((item) => item.sourceUrl !== null)).toBe(true);

@@ -67,8 +67,8 @@ const manufacturerMatchSchema = z.object({
   reasonTrace: z.array(z.object({
     requirementKey: z.enum(SOURCING_FIELD_KEYS),
     requirementLabel: z.string().max(300),
-    priority: z.enum(["required", "preferred", "evaluated"]),
-    outcome: z.enum(["supported", "broad_support", "conflict", "unknown"]),
+    priority: z.enum(["required", "preferred", "evaluated", "not_required", "unconfirmed"]),
+    outcome: z.enum(["supported", "broad_support", "conflict", "unknown", "not_applicable"]),
     claim: z.string().max(2_000),
   })).max(100).default([]),
   requirementsUsed: z.array(z.enum(SOURCING_FIELD_KEYS)).max(SOURCING_FIELD_KEYS.length),

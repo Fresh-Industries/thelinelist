@@ -113,8 +113,8 @@ export interface ManufacturerMatch {
 export interface MatchReasonTrace {
   requirementKey: SourcingFieldKey;
   requirementLabel: string;
-  priority: "required" | "preferred" | "evaluated";
-  outcome: "supported" | "broad_support" | "conflict" | "unknown";
+  priority: "required" | "preferred" | "evaluated" | "not_required" | "unconfirmed";
+  outcome: "supported" | "broad_support" | "conflict" | "unknown" | "not_applicable";
   claim: string;
 }
 

@@ -26,7 +26,7 @@ export const SOURCING_FIELD_DEFINITIONS: SourcingFieldDefinition[] = [
   { key: "packaging_size", label: "Package size", hint: "Example: 12 oz", group: "run", shareByDefault: true },
   { key: "production_volume", label: "How much do you want to make first?", acknowledgementLabel: "first-run volume", hint: "Units, cases, gallons, or pounds", group: "run", shareByDefault: true },
   { key: "budget", label: "Budget", hint: "Private unless you choose to share it", group: "business", shareByDefault: false, privateByDefault: true },
-  { key: "certifications", label: "Required certifications", hint: "Organic, kosher, SQF, or other requirements", group: "run", shareByDefault: true },
+  { key: "certifications", label: "Certification needs", hint: "Required, preferred, not required, or still undecided", group: "run", shareByDefault: true },
   { key: "preferred_geography", label: "Where should your manufacturer be?", acknowledgementLabel: "manufacturer geography", hint: "State, region, or shipping radius", group: "business", shareByDefault: true },
   { key: "target_launch_date", label: "Target launch", hint: "Date or timeframe", group: "business", shareByDefault: true },
   { key: "ingredient_sourcing", label: "Ingredient sourcing", hint: "Who should source ingredients", group: "run", shareByDefault: true },

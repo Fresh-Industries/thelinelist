@@ -1,9 +1,10 @@
-export type CertificationPriority = "required" | "preferred" | "negated";
+export type CertificationPriority = "required" | "preferred" | "negated" | "unknown";
 
 export interface NormalizedCertificationRequirements {
   required: string[];
   preferred: string[];
   negated: string[];
+  unknown: string[];
 }
 
 interface CertificationDefinition {
@@ -22,9 +23,9 @@ const CERTIFICATIONS: CertificationDefinition[] = [
 
 export function normalizeCertificationRequirements(
   value: string | null | undefined,
-  defaultPriority: Exclude<CertificationPriority, "negated"> | null = "required",
+  defaultPriority: Exclude<CertificationPriority, "negated" | "unknown"> | null = "required",
 ): NormalizedCertificationRequirements {
-  const result: NormalizedCertificationRequirements = { required: [], preferred: [], negated: [] };
+  const result: NormalizedCertificationRequirements = { required: [], preferred: [], negated: [], unknown: [] };
   if (!value?.trim()) return result;
 
   for (const definition of CERTIFICATIONS) {
@@ -59,6 +60,11 @@ export function normalizeCertificationRequirements(
   for (const negated of result.negated) {
     result.required = result.required.filter((item) => item !== negated);
     result.preferred = result.preferred.filter((item) => item !== negated);
+    result.unknown = result.unknown.filter((item) => item !== negated);
+  }
+  for (const unknown of result.unknown) {
+    result.required = result.required.filter((item) => item !== unknown);
+    result.preferred = result.preferred.filter((item) => item !== unknown);
   }
   return result;
 }
@@ -81,10 +87,11 @@ export function certificationEvidenceSpans(value: string): Array<{ start: number
 function certificationPriority(
   clause: string,
   matchedText: string,
-  defaultPriority: Exclude<CertificationPriority, "negated"> | null,
+  defaultPriority: Exclude<CertificationPriority, "negated" | "unknown"> | null,
 ): CertificationPriority | null {
   const localClause = contrastSegment(clause, matchedText);
   const escaped = escapeRegExp(matchedText);
+  if (/\b(?:unknown|undecided|unconfirmed|not\s+sure|to\s+be\s+determined|tbd)\b/i.test(localClause)) return "unknown";
   if (
     new RegExp(`(?:\\bno\\b|\\bwithout\\b)[^.;]{0,35}${escaped}`, "i").test(localClause)
     || new RegExp(`\\bnot\\s+required\\b[^.;]{0,35}${escaped}`, "i").test(localClause)

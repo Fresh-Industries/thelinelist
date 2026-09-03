@@ -6,7 +6,7 @@ import { getSourcingReadiness } from "@/lib/sourcing/readiness";
 import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
 import { getProductIdentity } from "@/lib/sourcing/product-identity";
 import { applyFounderConversationAnswer, applyFounderFieldUpdate, applyManufacturerResearch, createWorkspace } from "@/lib/sourcing/workspace";
-import type { ManufacturerResearchBroadeningApproval, SourcingWorkspace } from "@/lib/sourcing/types";
+import type { ManufacturerResearchBroadeningApproval, SourcingFieldKey, SourcingWorkspace } from "@/lib/sourcing/types";
 import { describe, expect, it } from "vitest";
 
 const HOT_SAUCE_IDEA = "I want to make a tomato-free smoky carrot hot sauce in a 5 oz glass woozy bottle. I have a finished kitchen recipe, but it needs process-authority review and shelf-life review. I want about 10,000 bottles, prefer Texas or nearby, it should be shelf-stable, and organic certification is not required.";
@@ -214,11 +214,136 @@ describe("production judge sourcing regressions", () => {
     expect(workspace.fields.production_volume.sourceSpans?.[0].text).toContain("6,000 bags");
   });
 
+  it("keeps the first pilot canonical when the same sentence also gives a year-one forecast", () => {
+    const idea = "A shelf-stable hot sauce in a 9.5 oz glass jar; first pilot 1,200 jars; year-one estimate 30,000 jars.";
+    let workspace = createWorkspace({ idea });
+
+    expect(workspace.fields.production_volume).toMatchObject({
+      value: "1,200 jars",
+      status: "confirmed",
+      explicitlyStated: true,
+    });
+    expect(workspace.fields.production_volume.sourceSpans?.[0].text).toContain("first pilot 1,200 jars");
+
+    workspace = applyFounderConversationAnswer(workspace, {
+      answeringKey: "production_volume",
+      text: "Correction: make that first pilot 1,500 jars; the year-one forecast remains 30,000 jars.",
+    });
+    expect(workspace.fields.production_volume.value).toBe("1,500 jars");
+    expect(workspace.fields.production_volume.sourceSpans?.[0].text).toContain("first pilot 1,500 jars");
+  });
+
   it("normalizes positive, preferred, and negated certifications without manufacturing gaps", () => {
-    expect(normalizeCertificationRequirements("Organic is not required")).toEqual({ required: [], preferred: [], negated: ["Organic"] });
-    expect(normalizeCertificationRequirements("Gluten-free required; organic not required")).toEqual({ required: ["Gluten-free"], preferred: [], negated: ["Organic"] });
-    expect(normalizeCertificationRequirements("SQF is a must; gluten-free would be nice but organic is not required")).toEqual({ required: ["SQF"], preferred: ["Gluten-free"], negated: ["Organic"] });
-    expect(normalizeCertificationRequirements("Organic preferred")).toEqual({ required: [], preferred: ["Organic"], negated: [] });
+    expect(normalizeCertificationRequirements("Organic is not required")).toEqual({ required: [], preferred: [], negated: ["Organic"], unknown: [] });
+    expect(normalizeCertificationRequirements("Gluten-free required; organic not required")).toEqual({ required: ["Gluten-free"], preferred: [], negated: ["Organic"], unknown: [] });
+    expect(normalizeCertificationRequirements("SQF is a must; gluten-free would be nice but organic is not required")).toEqual({ required: ["SQF"], preferred: ["Gluten-free"], negated: ["Organic"], unknown: [] });
+    expect(normalizeCertificationRequirements("Organic preferred")).toEqual({ required: [], preferred: ["Organic"], negated: [], unknown: [] });
+    expect(normalizeCertificationRequirements("SQF preferred; organic certification explicitly not required; kosher need unknown")).toEqual({
+      required: [],
+      preferred: ["SQF"],
+      negated: ["Organic"],
+      unknown: ["Kosher"],
+    });
+  });
+
+  it("keeps pilot MOQ, allergens, and mixed certifications distinct in the exact judge ranking", () => {
+    const workspace = exactJudgeWorkspace();
+    const plants = ["creative-foodworks", "the-spice-guy", "crave-copacking"].map((slug) => getPlantBySlug(slug)!);
+    const preferredRequirements: SourcingFieldKey[] = [
+      "packaging_format",
+      "packaging_size",
+      "formulation_assistance",
+      "production_volume",
+      "allergens",
+      "certifications",
+      "preferred_geography",
+    ];
+    const matches = matchManufacturerRecords(workspace, plants, {
+      resultLimit: 3,
+      requiredRequirements: ["product_type", "manufacturing_process", "storage_distribution"],
+      preferredRequirements,
+    });
+    const creative = matches.find((match) => match.manufacturerSlug === "creative-foodworks")!;
+
+    expect(matches[0].manufacturerSlug).toBe("the-spice-guy");
+    expect(matches.indexOf(creative)).toBeGreaterThan(0);
+    expect(creative.possibleConflicts).toContain("1,200 jars is about 89.1 gallons at 9.5 oz each, below the published 1,000-gallon minimum.");
+    expect(creative.supportedMatches.join(" ")).not.toContain("30,000 jars");
+    expect(creative.supportedMatches).toContain("Reviewed packaging supports the broader jar family.");
+    expect(creative.supportedMatches.join(" ")).not.toMatch(/explicitly supports clear glass jar/i);
+    expect(creative.unknowns).toContain("The reviewed packaging source does not establish the requested clear finish.");
+
+    const allergenTrace = creative.reasonTrace?.filter((item) => item.requirementKey === "allergens") ?? [];
+    expect(allergenTrace).toEqual(expect.arrayContaining([
+      expect.objectContaining({ requirementLabel: "Ingredient allergen: Sesame", priority: "preferred", outcome: "unknown" }),
+      expect.objectContaining({ requirementLabel: "Ingredient allergen: Coconut", priority: "preferred", outcome: "unknown" }),
+      expect.objectContaining({ requirementLabel: "Shared-allergen facility acceptance", priority: "preferred", outcome: "unknown" }),
+    ]));
+
+    const certificationTrace = creative.reasonTrace?.filter((item) => item.requirementKey === "certifications") ?? [];
+    expect(certificationTrace).toEqual(expect.arrayContaining([
+      expect.objectContaining({ requirementLabel: "Certification: SQF", priority: "preferred", outcome: "supported" }),
+      expect.objectContaining({ requirementLabel: "Certification: Organic", priority: "not_required", outcome: "not_applicable" }),
+      expect.objectContaining({ requirementLabel: "Certification need: Kosher", priority: "unconfirmed", outcome: "unknown" }),
+    ]));
+    expect(creative.supportedMatches.join(" ")).not.toMatch(/organic|kosher/i);
+  });
+
+  it("evaluates named free-from, contained-allergen, shared-facility, and dedicated-free criteria", () => {
+    const base = getPlantBySlug("creative-foodworks")!;
+    const controlledShared = {
+      ...base,
+      slug: "controlled-shared-allergen-plant",
+      name: "Controlled Shared Allergen Plant",
+      manufacturingCapabilitiesPublished: `${base.manufacturingCapabilitiesPublished ?? ""} Controlled shared-allergen program for sesame and coconut with documented cross-contact controls.`,
+    };
+    const peanutProducer = {
+      ...base,
+      slug: "peanut-product-plant",
+      name: "Peanut Product Plant",
+      productTypesPublished: `${base.productTypesPublished} Peanut butter and peanut sauces.`,
+    };
+    const dedicatedPeanutFree = {
+      ...base,
+      slug: "dedicated-peanut-free-plant",
+      name: "Dedicated Peanut-Free Plant",
+      manufacturingCapabilitiesPublished: `${base.manufacturingCapabilitiesPublished ?? ""} Dedicated peanut-free facility.`,
+    };
+
+    const contained = matchManufacturerRecords(exactJudgeWorkspace(), [controlledShared], {
+      resultLimit: 1,
+      preferredRequirements: ["allergens"],
+    })[0];
+    expect(contained.reasonTrace).toEqual(expect.arrayContaining([
+      expect.objectContaining({ requirementLabel: "Ingredient allergen: Sesame", outcome: "supported" }),
+      expect.objectContaining({ requirementLabel: "Ingredient allergen: Coconut", outcome: "supported" }),
+      expect.objectContaining({ requirementLabel: "Shared-allergen facility acceptance", outcome: "supported" }),
+    ]));
+
+    const peanutFree = withConfirmedField(exactJudgeWorkspace(), "allergens", "Peanut-free required");
+    const conflicting = matchManufacturerRecords(peanutFree, [peanutProducer], {
+      resultLimit: 1,
+      preferredRequirements: ["allergens"],
+    })[0];
+    expect(conflicting.reasonTrace).toContainEqual(expect.objectContaining({
+      requirementLabel: "Free-from requirement: Peanut",
+      outcome: "conflict",
+    }));
+
+    const dedicated = withConfirmedField(exactJudgeWorkspace(), "allergens", "Dedicated peanut-free facility required");
+    const supported = matchManufacturerRecords(dedicated, [dedicatedPeanutFree], {
+      resultLimit: 1,
+      requiredRequirements: ["allergens"],
+    })[0];
+    expect(supported.reasonTrace).toContainEqual(expect.objectContaining({
+      requirementLabel: "Dedicated free-from facility: Peanut",
+      priority: "required",
+      outcome: "supported",
+    }));
+    expect(matchManufacturerRecords(dedicated, [controlledShared], {
+      resultLimit: 1,
+      requiredRequirements: ["allergens"],
+    })).toEqual([]);
   });
 
   it("parses Creative Foodworks size and MOQ conflicts and ranks the actual records honestly", () => {
@@ -311,4 +436,28 @@ function hotSauceWorkspace(): SourcingWorkspace {
   let workspace = createWorkspace({ idea: HOT_SAUCE_IDEA });
   workspace = applyFounderFieldUpdate(workspace, { key: "product_type", value: "Hot sauce", status: "confirmed", shareWithManufacturer: true });
   return workspace;
+}
+
+function exactJudgeWorkspace(): SourcingWorkspace {
+  let workspace = createWorkspace({
+    idea: "A shelf-stable acidified hot sauce in a 9.5 oz clear glass jar. Contains sesame and coconut; a controlled shared-allergen plant is acceptable. First pilot 1,200 jars; year-one estimate 30,000 jars. SQF preferred; organic certification explicitly not required; kosher need unknown.",
+  });
+  const updates: Array<[SourcingFieldKey, string]> = [
+    ["product_type", "Hot sauce"],
+    ["packaging_format", "Clear glass jar"],
+    ["packaging_size", "9.5 oz"],
+    ["manufacturing_process", "Acidified hot fill"],
+    ["storage_distribution", "Shelf-stable"],
+    ["formulation_assistance", "Scale-up and process-authority review needed"],
+    ["production_volume", "1,200 jars"],
+    ["allergens", "Contains sesame and coconut; a controlled shared-allergen plant is acceptable"],
+    ["certifications", "SQF preferred; organic certification explicitly not required; kosher need unknown"],
+    ["preferred_geography", "Upper Midwest preferred; flexible"],
+  ];
+  for (const [key, value] of updates) workspace = withConfirmedField(workspace, key, value);
+  return workspace;
+}
+
+function withConfirmedField(workspace: SourcingWorkspace, key: SourcingFieldKey, value: string): SourcingWorkspace {
+  return applyFounderFieldUpdate(workspace, { key, value, status: "confirmed", shareWithManufacturer: true });
 }

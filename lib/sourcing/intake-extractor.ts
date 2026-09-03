@@ -88,12 +88,12 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
   }
 
   const packageIndexes = new Set(sizedPackages.map((match) => match.index));
-  const quantities = allMatches(idea, /\b(?:first\s+run\s+)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b/gi)
+  const quantities = allMatches(idea, /\b(?:(?:first\s+(?:run|pilot)|pilot|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\s*[:=-]?\s*)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b/gi)
     .filter((match) => !packageIndexes.has(match.index) && Number(match[1].replace(/,/g, "")) >= 10);
-  const quantity = quantities.at(-1);
+  const quantity = canonicalFirstRunQuantity(idea, quantities);
   if (quantity) {
     const approximate = /\b(?:about|around|approximately|roughly)\b/i.test(quantity[0]);
-    put("production_volume", `${approximate ? "About " : ""}${quantity[1]} ${quantity[2].toLowerCase()}`, quantity, "The latest explicit first-run quantity supersedes earlier quantities.");
+    put("production_volume", `${approximate ? "About " : ""}${quantity[1]} ${quantity[2].toLowerCase()}`, quantity, "The canonical first-run quantity is kept separate from later forecasts; explicit corrections to that first run supersede its earlier value.");
   }
 
   const geography = lastMatch(idea, /\b(?:near(?:by)?\s+)?(?:Texas|California|Florida|New York|Illinois|Ohio|Georgia|Pennsylvania|Colorado|Arizona)(?:\s+(?:or|and)\s+nearby)?\b|\b(?:Midwest|Northeast|Southeast|Southwest|West Coast|West)\b/gi);
@@ -162,15 +162,18 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
 
   const certifications = normalizeCertificationRequirements(idea, null);
   const certificationSpans = certificationEvidenceSpans(idea);
-  if (certificationSpans.length && (certifications.required.length || certifications.preferred.length || certifications.negated.length)) {
-    const parts = [certifications.required.length ? `Required: ${certifications.required.join(", ")}` : null, certifications.preferred.length ? `Preferred: ${certifications.preferred.join(", ")}` : null, certifications.negated.length ? `Not required: ${certifications.negated.join(", ")}` : null].filter((part): part is string => Boolean(part));
+  if (certificationSpans.length && (certifications.required.length || certifications.preferred.length || certifications.negated.length || certifications.unknown.length)) {
+    const parts = [certifications.required.length ? `Required: ${certifications.required.join(", ")}` : null, certifications.preferred.length ? `Preferred: ${certifications.preferred.join(", ")}` : null, certifications.negated.length ? `Not required: ${certifications.negated.join(", ")}` : null, certifications.unknown.length ? `Unknown: ${certifications.unknown.join(", ")}` : null].filter((part): part is string => Boolean(part));
     facts.set("certifications", { key: "certifications", value: parts.join("; "), status: "confirmed", spans: certificationSpans, reason: "The founder explicitly stated certification priorities or negations; the original wording is preserved in the source span." });
   }
 
   const launchDate = lastMatch(idea, /\b20\d{2}-\d{2}-\d{2}\b/g);
   if (launchDate) put("target_launch_date", launchDate[0], launchDate, "The latest explicit launch-date correction supersedes earlier dates.");
 
-  return [...facts.values()].map((fact) => ({ key: fact.key, value: fact.value, status: fact.status, explicitlyStated: true, source, sourceSpans: uniqueSpans(fact.spans), reason: fact.reason, suggestedSharing: fact.key !== "certifications" || !/^Not required:/i.test(fact.value ?? "") }));
+  return [...facts.values()].map((fact) => {
+    const certificationIntent = fact.key === "certifications" ? normalizeCertificationRequirements(fact.value) : null;
+    return { key: fact.key, value: fact.value, status: fact.status, explicitlyStated: true, source, sourceSpans: uniqueSpans(fact.spans), reason: fact.reason, suggestedSharing: !certificationIntent || Boolean(certificationIntent.required.length || certificationIntent.preferred.length) };
+  });
 }
 
 function allMatches(source: string, pattern: RegExp): RegExpMatchArray[] { return [...source.matchAll(pattern)]; }
@@ -194,3 +197,20 @@ function normalizeFormulaStatus(value: string): string { if (/bench\s+formula/i.
 function formatList(values: string[]): string { if (values.length < 2) return values[0] ?? "validation review"; return `${values.slice(0, -1).join(", ")} and ${values.at(-1)}`; }
 function lowerFirst(value: string): string { return value ? `${value[0].toLowerCase()}${value.slice(1)}` : value; }
 function hasPositiveShelfStable(source: string): boolean { return allMatches(source, /\b(?:shelf[-\s]?stable|ambient|room[-\s]?temperature)\b/gi).some((match) => !isNegatedAt(source, match)); }
+function canonicalFirstRunQuantity(source: string, quantities: RegExpMatchArray[]): RegExpMatchArray | undefined {
+  const usable = quantities.filter((match) => !isForecastQuantity(source, match));
+  const firstRunAnchors = usable.filter((match) => /\b(?:first\s+(?:run|pilot)|pilot|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\b/i.test(match[0]));
+  if (!firstRunAnchors.length) return usable.at(-1);
+  const firstAnchorIndex = firstRunAnchors[0].index ?? 0;
+  const firstRunUpdates = usable.filter((match) => {
+    if ((match.index ?? 0) < firstAnchorIndex) return false;
+    if (firstRunAnchors.includes(match)) return true;
+    const preceding = source.slice(Math.max(firstAnchorIndex, (match.index ?? 0) - 45), match.index ?? 0);
+    return /\b(?:correction|corrected|actually|instead|make(?:\s+it|\s+that)?|change(?:d)?(?:\s+it|\s+that)?\s+to)\b[^.;!?]*$/i.test(preceding);
+  });
+  return firstRunUpdates.at(-1) ?? firstRunAnchors.at(-1);
+}
+function isForecastQuantity(source: string, match: RegExpMatchArray): boolean {
+  const preceding = source.slice(Math.max(0, (match.index ?? 0) - 55), match.index ?? 0);
+  return /\b(?:year[-\s]?one|annual|forecast|full[-\s]?year|at\s+scale|later[-\s]run)\b[^.;!?]*$/i.test(preceding);
+}

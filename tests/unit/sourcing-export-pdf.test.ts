@@ -27,7 +27,7 @@ describe("sourcing PDF research truth", () => {
     const strictText = await pdfText(strictZero);
     expect(strictText).toContain("Strict manufacturer search returned 0 possibilities");
     expect(strictText).toContain("Strict required criteria");
-    expect(strictText).toContain("Required certifications");
+    expect(strictText).toContain("Certification needs");
 
     const broadenedRequest: ManufacturerResearchRequest = {
       ...strictRequest,

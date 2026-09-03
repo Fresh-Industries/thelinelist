@@ -52,7 +52,12 @@ describe("competitive sparkling-beverage sourcing regressions", () => {
       expect(match.evidence
         .filter((item) => item.status === "verified" || item.status === "publicly_listed" || item.status === "conflicting")
         .every((item) => item.sourceUrl !== null)).toBe(true);
-      expect(match.reasonTrace?.some((item) => item.requirementKey === "certifications")).toBe(false);
+      expect(match.reasonTrace).toContainEqual(expect.objectContaining({
+        requirementKey: "certifications",
+        requirementLabel: "Certification: Organic",
+        priority: "not_required",
+        outcome: "not_applicable",
+      }));
     }
     expect(broadDiscovery.find((match) => match.manufacturerSlug === "better-beverage-company")?.evidence.map((item) => item.sourceUrl))
       .not.toContain("https://betterbeveragecompany.com/about-us/");

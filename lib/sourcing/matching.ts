@@ -6,16 +6,19 @@ import { MATCHABLE_REQUIREMENT_KEYS } from "./matching-requirements";
 import { resolveProductCategoryFromText } from "./product-category";
 import { hasMinimumMatchingInfo } from "./readiness";
 import { normalizeCertificationRequirements } from "./certification-requirements";
-import type { ManufacturerMatch, MatchEvidence, SourcingFieldKey, SourcingWorkspace } from "./types";
+import type { ManufacturerMatch, MatchEvidence, MatchReasonTrace, SourcingFieldKey, SourcingWorkspace } from "./types";
 
 interface RequirementResult {
   key: SourcingFieldKey;
   label: string;
-  outcome: "supported" | "mismatch" | "conflicting" | "unknown";
+  outcome: "supported" | "mismatch" | "conflicting" | "unknown" | "not_applicable";
   claim: string;
   sourceField: EvidenceField | null;
   notes?: string;
   granularity?: "exact" | "broad";
+  criterionId?: string;
+  priority?: MatchReasonTrace["priority"];
+  traceOnly?: boolean;
 }
 
 const SNACK_FORMAT_PATTERNS = [
@@ -60,9 +63,16 @@ function supportedRequirementSummary(results: RequirementResult[]): string {
 }
 
 function fullySupportsRequirement(results: RequirementResult[], key: SourcingFieldKey): boolean {
-  const keyed = results.filter((result) => result.key === key);
+  const keyed = results.filter((result) => result.key === key && !result.traceOnly);
   return keyed.length > 0
     && keyed.every((result) => result.outcome === "supported" && result.granularity !== "broad");
+}
+
+function fullySupportsResult(results: RequirementResult[], result: RequirementResult): boolean {
+  if (result.outcome !== "supported" || result.granularity === "broad") return false;
+  const criterion = result.criterionId ?? result.key;
+  const related = results.filter((candidate) => !candidate.traceOnly && (candidate.criterionId ?? candidate.key) === criterion);
+  return related.length > 0 && related.every((candidate) => candidate.outcome === "supported" && candidate.granularity !== "broad");
 }
 
 function searchablePlantText(plant: Plant): string {
@@ -402,6 +412,116 @@ function certificationListed(certText: string, certification: string): boolean {
   return certText.includes(certification.toLowerCase());
 }
 
+interface AllergenDefinition {
+  id: string;
+  label: string;
+  pattern: string;
+}
+
+const ALLERGENS: AllergenDefinition[] = [
+  { id: "sesame", label: "Sesame", pattern: "sesame" },
+  { id: "peanut", label: "Peanut", pattern: "peanuts?" },
+  { id: "tree-nut", label: "Tree nuts", pattern: "tree[-\\s]?nuts?" },
+  { id: "coconut", label: "Coconut", pattern: "coconuts?" },
+  { id: "dairy", label: "Dairy", pattern: "dairy|milk" },
+  { id: "gluten", label: "Gluten", pattern: "gluten" },
+  { id: "soy", label: "Soy", pattern: "soy" },
+  { id: "egg", label: "Egg", pattern: "eggs?" },
+  { id: "wheat", label: "Wheat", pattern: "wheat" },
+];
+
+interface AllergenCriterion {
+  id: string;
+  label: string;
+  mode: "contains" | "free_from" | "shared_acceptable" | "generic";
+  allergen?: AllergenDefinition;
+  dedicated?: boolean;
+}
+
+function parseAllergenCriteria(value: string): AllergenCriterion[] {
+  const criteria: AllergenCriterion[] = [];
+  for (const allergen of ALLERGENS) {
+    const named = new RegExp(`\\b(?:${allergen.pattern})\\b`, "i");
+    if (!named.test(value)) continue;
+    const contains = new RegExp(`\\b(?:contains?|includes?|made\\s+with)\\b[^.;]{0,90}\\b(?:${allergen.pattern})\\b`, "i").test(value);
+    const freeFrom = new RegExp(`(?:\\b(?:${allergen.pattern})[-\\s]?free\\b|\\bfree\\s+of\\b[^.;]{0,45}\\b(?:${allergen.pattern})\\b|\\b(?:no|without)\\b[^.;]{0,45}\\b(?:${allergen.pattern})\\b|\\b(?:avoid|exclude)\\b[^.;]{0,60}\\b(?:${allergen.pattern})\\b)`, "i").test(value);
+    if (contains) criteria.push({ id: `allergen:contains:${allergen.id}`, label: `Ingredient allergen: ${allergen.label}`, mode: "contains", allergen });
+    if (freeFrom) {
+      const dedicated = new RegExp(`\\bdedicated\\b[^.;]{0,60}\\b(?:${allergen.pattern})[-\\s]?free\\b|\\b(?:${allergen.pattern})[-\\s]?free\\b[^.;]{0,60}\\b(?:facility|line)\\b`, "i").test(value);
+      criteria.push({ id: `allergen:free:${allergen.id}`, label: dedicated ? `Dedicated free-from facility: ${allergen.label}` : `Free-from requirement: ${allergen.label}`, mode: "free_from", allergen, dedicated });
+    }
+  }
+  const sharedAccepted = /\b(?:controlled\s+)?shared[-\s]?allergen\b[^.;]{0,60}\b(?:acceptable|accepted|okay|ok|allowed|works?)\b/i.test(value)
+    || /\b(?:acceptable|accepted|okay|ok|allowed)\b[^.;]{0,60}\b(?:controlled\s+)?shared[-\s]?allergen\b/i.test(value);
+  if (sharedAccepted) criteria.push({ id: "allergen:shared-acceptable", label: "Shared-allergen facility acceptance", mode: "shared_acceptable" });
+  if (!criteria.length) criteria.push({ id: "allergen:generic", label: "Allergen requirement", mode: "generic" });
+  return criteria;
+}
+
+function allergenControlText(plant: Plant): string {
+  return [plant.manufacturingCapabilitiesPublished, ...plant.rawCapabilityTags ?? [], ...plant.certs, plant.qualityNotes]
+    .filter(Boolean).join(" ").toLowerCase();
+}
+
+function plantProductText(plant: Plant): string {
+  return [plant.productTypesPublished, ...plant.rawProductTags ?? []].filter(Boolean).join(" ").toLowerCase();
+}
+
+function evaluateAllergenRequirement(plant: Plant, key: SourcingFieldKey, value: string): RequirementResult[] {
+  const controls = allergenControlText(plant);
+  const products = plantProductText(plant);
+  const sharedControls = /\b(?:controlled\s+)?shared[-\s]?allergen\b|\ballergen\s+(?:management|program)\b|\bcross[-\s]?contact\s+controls?\b/.test(controls);
+  const genericFreeFacility = /\b(?:dedicated\s+)?allergen[-\s]?free\s+(?:facility|line)\b/.test(controls);
+  const criteria = parseAllergenCriteria(value);
+  const containsNamedAllergen = criteria.some((criterion) => criterion.mode === "contains");
+
+  return criteria.map((criterion) => {
+    const base = { key, criterionId: criterion.id, label: criterion.label, sourceField: "certifications" as const, granularity: "exact" as const };
+    if (criterion.mode === "generic") {
+      return { ...base, outcome: "unknown" as const, claim: "The requested allergen condition is recorded, but exact public line or facility evidence is not available." };
+    }
+    if (criterion.mode === "shared_acceptable") {
+      if (genericFreeFacility && containsNamedAllergen) return { ...base, outcome: "mismatch" as const, claim: "Published information describes an allergen-free facility or line, which conflicts with a product that intentionally contains named allergens." };
+      const explicitControlledShared = /\b(?:controlled\s+)?shared[-\s]?allergen\b/.test(controls);
+      return {
+        ...base,
+        outcome: sharedControls ? "supported" as const : "unknown" as const,
+        claim: sharedControls
+          ? "Published information describes a shared-allergen, allergen-management, or cross-contact control program. Exact named-allergen line review is still required."
+          : "A controlled shared-allergen facility is acceptable, but the reviewed public information does not establish such controls.",
+        granularity: sharedControls && !explicitControlledShared ? "broad" as const : "exact" as const,
+      };
+    }
+
+    const allergen = criterion.allergen!;
+    const exactFree = new RegExp(`\\b(?:${allergen.pattern})[-\\s]?free\\b`, "i").test(controls);
+    const dedicatedFree = new RegExp(`(?:\\bdedicated\\b[^.;]{0,60}\\b(?:${allergen.pattern})[-\\s]?free\\b|\\b(?:${allergen.pattern})[-\\s]?free\\s+(?:facility|line)\\b)`, "i").test(controls);
+    const namedHandling = new RegExp(`(?:\\b(?:${allergen.pattern})\\b[^.;]{0,80}\\b(?:shared[-\\s]?allergen|allergen\\s+(?:management|program)|cross[-\\s]?contact|can\\s+run|handles?|processes?)\\b|\\b(?:shared[-\\s]?allergen|allergen\\s+(?:management|program)|cross[-\\s]?contact|can\\s+run|handles?|processes?)\\b[^.;]{0,80}\\b(?:${allergen.pattern})\\b)`, "i").test(controls);
+    const productContains = new RegExp(`\\b(?:${allergen.pattern})\\b`, "i").test(products);
+
+    if (criterion.mode === "contains") {
+      if (dedicatedFree || genericFreeFacility) return { ...base, outcome: "mismatch" as const, claim: `The product contains ${allergen.label.toLowerCase()}, while published information describes a free-from facility or line.` };
+      return {
+        ...base,
+        outcome: namedHandling ? "supported" as const : "unknown" as const,
+        claim: namedHandling
+          ? `Published information explicitly addresses ${allergen.label.toLowerCase()} handling together with allergen or cross-contact controls.`
+          : `The product contains ${allergen.label.toLowerCase()}, but the reviewed public information does not establish line-specific handling or cross-contact controls.`,
+      };
+    }
+
+    if (criterion.dedicated) {
+      if (dedicatedFree) return { ...base, outcome: "supported" as const, claim: `Published information explicitly describes a dedicated ${allergen.label.toLowerCase()}-free facility or line.` };
+      if (sharedControls || productContains) return { ...base, outcome: "mismatch" as const, sourceField: productContains ? "products" as const : "certifications" as const, claim: `A dedicated ${allergen.label.toLowerCase()}-free facility is required, but public information describes shared-allergen operations or products containing ${allergen.label.toLowerCase()}.` };
+      return { ...base, outcome: "unknown" as const, claim: `A dedicated ${allergen.label.toLowerCase()}-free facility or line is not publicly established.` };
+    }
+    if (exactFree) return { ...base, outcome: "supported" as const, claim: `Published information explicitly states ${allergen.label.toLowerCase()}-free capability or facility status.` };
+    if (productContains) return { ...base, outcome: "conflicting" as const, sourceField: "products" as const, claim: `A ${allergen.label.toLowerCase()}-free product is requested, while published product information includes ${allergen.label.toLowerCase()} and no dedicated free-from control is established.` };
+    if (genericFreeFacility) return { ...base, outcome: "supported" as const, granularity: "broad" as const, claim: "Published information describes a broader allergen-free facility or line, but the exact named-allergen scope still needs confirmation." };
+    return { ...base, outcome: "unknown" as const, claim: `${allergen.label} exclusion and cross-contact controls are not publicly established.` };
+  });
+}
+
 function formatNumber(value: number): string {
   return Number.isInteger(value) ? value.toLocaleString("en-US") : value.toLocaleString("en-US", { maximumFractionDigits: 1 });
 }
@@ -542,6 +662,37 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
           granularity: wantsSlim ? "exact" : undefined,
         };
       }
+      const wantsJar = /\bjars?\b/.test(wanted);
+      if (wantsJar) {
+        const jarFamily = /\bjars?\b/.test(packaging);
+        const requestedDetails: Array<[RegExp, string]> = [
+          [/\bglass\b/, "glass material"],
+          [/\bplastic\b/, "plastic material"],
+          [/\bclear\b/, "clear finish"],
+          [/\bhex(?:agonal)?\b/, "hex geometry"],
+          [/\blug\b/, "lug closure"],
+        ];
+        const missingDetails = requestedDetails
+          .filter(([pattern]) => pattern.test(wanted) && !pattern.test(packaging))
+          .map(([, description]) => description);
+        if (jarFamily && !missingDetails.length) {
+          return { key, label, outcome: "supported", claim: `Published packaging explicitly supports ${value}.`, sourceField: "packaging", granularity: "exact" };
+        }
+        if (jarFamily) {
+          return [
+            { key, label, outcome: "supported", claim: "Reviewed packaging supports the broader jar family.", sourceField: "packaging", granularity: "broad" },
+            {
+              key,
+              label: "Exact jar construction",
+              outcome: "unknown",
+              claim: `The reviewed packaging source does not establish the requested ${formatNaturalList(missingDetails)}.`,
+              sourceField: "packaging",
+              granularity: "exact",
+            },
+          ];
+        }
+        return { key, label, outcome: "unknown", claim: "Jar capability is not publicly listed.", sourceField: "packaging", granularity: "exact" };
+      }
       const terms = wanted.includes("can") ? ["can", "cans", "canning"]
         : wanted.includes("bottle") ? ["bottle", "bottles", "bottling"]
         : wanted.includes("pouch") ? ["pouch", "pouches"]
@@ -669,18 +820,47 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
     }
     case "certifications": {
       const normalized = normalizeCertificationRequirements(value);
-      const requested = [...normalized.required, ...normalized.preferred];
-      if (!requested.length) return null;
       const certText = plant.certs.join(" ").toLowerCase();
-      const supported = requested.filter((certification) => certificationListed(certText, certification));
-      return {
-        key, label,
-        outcome: supported.length === requested.length && requested.length > 0 ? "supported" : "unknown",
-        claim: supported.length === requested.length && requested.length > 0
-          ? `Published certification information includes ${supported.join(", ")}.`
-          : `Not every requested certification is publicly listed; confirm the exact facility and line.`,
-        sourceField: "certifications",
-      };
+      const evaluated = ([
+        ...normalized.required.map((certification) => ({ certification, priority: "required" as const })),
+        ...normalized.preferred.map((certification) => ({ certification, priority: "preferred" as const })),
+      ]).map(({ certification, priority }) => {
+        const supported = certificationListed(certText, certification);
+        return {
+          key,
+          criterionId: `certification:${certification.toLowerCase()}`,
+          label: `Certification: ${certification}`,
+          priority,
+          outcome: supported ? "supported" as const : "unknown" as const,
+          claim: supported
+            ? `Published certification information includes ${certification}.`
+            : `${certification} certification is not publicly listed for the exact facility and line.`,
+          sourceField: "certifications" as const,
+          granularity: "exact" as const,
+        };
+      });
+      const unconfirmed = normalized.unknown.map((certification) => ({
+        key,
+        criterionId: `certification:${certification.toLowerCase()}`,
+        label: `Certification need: ${certification}`,
+        priority: "unconfirmed" as const,
+        outcome: "unknown" as const,
+        claim: `The founder has not decided whether ${certification} is needed, so it is not used as a fit signal.`,
+        sourceField: null,
+        traceOnly: true,
+      }));
+      const negated = normalized.negated.map((certification) => ({
+        key,
+        criterionId: `certification:${certification.toLowerCase()}`,
+        label: `Certification: ${certification}`,
+        priority: "not_required" as const,
+        outcome: "not_applicable" as const,
+        claim: `${certification} is explicitly not required and is not used as a fit signal.`,
+        sourceField: null,
+        traceOnly: true,
+      }));
+      const results = [...evaluated, ...unconfirmed, ...negated];
+      return results.length ? results : null;
     }
     case "production_volume": {
       const comparison = compareProductionVolume(value, workspace.fields.packaging_size.value, workspace.fields.packaging_format.value, plant.moqDisplay);
@@ -719,15 +899,7 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       };
     }
     case "allergens": {
-      const wantsNutFree = /no nuts|nut.?free|without nuts/i.test(value);
-      if (!wantsNutFree) return null;
-      const supported = includesAny(text, ["nut-free", "nut free", "peanut-free", "peanut free"]);
-      return {
-        key, label,
-        outcome: supported ? "supported" : "unknown",
-        claim: supported ? "Published information includes a nut-free capability or facility statement." : "Nut controls and cross-contact requirements are not publicly established.",
-        sourceField: "certifications",
-      };
+      return evaluateAllergenRequirement(plant, key, value);
     }
     default:
       return null;
@@ -761,6 +933,22 @@ function evidenceFor(plant: Plant, result: RequirementResult): MatchEvidence {
 
 type MatchOptions = { resultLimit?: number; geographyPreference?: string; requiredRequirements?: SourcingFieldKey[]; preferredRequirements?: SourcingFieldKey[] };
 
+function requiredGapCount(
+  results: RequirementResult[],
+  requiredKeys: Set<SourcingFieldKey>,
+  priorityFor: (result: RequirementResult) => MatchReasonTrace["priority"],
+): number {
+  const active = results.filter((result) => !result.traceOnly && result.outcome !== "not_applicable");
+  const requiredResults = active.filter((result) => priorityFor(result) === "required");
+  const criteria = new Set(requiredResults.map((result) => result.criterionId ?? result.key));
+  let gaps = [...criteria].filter((criterion) => {
+    const grouped = requiredResults.filter((result) => (result.criterionId ?? result.key) === criterion);
+    return grouped.some((result) => result.outcome !== "supported" || result.granularity === "broad");
+  }).length;
+  gaps += [...requiredKeys].filter((key) => !active.some((result) => result.key === key)).length;
+  return gaps;
+}
+
 export function matchManufacturers(workspace: SourcingWorkspace, options: MatchOptions = {}): ManufacturerMatch[] {
   return matchManufacturerRecords(workspace, getDirectoryPlants(), options);
 }
@@ -781,7 +969,8 @@ export function matchManufacturerRecords(
   const required = new Set<SourcingFieldKey>(options.requiredRequirements ?? []);
   const preferred = new Set<SourcingFieldKey>(options.preferredRequirements ?? []);
   const certificationPriorities = normalizeCertificationRequirements(fieldValue(workspace, "certifications"));
-  if (!certificationPriorities.required.length) required.delete("certifications");
+  if (certificationPriorities.required.length) required.add("certifications");
+  else required.delete("certifications");
   if (certificationPriorities.preferred.length) preferred.add("certifications");
   if (!certificationPriorities.required.length && !certificationPriorities.preferred.length) preferred.delete("certifications");
   const allowBroadProduct = !required.has("product_type");
@@ -792,10 +981,13 @@ export function matchManufacturerRecords(
       const result = evaluateRequirement(plant, workspace, field.key, field.value!);
       return result ? Array.isArray(result) ? result : [result] : [];
     });
-    const supported = results.filter((result) => result.outcome === "supported");
-    const conflicts = results.filter((result) => result.outcome === "mismatch" || result.outcome === "conflicting");
-    const unknowns = results.filter((result) => result.outcome === "unknown");
-    const fullySupported = supported.filter((result) => fullySupportsRequirement(results, result.key));
+    const activeResults = results.filter((result) => !result.traceOnly && result.outcome !== "not_applicable");
+    const priorityFor = (result: RequirementResult): MatchReasonTrace["priority"] => result.priority
+      ?? (required.has(result.key) ? "required" : preferred.has(result.key) ? "preferred" : "evaluated");
+    const supported = activeResults.filter((result) => result.outcome === "supported");
+    const conflicts = activeResults.filter((result) => result.outcome === "mismatch" || result.outcome === "conflicting");
+    const unknowns = activeResults.filter((result) => result.outcome === "unknown");
+    const fullySupported = supported.filter((result) => fullySupportsResult(activeResults, result));
     const productSupport = fullySupportsRequirement(results, "product_type");
     const productCandidate = product ? isProductCandidate(plant, product, allowBroadProduct) : false;
     const geographySupport = supported.some((result) => result.key === "preferred_geography");
@@ -813,17 +1005,18 @@ export function matchManufacturerRecords(
       supportedMatches: supported.map((result) => result.claim),
       possibleConflicts: conflicts.map((result) => result.claim),
       unknowns: unknowns.map((result) => result.claim),
-      evidence: results.map((result) => evidenceFor(plant, result)),
+      evidence: activeResults.map((result) => evidenceFor(plant, result)),
       reasonTrace: results.map((result) => ({
         requirementKey: result.key,
         requirementLabel: result.label,
-        priority: required.has(result.key) ? "required" as const : preferred.has(result.key) ? "preferred" as const : "evaluated" as const,
+        priority: priorityFor(result),
         outcome: result.outcome === "supported"
           ? result.granularity === "broad" ? "broad_support" as const : "supported" as const
-          : result.outcome === "mismatch" || result.outcome === "conflicting" ? "conflict" as const : "unknown" as const,
+          : result.outcome === "mismatch" || result.outcome === "conflicting" ? "conflict" as const
+            : result.outcome === "not_applicable" ? "not_applicable" as const : "unknown" as const,
         claim: result.claim,
       })),
-      requirementsUsed: results.map((result) => result.key),
+      requirementsUsed: [...new Set(results.map((result) => result.key))],
       introductionAvailable: !plant.introductionsPaused,
       deliveryMethod: plant.introductionsPaused ? "paused" : "line_list_introduction",
       lastReviewed: plant.lastVerified,
@@ -835,11 +1028,12 @@ export function matchManufacturerRecords(
       productSupport,
       productCandidate,
       geographySupport,
-      requiredGaps: [...required].filter((key) => {
-        return !fullySupportsRequirement(results, key);
-      }).length,
-      preferredSupport: results.filter((result) => preferred.has(result.key) && result.outcome === "supported").length,
-      preferredConflicts: results.filter((result) => preferred.has(result.key) && (result.outcome === "mismatch" || result.outcome === "conflicting")).length,
+      requiredGaps: requiredGapCount(results, required, priorityFor),
+      preferredSupport: activeResults.filter((result) => priorityFor(result) === "preferred" && result.outcome === "supported").length,
+      preferredConflicts: activeResults.filter((result) => priorityFor(result) === "preferred" && (result.outcome === "mismatch" || result.outcome === "conflicting")).length,
+      hardPreferredConflicts: activeResults.filter((result) => priorityFor(result) === "preferred"
+        && (result.key === "packaging_format" || result.key === "packaging_size" || result.key === "production_volume")
+        && (result.outcome === "mismatch" || result.outcome === "conflicting")).length,
       capabilitySupport: supported.filter((result) => result.key !== "product_type" && result.key !== "preferred_geography").length + Number(hasPublishedManufacturingCapability(plant)),
     };
   });
@@ -847,6 +1041,7 @@ export function matchManufacturerRecords(
   return ranked
     .sort((left, right) => left.requiredGaps - right.requiredGaps
       || Number(right.productSupport) - Number(left.productSupport)
+      || left.hardPreferredConflicts - right.hardPreferredConflicts
       || right.preferredSupport - left.preferredSupport
       || left.preferredConflicts - right.preferredConflicts
       || Number(right.geographySupport) - Number(left.geographySupport)
