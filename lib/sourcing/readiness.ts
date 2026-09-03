@@ -63,6 +63,7 @@ function isUsefulConfirmedValue(workspace: SourcingWorkspace, key: SourcingField
 
 function isResolvedRequirement(workspace: SourcingWorkspace, key: SourcingFieldKey): boolean {
   if (isUsefulConfirmedValue(workspace, key)) return true;
+  if (key === "packaging_format" && hasValidFounderPackageCommit(workspace)) return true;
   return key === "product_format"
     && isUsefulConfirmedValue(workspace, "packaging_format")
     && isUsefulConfirmedValue(workspace, "packaging_size");
@@ -108,7 +109,7 @@ export function getSourcingReadiness(workspace: SourcingWorkspace): SourcingRead
   const packageDesignRequired = required.includes("packaging_format");
   const packageDesignReady = hasValidFounderPackageCommit(workspace);
   const confirmed = required.filter((key) => isResolvedRequirement(workspace, key));
-  const proposed = prioritizeDecisions(workspace, required.filter((key) => workspace.fields[key]?.status === "proposed"));
+  const proposed = prioritizeDecisions(workspace, required.filter((key) => !isResolvedRequirement(workspace, key) && workspace.fields[key]?.status === "proposed"));
   const confirmedSet = new Set(confirmed);
   const proposedSet = new Set(proposed);
   const missing = prioritizeDecisions(workspace, required.filter((key) => !confirmedSet.has(key) && !proposedSet.has(key)));

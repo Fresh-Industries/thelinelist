@@ -18,7 +18,7 @@ function confirmed(workspace: SourcingWorkspace, key: keyof SourcingWorkspace["f
 export function getProductJourney(workspace: SourcingWorkspace): ProductJourneyStep[] {
   const ideaComplete = confirmed(workspace, "product_type");
   const productComplete = ideaComplete && (confirmed(workspace, "product_format") || confirmed(workspace, "product_description"));
-  const packagingComplete = confirmed(workspace, "packaging_format") && hasValidFounderPackageCommit(workspace);
+  const packagingComplete = hasValidFounderPackageCommit(workspace);
   const productionComplete = packagingComplete
     && confirmed(workspace, "production_volume")
     && confirmed(workspace, "storage_distribution")

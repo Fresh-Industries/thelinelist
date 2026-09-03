@@ -484,6 +484,60 @@ describe("sourcing workspace trust rules", () => {
     expect(getSourcingReadiness(workspace).manufacturerReady).toBe(true);
   });
 
+  it("treats a founder-saved package as the resolved packaging decision for existing workspaces", () => {
+    let workspace = createWorkspace({ idea: "A hot sauce for grocery stores" });
+    for (const update of [
+      { key: "product_type", value: "Hot sauce" },
+      { key: "product_format", value: "Pourable hot sauce" },
+      { key: "product_description", value: "A shelf-stable hot sauce for grocery stores." },
+      { key: "formula_status", value: "Existing home recipe" },
+      { key: "storage_distribution", value: "Shelf-stable goal" },
+      { key: "production_volume", value: "2,500 bottles" },
+    ] as const) {
+      workspace = applyFounderFieldUpdate(workspace, { ...update, status: "confirmed", shareWithManufacturer: true });
+    }
+    workspace = applyAgentUpdates(workspace, [{
+      key: "packaging_format",
+      value: "Glass sauce bottle",
+      status: "proposed",
+      explicitlyStated: false,
+      suggestedSharing: true,
+      reason: "Bottle material and line compatibility still require manufacturer validation.",
+    }]);
+
+    const packageDesign = PackageDesignSchema.parse({
+      packagingType: "bottle",
+      finish: "colored",
+      baseColor: "#fe5b2a",
+      labelColor: "#f2e8d5",
+      artworkId: null,
+      logoAspect: 1,
+      logoScale: 1,
+      logoPosition: { x: 0, y: 0 },
+      dimensions: { width: null, height: null, depth: null },
+      summary: "Coral bottle · dimensions still open",
+    });
+    workspace = stagePackageDesign(workspace, { stageId: "saucy-stage-package-design-001", packageDesign, stagedBy: "agent" });
+    workspace = commitStagedPackageDesign(workspace, { commitId: "saucy-commit-package-design-01", stagedPackageId: workspace.stagedPackageDesign!.id });
+    workspace = applyManufacturerResearch(workspace, {
+      geographyPreference: null,
+      resultLimit: 3,
+      requiredRequirements: [],
+      preferredRequirements: [],
+    }, []);
+
+    expect(workspace.fields.packaging_format.status).toBe("proposed");
+    expect(getSourcingReadiness(workspace)).toMatchObject({
+      manufacturerReady: true,
+      packageDesignReady: true,
+      nextQuestionKey: null,
+      missingRequirements: [],
+      proposedRequirements: [],
+    });
+    expect(getProductJourney(workspace).map((step) => step.status)).toEqual(["complete", "complete", "complete", "complete", "current"]);
+    expect(buildOutreachReadinessAudit(workspace).blockers).not.toContain("Review and save a supported 3D package direction for the manufacturer brief.");
+  });
+
   it("lets the founder confirm, reject, mark unknown, and control sharing", () => {
     const proposed = applyAgentUpdates(createWorkspace(), [
       { key: "carbonation", value: "Carbonated", explicitlyStated: false, suggestedSharing: true },
