@@ -397,6 +397,7 @@ main.sourcing-workspace-view { min-height: calc(100vh - 84px); padding: 0; }
 .manufacturer-broadening-dialog h2 { margin: 4px 0 10px; font-family: var(--font-display); font-size: 30px; }
 .manufacturer-broadening-shell > header > p:not(.manufacturer-eyebrow) { margin-bottom: 0; color: #62645f; line-height: 1.55; }
 .manufacturer-broadening-scroll { min-height: 0; padding: 0 30px 24px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.manufacturer-broadening-scroll:focus-visible { outline: 3px solid #b78b3e; outline-offset: -3px; }
 .manufacturer-criteria-diff { display: grid; gap: 8px; margin: 22px 0; }
 .manufacturer-criteria-diff section { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid #d8d1c7; }
 .manufacturer-criteria-diff h3, .manufacturer-criteria-diff p { margin: 0; }

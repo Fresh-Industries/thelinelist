@@ -279,6 +279,7 @@ function publishedOunceRanges(value: string, preferredMaterial: string | null): 
 function compareProductionVolume(
   requestedValue: string,
   packageSize: string | null,
+  requestedPackageFormat: string | null,
   publishedMinimum: string | null,
 ): { compatible: boolean; claim: string } | null {
   if (!publishedMinimum) return null;
@@ -289,10 +290,32 @@ function compareProductionVolume(
   const caseComparison = compareCasePackMinimum(requestedAmount, requested[2], packageSize, publishedMinimum);
   if (requestedUnit === "unit" && caseComparison) return caseComparison;
 
-  const minimum = publishedMinimum.match(/\b(?:minimum(?:\s+(?:batch|runs?))?|floor|starts?\s+(?:as\s+low\s+as|at)|starting\s+at)\s*:?\s*(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
+  const minimum = publishedMinimum.match(/\b(?:minimum(?:\s+(?:batch|runs?))?|floor|starts?\s+(?:as\s+low\s+as|at)|starting\s+at|(?:contact\s+form\s+)?lowest\s+band\s+is)\s*:?\s*(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
   if (!minimum) return null;
   const minimumAmount = Number(minimum[1].replaceAll(",", ""));
   const minimumUnit = unitFamily(minimum[2]);
+
+  const requestedContainer = containerFamily(requested[2]) ?? containerFamily(requestedPackageFormat ?? "");
+  const minimumContainer = containerFamily(minimum[2]);
+  if (requestedUnit === "unit" && minimumContainer === "unit" && requestedContainer && requestedContainer !== "unit") {
+    const familyPattern = new RegExp(`\\b${requestedContainer}(?:s|es)?\\b`, "i");
+    if (!familyPattern.test(publishedMinimum)) return null;
+    const requestedMaterial = requestedPackageFormat?.match(/\b(glass|plastic|aluminum|aluminium)\b/i)?.[1].toLowerCase().replace("aluminium", "aluminum") ?? null;
+    const publishedHasMaterialScope = /\b(?:glass|plastic|aluminum|aluminium)\b/i.test(publishedMinimum);
+    if (requestedMaterial && publishedHasMaterialScope) {
+      const materialFamilyPattern = new RegExp(`\\b${requestedMaterial === "aluminum" ? "alumin(?:um|ium)" : requestedMaterial}\\s+${requestedContainer}(?:s|es)?\\b`, "i");
+      if (!materialFamilyPattern.test(publishedMinimum)) return null;
+    }
+    const compatible = requestedAmount >= minimumAmount;
+    const difference = Math.abs(requestedAmount - minimumAmount);
+    const packageScope = `${requestedMaterial ? `${requestedMaterial} ` : ""}${requestedContainer}s`;
+    return {
+      compatible,
+      claim: compatible
+        ? `${formatNumber(requestedAmount)} ${requested[2].toLowerCase()} meets the published ${formatNumber(minimumAmount)}-unit minimum for ${packageScope}.`
+        : `${formatNumber(requestedAmount)} ${requested[2].toLowerCase()} is ${formatNumber(difference)} units below the published ${formatNumber(minimumAmount)}-unit minimum for ${packageScope}.`,
+    };
+  }
 
   if (requestedUnit === minimumUnit) {
     const compatible = requestedAmount >= minimumAmount;
@@ -660,8 +683,9 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       };
     }
     case "production_volume": {
-      const comparison = compareProductionVolume(value, workspace.fields.packaging_size.value, plant.moqDisplay);
-      if (comparison && plant.fieldSourceUrls?.minimums?.length) {
+      const comparison = compareProductionVolume(value, workspace.fields.packaging_size.value, workspace.fields.packaging_format.value, plant.moqDisplay);
+      const hasPublishedMinimumEvidence = Boolean(plant.fieldSourceUrls?.minimums?.length || plant.smallRunSignal?.sourceUrls.length);
+      if (comparison && hasPublishedMinimumEvidence) {
         return {
           key,
           label,

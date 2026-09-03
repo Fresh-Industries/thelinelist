@@ -23,9 +23,8 @@ export function getProductDescriptor(workspace: SourcingWorkspace): string {
   const candidate = workspace.fields.product_type.value || workspace.fields.product_name.value;
   if (candidate) return deriveProductDescriptorFromIdea(candidate) || "Product in development";
 
-  const format = workspace.fields.product_format.value;
   const category = workspace.fields.product_category.value;
-  return deriveProductDescriptorFromIdea(format || category || "") || "Product in development";
+  return deriveProductDescriptorFromIdea(category || "") || "Product in development";
 }
 
 export function deriveProductDescriptorFromIdea(idea: string): string | null {
@@ -78,6 +77,8 @@ function fallbackProductPhrase(source: string): string | null {
   const knownProducts: Array<[RegExp, string]> = [
     [/\bbanana\s+bread\b/i, "Banana bread"],
     [/\bhot\s+sauce\b/i, "Hot sauce"],
+    [/\b(?:[a-z][a-z-]*\s+){0,5}spread\b/i, "Packaged spread"],
+    [/\b(?:[a-z][a-z-]*\s+){0,5}dip\b/i, "Packaged dip"],
     [/\benergy\s+drink\b/i, "Energy drink"],
     [/\bsparkling\s+(?:drink|beverage)\b/i, "Sparkling beverage"],
     [/\b(?:sauce|condiment)\b/i, "Packaged sauce"],

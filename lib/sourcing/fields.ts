@@ -3,6 +3,7 @@ import type { SourcingFieldKey } from "./types";
 export interface SourcingFieldDefinition {
   key: SourcingFieldKey;
   label: string;
+  acknowledgementLabel?: string;
   hint: string;
   group: "product" | "run" | "business" | "founder" | "notes";
   shareByDefault: boolean;
@@ -17,16 +18,16 @@ export const SOURCING_FIELD_DEFINITIONS: SourcingFieldDefinition[] = [
   { key: "product_format", label: "Product format", hint: "Example: mini loaf, snack bar, or 12 oz drink", group: "product", shareByDefault: true },
   { key: "product_type", label: "Product", hint: "Example: healthier energy drink", group: "product", shareByDefault: true },
   { key: "product_description", label: "Product description", hint: "What it is and who it is for", group: "product", shareByDefault: true, multiline: true },
-  { key: "formula_status", label: "Is your recipe ready?", hint: "Idea, draft, tested, or ready to make", group: "product", shareByDefault: true },
-  { key: "formulation_assistance", label: "Do you need help creating the recipe?", hint: "Recipe development or help scaling it up", group: "product", shareByDefault: true },
+  { key: "formula_status", label: "Is your recipe ready?", acknowledgementLabel: "recipe readiness", hint: "Idea, draft, tested, or ready to make", group: "product", shareByDefault: true },
+  { key: "formulation_assistance", label: "Do you need help creating the recipe?", acknowledgementLabel: "formulation help", hint: "Recipe development or help scaling it up", group: "product", shareByDefault: true },
   { key: "carbonation", label: "Carbonation", hint: "Carbonated, still, or not sure", group: "product", shareByDefault: true },
   { key: "manufacturing_process", label: "Manufacturing process", hint: "Hot fill, cold fill, retort, HPP, or not sure", group: "product", shareByDefault: true },
   { key: "packaging_format", label: "Package", hint: "Can, bottle, jar, pouch, or not sure", group: "run", shareByDefault: true },
   { key: "packaging_size", label: "Package size", hint: "Example: 12 oz", group: "run", shareByDefault: true },
-  { key: "production_volume", label: "How much do you want to make first?", hint: "Units, cases, gallons, or pounds", group: "run", shareByDefault: true },
+  { key: "production_volume", label: "How much do you want to make first?", acknowledgementLabel: "first-run volume", hint: "Units, cases, gallons, or pounds", group: "run", shareByDefault: true },
   { key: "budget", label: "Budget", hint: "Private unless you choose to share it", group: "business", shareByDefault: false, privateByDefault: true },
   { key: "certifications", label: "Required certifications", hint: "Organic, kosher, SQF, or other requirements", group: "run", shareByDefault: true },
-  { key: "preferred_geography", label: "Where should your manufacturer be?", hint: "State, region, or shipping radius", group: "business", shareByDefault: true },
+  { key: "preferred_geography", label: "Where should your manufacturer be?", acknowledgementLabel: "manufacturer geography", hint: "State, region, or shipping radius", group: "business", shareByDefault: true },
   { key: "target_launch_date", label: "Target launch", hint: "Date or timeframe", group: "business", shareByDefault: true },
   { key: "ingredient_sourcing", label: "Ingredient sourcing", hint: "Who should source ingredients", group: "run", shareByDefault: true },
   { key: "packaging_sourcing", label: "Packaging sourcing", hint: "Who should source packaging", group: "run", shareByDefault: true },
@@ -41,10 +42,10 @@ export const SOURCING_FIELD_DEFINITIONS: SourcingFieldDefinition[] = [
   { key: "company_introduction", label: "Founder or company introduction", hint: "A short, practical introduction", group: "founder", shareByDefault: true, multiline: true },
   { key: "contact_email", label: "Contact email", hint: "Shared only when selected", group: "founder", shareByDefault: true },
   { key: "contact_phone", label: "Contact phone", hint: "Optional", group: "founder", shareByDefault: false },
-  { key: "retail_channel", label: "Where you want to sell first", hint: "Independent grocery, regional retail, online, or another starting point", group: "business", shareByDefault: true },
+  { key: "retail_channel", label: "Where you want to sell first", acknowledgementLabel: "first retail channels", hint: "Independent grocery, regional retail, online, or another starting point", group: "business", shareByDefault: true },
   { key: "target_retail_price", label: "Expected shelf price", hint: "A target is enough for now", group: "business", shareByDefault: false, privateByDefault: true },
   { key: "target_unit_cost", label: "Target cost per unit", hint: "Your cost ceiling before freight and retailer margin", group: "business", shareByDefault: false, privateByDefault: true },
-  { key: "allergens", label: "Ingredients and allergens", hint: "Known allergens, exclusions, and cross-contact needs", group: "product", shareByDefault: true, multiline: true },
+  { key: "allergens", label: "Ingredients and allergens", acknowledgementLabel: "allergen requirements", hint: "Known allergens, exclusions, and cross-contact needs", group: "product", shareByDefault: true, multiline: true },
   { key: "case_pack", label: "Case pack", hint: "How many retail units go in one shipping case", group: "run", shareByDefault: true },
 ];
 

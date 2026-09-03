@@ -290,6 +290,11 @@ test("PDF export keeps each sourcing label with its first value line", async ({ 
   const downloadPath = await download.path();
   expect(downloadPath).toBeTruthy();
   const pages = await extractPdfPageText(readFileSync(downloadPath!));
+  expect(pages.join("\n")).toContain("Manufacturer research not run");
+  const exportHref = await page.getByRole("link", { name: "Export PDF" }).getAttribute("href");
+  expect(new URL(exportHref!, page.url()).searchParams.get("timeZone")).toBeTruthy();
+  const agentExport = await invokeWebMcp<{ downloadUrl: string }>(page, "export_product_packet", {});
+  expect(new URL(agentExport.downloadUrl).searchParams.get("timeZone")).toBe(new URL(exportHref!, page.url()).searchParams.get("timeZone"));
   const labelPage = pages.findIndex((text) => text.includes("Storage and distribution"));
   expect(labelPage).toBeGreaterThanOrEqual(0);
   const labelOffset = pages[labelPage].indexOf("Storage and distribution");
@@ -329,6 +334,58 @@ test("visible founder answers normalize corrections without repeating resolved q
   });
   const repeated = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(workspaceId)) as { workspace: { revision: number; updatedAt: string } };
   expect(repeated.workspace).toMatchObject({ revision: stored.workspace.revision, updatedAt: stored.workspace.updatedAt });
+});
+
+test("final-competition spread intake and multi-fact follow-up stay faithful in the visible brief", async ({ page }) => {
+  const finalPersona = "Please do not call this Meadow Moon; we have not chosen a brand. We are making a refrigerated sesame-free sunflower-seed dip—actually, correction: a shelf-stable roasted red pepper and white bean spread, not refrigerated and not a sunflower-seed dip. I first thought a 10 oz plastic tub, but no: use a 6 oz glass jar. The first run was going to be 4,000 jars; correction, make it 6,500 jars. I thought retort at first, but not retort—use hot fill if a qualified process authority says it is safe. The recipe is a home prototype, not tested or scale-ready, and I need formulation help. Sesame-free and peanut-free are required. SQF is required; organic certification is explicitly not required. Northeast is preferred but flexible. Target launch is 2028-02-29. We want to sell first through farmers markets and regional grocery stores. Storage and distribution must be ambient. We can supply printed labels, but we need the manufacturer to source the jars.";
+  const exactWorkspaceId = await startProduct(page, finalPersona);
+  await expect(page.getByRole("heading", { level: 1, name: "Roasted red pepper and white bean spread" })).toBeVisible();
+  for (const value of [
+    "Shelf-stable roasted red pepper and white bean spread",
+    "Spread",
+    "Glass Jar",
+    "6,500 jars",
+    "Untested home prototype; not scale-ready",
+    "Hot fill only if validated safe by a qualified process authority",
+    "Sesame-free and peanut-free required",
+  ]) await expect(page.getByText(value, { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "6 oz jar" })).toHaveCount(0);
+  const exactStored = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(exactWorkspaceId)) as { workspace: { fields: Record<string, { value: string | null }> } };
+  expect(exactStored.workspace.fields.packaging_size.value).toBe("6 oz");
+  expect(exactStored.workspace.fields.packaging_sourcing.value).toBe("Founder supplies printed labels; manufacturer sources jars");
+
+  const workspaceId = await startProduct(page, "A shelf-stable roasted red pepper and white bean spread in a 6 oz glass jar. First run 6,500 jars.");
+  await expect(page.getByRole("heading", { name: /How far along is the recipe/ })).toBeVisible();
+  await page.getByPlaceholder(/Answer naturally/).fill("Still a home prototype, not tested or scale-ready. I need formulation assistance. Also, it must be sesame-free and peanut-free.");
+  await page.getByRole("button", { name: "Add to brief" }).click();
+  await expect(page.getByText(/recipe readiness, formulation help, and allergen requirements/)).toBeVisible();
+  const stored = await page.evaluate(async (path) => fetch(path).then((response) => response.json()), workspaceApiPath(workspaceId)) as { workspace: { fields: Record<string, { value: string | null }>; revision: number } };
+  expect(stored.workspace.fields).toMatchObject({
+    formula_status: { value: "Untested home prototype; not scale-ready" },
+    formulation_assistance: { value: "Required" },
+    allergens: { value: "Sesame-free and peanut-free required" },
+  });
+});
+
+test("visible next action stays on product description when packaging is already confirmed", async ({ page }) => {
+  await installWebMcpHarness(page);
+  await page.goto("/sourcing");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
+  await invokeWebMcp(page, "create_sourcing_workspace", {
+    mutationId: newMutationId(),
+    idea: "Fictional packaged food product",
+    initialUpdates: [
+      { key: "product_type", value: "White bean spread", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "product_format", value: "Spread", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "formula_status", value: "Untested home prototype; not scale-ready", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "storage_distribution", value: "Shelf-stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "Glass jar", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_size", value: "6 oz", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "production_volume", value: "6,500 jars", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+    ],
+  });
+  await expect(page.getByRole("heading", { name: "In one sentence, what is the product promise, who is it for, and what still needs development?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Review and save your packaging direction in 3D." })).toHaveCount(0);
 });
 
 test("the collaborator drives one decision and keeps uncertainty open", async ({ page }) => {
@@ -866,6 +923,11 @@ test("zero-result research requires a visible founder-approved criteria diff and
   await expect(review.getByLabel("Exact research criteria change")).toContainText("Required certifications");
   await expect(review.getByLabel("Exact research criteria change")).toContainText("Before");
   await expect(review.getByLabel("Exact research criteria change")).toContainText("After");
+  await expect(review.getByLabel("Broader search criteria and safeguards")).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(review.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(review.getByLabel("Broader search criteria and safeguards")).toBeFocused();
   for (const viewport of [
     { width: 1280, height: 720 },
     { width: 831, height: 912 },
@@ -1419,7 +1481,8 @@ test("competitive beverage sourcing stays evidence-specific, deterministic, and 
   });
   await expect(page).toHaveURL(productBriefPath(created.workspace.id));
   await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size), { timeout: 20_000 }).toBe(13);
-  await expect(page.getByRole("heading", { name: "Review and save your packaging direction in 3D." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "In one sentence, what should the drink do for the customer, who is it for, and what formula work is still open?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Review and save your packaging direction in 3D." })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "What package are you leaning toward? You can compare supported options in the 3D workbench before saving one." })).toHaveCount(0);
 
   const stageId = newMutationId();

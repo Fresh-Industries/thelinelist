@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Bread, Check, FileText, Info, PaperPlaneTilt } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { comparisonHref } from "@/components/compare/CompareButton";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
 import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
@@ -338,12 +338,14 @@ function BroadeningDialog({
   onConfirm: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.documentElement.style.overflow;
     if (dialog && !dialog.open) dialog.showModal();
+    window.requestAnimationFrame(() => scrollRef.current?.focus());
     document.documentElement.style.overflow = "hidden";
     return () => {
       document.documentElement.style.overflow = previousOverflow;
@@ -352,11 +354,25 @@ function BroadeningDialog({
     };
   }, []);
 
+  function trapFocus(event: KeyboardEvent<HTMLDialogElement>) {
+    if (event.key !== "Tab") return;
+    const focusable = [...event.currentTarget.querySelectorAll<HTMLElement>('[tabindex="0"], button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled])')]
+      .filter((element) => element.getClientRects().length > 0);
+    if (!focusable.length) return;
+    const activeIndex = focusable.indexOf(document.activeElement as HTMLElement);
+    const shouldWrapBack = event.shiftKey && activeIndex <= 0;
+    const shouldWrapForward = !event.shiftKey && (activeIndex === -1 || activeIndex === focusable.length - 1);
+    if (!shouldWrapBack && !shouldWrapForward) return;
+    event.preventDefault();
+    focusable[shouldWrapBack ? focusable.length - 1 : 0].focus();
+  }
+
   return (
     <dialog
       ref={dialogRef}
       className="manufacturer-broadening-dialog"
       aria-labelledby="broader-search-heading"
+      onKeyDown={trapFocus}
       onCancel={(event) => { event.preventDefault(); onClose(); }}
       onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
     >
@@ -366,7 +382,7 @@ function BroadeningDialog({
           <h2 id="broader-search-heading">Review broader search</h2>
           <p>No manufacturer in the reviewed public information proved every required constraint. A broader search moves the required criteria shown below to preferred, so candidates may appear with those capabilities still unconfirmed.</p>
         </header>
-        <div className="manufacturer-broadening-scroll">
+        <div ref={scrollRef} className="manufacturer-broadening-scroll" tabIndex={0} aria-label="Broader search criteria and safeguards">
           <CriteriaDiff before={before} after={after} />
           <p className="manufacturer-broadening-safeguard"><strong>What will not change:</strong> Your product brief, package direction, and founder decisions will not change. Unsupported details will remain visibly unknown.</p>
         </div>

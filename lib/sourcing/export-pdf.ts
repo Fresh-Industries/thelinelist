@@ -1,6 +1,7 @@
 import "server-only";
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
+import { formatExportDate } from "./date-format";
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { getProductIdentity } from "./product-identity";
 import { getSourcingReadiness } from "./readiness";
@@ -10,7 +11,10 @@ import type { PackageDesign, SourcingWorkspace } from "./types";
 
 const PAGE = { width: 612, height: 792, margin: 48 };
 
-export async function createProductPlanPdf(workspace: SourcingWorkspace): Promise<Uint8Array> {
+export async function createProductPlanPdf(
+  workspace: SourcingWorkspace,
+  options: { timeZone?: string; exportedAt?: Date } = {},
+): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -57,10 +61,22 @@ export async function createProductPlanPdf(workspace: SourcingWorkspace): Promis
 
   const identity = getProductIdentity(workspace);
   const readiness = getSourcingReadiness(workspace);
+  const storedResearch = workspace.manufacturerResearch;
+  const currentResearch = getCurrentManufacturerResearch(workspace);
+  const currentMatches = currentResearch?.candidates ?? [];
+  const researchStatus = !storedResearch
+    ? "Manufacturer research not run"
+    : !currentResearch
+      ? "Previous manufacturer research is stale"
+      : currentResearch.candidateCount > 0
+        ? `${currentResearch.candidateCount} current manufacturer possibilit${currentResearch.candidateCount === 1 ? "y" : "ies"}`
+        : currentResearch.broadeningApproval
+          ? "Founder-approved broader search returned 0 possibilities"
+          : "Strict manufacturer search returned 0 possibilities";
   line("THE LINE LIST · FIRST RUN", { size: 9, font: bold, color: rgb(0.71, 0.3, 0.17), gap: 10 });
   line(identity.brandName || identity.productDescriptor, { size: 24, font: bold, gap: 4 });
   if (identity.brandName) line(identity.productDescriptor, { size: 12, color: rgb(0.35, 0.35, 0.32), gap: 10 });
-  line(`${readiness.stageLabel} · Exported ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, { size: 9, color: rgb(0.35, 0.35, 0.32), gap: 4 });
+  line(`${readiness.stageLabel} · ${researchStatus} · Exported ${formatExportDate(options.exportedAt ?? new Date(), options.timeZone)}`, { size: 9, color: rgb(0.35, 0.35, 0.32), gap: 4 });
   line(readiness.stageSummary, { size: 9, color: rgb(0.35, 0.35, 0.32), gap: 10 });
 
   section("Original idea", lineHeight(workspace.originalIdea || "No original idea recorded."));
@@ -117,14 +133,34 @@ export async function createProductPlanPdf(workspace: SourcingWorkspace): Promis
     line("Planning mockup only. Final dimensions, materials, labels, and production compatibility require manufacturer validation.", { size: 8, color: rgb(0.35, 0.35, 0.32) });
   }
 
-  const currentMatches = getCurrentManufacturerResearch(workspace)?.candidates ?? [];
+  section("Manufacturer research", lineHeight(researchStatus));
+  fieldBlock("Research status", researchStatus);
+  if (storedResearch) {
+    const criteriaMode = storedResearch.broadeningApproval
+      ? "Founder-approved broader criteria"
+      : storedResearch.request.requiredRequirements.length
+        ? "Strict required criteria"
+        : "Current research criteria";
+    fieldBlock("Criteria mode", criteriaMode);
+    fieldBlock("Research run", `${formatExportDate(storedResearch.ranAt, options.timeZone)} · ${storedResearch.candidateCount} result${storedResearch.candidateCount === 1 ? "" : "s"}`);
+    if (storedResearch.request.requiredRequirements.length) {
+      fieldBlock("Required", storedResearch.request.requiredRequirements.map((key) => FIELD_DEFINITION_BY_KEY[key].label).join(" · "));
+    }
+    if (storedResearch.request.preferredRequirements.length) {
+      fieldBlock("Preferred", storedResearch.request.preferredRequirements.map((key) => FIELD_DEFINITION_BY_KEY[key].label).join(" · "));
+    }
+    if (!currentResearch && storedResearch.invalidatedAt) fieldBlock("Invalidated", formatExportDate(storedResearch.invalidatedAt, options.timeZone));
+  } else {
+    line("No manufacturer search has been recorded for this product plan.");
+  }
+
   if (currentMatches.length) {
     const firstMatch = currentMatches[0];
     const firstSources = firstMatch.evidence.filter((item) => item.sourceUrl).map((item) => `${item.sourceLabel || item.sourceUrl} (${item.lastReviewed})`);
     const firstCardHeight = lineHeight(`${firstMatch.manufacturerName} · ${firstMatch.location}`, { font: bold, gap: 3 })
       + lineHeight(firstMatch.fitExplanation, { size: 9, gap: 3 })
       + lineHeight(firstSources.length ? `Sources: ${[...new Set(firstSources)].join(" · ")}` : "No supporting public source was recorded.", { size: 8, gap: 9 });
-    section("Evidence-backed manufacturer possibilities", firstCardHeight);
+    section("Current evidence-backed possibilities", firstCardHeight);
     for (const match of currentMatches) {
       const sources = match.evidence.filter((item) => item.sourceUrl).map((item) => `${item.sourceLabel || item.sourceUrl} (${item.lastReviewed})`);
       const sourceText = sources.length ? `Sources: ${[...new Set(sources)].join(" · ")}` : "No supporting public source was recorded.";

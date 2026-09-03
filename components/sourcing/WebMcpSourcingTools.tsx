@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { buildOutreachReadinessAudit, buildSourcingAgentState } from "@/lib/sourcing/agent-state";
+import { browserTimeZone, sourcingExportUrl } from "@/lib/sourcing/export-url";
 import { getGeographyMatchPreflight } from "@/lib/sourcing/geography";
 import { MATCHABLE_REQUIREMENT_KEYS } from "@/lib/sourcing/matching-requirements";
 import { getPackageArtworkRenderPlan, PACKAGE_ARTWORK_ASPECT, type PackageArtworkMotif, type PackageArtworkMotifRenderPlan, type PackageArtworkStyle } from "@/lib/sourcing/package-artwork";
@@ -367,7 +368,7 @@ export function WebMcpSourcingTools({
           void input;
           const body = await workspaceApi(`/api/sourcing/${workspaceId}`);
           if (!body.workspace) throw new Error("The current ProductPlan could not be read.");
-          return withGuidance(body, { downloadUrl: new URL(`/api/sourcing/${workspaceId}/export`, window.location.origin).toString(), fileType: "application/pdf", sharedExternally: false });
+          return withGuidance(body, { downloadUrl: sourcingExportUrl(workspaceId, browserTimeZone() ?? "UTC", window.location.origin), fileType: "application/pdf", sharedExternally: false });
         },
       },
       {

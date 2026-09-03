@@ -106,6 +106,40 @@ describe("competitive sparkling-beverage sourcing regressions", () => {
     expect(ambiguousMatch.unknowns).toContain("A public minimum is listed, but its units cannot be responsibly compared with 25,000 cans.");
   });
 
+  it("compares Create-A-Pack's package-scoped lowest unit band with requested bottles", () => {
+    const workspace = bottledSauceWorkspace();
+    const createAPack = getPlantBySlug("create-a-pack-foods-inc")!;
+    const preferred = matchManufacturerRecords(workspace, [createAPack], {
+      resultLimit: 1,
+      preferredRequirements: PREFERRED_REQUIREMENTS,
+    })[0];
+
+    expect(preferred.possibleConflicts).toContain("9,000 bottles is 41,000 units below the published 50,000-unit minimum for glass bottles.");
+    expect(preferred.unknowns).not.toContain("A public minimum is listed, but its units cannot be responsibly compared with 9,000 bottles.");
+    expect(preferred.reasonTrace).toContainEqual(expect.objectContaining({ requirementKey: "production_volume", priority: "preferred", outcome: "conflict" }));
+
+    const strict = matchManufacturerRecords(workspace, [createAPack], {
+      resultLimit: 1,
+      requiredRequirements: ["product_type", "production_volume"],
+      preferredRequirements: PREFERRED_REQUIREMENTS.filter((key) => key !== "production_volume"),
+    });
+    expect(strict).toEqual([]);
+  });
+
+  it("does not compare generic unit bands without matching package-family scope", () => {
+    const workspace = bottledSauceWorkspace();
+    const base = getPlantBySlug("create-a-pack-foods-inc")!;
+    const fixtures: Plant[] = [
+      { ...base, slug: "unit-band-pouches-only", name: "Unit Band Pouches Only", moqDisplay: "Lowest band is 50000 units for pouches." },
+      { ...base, slug: "unlabeled-facility-number", name: "Unlabeled Facility Number", moqDisplay: "Facility is 50000 sq ft; minimum is not published." },
+    ];
+
+    for (const match of matchManufacturerRecords(workspace, fixtures, { resultLimit: 2, preferredRequirements: PREFERRED_REQUIREMENTS })) {
+      expect(match.possibleConflicts.join(" ")).not.toMatch(/50,000-unit|41,000/);
+      expect(match.unknowns).toContain("A public minimum is listed, but its units cannot be responsibly compared with 9,000 bottles.");
+    }
+  });
+
   it("preserves organic negation and proposed category provenance", () => {
     const workspace = createWorkspace({
       idea: JUNIPER_IDEA,
@@ -187,6 +221,24 @@ function juniperWorkspace(): SourcingWorkspace {
   ];
   for (const [key, value] of updates) {
     workspace = applyFounderFieldUpdate(workspace, { key, value, status: "confirmed", shareWithManufacturer: key !== "certifications" });
+  }
+  return workspace;
+}
+
+function bottledSauceWorkspace(): SourcingWorkspace {
+  let workspace = createWorkspace({ idea: "Shelf-stable barbecue sauce in an 8 oz glass woozy bottle. First run 9,000 bottles." });
+  const updates: Array<[SourcingFieldKey, string]> = [
+    ["product_type", "Barbecue sauce"],
+    ["product_format", "8 oz bottle"],
+    ["packaging_format", "Glass woozy bottle"],
+    ["packaging_size", "8 oz"],
+    ["production_volume", "9,000 bottles"],
+    ["formulation_assistance", "Required"],
+    ["preferred_geography", "Midwest"],
+    ["storage_distribution", "Shelf-stable"],
+  ];
+  for (const [key, value] of updates) {
+    workspace = applyFounderFieldUpdate(workspace, { key, value, status: "confirmed", shareWithManufacturer: true });
   }
   return workspace;
 }

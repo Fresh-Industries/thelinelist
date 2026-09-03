@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
+import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
 import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getPackagingOptions } from "@/lib/sourcing/product-catalog";
 import { getProductIdentity, isOpenBrandAnswer } from "@/lib/sourcing/product-identity";
@@ -31,13 +32,13 @@ export function SourcingWorkspace() {
   const [answer, setAnswer] = useState("");
   const [editingKey, setEditingKey] = useState<SourcingFieldKey | null>(null);
   const readiness = useMemo(() => getSourcingReadiness(workspace), [workspace]);
+  const agentState = useMemo(() => buildSourcingAgentState(workspace), [workspace]);
   const relevantPackageLabels = useMemo(() => getPackagingOptions(workspace).slice(0, 3).map((option) => option.label), [workspace]);
   const agentChangedKeys = useMemo(() => new Set(workspace.lastAgentChange?.changedKeys ?? []), [workspace.lastAgentChange]);
-  const nextKey = readiness.nextQuestionKey;
-  const packageDesignPending = readiness.packageDesignRequired
-    && !readiness.packageDesignReady
-    && workspace.fields.packaging_format.status === "confirmed"
-    && readiness.nextQuestionKey !== "formula_status";
+  const nextKey = agentState.recommendedAction.type === "ask_founder"
+    ? agentState.recommendedAction.questions[0]?.key ?? null
+    : null;
+  const packageDesignPending = agentState.recommendedAction.type === "stage_package_design";
   const { brandName, productDescriptor } = getProductIdentity(workspace);
   const packagePresentation = workspace.packageDesign
     ? getPackageDesignPresentation(workspace.packageDesign, workspace.artwork)
@@ -65,6 +66,7 @@ export function SourcingWorkspace() {
       acceptWorkspace(response.workspace);
       setAnswer("");
       const next = getSourcingReadiness(response.workspace);
+      const nextAgentState = buildSourcingAgentState(response.workspace);
       const changedLabels = Object.keys(workspace.fields)
         .filter((key) => {
           const fieldKey = key as SourcingFieldKey;
@@ -72,8 +74,14 @@ export function SourcingWorkspace() {
           const after = response.workspace!.fields[fieldKey];
           return before.value !== after.value || before.status !== after.status;
         })
-        .map((key) => FIELD_DEFINITION_BY_KEY[key as SourcingFieldKey].label.toLowerCase());
-      const nextPrompt = next.nextQuestionKey ? ` Next: ${getSourcingQuestion(response.workspace, next.nextQuestionKey)}` : "";
+        .map((key) => {
+          const definition = FIELD_DEFINITION_BY_KEY[key as SourcingFieldKey];
+          return definition.acknowledgementLabel ?? definition.label.toLowerCase();
+        });
+      const nextQuestionKey = nextAgentState.recommendedAction.type === "ask_founder"
+        ? nextAgentState.recommendedAction.questions[0]?.key ?? null
+        : null;
+      const nextPrompt = nextQuestionKey ? ` Next: ${getSourcingQuestion(response.workspace, nextQuestionKey)}` : "";
       const changeCopy = changedLabels.length === 1
         ? `I added ${changedLabels[0]} to the brief.`
         : `I updated ${formatLabels(changedLabels)} in the brief.`;

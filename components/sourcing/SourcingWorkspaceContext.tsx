@@ -3,8 +3,9 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, type Dispatch, type ReactNode, type SetStateAction, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { createContext, type Dispatch, type ReactNode, type SetStateAction, useCallback, useContext, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { DownloadSimple } from "@phosphor-icons/react";
+import { browserTimeZone, sourcingExportUrl } from "@/lib/sourcing/export-url";
 import { getProductIdentity } from "@/lib/sourcing/product-identity";
 import { mergePackagePreview } from "@/lib/sourcing/package-preview";
 import type { PackageDesign, PackageDesignPreviewInput, SourcingWorkspace } from "@/lib/sourcing/types";
@@ -37,6 +38,7 @@ export interface PackageStageResult {
 }
 
 const SourcingWorkspaceContext = createContext<SourcingWorkspaceContextValue | null>(null);
+const subscribeToTimeZone = () => () => undefined;
 
 export function SourcingWorkspaceProvider({
   initialWorkspace,
@@ -47,6 +49,7 @@ export function SourcingWorkspaceProvider({
   ownership: "user" | "guest" | "development";
   children: ReactNode;
 }) {
+  const exportTimeZone = useSyncExternalStore(subscribeToTimeZone, () => browserTimeZone() ?? "UTC", () => "UTC");
   const [workspace, setWorkspace] = useState(initialWorkspace);
   const [busy, setBusy] = useState<SourcingBusyState>(null);
   const [error, setError] = useState("");
@@ -196,7 +199,7 @@ export function SourcingWorkspaceProvider({
             <Link href={manufacturerPath} prefetch={false} aria-current={pathname === manufacturerPath ? "page" : undefined}>Manufacturers</Link>
           </nav>
           <nav className="workspace-utility-nav" aria-label="Workspace actions">
-            <a href={`/api/sourcing/${workspace.id}/export`} download><DownloadSimple aria-hidden="true" /> Export PDF</a>
+            <a href={sourcingExportUrl(workspace.id, exportTimeZone)} download><DownloadSimple aria-hidden="true" /> Export PDF</a>
             {ownership === "guest" ? <Link href={`/auth?workspaceId=${workspace.id}`}>Save product</Link> : ownership === "user" ? <Link href="/products">Your products</Link> : null}
           </nav>
         </header>

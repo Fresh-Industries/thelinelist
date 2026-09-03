@@ -66,6 +66,28 @@ describe("sourcing workspace mutation boundaries", () => {
     expect(mocks.saveSourcingWorkspace).toHaveBeenCalledTimes(1);
   });
 
+  it("persists the final-competition multi-fact answer as one canonical mutation", async () => {
+    workspace = createWorkspace({ idea: "A shelf-stable roasted red pepper and white bean spread in a 6 oz glass jar. First run 6,500 jars." });
+    const startingRevision = workspace.revision;
+    const response = await patch({
+      revision: workspace.revision,
+      founderAnswer: {
+        answeringKey: "formula_status",
+        text: "Still a home prototype, not tested or scale-ready. I need formulation assistance. Also, it must be sesame-free and peanut-free.",
+      },
+    });
+    const body = await response.json() as { workspace: SourcingWorkspace };
+
+    expect(response.status).toBe(200);
+    expect(body.workspace.revision).toBe(startingRevision + 1);
+    expect(body.workspace.fields).toMatchObject({
+      formula_status: { value: "Untested home prototype; not scale-ready", status: "confirmed" },
+      formulation_assistance: { value: "Required", status: "confirmed" },
+      allergens: { value: "Sesame-free and peanut-free required", status: "confirmed" },
+    });
+    expect(mocks.saveSourcingWorkspace).toHaveBeenCalledTimes(1);
+  });
+
   it("persists a complete preview without treating it as founder-saved", async () => {
     const response = await patch({
       revision: workspace.revision,
