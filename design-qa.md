@@ -43,3 +43,26 @@ No separate crop was needed. At this viewport the full-view capture contains the
 3. P2 — The first post-fix capture showed a gold outline around the active shortlist row because a non-navigation detail activator used `aria-current`. Fixed by reserving `aria-current` for the two workspace navigation links and keeping the active row’s semantic button label plus contained visual state. The final implementation screenshot is the post-fix evidence.
 
 final result: passed
+
+---
+
+# Design QA — Introduction action hierarchy and founder email
+
+## References
+
+- `codex-clipboard-d7a365cf-8c4a-42ad-bf52-26be17f46f52.png`: selected-manufacturer action hierarchy before the change.
+- `codex-clipboard-50e56541-d575-42d2-8111-556b81c3aae1.png`: introduction-draft review before the founder email control existed.
+- Local Codex in-app browser at 960 × 900: selected state, prepared-draft state, and saved-email state after the change.
+
+## Checks
+
+- The filled green `Prepare 2 introductions` action is the only dominant CTA in the selected-manufacturer state.
+- Comparison remains available for two or more selections as a small underlined `Compare details` link, and is absent for zero or one selection.
+- The founder email control appears once above all draft cards and clearly identifies its reply-to and copy purpose.
+- Saving the email updates every draft's delivery preview, removes the now-resolved email warning, and does not approve or send anything.
+- The existing exact-message approval and separate send-confirmation gates remain intact.
+- Desktop layout has no clipped controls or overlapping content; mobile rules collapse the email form and primary action to single-column controls.
+
+No P0, P1, or P2 visual or interaction issues remain in this scoped flow.
+
+final result: passed

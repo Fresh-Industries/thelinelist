@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Bread, Check, FileText, Info, PaperPlaneTilt } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { comparisonHref } from "@/components/compare/CompareButton";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
 import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
@@ -259,8 +259,8 @@ export function SourcingManufacturers() {
               <Link className="manufacturer-profile-link" href={`/manufacturers/${activeMatch.manufacturerSlug}`}>View directory profile <span aria-hidden="true">↗</span></Link>
 
               <footer className="manufacturer-action-bar">
-                <div role="status" aria-live="polite"><strong>{workspace.selectedManufacturerSlugs.length} selected</strong><small>Select up to {SELECTION_LIMIT} possibilities to compare.</small></div>
-                {workspace.selectedManufacturerSlugs.length ? <Link className="manufacturer-compare-button" href={comparisonHref(workspace.selectedManufacturerSlugs)}>Compare selected <ArrowRight aria-hidden="true" /></Link> : <button className="manufacturer-compare-button" type="button" disabled>Compare selected <ArrowRight aria-hidden="true" /></button>}
+                <div role="status" aria-live="polite"><strong>{workspace.selectedManufacturerSlugs.length} selected</strong><small>Choose up to {SELECTION_LIMIT} manufacturers for introductions.</small></div>
+                {workspace.selectedManufacturerSlugs.length > 1 ? <Link className="manufacturer-compare-link" href={comparisonHref(workspace.selectedManufacturerSlugs)}>Compare details <ArrowRight aria-hidden="true" /></Link> : null}
               </footer>
             </article>
           ) : null}
@@ -293,7 +293,7 @@ export function SourcingManufacturers() {
 
       {workspace.matches.length ? (
         <section className="manufacturer-next-actions" aria-labelledby="manufacturer-next-actions-heading">
-          <div><p className="manufacturer-eyebrow">Final step</p><h2 id="manufacturer-next-actions-heading">{drafts.length ? "Introductions are ready for your review" : "Get introductions ready"}</h2><p>{readiness.manufacturerReady ? "Your agent prepares the exact drafts. You review and approve each version, then you decide whether to send it." : remainingBriefCopy}</p>{drafts.length ? null : <IntroductionSequence drafts={drafts} />}</div>
+          <div><p className="manufacturer-eyebrow">Next step</p><h2 id="manufacturer-next-actions-heading">{drafts.length ? "Introductions are ready for your review" : "Prepare introductions"}</h2><p>{readiness.manufacturerReady ? "Your agent prepares the exact drafts. You review and approve each version, then you decide whether to send it." : remainingBriefCopy}</p>{drafts.length ? null : <IntroductionSequence drafts={drafts} />}</div>
           {readiness.manufacturerReady && workspace.selectedManufacturerSlugs.length ? <button type="button" onClick={() => void prepareIntroductions()} disabled={busy !== null}>{busy === "outreach" ? "Preparing drafts…" : drafts.length ? "Prepare fresh drafts" : `Prepare ${workspace.selectedManufacturerSlugs.length} introduction${workspace.selectedManufacturerSlugs.length === 1 ? "" : "s"}`} <ArrowRight aria-hidden="true" /></button> : <Link href={`/sourcing/${workspace.id}${readiness.manufacturerMissing.length ? "#next-question-heading" : ""}`} prefetch={false}>{briefActionLabel} <ArrowRight aria-hidden="true" /></Link>}
         </section>
       ) : null}
@@ -304,6 +304,7 @@ export function SourcingManufacturers() {
           <h2 id="manufacturer-introductions-heading" tabIndex={-1}>Introduction drafts</h2>
           <p>Nothing is sent until you approve an exact version and confirm the separate send step.</p>
           <IntroductionSequence drafts={drafts} />
+          <FounderEmailEditor workspace={workspace} onWorkspace={acceptWorkspace} />
           <div className="introduction-list">{drafts.map((draft) => <DraftReview key={draft.id} draft={draft} workspace={workspace} onWorkspace={acceptWorkspace} />)}</div>
         </section>
       ) : null}
@@ -452,6 +453,56 @@ function IntroductionSequence({ drafts }: { drafts: OutreachDraft[] }) {
   return <ol className="introduction-sequence" aria-label="Introduction approval steps">{steps.map((step, index) => <li key={step.label} className={step.complete ? "is-complete" : ""}><span aria-hidden="true">{step.complete ? "✓" : index + 1}</span><div><strong>{step.label}</strong><small>{step.owner}</small></div></li>)}</ol>;
 }
 
+function FounderEmailEditor({ workspace, onWorkspace }: { workspace: Workspace; onWorkspace: (workspace: Workspace) => void }) {
+  const savedEmail = workspace.fields.contact_email.status === "confirmed" ? workspace.fields.contact_email.value ?? "" : "";
+  const [email, setEmail] = useState(savedEmail);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const changed = email.trim() !== savedEmail;
+
+  async function saveEmail(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await workspaceApi(`/api/sourcing/${workspace.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          revision: workspace.revision,
+          fieldUpdate: {
+            key: "contact_email",
+            value: email,
+            status: "confirmed",
+            shareWithManufacturer: false,
+          },
+        }),
+      });
+      if (response.workspace) onWorkspace(response.workspace);
+      setMessage(response.error || "Email saved for replies and copies.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const inputId = `founder-email-${workspace.id}`;
+  const helpId = `${inputId}-help`;
+  return (
+    <form className={`founder-email-setup${savedEmail ? " is-complete" : ""}`} onSubmit={saveEmail}>
+      <div className="founder-email-copy">
+        <span>Your email</span>
+        <strong>Where should manufacturer replies go?</strong>
+        <p id={helpId}>We’ll use this as the reply-to address and copy you on any introduction you choose to send.</p>
+      </div>
+      <label htmlFor={inputId}>Your email address</label>
+      <div className="founder-email-controls">
+        <input id={inputId} name="founder-email" type="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={(event) => { setEmail(event.target.value); setMessage(""); }} aria-describedby={helpId} required maxLength={320} />
+        <button type="submit" disabled={busy || (!changed && Boolean(savedEmail))}>{busy ? "Saving…" : !changed && savedEmail ? "Email saved" : "Save email"}</button>
+      </div>
+      {message ? <p className={message.startsWith("Email saved") ? "founder-email-status" : "introduction-error"} role={message.startsWith("Email saved") ? "status" : "alert"}>{message}</p> : null}
+    </form>
+  );
+}
+
 function DraftReview({ draft, workspace, onWorkspace }: { draft: OutreachDraft; workspace: Workspace; onWorkspace: (workspace: Workspace) => void }) {
   const subjectRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -460,6 +511,9 @@ function DraftReview({ draft, workspace, onWorkspace }: { draft: OutreachDraft; 
   const [localError, setLocalError] = useState("");
   const approved = draft.approvedVersion === draft.version && Boolean(draft.approvedAt);
   const sent = draft.deliveryStatus === "sent" && Boolean(draft.sentAt);
+  const visibleWarnings = workspace.fields.contact_email.status === "confirmed"
+    ? draft.warnings.filter((warning) => warning !== "Add a confirmed contact email before contacting a manufacturer.")
+    : draft.warnings;
 
   async function approve() {
     setBusy(true);
@@ -491,7 +545,7 @@ function DraftReview({ draft, workspace, onWorkspace }: { draft: OutreachDraft; 
     <article className="introduction-card">
       <header><div><span>To</span><h3>{draft.manufacturerName}</h3>{draft.recipientEmail ? <p className="recipient-email">{draft.recipientEmail}</p> : <p className="recipient-email recipient-unavailable">No sourced public email available</p>}</div><span className={approved || sent ? "approved-state" : "draft-state"}>{stateLabel}</span></header>
       <div className="delivery-preview"><span>From The Line List</span><span>Reply-to and copy: {draft.founderCopyEmail || workspace.fields.contact_email.value || "Add your confirmed email"}</span></div>
-      {draft.warnings.length ? <div className="introduction-error introduction-warning-early" role="status"><strong>Before you approve</strong><ul>{draft.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></div> : null}
+      {visibleWarnings.length ? <div className="introduction-error introduction-warning-early" role="status"><strong>Before you approve</strong><ul>{visibleWarnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></div> : null}
       <label>Subject<input ref={subjectRef} defaultValue={draft.subject} maxLength={180} readOnly={approved || sent} /></label>
       <label>Message<textarea ref={bodyRef} defaultValue={draft.body} rows={10} maxLength={12_000} readOnly={approved || sent} /></label>
       <details><summary>{draft.includedFieldKeys.length} product details included in this packet snapshot</summary><ul>{draft.includedFieldKeys.map((key) => <li key={key}><strong>{FIELD_DEFINITION_BY_KEY[key].label}</strong><span>{draft.packet.fieldValues[key] || "Not included in this packet snapshot"}</span></li>)}</ul></details>

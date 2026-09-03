@@ -1638,7 +1638,6 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
         { key: "production_volume", value: "1,000 to 5,000 units", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "formula_status", value: "Tested recipe", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "carbonation", value: "Carbonated", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
-        { key: "contact_email", value: "founder@example.com", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       ] }),
     });
   }, workspaceApiPath(workspaceId));
@@ -1662,9 +1661,21 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
   await manufacturerChoices.nth(1).click();
   await page.getByRole("button", { name: `Select ${secondName}`, exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "2 selected" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Prepare 2 introductions" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Compare details" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Compare selected" })).toHaveCount(0);
   await page.getByRole("button", { name: "Prepare 2 introductions" }).click();
   await expect(page.locator(".introduction-card")).toHaveCount(2);
   await expect(page.getByText("Draft · not sent", { exact: true })).toHaveCount(2);
+  const founderEmail = page.getByRole("textbox", { name: "Your email address" });
+  await expect(founderEmail).toBeVisible();
+  await expect(founderEmail).toHaveValue("");
+  await expect(page.getByText("Add a confirmed contact email before contacting a manufacturer.", { exact: true })).toHaveCount(2);
+  await founderEmail.fill("founder@example.com");
+  await page.getByRole("button", { name: "Save email" }).click();
+  await expect(page.getByText("Email saved for replies and copies.", { exact: true })).toBeVisible();
+  await expect(founderEmail).toHaveValue("founder@example.com");
+  await expect(page.getByText("Add a confirmed contact email before contacting a manufacturer.", { exact: true })).toHaveCount(0);
   const firstDraft = page.locator(".introduction-card").first();
   await firstDraft.getByRole("button", { name: "Approve this introduction" }).click();
   await expect(firstDraft.getByRole("button", { name: "Send introduction" })).toBeVisible();
