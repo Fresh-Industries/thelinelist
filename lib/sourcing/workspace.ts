@@ -316,9 +316,8 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
     const requestedStatus = brandStillOpen ? "needs_decision" : update.status ?? (update.explicitlyStated ? "confirmed" : "proposed");
     const founderStatement = requestedStatus === "confirmed" && update.explicitlyStated === true;
     if (current.status === "confirmed" && !founderStatement) continue;
-    const founderOnlyPromotion = founderStatement && (current.status === "proposed" || current.status === "needs_decision");
     const status: SourcingFieldStatus = hasValue
-      ? requestedStatus === "confirmed" && (update.explicitlyStated !== true || founderOnlyPromotion) ? "proposed" : requestedStatus
+      ? requestedStatus === "confirmed" && update.explicitlyStated !== true ? "proposed" : requestedStatus
       : "needs_decision";
     const evidence = (update.sources ?? []).map((source) => ({
       title: source.title.trim(),
@@ -333,9 +332,7 @@ export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFi
       ...current,
       value: hasValue ? normalizedValue!.trim() : null,
       status,
-      reason: founderOnlyPromotion
-        ? update.reason?.trim() || "This proposal still needs an explicit founder confirmation in the workspace."
-        : update.reason?.trim() || null,
+      reason: update.reason?.trim() || null,
       source: update.source?.trim() || null,
       explicitlyStated: status === "confirmed" && update.explicitlyStated === true,
       shareWithManufacturer: hasValue && !definition.privateByDefault
@@ -495,7 +492,7 @@ function refreshStarterProductDescription(
   const openSentence = open.length
     ? ` ${formatList(open)} ${open.length === 1 ? "remains" : "remain"} open.`
     : " Commercial scaling, shelf life, and final line compatibility still require manufacturer validation.";
-  const value = `${identity}${details.length ? `, ${details.join(", ")}` : ""}.${openSentence}`;
+  const value = upperFirst(`${identity}${details.length ? `, ${details.join(", ")}` : ""}.${openSentence}`);
   if (value === current.value) return fields;
   return {
     ...fields,
@@ -510,7 +507,12 @@ function refreshStarterProductDescription(
 }
 
 function lowerFirst(value: string): string {
+  if (/^[A-Z](?:[-.][A-Z]){1,}/.test(value) || /^[A-Z]{2,}\b/.test(value)) return value;
   return value.length ? `${value[0].toLowerCase()}${value.slice(1)}` : value;
+}
+
+function upperFirst(value: string): string {
+  return value.length ? `${value[0].toUpperCase()}${value.slice(1)}` : value;
 }
 
 function formatList(values: string[]): string {

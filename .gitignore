@@ -5,7 +5,14 @@ out/
 dist/
 .vercel/
 .env
-.env*.local
+.env.*
+!.env.example
+
+# local databases
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
 
 # junk
 __pycache__/
@@ -24,5 +31,3 @@ next-env.d.ts
 *.tsbuildinfo
 .gstack/
 .vercel/
-.env.local
-.env.*.local

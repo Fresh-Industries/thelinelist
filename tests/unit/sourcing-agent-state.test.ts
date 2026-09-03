@@ -82,6 +82,9 @@ describe("sourcing agent state", () => {
     ]);
     expect(state.availableActions).not.toContain("prepare_manufacturer_outreach");
     expect(state.packaging).toMatchObject({ saved: false, founderCommitRequired: true });
+    expect(state.packaging.options).toEqual([
+      expect.objectContaining({ id: "bakery-bag", value: "Bakery Bag" }),
+    ]);
     expect(state.outreach).toMatchObject({
       externalContactRequiresFounderAction: true,
       agentSendAvailable: false,
@@ -176,8 +179,8 @@ describe("sourcing agent state", () => {
 
     expect(workspace.fields.product_category).toMatchObject({
       value: "Retail bakery product",
-      status: "proposed",
-      explicitlyStated: false,
+      status: "confirmed",
+      explicitlyStated: true,
       updatedBy: "agent",
       source: "Founder statement captured by agent",
     });
@@ -283,6 +286,64 @@ describe("sourcing agent state", () => {
     expect(state.availableActions).not.toContain("open_manufacturer_introduction_review");
     expect(state.outreach.externalContactRequiresFounderAction).toBe(true);
     expect(state.outreach.agentSendAvailable).toBe(false);
+  });
+
+  it("keeps explicit founder answers confirmed while preserving separate professional validation", () => {
+    const workspace = createWorkspace({
+      idea: BANANA_BREAD_IDEA,
+      initialUpdates: [
+        {
+          key: "packaging_format",
+          value: "Windowed bakery bag",
+          status: "confirmed",
+          explicitlyStated: true,
+          source: "Founder statement captured by agent",
+          reason: "The founder explicitly chose this direction; material, seal, shelf life, and line compatibility still need manufacturer validation.",
+          suggestedSharing: true,
+        },
+        {
+          key: "storage_distribution",
+          value: "Room temperature",
+          status: "confirmed",
+          explicitlyStated: true,
+          source: "Founder statement captured by agent",
+          reason: "The founder explicitly stated the intended storage direction; shelf life still needs qualified validation.",
+          suggestedSharing: true,
+        },
+      ],
+    });
+    const state = buildSourcingAgentState(workspace);
+
+    expect(state.requirements.confirmed).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: "packaging_format", value: "Windowed bakery bag", explicitlyStated: true }),
+      expect.objectContaining({ key: "storage_distribution", value: "Room temperature", explicitlyStated: true }),
+    ]));
+    expect(state.requirements.proposed.map(({ key }) => key)).not.toContain("packaging_format");
+    expect(state.requirements.needsValidation).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: "packaging_format", validationOwner: "qualified manufacturer and packaging supplier" }),
+      expect.objectContaining({ key: "storage_distribution", validationOwner: "qualified process and shelf-life specialist" }),
+    ]));
+  });
+
+  it("refreshes starter copy from confirmed answers without lowercasing H-E-B or retaining resolved open fields", () => {
+    const workspace = createWorkspace({
+      idea: BANANA_BREAD_IDEA,
+      initialUpdates: [
+        { key: "product_type", value: "packaged banana bread", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "retail_channel", value: "H-E-B stores", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "product_format", value: "Full retail loaf", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "storage_distribution", value: "Room temperature", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "production_volume", value: "2,000 units", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      ],
+    });
+    const description = workspace.fields.product_description.value ?? "";
+
+    expect(description).toMatch(/^Packaged banana bread/);
+    expect(description).toContain("intended for H-E-B stores");
+    expect(description).toContain("planned for room temperature");
+    expect(description).toContain("with an initial volume of 2,000 units");
+    expect(description).not.toContain("h-E-B");
+    expect(description).not.toMatch(/product format|storage,? and first-run volume|remain open/i);
   });
 
   it("ends with agent draft preparation followed by review, approval, and send gates owned by the founder", () => {

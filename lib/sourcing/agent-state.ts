@@ -1,11 +1,12 @@
+import { packageConfigs } from "@/components/product-visuals/package-config";
 import { FIELD_DEFINITION_BY_KEY, SOURCING_FIELD_DEFINITIONS } from "./fields";
 import {
   getBrandName,
-  getPackagingOptions,
   getProductCategory,
   getProductDescriptor,
   getProductName,
 } from "./product-catalog";
+import { getRecommendedWorkbenchPackageTypes } from "./package-recommendations";
 import { getCategoryDecisionGuardrails, getSourcingQuestion } from "./questions";
 import { getSourcingReadiness } from "./readiness";
 import { getCurrentManufacturerResearch, hasValidFounderPackageCommit } from "./workspace";
@@ -71,12 +72,15 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
       ? readiness.whyItMatters
       : FIELD_DEFINITION_BY_KEY[key].hint,
   }));
-  const packagingOptions = getPackagingOptions(workspace).map(({ id, label, value, description }) => ({
-    id,
-    label,
-    value,
-    description,
-  }));
+  const packagingOptions = getRecommendedWorkbenchPackageTypes(getProductCategory(workspace)).map((id) => {
+    const config = packageConfigs[id];
+    return {
+      id,
+      label: config.label,
+      value: config.label,
+      description: `Faithfully previewable in the visible 3D workbench as a ${config.previewTitle.toLowerCase()}.`,
+    };
+  });
   const currentResearch = getCurrentManufacturerResearch(workspace);
   const currentMatches = currentResearch?.candidates ?? [];
   const currentSelections = new Set(workspace.selectedManufacturerSlugs);

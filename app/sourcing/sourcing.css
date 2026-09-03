@@ -237,6 +237,11 @@
 .package-canvas .product-mockup { position: relative; width: 100%; height: clamp(30rem, 52vw, 38rem); margin-top: -34px; touch-action: none; cursor: grab; }
 .package-canvas .product-mockup:active { cursor: grabbing; }
 .package-canvas .product-mockup canvas { background: transparent !important; }
+.product-mockup-static { position: relative; width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+.product-mockup-static canvas { width: 100%; height: 100%; object-fit: contain; }
+.product-mockup-static-label { position: absolute; left: 12px; bottom: 12px; padding: 5px 7px; border: 1px solid #173f35; background: #f6efe5; color: #173f35; font-size: 10px; font-weight: 700; line-height: 1.2; }
+.product-mockup-static-note { position: absolute; right: 12px; bottom: 12px; max-width: 220px; color: #65645e; font-size: 10px; line-height: 1.35; text-align: right; }
+.package-direction-preview .product-mockup-static-label { left: 5px; right: 5px; bottom: 5px; padding: 3px 4px; font-size: 7px; text-align: center; }
 .package-canvas .product-mockup-loading, .package-canvas .product-mockup-error { height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; color: #65645e; font-size: 11px; }
 .package-canvas .product-mockup-loading span { width: 17px; aspect-ratio: 1; border: 2px solid #c9c1b4; border-top-color: #173f35; border-radius: 50%; animation: package-workbench-spin 750ms linear infinite; }
 @keyframes package-workbench-spin { to { transform: rotate(360deg); } }

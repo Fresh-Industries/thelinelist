@@ -1,8 +1,9 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { packageConfigs } from "./package-config";
+import { StaticPackagePreview } from "./StaticPackagePreview";
 import { StudioScene } from "./StudioScene";
 import type { ProductMockupProps } from "./ProductMockup";
 
@@ -23,6 +24,10 @@ export default function ProductMockupCanvas({
 }: ProductMockupProps) {
   const config = packageConfigs[packagingType];
   const thumbnail = variant === "thumbnail";
+  const [webglFailed, setWebglFailed] = useState(false);
+  const staticProps = { packagingType, logoUrl, logoAspect, baseColor, labelColor, bottleFinish, logoScale, logoPosition, frontText, windowScale, sceneKey, variant, onCaptureReady };
+
+  if (webglFailed) return <StaticPackagePreview {...staticProps} />;
 
   return (
     <Canvas
@@ -33,9 +38,13 @@ export default function ProductMockupCanvas({
       frameloop="demand"
       gl={{ alpha: true, antialias: true, powerPreference: "high-performance", preserveDrawingBuffer: true }}
       shadows
-      fallback={<span aria-hidden="true" />}
+      fallback={<StaticPackagePreview {...staticProps} />}
       onCreated={({ gl, scene, camera }) => {
         gl.setClearColor(0x000000, 0);
+        gl.domElement.addEventListener("webglcontextlost", (event) => {
+          event.preventDefault();
+          setWebglFailed(true);
+        }, { once: true });
         onCaptureReady?.(async () => {
           for (let attempt = 0; attempt < 40; attempt += 1) {
             gl.render(scene, camera);
@@ -45,6 +54,7 @@ export default function ProductMockupCanvas({
             }
             await new Promise((resolve) => window.setTimeout(resolve, 100));
           }
+          setWebglFailed(true);
           return null;
         });
       }}
