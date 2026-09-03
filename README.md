@@ -3,7 +3,7 @@
 The Line List helps food and beverage founders turn an early product idea into a manufacturer-ready brief, evidence-backed possibilities, and founder-controlled introductions.
 
 - **Live app:** [thelinelist.com/sourcing](https://www.thelinelist.com/sourcing)
-- **Demo video:** **TODO before submission — add the public challenge video URL here.**
+- **Demo video:** [Demo Video](https://www.youtube.com/watch?v=yb6Tb3HAXTk)
 - **License:** [MIT](LICENSE)
 
 ## The problem
