@@ -6,6 +6,7 @@ import { JumpToManufacturers } from "@/components/JumpToManufacturers";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TrustStrip } from "@/components/TrustStrip";
 import { RelatedGuides } from "@/components/guides/RelatedGuides";
+import { DirectoryCoverageNote } from "@/components/guides/DirectoryCoverageNote";
 import { CATEGORY_HUB_CONTENT, PRODUCT_CATEGORIES, categoryFaqs, categorySnapshot, filterPlants, getProductCategory, isPlantIndexable } from "@/lib/directory";
 import { collectionPageJsonLd, faqPageJsonLd } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -46,6 +47,7 @@ export default async function ProductHubPage({ params }: { params: Promise<{ cat
       <main id="main"><div className="wrap product-hub category-page">
         <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Find manufacturers", href: "/find-manufacturers" }, { name: entry.label, href: `/find-manufacturers/${entry.slug}` }]} />
         <p className="kicker">{entry.label}</p><h1>{content.h1}</h1><p className="lede">{content.description}</p>
+        <DirectoryCoverageNote href={`/find-manufacturers/${entry.slug}`} />
         <div className="cta-band"><Link className="btn btn-gold" href={`/find-manufacturers/wizard?product=${entry.slug}`}>Match this product</Link><Link className="btn btn-ghost" href="/find-manufacturers">Use all filters</Link><JumpToManufacturers /></div>
         <p className="honest">These results use disclosed product language only. Not listed does not mean incapable. It means you should ask. <Link href="/how-we-verify">How we verify</Link></p>
         <section className="category-snapshot" aria-labelledby="category-snapshot-heading">

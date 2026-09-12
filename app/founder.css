@@ -1,0 +1,97 @@
+.founder-start-links { margin-block: 3rem; }
+.founder-stage-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.founder-stage-links > a { display: flex; flex-direction: column; padding: 1.4rem; border: 2px solid var(--forest); background: var(--yellow); box-shadow: 4px 4px 0 var(--forest); color: var(--ink); text-decoration: none; }
+.founder-stage-links > a:nth-child(2) { background: var(--aqua, #bce9df); }
+.founder-stage-links > a:nth-child(3) { background: var(--lavender, #d9cee8); }
+.founder-stage-links h3 { margin: 0; font-size: 1.2rem; line-height: 1.35; }
+.founder-stage-links p { margin-block: .7rem 1.2rem; }
+.founder-stage-links > a > span { margin-top: auto; font-weight: 700; }
+.founder-tool-link { margin-top: 1.3rem; }
+.founder-resource { padding-block: 1.5rem 4rem; }
+.founder-resource > header { max-width: 54rem; margin-block: 2.5rem; }
+.founder-resource h1 { font-family: var(--font-bricolage), sans-serif; font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.06; }
+.founder-resource > section { margin-top: 2.5rem; }
+.founder-resource > .prose { max-width: 52rem; }
+.interactive-checklist { list-style: none; margin: 1rem 0; padding: 0; }
+.interactive-checklist li { margin: 0; padding: 0; border-bottom: 1px solid color-mix(in srgb, var(--forest) 25%, transparent); }
+.interactive-checklist label { display: flex; align-items: flex-start; gap: .8rem; padding: .85rem 0; cursor: pointer; }
+.interactive-checklist input[type="checkbox"] { flex: 0 0 auto; width: 1.3rem; height: 1.3rem; margin: .2rem 0 0; accent-color: var(--forest); }
+.interactive-checklist label:has(input:checked) span { text-decoration: line-through; text-decoration-thickness: 1px; }
+.guide-plan-checklist .meta { font-size: .875rem; }
+.guide-plan-checklist .btn { white-space: normal; text-align: center; }
+.checklist-save-note { display: block; margin-top: .8rem; font-size: .875rem; }
+.guide-plan-decision { margin-top: 1.4rem; border-top: 1px solid var(--forest); padding-top: .5rem; }
+.guide-plan-decision summary, .cost-extra summary, .cost-results summary, .founder-learning summary, .plant-fit-questions summary { padding-block: .75rem; cursor: pointer; font-weight: 700; }
+.guide-plan-decision form { margin-top: .6rem; }
+.guide-plan-decision label, .cost-inputs label, .founder-learning label { display: grid; gap: .45rem; font-weight: 700; }
+.guide-plan-decision textarea, .cost-inputs input, .cost-inputs textarea, .founder-learning select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--forest); padding: .7rem; color: var(--ink); background: #fffdf8; font: inherit; font-size: 1rem; }
+.guide-plan-decision textarea, .cost-inputs textarea { resize: vertical; }
+.founder-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.founder-actions .text-action { background: transparent; border: 0; color: var(--forest); text-decoration: underline; min-height: 44px; font: inherit; cursor: pointer; }
+.run-cost-worksheet { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(17rem, 1fr); align-items: start; gap: 2rem; }
+.cost-inputs fieldset { min-width: 0; border: 0; border-top: 2px solid var(--forest); padding: 1rem 0 1.8rem; margin: 0; }
+.cost-inputs legend { padding-right: .7rem; font-weight: 700; font-size: 1.1rem; }
+.cost-input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.3rem; }
+.cost-inputs small { display: block; font-size: .85rem; font-weight: 400; line-height: 1.5; }
+.cost-inputs label > span > small { font-weight: 600; }
+.cost-inputs p { font-size: .9rem; line-height: 1.6; }
+.cost-extra { border-block: 1px solid #c9cdc3; margin-bottom: 1rem; }
+.cost-extra label { margin-top: .6rem; }
+.cost-results { background: #f2ebc9; border: 2px solid var(--forest); padding: 1.4rem; }
+.cost-results h3 { font-size: 1.25rem; margin-top: 0; }
+.cost-results dl > div { border-bottom: 1px solid #b8b795; padding-block: .8rem; }
+.cost-results dt { font-size: .875rem; }
+.cost-results dd { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; margin: .3rem 0 0; overflow-wrap: anywhere; }
+.cost-results p { font-size: .9rem; line-height: 1.6; }
+.cost-save { grid-column: 1 / -1; border-top: 1px solid var(--forest); padding-top: 1rem; }
+.cost-save .btn { white-space: normal; text-align: center; }
+.learning-map { margin: 2rem 0; }
+.learning-map figcaption { font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem; }
+.learning-map ol { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.learning-map li { padding: 1rem; border: 2px solid var(--forest); background: #f1eee3; }
+.learning-map li > span { display: block; font-size: .8rem; margin-bottom: .7rem; color: var(--forest); }
+.learning-map strong { display: block; line-height: 1.4; }
+.learning-map p { margin-bottom: 0; font-size: .95rem; }
+.example-brief { margin-block: 1rem 2rem; }
+.example-brief > div { border-top: 1px solid #b8c5bd; padding-block: .9rem; }
+.example-brief dt { font-weight: 700; }
+.example-brief dd { margin: .35rem 0; }
+.example-brief small { display: block; color: #405247; }
+.example-email { background: #f7f2e6; padding: 1.5rem; border-left: 4px solid var(--forest); }
+.example-quote-table { overflow-x: auto; }
+.example-quote-table table { table-layout: fixed; width: 100%; }
+.example-quote-table th:first-child { width: 12%; }
+.example-quote-table caption { text-align: left; padding-block: 1rem; font-size: .9rem; }
+.plant-fit-questions { font-size: .85rem; border-top: 1px solid #d2d7cd; margin-top: .7rem; }
+.plant-fit-questions ul { padding-left: 1.2rem; }
+.plant-fit-questions li { margin-bottom: .5rem; }
+.directory-help-choice { display: grid; grid-template-columns: minmax(13rem, .75fr) minmax(0, 1fr); gap: .5rem 1rem; align-items: center; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid #b7c5bb; }
+.directory-help-choice label { font-weight: 700; }
+.directory-help-choice select { min-height: 44px; max-width: 100%; padding: .6rem; font: inherit; background: #fffdf8; border: 1px solid var(--forest); color: var(--ink); }
+.directory-help-choice p { grid-column: 1 / -1; margin: .3rem 0 0; font-size: .875rem; max-width: 60rem; }
+.directory-intent-note { font-size: .9rem; }
+.idea-composer .founder-stage-picker { margin: 1.5rem 0; padding: 0; border: 0; }
+.idea-composer .founder-stage-picker legend { margin-bottom: .6rem; font-size: .95rem; font-weight: 700; }
+.idea-composer .founder-stage-picker > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.idea-composer .founder-stage-picker label { display: grid; grid-template-columns: 1.1rem minmax(0, 1fr); align-content: start; gap: .5rem; padding: .8rem; border: 1px solid #aaa99a; cursor: pointer; }
+.idea-composer .founder-stage-picker label.is-selected { border: 2px solid var(--forest); background: #f1e8be; padding: calc(.8rem - 1px); }
+.idea-composer .founder-stage-picker input { width: 1rem; height: 1rem; margin: .25rem 0 0; accent-color: var(--forest); }
+.idea-composer .founder-stage-picker strong { font-size: .9rem; line-height: 1.4; }
+.idea-composer .founder-stage-picker label > span { grid-column: 2; font-size: .8rem; line-height: 1.5; color: #40483f; }
+.idea-composer .founder-stage-picker .stage-unsure { margin-top: .5rem; border: 0; font-size: .9rem; align-items: center; }
+.founder-learning h2 { font-size: 1.15rem; }
+.founder-learning p, .founder-learning details, .founder-learning li { font-size: .9rem; line-height: 1.6; }
+.founder-learning select { margin-top: .4rem; max-width: 30rem; }
+.founder-learning .saved-guide-links h3 { font-size: 1rem; margin-top: 1.3rem; }
+@media (max-width: 760px) {
+  .founder-stage-links, .run-cost-worksheet, .learning-map ol, .directory-help-choice { grid-template-columns: 1fr; }
+  .founder-stage-links > a { box-shadow: 2px 2px 0 var(--forest); }
+  .cost-results { order: 1; }
+  .cost-save { order: 2; }
+  .learning-map li { display: grid; grid-template-columns: 1.7rem minmax(0, 1fr); gap: .2rem .6rem; }
+  .learning-map p { grid-column: 2; margin-top: .35rem; }
+  .example-quote-table table { min-width: 30rem; }
+  .idea-composer .founder-stage-picker > div { grid-template-columns: 1fr; }
+  .idea-composer .founder-stage-picker strong { font-size: 1rem; }
+}
+@media (max-width: 440px) { .cost-input-grid { grid-template-columns: 1fr; } }

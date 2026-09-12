@@ -1,0 +1,13 @@
+{
+  "/": { "title": "Your food or drink idea starts here.", "eyebrow": "From idea to first run", "image": "/images/clay-v2/support/idea-to-product.webp" },
+  "/find-manufacturers": { "title": "Find your next manufacturer conversation.", "eyebrow": "Food & beverage manufacturers", "image": "/images/clay-v2/support/empty-results.webp" },
+  "/guides": { "title": "Big idea. Clear next steps.", "eyebrow": "Food & beverage startup guides", "image": "/images/clay-guides/guide-library.webp" },
+  "/find-manufacturers/wizard": { "title": "What are you making? Start there.", "eyebrow": "Find possible manufacturer fits", "image": "/images/clay-v2/support/question-mark.webp" },
+  "/sourcing": { "title": "Start your food or drink brand.", "eyebrow": "Your product plan", "image": "/images/clay-v2/support/idea-to-product.webp" },
+  "/about": { "title": "Making the first step a little clearer.", "eyebrow": "About The Line List", "image": null },
+  "/newsletter": { "title": "A little clarity for your next big idea.", "eyebrow": "The Line List newsletter", "image": "/images/clay-v2/support/newsletter.webp" },
+  "/how-we-verify": { "title": "Public sources. Clear unknowns.", "eyebrow": "How we check listings", "image": null },
+  "/glossary": { "title": "Manufacturing words, in plain English.", "eyebrow": "The food founder glossary", "image": "/images/clay-v2/support/question-mark.webp" },
+  "/for-manufacturers": { "title": "Help founders understand what you make.", "eyebrow": "For food & beverage manufacturers", "image": "/images/clay-v2/support/first-production-run.webp" },
+  "/claim-submit": { "title": "Keep your manufacturer listing useful.", "eyebrow": "Claim or update a listing", "image": null }
+}

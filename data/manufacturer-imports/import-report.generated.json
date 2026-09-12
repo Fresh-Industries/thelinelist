@@ -63,21 +63,30 @@
   },
   "safeRows": 340,
   "invalid": 2,
-  "imported": 308,
-  "verified": 284,
+  "imported": 309,
+  "verified": 285,
   "listable": 24,
   "changes": {
     "new": 250,
     "updated": 62,
     "unchanged": 0
   },
-  "duplicates": 32,
-  "skipped": 340,
-  "finalCatalogCount": 344,
-  "smallRunSignals": 139,
+  "duplicates": 31,
+  "skipped": 339,
+  "finalCatalogCount": 345,
+  "smallRunSignals": 98,
   "internalSignalAudit": {
-    "flaggedCandidates": 149,
+    "flaggedCandidates": 150,
     "flaggedWithoutPublishableEvidence": [
+      {
+        "companyName": "Allied Old English, Inc.",
+        "source": "batch-15-a.csv:10",
+        "flags": [
+          "first_run_unknown",
+          "not_in_batches_01_14",
+          "seed_email_blank"
+        ]
+      },
       {
         "companyName": "Ashman Manufacturing Company",
         "source": "batch-06-b.csv:9",
@@ -95,6 +104,20 @@
           "sqf_claimed",
           "private_label",
           "wix_template_noise_on_about"
+        ]
+      },
+      {
+        "companyName": "BelPak (formerly Proven Partners Group)",
+        "source": "batch-18-a.csv:9",
+        "flags": [
+          "rebranded_belpak",
+          "website_corrected",
+          "multi_plant",
+          "not_first_run",
+          "seed_phone_unused",
+          "seed_email_unused",
+          "nutraceutical_also",
+          "seed_was_broker_trap"
         ]
       },
       {
@@ -117,12 +140,64 @@
         ]
       },
       {
+        "companyName": "Braswell's Foods, Inc.",
+        "source": "batch-08-b.csv:9",
+        "flags": [
+          "brand_plus_private_label",
+          "sauces_jams_dressings",
+          "brochure_moq_not_used",
+          "first_run_possible"
+        ]
+      },
+      {
+        "companyName": "Buckman Coffee Factory",
+        "source": "batch-08-a.csv:5",
+        "flags": [
+          "shared_kitchen",
+          "coffee_roasting_incubator",
+          "membership_model",
+          "first_run_fit"
+        ]
+      },
+      {
+        "companyName": "Buddy's Kitchen, Inc.",
+        "source": "batch-24-a.csv:13",
+        "flags": [
+          "origin_confirms_copack",
+          "usda_frozen",
+          "two_mn_plants",
+          "not_first_run_scale",
+          "seed_early_stage_claim_unused"
+        ]
+      },
+      {
         "companyName": "California Spice Basket, Inc.",
         "source": "batch-04-b.csv:5",
         "flags": [
           "startup_friendly",
           "dry_blend",
           "nut_free_claim_directory_only"
+        ]
+      },
+      {
+        "companyName": "Chairmans Foods",
+        "source": "batch-12-b.csv:7",
+        "flags": [
+          "multi_plant",
+          "large_scale",
+          "not_first_run",
+          "site_phone_placeholder_555",
+          "seed_phone_unused",
+          "seed_email_unused"
+        ]
+      },
+      {
+        "companyName": "Chubby's Sauces",
+        "source": "batch-09-b.csv:13",
+        "flags": [
+          "brand_and_copack",
+          "first_run_fit",
+          "www_did_not_resolve"
         ]
       },
       {
@@ -140,6 +215,25 @@
         "flags": [
           "startup_friendly",
           "sauces_focus"
+        ]
+      },
+      {
+        "companyName": "Cougar Mountain Baking Company",
+        "source": "batch-08-a.csv:8",
+        "flags": [
+          "cookies_dough",
+          "high_volume_only",
+          "not_first_run",
+          "published_contact"
+        ]
+      },
+      {
+        "companyName": "Country Ranch Foods",
+        "source": "batch-14-b.csv:11",
+        "flags": [
+          "first_run_copy",
+          "unpublished_moq",
+          "seed_product_list_not_fully_on_site"
         ]
       },
       {
@@ -162,6 +256,16 @@
         ]
       },
       {
+        "companyName": "D&D Foods, Inc. (Foy's BBQ / Pop's)",
+        "source": "batch-08-b.csv:11",
+        "flags": [
+          "bbq_sauces",
+          "startup_copack_claim",
+          "brand_storefront_primary",
+          "first_run_possible"
+        ]
+      },
+      {
         "companyName": "DeLand Bakery, INC",
         "source": "batch-04-b.csv:11",
         "flags": [
@@ -180,6 +284,17 @@
           "seed_email_unused",
           "no_published_moq",
           "seed_certs_unused"
+        ]
+      },
+      {
+        "companyName": "Ever Fresh Fruit Company",
+        "source": "batch-19-a.csv:10",
+        "flags": [
+          "industrial_ingredient",
+          "not_first_run",
+          "also_warren_IN",
+          "seed_email_unused",
+          "no_published_numeric_moq"
         ]
       },
       {
@@ -211,6 +326,19 @@
         ]
       },
       {
+        "companyName": "Golding (formerly Golding Farms Foods)",
+        "source": "batch-18-b.csv:13",
+        "flags": [
+          "website_corrected",
+          "rebranded_golding",
+          "multi_plant",
+          "not_first_run",
+          "seed_phone_unused",
+          "seed_email_unused",
+          "seed_site_tls_fail"
+        ]
+      },
+      {
         "companyName": "Gramercy Bakery LLC",
         "source": "batch-17-a.csv:4",
         "flags": [
@@ -234,12 +362,59 @@
         ]
       },
       {
+        "companyName": "House-Autry Mills, Inc.",
+        "source": "batch-14-b.csv:6",
+        "flags": [
+          "seed_trap_brand_vs_mfg_is_mfg",
+          "city_corrected_four_oaks_NC",
+          "seed_city_was_edgewater_FL",
+          "seed_phone_unused",
+          "not_first_run_dry_mix_scale"
+        ]
+      },
+      {
+        "companyName": "JDM Specialty Foods (Renko's Sausage)",
+        "source": "batch-25-a.csv:11",
+        "flags": [
+          "origin_confirms_copack",
+          "city_filled_elmira_heights",
+          "first_run_possible",
+          "seed_email_typo_unused",
+          "seed_certs_unused"
+        ]
+      },
+      {
         "companyName": "Kim's Gourmet Sauces",
         "source": "batch-02.csv:4",
         "flags": [
           "startup_friendly",
           "city_updated_from_seed",
           "email_updated_from_site"
+        ]
+      },
+      {
+        "companyName": "Lakeside Foods Inc.",
+        "source": "batch-15-b.csv:10",
+        "flags": [
+          "industrial_scale",
+          "first_run_unlikely",
+          "hq_manitowoc_plants_elsewhere"
+        ]
+      },
+      {
+        "companyName": "Lancaster Sauce Co (Trillium Foods Lancaster; formerly Lancaster Fine Foods / Stir Foods Lancaster)",
+        "source": "batch-12-b.csv:3",
+        "flags": [
+          "cross_batch_parent_trillium_batch_07",
+          "same_website_trilliumfoods",
+          "different_plant_lancaster_pa",
+          "formerly_stir_lancaster",
+          "one_pa_plant_not_two",
+          "not_first_run",
+          "qsr_cpg_scale",
+          "seed_phone_unused",
+          "seed_email_unused",
+          "seed_website_stale"
         ]
       },
       {
@@ -261,12 +436,145 @@
         ]
       },
       {
+        "companyName": "Mainline Foods",
+        "source": "batch-20-b.csv:12",
+        "flags": [
+          "seed_city_atlanta_office",
+          "plant_marietta",
+          "no_published_numeric_moq",
+          "goldbergs_group_footer",
+          "not_first_run"
+        ]
+      },
+      {
+        "companyName": "Maple Island, Inc.",
+        "source": "batch-24-b.csv:5",
+        "flags": [
+          "origin_confirms_custom_agglomeration",
+          "industrial_ingredients",
+          "hq_north_st_paul",
+          "production_medford_WI",
+          "not_first_run",
+          "seed_city_was_paul",
+          "seed_email_unused",
+          "infant_formula"
+        ]
+      },
+      {
+        "companyName": "MetaBrand LLC",
+        "source": "batch-15-a.csv:11",
+        "flags": [
+          "alcohol_adjacent",
+          "first_run_possible",
+          "seed_email_blank",
+          "cornell_hot_cold_fill_unused",
+          "curl_bot_wall"
+        ]
+      },
+      {
+        "companyName": "Mille Lacs Wild Rice Corporation (Canoe Wild Rice)",
+        "source": "batch-24-b.csv:7",
+        "flags": [
+          "origin_confirms_copack",
+          "first_run_possible",
+          "private_label",
+          "seed_email_unused",
+          "seed_moq_unused"
+        ]
+      },
+      {
+        "companyName": "Nashville Kitchen and Cannery",
+        "source": "batch-15-b.csv:3",
+        "flags": [
+          "city_corrected_dickson",
+          "seed_city_blank",
+          "seed_email_was_parker",
+          "first_run_copy",
+          "no_public_phone"
+        ]
+      },
+      {
+        "companyName": "Nikola's Bakery, Inc.",
+        "source": "batch-24-b.csv:9",
+        "flags": [
+          "origin_confirms_copack",
+          "first_run_possible",
+          "peanut_free",
+          "seed_email_unused",
+          "seed_certs_partially_stale"
+        ]
+      },
+      {
+        "companyName": "North Star Processing LLC (now Revela Foods)",
+        "source": "batch-24-b.csv:10",
+        "flags": [
+          "origin_confirms_toll_spray_dry",
+          "acquired_revela",
+          "industrial_ingredients",
+          "not_first_run",
+          "nsp_llc_tls_fail",
+          "seed_email_unused",
+          "seed_certs_unused"
+        ]
+      },
+      {
         "companyName": "Northwest Co-packing",
         "source": "batch-05-a.csv:8",
         "flags": [
           "startup_friendly",
           "coffee_specialty",
           "low_minimums_claimed"
+        ]
+      },
+      {
+        "companyName": "Northwest Expressions",
+        "source": "batch-10-a.csv:9",
+        "flags": [
+          "startup_friendly",
+          "seed_url_typo_co-paking",
+          "brand_plus_copack",
+          "first_run_fit"
+        ]
+      },
+      {
+        "companyName": "Oregon Ice Cream Company",
+        "source": "batch-14-a.csv:2",
+        "flags": [
+          "first_run_unknown",
+          "industrial_scale_possible",
+          "seed_phone_was_camas_office",
+          "seed_email_unused"
+        ]
+      },
+      {
+        "companyName": "Pacific Choice Brands",
+        "source": "batch-14-a.csv:13",
+        "flags": [
+          "canonical_pcbrands",
+          "seed_url_dns_fail",
+          "industrial_scale",
+          "first_run_unlikely"
+        ]
+      },
+      {
+        "companyName": "Pasqualichio Brothers, Inc.",
+        "source": "batch-19-b.csv:4",
+        "flags": [
+          "city_corrected_jessup",
+          "seed_city_scranton_unused",
+          "seed_email_unused",
+          "not_first_run",
+          "no_published_numeric_moq"
+        ]
+      },
+      {
+        "companyName": "Pellegrino Food Products Co., Inc.",
+        "source": "batch-15-a.csv:13",
+        "flags": [
+          "first_run_unknown",
+          "https_cert_mismatch",
+          "seed_email_blank",
+          "meat_and_bakery_plant"
         ]
       },
       {
@@ -293,6 +601,16 @@
         ]
       },
       {
+        "companyName": "Private Label Foods",
+        "source": "batch-25-a.csv:12",
+        "flags": [
+          "origin_confirms_copack",
+          "first_run_possible",
+          "emerging_brands_on_origin",
+          "industrial_footprint"
+        ]
+      },
+      {
         "companyName": "Proper Beverage Co.",
         "source": "batch-10-b.csv:8",
         "flags": [
@@ -310,6 +628,17 @@
           "dry_blend",
           "startup_friendly",
           "nut_free_seed_unverified"
+        ]
+      },
+      {
+        "companyName": "Quality Harvest Foods",
+        "source": "batch-15-a.csv:4",
+        "flags": [
+          "industrial_scale",
+          "first_run_unlikely",
+          "seed_phone_unused",
+          "seed_email_unused",
+          "seed_moq_unused"
         ]
       },
       {
@@ -340,6 +669,37 @@
         ]
       },
       {
+        "companyName": "Salt Road Food Hub",
+        "source": "batch-10-b.csv:14",
+        "flags": [
+          "shared_kitchen",
+          "gluten_free_dedicated",
+          "vegetarian_only",
+          "first_run_fit",
+          "seed_email_unused"
+        ]
+      },
+      {
+        "companyName": "Sauce Crafters, Inc.",
+        "source": "batch-10-a.csv:12",
+        "flags": [
+          "startup_friendly",
+          "sauce_copack",
+          "first_run_fit",
+          "brand_plus_copack"
+        ]
+      },
+      {
+        "companyName": "Shin Shin Foods, Inc.",
+        "source": "batch-15-b.csv:14",
+        "flags": [
+          "first_run_unknown",
+          "custom_noodle_coman",
+          "seed_email_unused",
+          "seed_third_party_audits_unused"
+        ]
+      },
+      {
         "companyName": "Smitty Bee Honey, Inc.",
         "source": "batch-17-b.csv:12",
         "flags": [
@@ -347,6 +707,63 @@
           "published_private_label",
           "honey_specialist",
           "no_published_moq"
+        ]
+      },
+      {
+        "companyName": "St. Clair Foods, Inc.",
+        "source": "batch-19-b.csv:6",
+        "flags": [
+          "resers_division",
+          "too_large",
+          "not_first_run",
+          "seed_email_unused",
+          "no_published_numeric_moq"
+        ]
+      },
+      {
+        "companyName": "Stello Foods, Inc.",
+        "source": "batch-15-b.csv:2",
+        "flags": [
+          "first_run_unknown",
+          "also_vending_and_water",
+          "contract_packaging_page_is_images"
+        ]
+      },
+      {
+        "companyName": "Stone Gate Foods",
+        "source": "batch-25-a.csv:5",
+        "flags": [
+          "origin_confirms_copack",
+          "sqf_level_2",
+          "seed_phone_unused",
+          "seed_email_unused",
+          "seed_moq_unused",
+          "no_email_on_origin",
+          "not_first_run_scale"
+        ]
+      },
+      {
+        "companyName": "Swanson Meats",
+        "source": "batch-25-a.csv:6",
+        "flags": [
+          "origin_confirms_copack",
+          "no_phone_on_origin",
+          "no_email_on_origin",
+          "seed_phone_unused",
+          "seed_email_unused",
+          "seed_certs_partially_unused",
+          "not_first_run_scale"
+        ]
+      },
+      {
+        "companyName": "TCM Foods (Top Chef Manufacturing)",
+        "source": "batch-25-a.csv:13",
+        "flags": [
+          "origin_confirms_copack",
+          "also_pet_food",
+          "also_own_brand_top_chef_meals",
+          "seed_email_unused",
+          "not_first_run_scale"
         ]
       },
       {
@@ -370,6 +787,39 @@
         ]
       },
       {
+        "companyName": "Trillium Foods (formerly Southern Classic Food Group)",
+        "source": "batch-07-b.csv:2",
+        "flags": [
+          "rebrand_trillium_foods",
+          "large_scale",
+          "qsr_cpg_focus",
+          "not_first_run",
+          "distinct_facility_confirmed"
+        ]
+      },
+      {
+        "companyName": "Triple H Food Processors, LLC",
+        "source": "batch-14-b.csv:3",
+        "flags": [
+          "first_run_copy",
+          "unpublished_moq",
+          "curl_bot_wall_webfetch_ok"
+        ]
+      },
+      {
+        "companyName": "Ventura Foods",
+        "source": "batch-21-b.csv:6",
+        "flags": [
+          "industrial_scale",
+          "not_first_run",
+          "foodservice_oriented",
+          "salem_plant_on_locations",
+          "seed_phone_not_on_corporate_pages",
+          "no_published_numeric_moq",
+          "no_named_gfsi_on_retrieved_pages"
+        ]
+      },
+      {
         "companyName": "Waco Bottling Co.",
         "source": "batch-13-b.csv:5",
         "flags": [
@@ -389,6 +839,17 @@
           "also_offers_copack",
           "startup_friendly",
           "organic"
+        ]
+      },
+      {
+        "companyName": "Woeber Mustard Manufacturing Company",
+        "source": "batch-12-a.csv:11",
+        "flags": [
+          "private_label_mustard",
+          "110_year_plant",
+          "seed_email_unused",
+          "seed_kosher_unused",
+          "not_first_run_unknown_moq"
         ]
       },
       {
@@ -459,9 +920,9 @@
     "rtd-coffee-tea": 2,
     "water": 4,
     "hot-sauce": 14,
-    "sauce": 131,
+    "sauce": 132,
     "salsa": 38,
-    "dressings-marinades": 60,
+    "dressings-marinades": 61,
     "dips-hummus": 23,
     "snacks": 41,
     "bakery": 42,
@@ -630,7 +1091,7 @@
   ],
   "duplicateBreakdown": {
     "repeatedMasterKey": 17,
-    "crossIdentityDuplicate": 2,
+    "crossIdentityDuplicate": 1,
     "alreadyCurated": 13
   },
   "invalidRecords": [
@@ -745,12 +1206,6 @@
       "companyName": "Complete CoPack LLC (Buy K-Cups)",
       "source": "batch-04-b.csv:10",
       "kept": "Complete CoPack (Kcupcopack)",
-      "reason": "secondary identity match"
-    },
-    {
-      "companyName": "Trillium Foods (formerly Southern Classic Food Group)",
-      "source": "batch-07-b.csv:2",
-      "kept": "Lancaster Sauce Co (Trillium Foods Lancaster; formerly Lancaster Fine Foods / Stir Foods Lancaster)",
       "reason": "secondary identity match"
     },
     {
@@ -2468,12 +2923,6 @@
       "reason": "secondary identity match"
     },
     {
-      "companyName": "Trillium Foods (formerly Southern Classic Food Group)",
-      "source": "batch-07-b.csv:2",
-      "kept": "Lancaster Sauce Co (Trillium Foods Lancaster; formerly Lancaster Fine Foods / Stir Foods Lancaster)",
-      "reason": "secondary identity match"
-    },
-    {
       "companyName": "Best Brand Bottlers, Inc.",
       "source": "batch-08-b.csv:6",
       "kept": "Best Brand Bottlers",
@@ -2771,7 +3220,7 @@
       "slug": "allied-old-english-inc",
       "source": "batch-15-a.csv:10",
       "status": "VERIFIED",
-      "fingerprint": "e57e9d3d2d0c2b1f8ca944375a18d183f988f7a41cbfeed749a0887c6255814d"
+      "fingerprint": "9000a9ee533bf01afccf08cb0200f28556253871ae38634348116edf15285663"
     },
     {
       "masterDedupeKey": "aloha from oregon|eugene|OR",
@@ -2923,7 +3372,7 @@
       "slug": "belpak-formerly-proven-partners-group",
       "source": "batch-18-a.csv:9",
       "status": "VERIFIED",
-      "fingerprint": "c335ec383f276c83053a9c3beb6b6c7bd7868fee7bb67092f2c6ce5a803d43d4"
+      "fingerprint": "7c06cbce442c2f48a420b175f423fc7441d76a5f9b0a5cfb0c0e94b2caf38b07"
     },
     {
       "masterDedupeKey": "beneficial blends, llc|tampa|FL",
@@ -3035,7 +3484,7 @@
       "slug": "braswell-s-foods-inc",
       "source": "batch-08-b.csv:9",
       "status": "VERIFIED",
-      "fingerprint": "37d2b013ec1e62e1da5a0c10328548489412e9ffa3a6bc9211df1a62502a4bb5"
+      "fingerprint": "0786cf544d17cba57f21e255a3618dcd5113524857e3060d6a068a2ddc3a770c"
     },
     {
       "masterDedupeKey": "bridgetown natural foods|portland|OR",
@@ -3075,7 +3524,7 @@
       "slug": "buckman-coffee-factory",
       "source": "batch-08-a.csv:5",
       "status": "LISTABLE",
-      "fingerprint": "829e7fc79f9a9bfc6c3ada5f1cb683dc0b61bf3b7049fa4752d382c3317e838f"
+      "fingerprint": "8b41e469dd997a74cfd57932df0cc740529c57f131550b853e48755b9b2176a9"
     },
     {
       "masterDedupeKey": "buddy's kitchen inc.|burnsville|MN",
@@ -3083,7 +3532,7 @@
       "slug": "buddy-s-kitchen-inc",
       "source": "batch-24-a.csv:13",
       "status": "VERIFIED",
-      "fingerprint": "6aa537fd2449f1ee679c41f865c6f95fb97ba716e7a170fc75530f7f6ab61f42"
+      "fingerprint": "4648d20ee54dbdd665084a0565c2644aeaca7aef94390d31eb1110a09625ec50"
     },
     {
       "masterDedupeKey": "burnette foods|elk rapids|MI",
@@ -3179,7 +3628,7 @@
       "slug": "chairmans-foods",
       "source": "batch-12-b.csv:7",
       "status": "VERIFIED",
-      "fingerprint": "4f7fc25306e2012f2b3243d0d9ea25e01ce307addc0161c0d4c636f6ebe154e8"
+      "fingerprint": "b8d3723671ecd1293b871246109ec22b28b7cba2487cca5ab071544bda16c5b0"
     },
     {
       "masterDedupeKey": "chesapeake bay snacks|baltimore|MD",
@@ -3195,7 +3644,7 @@
       "slug": "chubby-s-sauces",
       "source": "batch-09-b.csv:13",
       "status": "VERIFIED",
-      "fingerprint": "bfa7e3c176ee17891a06c4645564094a10fa34a99e884e494c95f61732e80bec"
+      "fingerprint": "a25879237bf0950bd212182a48fc1192f73662e71091096b00a6100efd795594"
     },
     {
       "masterDedupeKey": "chucks seafood|coos bay|OR",
@@ -3323,7 +3772,7 @@
       "slug": "cougar-mountain-baking-company",
       "source": "batch-08-a.csv:8",
       "status": "VERIFIED",
-      "fingerprint": "168efca3776c6f918c26dfe8f1a47f5f31a89ed195ed7bda1d4c1dd9dcd64743"
+      "fingerprint": "e599f1932df0393cf07080f38316c10675af39282b0c11e65175b649a9a65d38"
     },
     {
       "masterDedupeKey": "country ranch foods|marietta|GA",
@@ -3331,7 +3780,7 @@
       "slug": "country-ranch-foods",
       "source": "batch-14-b.csv:11",
       "status": "VERIFIED",
-      "fingerprint": "2754e882384b013a2611191d00a19134ef19a42ed67281fd823e576414df3928"
+      "fingerprint": "2138afcd1773bda8f608cebef9f66f93a31a9a3a8790fef73051b21e55c5781c"
     },
     {
       "masterDedupeKey": "craft cannery|bergen|NY",
@@ -3411,7 +3860,7 @@
       "slug": "d-and-d-foods-inc-foy-s-bbq-pop-s",
       "source": "batch-08-b.csv:11",
       "status": "VERIFIED",
-      "fingerprint": "09c1c7f42401653a79420b37de0d2be61ff32b327474b0647ff1bccd1aa9e885"
+      "fingerprint": "ff1ea50a5848830e3aaf1386d1427d91ef1cff5dd9ab13c2a4eade6f41b1c1ae"
     },
     {
       "masterDedupeKey": "dakpak solutions llc|woonsocket|SD",
@@ -3547,7 +3996,7 @@
       "slug": "ever-fresh-fruit-company",
       "source": "batch-19-a.csv:10",
       "status": "VERIFIED",
-      "fingerprint": "cd9b4d575348e15b6dfee86479edef458568b538b66a9d776fa06e011e2a98fc"
+      "fingerprint": "d9ddef6325293e9b0fe0c4f872be9b69f9415a0ad441ff064db1bb31e18d6608"
     },
     {
       "masterDedupeKey": "fatboy foods|medford|MA",
@@ -3699,7 +4148,7 @@
       "slug": "golding-formerly-golding-farms-foods",
       "source": "batch-18-b.csv:13",
       "status": "VERIFIED",
-      "fingerprint": "6281b51ef2c1f64ecf8e538633d1477c0caf6297923688c575a8f1d2b04bf6df"
+      "fingerprint": "edeccfa7766a26f23681ee561068e982cb0fd2de4f2e0c3d3e0f0eaa380d47a9"
     },
     {
       "masterDedupeKey": "gourmet cuisine|mesquite|TX",
@@ -3835,7 +4284,7 @@
       "slug": "house-autry-mills-inc",
       "source": "batch-14-b.csv:6",
       "status": "VERIFIED",
-      "fingerprint": "c49c8476d34ec57c3c7623ca358e4b727601674931b4031b9325bba60f170965"
+      "fingerprint": "77ea4ce6aca257d8edc002a6b6b78355fac293cac9dc42826a6450e3dbaffda1"
     },
     {
       "masterDedupeKey": "iam international, inc.|lebanon|NJ",
@@ -3875,7 +4324,7 @@
       "slug": "jdm-specialty-foods-renko-s-sausage",
       "source": "batch-25-a.csv:11",
       "status": "VERIFIED",
-      "fingerprint": "ecbc1c434ec6b8a9ff04452b6afc3a90131a94d6d5a0a4ef99b8629ae39b2263"
+      "fingerprint": "5001463b9127d3abe69a19b5eedeef142081474db8dc7726dc4e33bb24358d66"
     },
     {
       "masterDedupeKey": "kagome|los banos|CA",
@@ -3947,7 +4396,7 @@
       "slug": "lakeside-foods-inc",
       "source": "batch-15-b.csv:10",
       "status": "VERIFIED",
-      "fingerprint": "0c3944a9c6a5bfca6285140378fd693820ead789d70506eaff4f883986630f53"
+      "fingerprint": "e9eb4aafb03e7d6758866d8c477e3f84c9931fe294c70346a2cf5898643cd3da"
     },
     {
       "masterDedupeKey": "lancaster fine foods (stir foods)|lancaster|PA",
@@ -3955,7 +4404,7 @@
       "slug": "lancaster-sauce-co-trillium-foods-lancaster-formerly-lancaster-fine-foods-stir-foods-lancaster",
       "source": "batch-12-b.csv:3",
       "status": "VERIFIED",
-      "fingerprint": "c1f4dbd623a7f6729bf4e7315f23643089f2ac942815e1f7decbae6404e13bb9"
+      "fingerprint": "23511c86437127585b0e5fdded43dcc8ce60023545f16c068a8b3a175f1bb54d"
     },
     {
       "masterDedupeKey": "las olas confections and snacks|orlando|FL",
@@ -4011,7 +4460,7 @@
       "slug": "mainline-foods",
       "source": "batch-20-b.csv:12",
       "status": "VERIFIED",
-      "fingerprint": "79187daf2beb0b1e8481f6fa06e7547c487b752e62ebf94eddfe43101783384a"
+      "fingerprint": "efc512b2074485bd99fd008453266fab604a3fbdc6ce945a323a06d8744ee715"
     },
     {
       "masterDedupeKey": "mama vida inc.|randallstown|MD",
@@ -4035,7 +4484,7 @@
       "slug": "maple-island-inc",
       "source": "batch-24-b.csv:5",
       "status": "VERIFIED",
-      "fingerprint": "844a0117090c12fdf081957beb2ffe65af191d8957c799e12601d96c922d0034"
+      "fingerprint": "a1d0e8f71831de87e204a5c752a5ef030228339b624b51d37cfea7a631fc1064"
     },
     {
       "masterDedupeKey": "marina foods, inc.|medley|FL",
@@ -4067,7 +4516,7 @@
       "slug": "metabrand-llc",
       "source": "batch-15-a.csv:11",
       "status": "VERIFIED",
-      "fingerprint": "71dfd81786ad9fea377ccae4aceb073504165c22f8715dcf500abddbb8dfe064"
+      "fingerprint": "78aeddd238a6b44b040bb4c74dc3c423f5f5ec179060924836d4ffdd056ac79c"
     },
     {
       "masterDedupeKey": "michigan freeze pack|hart|MI",
@@ -4107,7 +4556,7 @@
       "slug": "mille-lacs-wild-rice-corporation-canoe-wild-rice",
       "source": "batch-24-b.csv:7",
       "status": "VERIFIED",
-      "fingerprint": "ebd98987a260b61762e7421836378d77982023021a3f45c6c42c0a98790f9127"
+      "fingerprint": "df380e1212d25bc9af78cc704cca3fc4cbbcf45bece535748e240e113f247a74"
     },
     {
       "masterDedupeKey": "millennium packaging services|carbondale|PA",
@@ -4179,7 +4628,7 @@
       "slug": "nashville-kitchen-and-cannery",
       "source": "batch-15-b.csv:3",
       "status": "VERIFIED",
-      "fingerprint": "8c73215efd97c7a26ec99d94ccd33c6e51be72797a6f4bc6ecf4ff0bff924354"
+      "fingerprint": "60678fe3210be14187a97c312f87e8ecdc67a8427da6381b8d19e37d78af9467"
     },
     {
       "masterDedupeKey": "national food & beverage|dallas|TX",
@@ -4203,7 +4652,7 @@
       "slug": "nikola-s-bakery-inc",
       "source": "batch-24-b.csv:9",
       "status": "VERIFIED",
-      "fingerprint": "279b8f3ac609c23aee37aba06cf8a90134497e1a6b4b0839e06c11c2dc4cd3ac"
+      "fingerprint": "e50b69124ef0b625007328f06c8ea373bd4a11bfa39dd502712e70bbb0c4dc68"
     },
     {
       "masterDedupeKey": "noel canning and bottling|yakima|WA",
@@ -4219,7 +4668,7 @@
       "slug": "north-star-processing-llc-now-revela-foods",
       "source": "batch-24-b.csv:10",
       "status": "VERIFIED",
-      "fingerprint": "9b6679011f24e6ec3247f9897adfe5f0ba98db12355edfa2197dbc4a84c2bd16"
+      "fingerprint": "9174c0c057deaf2cfac99d47fd8231396597cd86342bbdd6628d27bea22604a9"
     },
     {
       "masterDedupeKey": "northwest co-packing|seattle|WA",
@@ -4235,7 +4684,7 @@
       "slug": "northwest-expressions",
       "source": "batch-10-a.csv:9",
       "status": "VERIFIED",
-      "fingerprint": "7ea1d604bcb6f2d61f2dd70764e1afead387ed576026cf7592249f669b870d67"
+      "fingerprint": "4da362dd9a238932ee0375a1efbf952e1f4a998c165d2b839ea15f5e7317031c"
     },
     {
       "masterDedupeKey": "northwest gourmet foods|renton|WA",
@@ -4291,7 +4740,7 @@
       "slug": "oregon-ice-cream-company",
       "source": "batch-14-a.csv:2",
       "status": "VERIFIED",
-      "fingerprint": "4fa8b2290786c559283d615f6b66d95eec38d21811277835c94fce381985701a"
+      "fingerprint": "1cb57baa349e9f6a740fd447b7bc834a3f6ce6f584560ba34f1f56d5fde38b8d"
     },
     {
       "masterDedupeKey": "oregon spice company|portland|OR",
@@ -4315,7 +4764,7 @@
       "slug": "pacific-choice-brands",
       "source": "batch-14-a.csv:13",
       "status": "VERIFIED",
-      "fingerprint": "162da903bcea276ff5a33772819884282253c58bbd8911012bdc05ddbc3adb26"
+      "fingerprint": "e9f5ff241c258a2ea887924e5a8574976dabbc5030876e4650dc5cabc7e6c6b5"
     },
     {
       "masterDedupeKey": "pack n fresh|grand prairie|TX",
@@ -4363,7 +4812,7 @@
       "slug": "pasqualichio-brothers-inc",
       "source": "batch-19-b.csv:4",
       "status": "VERIFIED",
-      "fingerprint": "0039f1791b8b21592c81f2d0f70f2261432d618354fd93afe3343ad180e3f334"
+      "fingerprint": "49c220a9f1e2766102ee59da30964cad6fbc61e87f8e441ffc7015917120c7c2"
     },
     {
       "masterDedupeKey": "pellegrino food products|warren|PA",
@@ -4371,7 +4820,7 @@
       "slug": "pellegrino-food-products-co-inc",
       "source": "batch-15-a.csv:13",
       "status": "VERIFIED",
-      "fingerprint": "a67229e31047ada91d05bbcd713742765dd9af62b6634d7563593121ea2ba9c3"
+      "fingerprint": "c55e8c28e27e7f1968bc4a15cba9c9918f4249ef5e04f7473da235f241adf7b1"
     },
     {
       "masterDedupeKey": "pemberton's gourmet foods|gray|ME",
@@ -4483,7 +4932,7 @@
       "slug": "private-label-foods",
       "source": "batch-25-a.csv:12",
       "status": "VERIFIED",
-      "fingerprint": "138b7b48b96bf05306ba478487bb52677748b7d93bf24248d070c03fc47ebc12"
+      "fingerprint": "bb0211febdfa069a66619dfb6640d596dd19d67a1e5ad6f0803f2f1b2740fd3a"
     },
     {
       "masterDedupeKey": "proper beverage co.|husdonville|MI",
@@ -4523,7 +4972,7 @@
       "slug": "quality-harvest-foods",
       "source": "batch-15-a.csv:4",
       "status": "VERIFIED",
-      "fingerprint": "dd60a9080639311b82e39c064777113560b3a043fcefe73ab69033820ebbcf73"
+      "fingerprint": "e5e5a58a7ff380f5832f993658d7136e2575dc83fe6487e4ae4fe24ec6f76ea4"
     },
     {
       "masterDedupeKey": "quality ingredients corporation|burnsville|MN",
@@ -4627,7 +5076,7 @@
       "slug": "salt-road-food-hub",
       "source": "batch-10-b.csv:14",
       "status": "VERIFIED",
-      "fingerprint": "9e4195e66b72546f9a52d0e388c65075a39e739ae827419ff1f479ede8be615e"
+      "fingerprint": "e1a9259bea87417520981f576e6cb381dcc3e96e7456d9c607bcc66d871d834b"
     },
     {
       "masterDedupeKey": "santini foods, inc.|san lorenzo|CA",
@@ -4643,7 +5092,7 @@
       "slug": "sauce-crafters-inc",
       "source": "batch-10-a.csv:12",
       "status": "VERIFIED",
-      "fingerprint": "7963a9bc134d41bda389845133f8f6860bd424aa6b986bd2ed5146ab975d08e6"
+      "fingerprint": "25889889e6eb56fd96542a69d7b0be7ca1d119bc33dd764b606df95a0f2aa8ff"
     },
     {
       "masterDedupeKey": "sauces 'n love, inc.|lynn|MA",
@@ -4683,7 +5132,7 @@
       "slug": "shin-shin-foods-inc",
       "source": "batch-15-b.csv:14",
       "status": "VERIFIED",
-      "fingerprint": "c611f65d55f9354cf4dfd0dec0e0bc772f6dbb8a0fb051db306b6ba82842f8e1"
+      "fingerprint": "ae38c9587bd091344be820020335d51a4ac9210176559ef63f347e4e0e95e521"
     },
     {
       "masterDedupeKey": "signature sauces|independence|OH",
@@ -4779,7 +5228,7 @@
       "slug": "st-clair-foods-inc",
       "source": "batch-19-b.csv:6",
       "status": "VERIFIED",
-      "fingerprint": "3bb159cf61b078fcbadb1ef104df8d75b9c4921923480889f2fba52becbb0802"
+      "fingerprint": "7b8175a92ec66ab1b041970264d02a9cbca695f7cca0d67357b9f536541bab3b"
     },
     {
       "masterDedupeKey": "St. Cousair",
@@ -4803,7 +5252,7 @@
       "slug": "stello-foods-inc",
       "source": "batch-15-b.csv:2",
       "status": "VERIFIED",
-      "fingerprint": "c98470feafd6ce816b14eb592e7cc4840c152cb5668b84024037f3971b2befb0"
+      "fingerprint": "e05abf783c1d93ff0e32c3f574fd5f7c1ad57bccbf8a4e661d251a1666a8f837"
     },
     {
       "masterDedupeKey": "stittsworth smokehouse company|turtle river|MN",
@@ -4827,7 +5276,7 @@
       "slug": "stone-gate-foods",
       "source": "batch-25-a.csv:5",
       "status": "VERIFIED",
-      "fingerprint": "7e67fa0a9b4a40140f831be9484aa7705c443fa1d4673fcda9046139103560da"
+      "fingerprint": "4ceb951383744af5108af42d705690c1f46fc3191001a7efa9d81ffeb4913a5f"
     },
     {
       "masterDedupeKey": "stormberg foods|goldsboro|NC",
@@ -4875,7 +5324,7 @@
       "slug": "swanson-meats",
       "source": "batch-25-a.csv:6",
       "status": "VERIFIED",
-      "fingerprint": "4e573752b739e0f80b17c5fa69489e35cadf5bc01086c275ae879ab5ef9c3daa"
+      "fingerprint": "e81d73f1da883284ce94599fd2ccdd4e70a1342782cddeb54a87673c657231a2"
     },
     {
       "masterDedupeKey": "swift cider|portland|OR",
@@ -4899,7 +5348,7 @@
       "slug": "tcm-foods-top-chef-manufacturing",
       "source": "batch-25-a.csv:13",
       "status": "VERIFIED",
-      "fingerprint": "aebf89f34d2ff7977f2497ef58cf25889cc2ac69c454a31db7b4c0e37ca5753a"
+      "fingerprint": "848ca08406cbc3cf4f3c48edb9c22f4ec482c3b6e9ac5433ec2ef5ffacf19738"
     },
     {
       "masterDedupeKey": "teasdale latin foods buda|buda|TX",
@@ -5022,12 +5471,20 @@
       "fingerprint": "9cc24b33a68c49aa290c84ec4ae09916d783d5c10f272bed3ad929323414471d"
     },
     {
+      "masterDedupeKey": "southern classic food group|brundidge|AL",
+      "companyName": "Trillium Foods (formerly Southern Classic Food Group)",
+      "slug": "trillium-foods-formerly-southern-classic-food-group",
+      "source": "batch-07-b.csv:2",
+      "status": "VERIFIED",
+      "fingerprint": "e222570b9b887ea52bc40e77a0f9a827a9d0d8c8d761326ec1299559a55963d3"
+    },
+    {
       "masterDedupeKey": "triple h food processors|riverside|CA",
       "companyName": "Triple H Food Processors, LLC",
       "slug": "triple-h-food-processors-llc",
       "source": "batch-14-b.csv:3",
       "status": "VERIFIED",
-      "fingerprint": "c7cb74876d05df18dfed4c86cbf4dbb61200461ccb81c8f1e86e7d00591724e7"
+      "fingerprint": "654821526939c77c3e1c7611eff355a0e7b823eb1587945a90add81459832049"
     },
     {
       "masterDedupeKey": "trisco foods|colorado springs|CO",
@@ -5075,7 +5532,7 @@
       "slug": "ventura-foods",
       "source": "batch-21-b.csv:6",
       "status": "VERIFIED",
-      "fingerprint": "f90b0d4c69359ac0814af2ad55474fb563f97174599defa2f14992e3afd7966b"
+      "fingerprint": "1bc296e3366c53651c42a6e0a931bc9c91a7c0daa0c3ccbbe185524ce5f6012e"
     },
     {
       "masterDedupeKey": "venus wafers, inc.|hingham|MA",
@@ -5139,7 +5596,7 @@
       "slug": "woeber-mustard-manufacturing-company",
       "source": "batch-12-a.csv:11",
       "status": "VERIFIED",
-      "fingerprint": "d5dae122c66c4c96c065542bc5549f2cae950d0e9a981f923a97cf2d130e7e49"
+      "fingerprint": "d05302a8797a2e18e5a2ee3de5276c0ab828cd16becfcc4aab4df367ed3a0b32"
     },
     {
       "masterDedupeKey": "wolf pack international|gold bar|WA",
@@ -5188,8 +5645,8 @@
     "unchanged": 0
   },
   "lastApplyChanges": {
-    "new": 0,
-    "updated": 0,
-    "unchanged": 308
+    "new": 1,
+    "updated": 41,
+    "unchanged": 267
   }
 }

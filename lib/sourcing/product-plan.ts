@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SOURCING_FIELD_KEYS, type SourcingWorkspace } from "./types";
+import { emptyPreparation, preparationSchema } from "./preparation";
 
 const nullableText = z.string().max(20_000).nullable();
 const dateText = z.string().datetime();
@@ -214,6 +215,7 @@ const manufacturerResearchSchema = z.object({
 
 const productPlanV3Schema = z.object({
   schemaVersion: z.literal(3),
+  preparation: preparationSchema.default(emptyPreparation),
   originalIdea: nullableText,
   creationRequestHash: z.string().min(8).max(128).nullable().default(null),
   artwork: z.object({
@@ -248,6 +250,7 @@ export type ProductPlan = z.infer<typeof ProductPlanSchema>;
 export function productPlanFromWorkspace(workspace: SourcingWorkspace): ProductPlan {
   return ProductPlanSchema.parse({
     schemaVersion: 3,
+    preparation: workspace.preparation,
     originalIdea: workspace.originalIdea,
     creationRequestHash: workspace.creationRequestHash,
     artwork: workspace.artwork,

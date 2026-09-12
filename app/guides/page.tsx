@@ -2,9 +2,11 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CORNERSTONE_GUIDES } from "@/lib/guides/cornerstones";
+import { GUIDE_ARTWORK } from "@/lib/guides/artwork";
 import { pageMetadata } from "@/lib/seo/metadata";
 import Image from "next/image";
 import Link from "next/link";
+import { FounderStartLinks } from "@/components/guides/FounderStartLinks";
 
 export const metadata = pageMetadata({
   title: "Food and beverage manufacturing guides",
@@ -76,8 +78,8 @@ export default function GuidesPage() {
           </div>
           <div className="guide-hub-hero-art">
             <Image
-              src="/images/clay-v2/support/beginner-onboarding.webp"
-              alt="Clay checklist, question mark, bottle, jar, and can"
+              src="/images/clay-guides/guide-library.webp"
+              alt="Clay guidebooks with a bookmark, bottle and sample jar"
               width={640}
               height={640}
               sizes="(max-width: 760px) 82vw, 30rem"
@@ -87,6 +89,7 @@ export default function GuidesPage() {
           </div>
         </header>
 
+        <FounderStartLinks />
         <section id="pick-a-guide" className="guide-hub-section" aria-labelledby="pick-a-guide-title">
           <div className="guide-section-heading">
             <div>
@@ -99,7 +102,7 @@ export default function GuidesPage() {
           <div className="guide-card-grid">
             {CORNERSTONE_GUIDES.map((guide, index) => (
               <article className="guide-card" key={guide.slug}>
-                <div className="guide-card-image-link">
+                <div className="guide-card-image-link" style={{ backgroundColor: GUIDE_ARTWORK[guide.slug].background }}>
                   <Image
                     src={guide.image}
                     alt=""

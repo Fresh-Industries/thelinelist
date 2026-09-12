@@ -1,5 +1,9 @@
 /** Privacy-aware interaction events. Never send form contents or contact details. */
 export const ANALYTICS_EVENTS = {
+  product_plan_created: "product_plan_created",
+  guide_checklist_saved: "guide_checklist_saved",
+  guide_decision_saved: "guide_decision_saved",
+  run_cost_worksheet_saved: "run_cost_worksheet_saved",
   product_selected: "product_selected",
   wizard_started: "wizard_started",
   wizard_completed: "wizard_completed",
@@ -22,6 +26,10 @@ export const ANALYTICS_EVENTS = {
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
 
 export const ANALYTICS_EVENT_LABELS: Record<AnalyticsEvent, string> = {
+  product_plan_created: "Product plan created",
+  guide_checklist_saved: "Guide checklist saved",
+  guide_decision_saved: "Guide decision saved",
+  run_cost_worksheet_saved: "Private cost worksheet saved",
   product_selected: "Product selected",
   wizard_started: "Wizard started",
   wizard_completed: "Wizard completed",

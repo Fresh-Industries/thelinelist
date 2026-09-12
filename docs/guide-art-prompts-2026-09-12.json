@@ -1,0 +1,106 @@
+{
+  "date": "2026-09-12",
+  "method": "Built-in image generation",
+  "style": "Use case: stylized-concept. Asset type: The Line List editorial guide cover. The two reference images are STYLE REFERENCES ONLY, not subjects to copy. Match their tactile handmade plasticine material, gently uneven edges, subtly mottled fingerprints and shallow dents, rounded sculpted forms, three-quarter elevated isometric camera and soft upper-left studio light. A restrained palette of deep forest green, warm yellow, coral, muted lavender, aqua, blue and cream; each object feels hand built from colored clay, never polished plastic, glass photography, vector or flat icon. Seamless SOLID WARM YELLOW #F4D447 background and ground exactly like the user's supplied guide examples. Center the entire still life in a square canvas with generous 15% clear yellow padding, with only a small natural soft shadow below objects. No checkerboard, no transparency pattern, no paper texture, no platform/base slab. No faces, people, hands, characters, readable letters, numbers, brands, badges, watermarks, company or regulatory logos. No technical manufacturing diagram or claim of a real facility. Simple legible silhouette with only the requested props. Output one standalone 1024 x 1024 illustration. SUBJECT: ",
+  "references": [
+    "public/images/clay-v2/products/water.webp",
+    "public/images/clay-v2/products/prepared-refrigerated-foods.webp"
+  ],
+  "assets": [
+    {
+      "slug": "co-packer-vs-private-label",
+      "subject": "A small forest-green mixing bowl with a cream spatula beside a squat coral sauce jar; to its right two matching aqua jars with plain cream paper sleeves. A single editable-looking blank lavender label lies flat between the groups. One compact still life suggesting making a custom recipe versus choosing an existing product, no arrows.",
+      "alt": "Clay mixing bowl and sauce jar beside two matching jars and a blank label."
+    },
+    {
+      "slug": "what-to-send-a-manufacturer",
+      "subject": "An upright cream folder with two slightly offset sheets whose only markings are subtle blank recessed lines, accompanied by one small sample sauce bottle and a folded lavender carton drawing with a simple bottle silhouette, no writing. One compact bundle representing a prepared product brief.",
+      "alt": "Clay product folder with blank specification sheets and a small sample bottle."
+    },
+    {
+      "slug": "food-manufacturing-moqs",
+      "subject": "Three short stacks of closed cream corrugated shipping cartons arranged as small, medium and larger quantities, with a single coral bottle in front for scale. Deep green tape strips, simple clean varied stack silhouettes. No pallet, printed marks, numbers or arrows.",
+      "alt": "Clay shipping cartons in three stack sizes with one bottle for scale."
+    },
+    {
+      "slug": "packaging-formats",
+      "subject": "A balanced family of four different empty generic packages: squat cream wide-mouth jar with coral cap, tall aqua bottle with dark green cap, lavender stand-up flexible pouch and low forest-green lidded tray. Each distinct geometry and no labels or contents. Close cohesive still life.",
+      "alt": "Clay jar, bottle, stand-up pouch and lidded tray showing distinct packaging formats."
+    },
+    {
+      "slug": "food-processing-methods",
+      "subject": "Three representative unbranded food packages grouped around a simple large cream question mark: an aqua flexible juice bottle, a coral lidded sauce jar and a sealed lavender pouch. Each product stays generic, no depicted technical equipment, temperatures or process arrows.",
+      "alt": "Clay food packages surrounding a question mark about choosing a production process."
+    },
+    {
+      "slug": "food-manufacturing-certifications",
+      "subject": "A cream folder with blank document sheets and a large forest-green magnifying glass hovering over a simple embossed leaf on one sheet; a small generic coral food jar at the side. No approval checkmarks, shields, seals, badges, signatures or certification logos. Theme is checking documentation rather than claiming approval.",
+      "alt": "Clay magnifying glass examining an unbranded document beside a food jar."
+    },
+    {
+      "slug": "fermented-food-manufacturing",
+      "subject": "A large rounded cream ceramic fermentation crock with a forest-green fitted lid resting slightly to its side, a pale green cabbage wedge, two coral radishes, and a small purple cabbage leaf. Tactile handmade clay ingredients, not a drink bottle, no bubbles or scientific claims.",
+      "alt": "Clay fermentation crock with cabbage and radishes."
+    },
+    {
+      "slug": "dry-blending",
+      "subject": "A deep forest-green open mixing bowl holding a mound of pale beige dry powder, a cream scoop laid alongside it and one simple lavender resealable pouch. A tiny cluster of yellow grains rests near the scoop. Clean compact still life, absolutely no liquid.",
+      "alt": "Clay bowl of dry powder with a scoop, grains and a resealable pouch."
+    },
+    {
+      "slug": "frozen-food-cold-chain",
+      "subject": "An open aqua insulated shipping box with a thick cream liner, a sealed forest-green meal tray inside, and two distinct pale-blue rectangular reusable cold packs beside it. A small lavender snowflake-shaped clay prop provides the cold cue. No thermometers or temperature numbers.",
+      "alt": "Clay insulated meal shipment with cold packs and a snowflake."
+    },
+    {
+      "slug": "test-food-business-idea",
+      "subject": "A small forest-green tasting tray with three tiny differently shaped sample food cups, one coral, one lavender, one cream, beside an upright warm-yellow idea light bulb and a small blank folded cream note card. No humans, no checkmarks, no asserted test results.",
+      "alt": "Clay sample food cups beside an idea bulb and a blank feedback card."
+    },
+    {
+      "slug": "food-product-development",
+      "subject": "A large lavender mixing bowl, cream measuring jug with no scale markings, dark green spoon and two small different coral sample jars grouped together. A few chunky sculpted berries nearby. Development work as a friendly tabletop still life, no scientific glassware.",
+      "alt": "Clay mixing bowl, measuring jug and two recipe samples."
+    },
+    {
+      "slug": "manufacturer-inquiry-examples",
+      "subject": "An open cream envelope holding a coral-tinted blank product brief card with a simple embossed bottle silhouette, a second lavender blank quote sheet beside it and one small aqua sample jar. No readable text, no check marks, no dollar signs. The envelope and folded paper are the main silhouette.",
+      "alt": "Clay envelope, blank product brief and quote sheet with a sample jar."
+    },
+    {
+      "slug": "hpp",
+      "subject": "A squat aqua flexible juice bottle with green cap and a low lavender sealed dip tub, nestled with a few small pale-blue rounded water droplets and a single simple blue snowflake. Use plastic-like package shapes sculpted from opaque clay. No glass jar, metal can, heat, machinery or process arrows.",
+      "alt": "Clay flexible juice bottle and dip tub with water droplets and a cold-storage cue."
+    },
+    {
+      "slug": "hot-fill",
+      "subject": "A chunky coral sauce bottle with a dark-green cap beside a plain pale-cream upright bottle and a small abstract warm-coral sun disk behind them. One half lemon at the base. All opaque clay, no depiction of boiling or pouring, no process instructions, no thermometer or numerical markings.",
+      "alt": "Clay sauce bottles with a lemon and a warm-colored sun motif."
+    },
+    {
+      "slug": "retort",
+      "subject": "One squat forest-green sealed metal-style food can with a plain ring pull, a coral stand-up retort-style pouch and a small cream bowl of chunky soup at front. All handmade opaque matte clay including the metal-shaped can. No machinery, pressure arrows, gauges, flames or process instructions.",
+      "alt": "Clay sealed can, food pouch and bowl of soup."
+    },
+    {
+      "slug": "sauce",
+      "subject": "A wide shallow cream saucepan filled with coral-colored sauce, a forest-green stirring spoon resting across it and two short jars with different colored lids. A small tomato and a lavender onion wedge at the base. Focus on sauce recipe and packaging options.",
+      "alt": "Clay saucepan of sauce with a spoon, two jars and vegetables."
+    },
+    {
+      "slug": "small-moq",
+      "subject": "A tiny cream shipping carton containing exactly three chunky miniature unbranded coral sauce bottles, with a fourth bottle standing beside the box and a lavender measuring tape folded flat with no scale markings. Modest friendly first-batch scene, no numeric minimum implied.",
+      "alt": "Clay carton with a few sauce bottles and an unmarked measuring tape."
+    },
+    {
+      "slug": "first-run-costs",
+      "subject": "A rounded forest-green calculator with blank cream keys and an empty dark display, a coral sample food jar and two small stacks of plain warm-yellow coin disks, with a lavender blank receipt peeking from under the calculator. No digits, currency symbols or readable text.",
+      "alt": "Clay calculator, blank receipt, food jar and plain coin stacks."
+    },
+    {
+      "slug": "guide-library",
+      "subject": "Three chunky closed clay guidebooks stacked unevenly, covers in forest green, muted lavender and cream, with a coral ribbon bookmark; beside the stack a small aqua drink bottle and a cream sample jar with a coral lid. A flat warm-yellow lightbulb silhouette is embossed on the uppermost forest-green book. No readable book titles, no text, no characters. Compact balanced collection representing a library of practical food startup guides.",
+      "alt": "Clay guidebooks with a bookmark, bottle and sample jar."
+    }
+  ]
+}

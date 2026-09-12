@@ -3,13 +3,14 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, type Dispatch, type ReactNode, type SetStateAction, useCallback, useContext, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, type Dispatch, type ReactNode, type SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { DownloadSimple } from "@phosphor-icons/react";
 import { browserTimeZone, sourcingExportUrl } from "@/lib/sourcing/export-url";
 import { getProductIdentity } from "@/lib/sourcing/product-identity";
 import { mergePackagePreview } from "@/lib/sourcing/package-preview";
 import type { PackageDesign, PackageDesignPreviewInput, SourcingWorkspace } from "@/lib/sourcing/types";
 import { WebMcpSourcingTools } from "./WebMcpSourcingTools";
+import { rememberActivePlan } from "@/lib/sourcing/active-plan";
 
 const PackageWorkbench = dynamic(
   () => import("./SourcingPackageWorkbench").then((module) => module.SourcingPackageWorkbench),
@@ -62,6 +63,7 @@ export function SourcingWorkspaceProvider({
   const router = useRouter();
   const pathname = usePathname();
   const manufacturerPath = `/sourcing/${workspace.id}/manufacturers`;
+  useEffect(() => { rememberActivePlan(initialWorkspace.id); }, [initialWorkspace.id]);
 
   const acceptWorkspace = useCallback((next: SourcingWorkspace) => {
     const current = workspaceRef.current;

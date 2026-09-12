@@ -2,6 +2,8 @@ import { createWorkspace, packageDesignHash } from "@/lib/sourcing/workspace";
 import { mergePackagePreview } from "@/lib/sourcing/package-preview";
 import type { PackageDesign, PackageDesignPreviewInput, SourcingWorkspace } from "@/lib/sourcing/types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { checklistItemId, emptyCostWorksheet } from "@/lib/sourcing/preparation";
+import { getCornerstoneGuide } from "@/lib/guides/cornerstones";
 
 const mocks = vi.hoisted(() => ({
   getAuthorizedWorkspace: vi.fn(),
@@ -32,6 +34,32 @@ describe("sourcing workspace mutation boundaries", () => {
     mocks.getRequestContext.mockResolvedValue({ ipHash: "test-ip" });
     mocks.rateLimit.mockResolvedValue({ ok: true });
     mocks.saveSourcingWorkspace.mockImplementation(async (next: SourcingWorkspace) => { workspace = next; });
+  });
+
+  it("saves a real guide checklist without changing requirements or generating outreach", async () => {
+    const before = structuredClone(workspace.fields);
+    const id = checklistItemId(getCornerstoneGuide("start-hot-sauce")!.checklist[0]);
+    const response = await patch({ revision: workspace.revision, preparationUpdate: { checklist: { guideSlug: "start-hot-sauce", completedItemIds: [id] } } });
+    expect(response.status).toBe(200);
+    expect(workspace.preparation.checklists["start-hot-sauce"]).toEqual([id]);
+    expect(workspace.fields).toEqual(before);
+    expect(workspace.outreachDrafts).toEqual([]);
+    expect(workspace.inquiries).toEqual([]);
+  });
+
+  it("rejects stale preparation writes and unknown checklist items", async () => {
+    const revision = workspace.revision;
+    expect((await patch({ revision, preparationUpdate: { costWorksheet: emptyCostWorksheet() } })).status).toBe(200);
+    expect((await patch({ revision, preparationUpdate: { stage: "ready" } })).status).toBe(409);
+    expect((await patch({ revision: workspace.revision, preparationUpdate: { checklist: { guideSlug: "start-hot-sauce", completedItemIds: ["item-invented"] } } })).status).toBe(400);
+    expect(mocks.saveSourcingWorkspace).toHaveBeenCalledTimes(1);
+  });
+
+  it("requires authorization for preparation updates", async () => {
+    mocks.getAuthorizedWorkspace.mockResolvedValue(null);
+    const response = await patch({ revision: workspace.revision, preparationUpdate: { stage: "testing" } });
+    expect(response.status).toBe(404);
+    expect(mocks.saveSourcingWorkspace).not.toHaveBeenCalled();
   });
 
   it("rejects the retired direct package-design payload without saving", async () => {

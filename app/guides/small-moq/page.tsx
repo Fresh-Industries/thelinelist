@@ -1,3 +1,4 @@
+import { GuideCover } from "@/components/guides/GuideCover";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -31,6 +32,7 @@ export default function SmallMoqGuidePage() {
             Named plants only. Minimum order only when the plant printed one.
           </p>
           <GuideByline reviewed="21 Aug 2026" />
+          <GuideCover slug="small-moq" />
 
           <div className="when">
             <p>

@@ -61,6 +61,12 @@ This is a Next.js 16 App Router application using React 19 and TypeScript. Postg
 
 The checked-in manufacturer catalog is sourced public data used by the directory and matching layer. It is not a claim that every listed manufacturer supports every product or package.
 
+## Founder learning
+
+The homepage connects an idea to the existing product plan. Optional starting stages point to guides for testing an idea, developing a recipe, and preparing a manufacturer inquiry. Guide checklists, explicit decisions, and the [first-run cost worksheet](https://www.thelinelist.com/guides/first-run-costs) can be saved to that same plan. Unknown costs stay visible; learning notes and estimates stay outside manufacturer packets. The directory distinguishes recorded manufacturing services from shared kitchens.
+
+See the [September founder-journey research and validation report](docs/founder-journey-research-2026-09-10.md) for sources, implementation scope, and the participant-testing protocol.
+
 ## Local development
 
 Requirements: Node.js 20+, npm, and a non-production PostgreSQL database for persistence and authentication flows.

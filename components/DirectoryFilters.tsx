@@ -1,4 +1,5 @@
 "use client";
+import { DIRECTORY_HELP_LABELS, type DirectoryHelp } from "@/lib/directory/service-help";
 
 import { trackFilter } from "@/lib/analytics/client";
 import {
@@ -64,6 +65,7 @@ type ActiveFilter = { key: string; label: string; href: string };
 
 function getActiveFilters(initial: DirectoryQuery): ActiveFilter[] {
   return [
+    initial.help ? { key: "help", label: DIRECTORY_HELP_LABELS[initial.help], href: directoryHref({ ...initial, help: undefined, page: undefined }) } : null,
     initial.category
       ? {
           key: "category",
@@ -382,6 +384,7 @@ export function DirectoryFilters({
   );
   const [advancedOpen, setAdvancedOpen] = useState(hasAdvancedFilters);
   const [category, setCategory] = useState(initial.category ?? "");
+  const [help, setHelp] = useState<DirectoryHelp | "">(initial.help ?? "");
   const [process, setProcess] = useState(initial.process ?? "");
   const [packaging, setPackaging] = useState(initial.packaging ?? "");
   const [certification, setCertification] = useState(initial.certification ?? "");
@@ -390,6 +393,29 @@ export function DirectoryFilters({
   const [moqDisclosed, setMoqDisclosed] = useState(Boolean(initial.moqDisclosed));
   const [smallRunSignal, setSmallRunSignal] = useState(Boolean(initial.smallRunSignal || initial.smallMoq));
   const [verified, setVerified] = useState(initial.verified ?? "");
+  const [historyRestore, setHistoryRestore] = useState(0);
+
+  useEffect(() => {
+    // Back/Forward can restore the pre-submit form draft from the browser cache.
+    // Reconcile it to this history entry's applied URL filters.
+    const restoreAppliedFilters = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      setHelp(initial.help ?? "");
+      setCategory(initial.category ?? "");
+      setProcess(initial.process ?? "");
+      setPackaging(initial.packaging ?? "");
+      setCertification(initial.certification ?? "");
+      setOperationType(initial.operationType ?? "");
+      setState(initial.state ?? "");
+      setMoqDisclosed(Boolean(initial.moqDisclosed));
+      setSmallRunSignal(Boolean(initial.smallRunSignal || initial.smallMoq));
+      setVerified(initial.verified ?? "");
+      setAdvancedOpen(Boolean(initial.process || initial.packaging || initial.certification || initial.operationType || initial.moqDisclosed || initial.smallRunSignal || initial.smallMoq || initial.verified));
+      setHistoryRestore((value) => value + 1);
+    };
+    window.addEventListener("pageshow", restoreAppliedFilters);
+    return () => window.removeEventListener("pageshow", restoreAppliedFilters);
+  }, [initial]);
 
   const activeFilters = getActiveFilters(initial);
   const productInputId = `${id}-category`;
@@ -425,6 +451,7 @@ export function DirectoryFilters({
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const query: DirectoryQuery = {
+      help: help || undefined,
       product: category ? undefined : initial.product,
       category: (category as ProductCategorySlug) || undefined,
       process: (process as FinderProcess) || undefined,
@@ -438,6 +465,7 @@ export function DirectoryFilters({
       sort: initial.sort,
     };
     trackFilter({
+      help: help || "any",
       category: category || "any",
       process: process || "any",
       packaging: packaging || "any",
@@ -452,11 +480,20 @@ export function DirectoryFilters({
   }
 
   return (
-    <form className="directory-search" onSubmit={onSubmit} aria-label="Search and filter manufacturers">
+    <form className="directory-search" onSubmit={onSubmit} autoComplete="off" aria-label="Search and filter manufacturers">
+      <div className="directory-help-choice">
+        <label htmlFor={`${id}-help`}>What kind of help do you need?</label>
+        <select id={`${id}-help`} value={help} onChange={(event) => { setHelp(event.target.value as DirectoryHelp | ""); setOperationType(""); }}>
+          <option value="">Show all listed services</option>
+          {Object.entries(DIRECTORY_HELP_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+        </select>
+        <p>{help === "kitchen" ? "Uses listings identified as shared kitchens or incubators. Confirm equipment, permitted uses, and whether any production services are offered." : help === "production" ? "Uses publicly recorded manufacturing service types. Product, recipe-development help, package compatibility, and minimums still need confirmation." : "A shared kitchen and a manufacturer offer different kinds of help. Choose a direction, or browse every service."}</p>
+      </div>
       <div className="directory-search-primary">
         <div className="field">
           <label htmlFor={productInputId}>What are you making?</label>
           <ProductCombobox
+            key={historyRestore}
             id={productInputId}
             category={category}
             packaging={packaging}

@@ -372,7 +372,7 @@ describe("sourcing workspace trust rules", () => {
       key: "storage_distribution",
       value: "Shelf-stable goal",
       status: "confirmed",
-      explicitlyStated: true,
+      explicitlyStated: false,
       source: "Assistant assertion",
     }]);
 

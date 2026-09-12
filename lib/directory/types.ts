@@ -122,6 +122,7 @@ export interface Plant {
 }
 
 export interface DirectoryQuery {
+  help?: import("./service-help").DirectoryHelp;
   product?: FinderProduct;
   category?: import("./categories").ProductCategorySlug;
   process?: FinderProcess;

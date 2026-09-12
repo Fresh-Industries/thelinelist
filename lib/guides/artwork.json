@@ -1,0 +1,164 @@
+{
+  "start-hot-sauce": {
+    "title": "How to start a hot sauce brand",
+    "src": "/images/clay-v2/products/hot-sauce.webp",
+    "alt": "Face-free clay hot sauce bottle with a flame emblem and chili prop",
+    "background": "#f4d447"
+  },
+  "energy-drink": {
+    "title": "How to start an energy drink brand",
+    "src": "/images/clay-v2/products/energy-drink.webp",
+    "alt": "Face-free clay energy drink can with a single lightning emblem and floating accents",
+    "background": "#f4d447"
+  },
+  "cold-pressed-juice": {
+    "title": "How to manufacture cold-pressed juice",
+    "src": "/images/clay-v2/products/cold-pressed-juice.webp",
+    "alt": "Face-free clay cold-pressed juice bottle with cucumber, pear, and leafy produce props",
+    "background": "#f4d447"
+  },
+  "first-production-run": {
+    "title": "How to prepare for your first manufacturing run",
+    "src": "/images/clay-v2/support/first-production-run.webp",
+    "alt": "Face-free clay production-planning scene with varied packages, a pallet, clipboard, carton, and caliper",
+    "background": "#f4d447"
+  },
+  "co-packer-vs-private-label": {
+    "title": "Co-packer vs. private label: what is the difference?",
+    "src": "/images/clay-guides/co-packer-vs-private-label.webp",
+    "alt": "Clay mixing bowl and sauce jar beside two matching jars and a blank label.",
+    "background": "#f6d44c"
+  },
+  "how-to-find-a-co-packer": {
+    "title": "How do you find the right co-packer?",
+    "src": "/images/clay-v2/support/beginner-onboarding.webp",
+    "alt": "Clay checklist, bottle, jar, can, and question mark for beginning a manufacturer search",
+    "background": "#f4d447"
+  },
+  "what-to-send-a-manufacturer": {
+    "title": "What should you send a food manufacturer?",
+    "src": "/images/clay-guides/what-to-send-a-manufacturer.webp",
+    "alt": "Clay product folder with blank specification sheets and a small sample bottle.",
+    "background": "#f6d042"
+  },
+  "first-manufacturer-call": {
+    "title": "What should you ask on your first manufacturer call?",
+    "src": "/images/clay-v2/support/question-mark.webp",
+    "alt": "Clay question mark with product packages for planning a manufacturer conversation",
+    "background": "#f4d447"
+  },
+  "food-manufacturing-moqs": {
+    "title": "How do food manufacturing minimum orders work?",
+    "src": "/images/clay-guides/food-manufacturing-moqs.webp",
+    "alt": "Clay shipping cartons in three stack sizes with one bottle for scale.",
+    "background": "#f8d141"
+  },
+  "packaging-formats": {
+    "title": "Which food packaging format should you choose?",
+    "src": "/images/clay-guides/packaging-formats.webp",
+    "alt": "Clay jar, bottle, stand-up pouch and lidded tray showing distinct packaging formats.",
+    "background": "#f8d045"
+  },
+  "food-processing-methods": {
+    "title": "Hot fill, cold fill, HPP, or retort: which process fits?",
+    "src": "/images/clay-guides/food-processing-methods.webp",
+    "alt": "Clay food packages surrounding a question mark about choosing a production process.",
+    "background": "#f7d247"
+  },
+  "food-manufacturing-certifications": {
+    "title": "What do food manufacturing certifications mean?",
+    "src": "/images/clay-guides/food-manufacturing-certifications.webp",
+    "alt": "Clay magnifying glass examining an unbranded document beside a food jar.",
+    "background": "#f5d149"
+  },
+  "private-label-bottled-water": {
+    "title": "How do you start a private-label bottled water brand?",
+    "src": "/images/clay-v2/products/water.webp",
+    "alt": "Face-free clay water bottles with simple unbranded labels and water-drop props",
+    "background": "#f4d447"
+  },
+  "fermented-food-manufacturing": {
+    "title": "How do you manufacture a fermented food or drink?",
+    "src": "/images/clay-guides/fermented-food-manufacturing.webp",
+    "alt": "Clay fermentation crock with cabbage and radishes.",
+    "background": "#f6ce46"
+  },
+  "refrigerated-food-manufacturing": {
+    "title": "How do you manufacture a refrigerated food?",
+    "src": "/images/clay-v2/products/prepared-refrigerated-foods.webp",
+    "alt": "Face-free clay refrigerated prepared-food tray with fresh ingredient props",
+    "background": "#f4d447"
+  },
+  "dry-blending": {
+    "title": "Dry blending for spices, seasonings, and drink powders",
+    "src": "/images/clay-guides/dry-blending.webp",
+    "alt": "Clay bowl of dry powder with a scoop, grains and a resealable pouch.",
+    "background": "#fdd543"
+  },
+  "frozen-food-cold-chain": {
+    "title": "How to prepare a frozen food for manufacturing",
+    "src": "/images/clay-guides/frozen-food-cold-chain.webp",
+    "alt": "Clay insulated meal shipment with cold packs and a snowflake.",
+    "background": "#f7d147"
+  },
+  "bakery-manufacturing": {
+    "title": "How to prepare a bakery product for a co-packer",
+    "src": "/images/clay-v2/packaging/bakery-bag-mini-loaf.png",
+    "alt": "Unbranded clay bakery bag with a small loaf",
+    "background": "#f4d447"
+  },
+  "test-food-business-idea": {
+    "title": "How to test your food or drink business idea",
+    "src": "/images/clay-guides/test-food-business-idea.webp",
+    "alt": "Clay sample food cups beside an idea bulb and a blank feedback card.",
+    "background": "#f5d048"
+  },
+  "food-product-development": {
+    "title": "Who can help turn your recipe into a food product?",
+    "src": "/images/clay-guides/food-product-development.webp",
+    "alt": "Clay mixing bowl, measuring jug and two recipe samples.",
+    "background": "#f7d14b"
+  },
+  "manufacturer-inquiry-examples": {
+    "title": "What does a useful manufacturer inquiry look like?",
+    "src": "/images/clay-guides/manufacturer-inquiry-examples.webp",
+    "alt": "Clay envelope, blank product brief and quote sheet with a sample jar.",
+    "background": "#f4cf46"
+  },
+  "hpp": {
+    "title": "High pressure processing (HPP)",
+    "src": "/images/clay-guides/hpp.webp",
+    "alt": "Clay flexible juice bottle and dip tub with water droplets and a cold-storage cue.",
+    "background": "#f8d54b"
+  },
+  "hot-fill": {
+    "title": "Hot-fill manufacturing",
+    "src": "/images/clay-guides/hot-fill.webp",
+    "alt": "Clay sauce bottles with a lemon and a warm-colored sun motif.",
+    "background": "#f8d447"
+  },
+  "retort": {
+    "title": "Retort food manufacturing",
+    "src": "/images/clay-guides/retort.webp",
+    "alt": "Clay sealed can, food pouch and bowl of soup.",
+    "background": "#f6cf43"
+  },
+  "sauce": {
+    "title": "Choose your sauce process",
+    "src": "/images/clay-guides/sauce.webp",
+    "alt": "Clay saucepan of sauce with a spoon, two jars and vegetables.",
+    "background": "#f8d447"
+  },
+  "small-moq": {
+    "title": "Understand small production runs",
+    "src": "/images/clay-guides/small-moq.webp",
+    "alt": "Clay carton with a few sauce bottles and an unmarked measuring tape.",
+    "background": "#fbd445"
+  },
+  "first-run-costs": {
+    "title": "Estimate your first production run",
+    "src": "/images/clay-guides/first-run-costs.webp",
+    "alt": "Clay calculator, blank receipt, food jar and plain coin stacks.",
+    "background": "#f6d24a"
+  }
+}

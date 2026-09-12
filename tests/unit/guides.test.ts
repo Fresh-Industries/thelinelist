@@ -1,7 +1,27 @@
 import { CORNERSTONE_GUIDES, getCornerstoneGuide } from "@/lib/guides/cornerstones";
 import { describe, expect, it } from "vitest";
+import { relatedGuidesForCategory } from "@/lib/guides/related";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 describe("cornerstone guides", () => {
+  it("connects the September production guides to their matching directories and existing artwork", () => {
+    for (const [slug, category] of [
+      ["dry-blending", "spices-dry-mixes"],
+      ["frozen-food-cold-chain", "frozen-foods"],
+      ["bakery-manufacturing", "bakery"],
+    ] as const) {
+      const guide = getCornerstoneGuide(slug)!;
+      expect(guide, slug).toBeDefined();
+      expect(guide.directoryHref).toBe(`/find-manufacturers/${category}`);
+      expect(relatedGuidesForCategory(category).some((link) => link.href === `/guides/${slug}`)).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", guide.image))).toBe(true);
+      expect(guide.datePublished).toBe("2026-09-10");
+      for (const link of guide.relatedLinks ?? []) {
+        expect(getCornerstoneGuide(link.href.replace("/guides/", "")), link.href).toBeDefined();
+      }
+    }
+  });
   it("keeps each direct answer within the 40 to 60 word answer-engine target", () => {
     for (const guide of CORNERSTONE_GUIDES) {
       const wordCount = guide.directAnswer.trim().split(/\s+/).length;

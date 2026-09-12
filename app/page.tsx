@@ -8,6 +8,7 @@ import { getIndexableProductCategories } from "@/lib/directory";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { FounderStartLinks } from "@/components/guides/FounderStartLinks";
 
 const HOME_GUIDES = [
   {
@@ -70,17 +71,17 @@ export default function HomePage() {
           <div className="wrap hero-grid">
             <div className="hero-copy">
               <p className="kicker">From idea to first run</p>
-              <h1>Find the right food or beverage manufacturer.</h1>
+              <h1>Your food or drink idea starts here.</h1>
               <p className="sub">
-                Learn what your product needs, find manufacturers that may fit, and prepare for your first conversation.
+                Figure out your next step, build your product plan, and find manufacturers that may fit. A rough idea is enough to begin.
               </p>
               <div className="hero-actions">
-                <Link className="btn hero-primary" href="/find-manufacturers/wizard">
-                  Find manufacturers for my product
+                <Link className="btn hero-primary" href="/sourcing">
+                  Start my food or drink brand
                   <span aria-hidden="true">→</span>
                 </Link>
-                <Link className="btn hero-secondary" href="#how-it-works">
-                  Show me how it works
+                <Link className="btn hero-secondary" href="/find-manufacturers">
+                  Browse manufacturers
                 </Link>
               </div>
             </div>
@@ -102,6 +103,8 @@ export default function HomePage() {
         </section>
 
         <ProductSelector visibleCategories={visibleCategories} />
+
+        <div className="wrap"><FounderStartLinks /></div>
 
         <HowItWorks />
 

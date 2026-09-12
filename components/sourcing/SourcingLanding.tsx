@@ -6,6 +6,9 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
 import { SOURCING_FIELD_KEYS, type AgentFieldUpdate, type SourcingWorkspace } from "@/lib/sourcing/types";
+import { FOUNDER_STAGES, type FounderStage } from "@/lib/sourcing/preparation";
+import { rememberActivePlan } from "@/lib/sourcing/active-plan";
+import { track } from "@/lib/analytics/client";
 
 const PROMPT_STARTERS = [
   { label: "Drink", seed: "I want to make a packaged drink...", image: "/images/clay-v2/products/functional-beverages.webp" },
@@ -16,12 +19,14 @@ const PROMPT_STARTERS = [
   { label: "Something else", seed: "I have an idea for a food or beverage product...", image: "/images/clay-v2/support/question-mark.webp" },
 ] as const;
 
-export function SourcingLanding() {
+export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string; title: string } }) {
   const router = useRouter();
   const [idea, setIdea] = useState("");
+  const [stage, setStage] = useState<FounderStage | "">("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [agentConnected, setAgentConnected] = useState(false);
+  const [manualOpen, setManualOpen] = useState<boolean | null>(null);
   const ideaRef = useRef<HTMLTextAreaElement>(null);
   const creationAttemptRef = useRef<{ payloadKey: string; mutationId: string } | null>(null);
   const creationPayloadsRef = useRef(new Map<string, string>());
@@ -37,10 +42,10 @@ export function SourcingLanding() {
     });
   }
 
-  const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[], navigate = true, requestedMutationId?: string) => {
+  const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[], navigate = true, requestedMutationId?: string, startingStage?: FounderStage) => {
     const trimmed = rawIdea.trim();
     if (!trimmed) return;
-    const payloadKey = stableJsonStringify({ idea: trimmed, initialUpdates: initialUpdates ?? [] });
+    const payloadKey = stableJsonStringify({ idea: trimmed, initialUpdates: initialUpdates ?? [], ...(startingStage ? { startingStage } : {}) });
     if (creationAttemptRef.current?.payloadKey !== payloadKey || (requestedMutationId && creationAttemptRef.current.mutationId !== requestedMutationId)) {
       creationAttemptRef.current = { payloadKey, mutationId: requestedMutationId ?? createMutationId() };
     }
@@ -55,13 +60,15 @@ export function SourcingLanding() {
     if (!request) {
       setPending(true);
       setError("");
-      request = requestWorkspaceCreation({ trimmed, mutationId, initialUpdates });
+      request = requestWorkspaceCreation({ trimmed, mutationId, initialUpdates, startingStage });
       creationRequestsRef.current.set(mutationId, request);
     }
     try {
       const payload = await request;
       if (creationRequestsRef.current.get(mutationId) === request) creationRequestsRef.current.delete(mutationId);
       setPending(false);
+      rememberActivePlan(payload.workspace.id);
+      if (payload.receipt.outcome === "created") track("product_plan_created");
       if (navigate) router.push(payload.receipt.workspaceUrl);
       return payload;
     } catch (caught) {
@@ -74,7 +81,8 @@ export function SourcingLanding() {
 
   async function start(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await createWorkspace(idea, undefined, true).catch(() => undefined);
+    const payload = await createWorkspace(idea, undefined, !returnGuide, undefined, stage || undefined).catch(() => undefined);
+    if (payload && returnGuide) router.push(`/guides/${returnGuide.slug}#checklist`);
   }
 
   useEffect(() => {
@@ -165,14 +173,14 @@ export function SourcingLanding() {
   return (
     <section className="sourcing-entry" aria-labelledby="sourcing-entry-heading">
       <div className="sourcing-entry-copy">
-        <p className="document-kicker"><Sparkle aria-hidden="true" weight="fill" /> First Run · Product collaborator</p>
-        <h1 id="sourcing-entry-heading">Tell your agent what you want to make.</h1>
-        <p>Your agent turns what you said into a first-pass brief, keeps suggestions visibly separate from confirmed facts, and brings you here for visual decisions and approval. You stay in control of every manufacturer introduction.</p>
+        <p className="document-kicker"><Sparkle aria-hidden="true" weight="fill" /> From idea to first conversation</p>
+        <h1 id="sourcing-entry-heading">Start your food or drink brand.</h1>
+        <p>Start with what you know. Keep your decisions, useful lessons, and first-run estimates in one private product plan. You can edit it yourself or work with your connected agent.</p>
       </div>
-      <div className={`agent-start-state${agentConnected ? " is-connected" : ""}`}><span aria-hidden="true" /><div><strong>{agentConnected ? "Agent connected" : "Agent start available"}</strong><p>{agentConnected ? "Describe your idea in chat. Your agent can create this workspace now." : "Open this page with a WebMCP-capable agent, or start manually below."}</p></div></div>
-      <details className="manual-start" open={!agentConnected}>
-        <summary>Or start here yourself</summary>
-      <form className="idea-composer" onSubmit={start}>
+      {agentConnected ? <div className="agent-start-state is-connected"><span aria-hidden="true" /><div><strong>Agent connected</strong><p>Describe your idea in chat. Your agent can create your product plan now.</p></div></div> : null}
+      <details className="manual-start" open={manualOpen ?? (!agentConnected || Boolean(returnGuide))}>
+        <summary onClick={(event) => { event.preventDefault(); setManualOpen(!(manualOpen ?? (!agentConnected || Boolean(returnGuide)))); }}>{agentConnected ? "Or start here yourself" : "Start with your idea"}</summary>
+      <form className="idea-composer" onSubmit={start} onFocusCapture={() => setManualOpen(true)}>
         <label htmlFor="product-idea">What do you want to make?</label>
         <textarea
           id="product-idea"
@@ -184,6 +192,11 @@ export function SourcingLanding() {
           maxLength={1_500}
           required
         />
+        <fieldset className="founder-stage-picker">
+          <legend>Where are you starting? <span>Optional</span></legend>
+          <div>{FOUNDER_STAGES.map((item) => <label key={item.value} className={stage === item.value ? "is-selected" : ""}><input type="radio" name="starting-stage" value={item.value} checked={stage === item.value} onChange={() => setStage(item.value)} /><strong>{item.label}</strong><span>{item.description}</span></label>)}</div>
+          <label className="stage-unsure"><input type="radio" name="starting-stage" value="" checked={stage === ""} onChange={() => setStage("")} /> I’m not sure yet</label>
+        </fieldset>
         <fieldset className="prompt-starters">
           <legend>Start with an idea</legend>
           <div>
@@ -194,12 +207,13 @@ export function SourcingLanding() {
               </button>
             ))}
           </div>
-          <p>These are only starting points. Your agent will help you narrow the idea.</p>
+          <p>These are only starting points. You can change any part of your idea.</p>
         </fieldset>
         <div>
           <span>No manufacturing experience needed. “I’m not sure” is always a valid answer.</span>
-          <button type="submit" disabled={pending || idea.trim().length < 2}>{pending ? "Starting your brief…" : <>Build with your agent <ArrowRight aria-hidden="true" weight="bold" /></>}</button>
+          <button type="submit" disabled={pending || idea.trim().length < 2}>{pending ? "Starting your plan…" : <>Create my product plan <ArrowRight aria-hidden="true" weight="bold" /></>}</button>
         </div>
+        {returnGuide ? <p>Then return to {returnGuide.title} to save your work.</p> : null}
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
       </form>
       </details>
@@ -229,15 +243,17 @@ async function requestWorkspaceCreation({
   trimmed,
   mutationId,
   initialUpdates,
+  startingStage,
 }: {
   trimmed: string;
   mutationId: string;
   initialUpdates?: AgentFieldUpdate[];
+  startingStage?: FounderStage;
 }): Promise<CreationPayload> {
   const response = await fetch("/api/sourcing", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idea: trimmed, mutationId, ...(initialUpdates?.length ? { initialUpdates } : {}) }),
+    body: JSON.stringify({ idea: trimmed, mutationId, ...(initialUpdates?.length ? { initialUpdates } : {}), ...(startingStage ? { startingStage } : {}) }),
   });
   const payload = await response.json().catch(() => null) as (Partial<CreationPayload> & { error?: string }) | null;
   if (!response.ok) throw new Error(payload?.error || `Your product workspace could not be created (${response.status}).`);

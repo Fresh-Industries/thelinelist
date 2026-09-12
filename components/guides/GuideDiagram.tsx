@@ -162,9 +162,28 @@ function FirstRunDiagram() {
 }
 
 export function GuideDiagram({ variant }: { variant: CornerstoneGuide["diagram"] }) {
+  if (variant === "idea-test") return <LearningMap title="Choose the question to investigate" nodes={[
+    ["Who might buy it?", "Describe one customer and buying occasion."],
+    ["What do they use now?", "Compare actual choices, packages, and prices."],
+    ["What should change?", "Use observations to refine the next version."],
+  ]} />;
+  if (variant === "development-help") return <LearningMap title="Match the open question to the right help" nodes={[
+    ["Recipe and trials", "Product developer or food scientist"],
+    ["Process and stability", "Qualified process authority or food-safety specialist"],
+    ["Package and label", "Manufacturer, packaging supplier, and qualified label reviewer"],
+  ]} />;
+  if (variant === "inquiry") return <LearningMap title="What the first conversation should resolve" nodes={[
+    ["What you know", "Product, recipe stage, goals, and approximate quantity."],
+    ["What is still open", "Development needs, unknown specifications, and questions."],
+    ["What happens next", "A fit discussion, referral, or request for more information."],
+  ]} />;
   if (variant === "hot-sauce") return <HotSauceDiagram />;
   if (variant === "formula") return <FormulaDiagram />;
   if (variant === "package") return <PackageDiagram />;
   if (variant === "storage") return <StorageDiagram />;
   return <FirstRunDiagram />;
+}
+
+function LearningMap({ title, nodes }: { title: string; nodes: string[][] }) {
+  return <figure className="learning-map"><figcaption>{title}</figcaption><ol>{nodes.map(([label, explanation], index) => <li key={label}><span aria-hidden="true">0{index + 1}</span><strong>{label}</strong><p>{explanation}</p></li>)}</ol></figure>;
 }

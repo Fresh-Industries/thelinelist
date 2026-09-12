@@ -1,4 +1,7 @@
+import { guideArtwork } from "./artwork";
 import { PRACTICAL_GUIDES } from "./practical";
+import { PRODUCTION_GUIDES } from "./production-guides";
+import { FOUNDER_GUIDES } from "./founder-guides";
 
 export interface GuideSource {
   label: string;
@@ -28,7 +31,7 @@ export interface CornerstoneGuide {
   directoryHref: string;
   directoryLabel: string;
   sources: GuideSource[];
-  diagram: "hot-sauce" | "formula" | "package" | "storage" | "first-run";
+  diagram: "hot-sauce" | "formula" | "package" | "storage" | "first-run" | "idea-test" | "development-help" | "inquiry";
   relatedLinks?: { href: string; label: string }[];
 }
 
@@ -50,8 +53,8 @@ const CORE_GUIDES: CornerstoneGuide[] = [
     seoTitle: "How to Start a Hot Sauce Brand: Beginner Guide",
     description: "Turn a hot sauce idea into a safe, bottled product. Follow the beginner path from recipe and process review to packaging, trials, and finding a manufacturer.",
     eyebrow: "Hot sauce guide",
-    image: "/images/clay-v2/products/hot-sauce.webp",
-    imageAlt: "Face-free clay hot sauce bottle with a flame emblem and chili prop",
+    image: guideArtwork("start-hot-sauce").src,
+    imageAlt: guideArtwork("start-hot-sauce").alt,
     directAnswer: "You do not need your own factory to start a hot sauce brand. Choose an existing private-label sauce or bring your own recipe, have a qualified expert set the safe commercial process, confirm the bottle works with that process, run a trial, and then hire a manufacturer that fits your product and budget.",
     whoThisIsFor: "This guide is for first-time founders with a sauce idea or kitchen recipe who want to understand the path to a professionally made, packaged product. You do not need to know food-science terms before you start.",
     reviewedLabel: "25 Aug 2026",
@@ -100,8 +103,8 @@ const CORE_GUIDES: CornerstoneGuide[] = [
     seoTitle: "Energy Drink Private Label vs Custom Formula",
     description: "Compare private-label and custom energy drinks, cans and bottles, carbonation, storage, and the questions to ask manufacturers.",
     eyebrow: "Energy drink guide",
-    image: "/images/clay-v2/products/energy-drink.webp",
-    imageAlt: "Face-free clay energy drink can with a single lightning emblem and floating accents",
+    image: guideArtwork("energy-drink").src,
+    imageAlt: guideArtwork("energy-drink").alt,
     directAnswer: "Start by choosing an existing private-label base or a custom formula. Then define carbonation, package, storage, volume, and timing. A plant that fills juice or water is not automatically a fit for an energy drink. Confirm product experience and line compatibility instead of relying on a broad beverage label.",
     whoThisIsFor: "This guide is for first-time energy drink founders comparing an existing formula with a custom product and trying to understand which details a manufacturer needs.",
     reviewedLabel: "24 Aug 2026",
@@ -143,8 +146,8 @@ const CORE_GUIDES: CornerstoneGuide[] = [
     seoTitle: "Cold-Pressed Juice Manufacturing for Beginners",
     description: "Understand cold-pressed juice manufacturing, HPP, Juice HACCP, packaging, cold storage, and manufacturer questions.",
     eyebrow: "Juice guide",
-    image: "/images/clay-v2/products/cold-pressed-juice.webp",
-    imageAlt: "Face-free clay cold-pressed juice bottle with cucumber, pear, and leafy produce props",
+    image: guideArtwork("cold-pressed-juice").src,
+    imageAlt: guideArtwork("cold-pressed-juice").alt,
     directAnswer: "Cold pressed describes extraction. It does not mean HPP. A manufacturer must pair the juice with a validated food-safety process, compatible packaging, and the right storage plan. Juice processors subject to Juice HACCP must achieve at least a 5-log reduction in the pertinent microorganism. High pressure, heat, and UV are possible controls when validated for the product.",
     whoThisIsFor: "This guide is for founders planning a bottled juice and trying to connect the recipe, food-safety process, bottle, refrigeration, and manufacturer search.",
     reviewedLabel: "24 Aug 2026",
@@ -185,8 +188,8 @@ const CORE_GUIDES: CornerstoneGuide[] = [
     seoTitle: "First Production Run for Food and Beverage Brands",
     description: "Prepare specifications, trials, packaging, cash, storage, and manufacturer questions for a first food or beverage production run.",
     eyebrow: "First-run guide",
-    image: "/images/clay-v2/support/first-production-run.webp",
-    imageAlt: "Face-free clay production-planning scene with varied packages, a pallet, clipboard, carton, and caliper",
+    image: guideArtwork("first-production-run").src,
+    imageAlt: guideArtwork("first-production-run").alt,
     directAnswer: "A first manufacturing run is not just a larger kitchen day. Prepare a clear product and packaging specification, an honest volume, a funded trial and production plan, and somewhere for finished goods to go. The manufacturer sets the minimum. Ask what is included, what can change during scale-up, and who owns each material and decision.",
     whoThisIsFor: "This guide is for food and beverage founders preparing to move from development into a first trial or production run with a manufacturer.",
     reviewedLabel: "24 Aug 2026",
@@ -225,7 +228,7 @@ const CORE_GUIDES: CornerstoneGuide[] = [
   },
 ];
 
-export const CORNERSTONE_GUIDES: CornerstoneGuide[] = [...CORE_GUIDES, ...PRACTICAL_GUIDES];
+export const CORNERSTONE_GUIDES: CornerstoneGuide[] = [...CORE_GUIDES, ...PRACTICAL_GUIDES, ...PRODUCTION_GUIDES, ...FOUNDER_GUIDES];
 
 export function getCornerstoneGuide(slug: string): CornerstoneGuide | undefined {
   return CORNERSTONE_GUIDES.find((guide) => guide.slug === slug);

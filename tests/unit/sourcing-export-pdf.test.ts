@@ -6,12 +6,23 @@ import { createProductPlanPdf } from "@/lib/sourcing/export-pdf";
 import { matchManufacturerRecords } from "@/lib/sourcing/matching";
 import { applyFounderFieldUpdate, applyManufacturerResearch, createWorkspace, invalidateManufacturerResearch } from "@/lib/sourcing/workspace";
 import type { ManufacturerResearchBroadeningApproval, ManufacturerResearchRequest, SourcingFieldKey } from "@/lib/sourcing/types";
+import { emptyCostWorksheet } from "@/lib/sourcing/preparation";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/sourcing/store", () => ({ getProductArtwork: vi.fn(async () => null) }));
 
 describe("sourcing PDF research truth", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("includes private cost estimates in the founder export with unknown amounts intact", async () => {
+    const workspace = createWorkspace({ idea: "Fictional cost-export product", startingStage: "testing" });
+    workspace.preparation.costWorksheet = { ...emptyCostWorksheet(), quantity: 1000, ingredients: .5, notes: "PRIVATE_WORKSHEET_NOTES" };
+    const text = await pdfText(workspace);
+    expect(text).toContain("PRIVATE LEARNING AND ESTIMATES");
+    expect(text).toContain("PRIVATE_WORKSHEET_NOTES");
+    expect(text).toContain("Subtotal of entered costs");
+    expect(text).toContain("Not included yet");
+  });
 
   it("labels never-run, strict-zero, broadened-zero, current-result, and stale research distinctly", async () => {
     const workspace = completeWorkspace();

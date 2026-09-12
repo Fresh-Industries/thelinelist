@@ -2527,7 +2527,7 @@ details.textbook .textbook-mark {
   display: block;
 }
 
-.guide-card > div { padding: 1.1rem 1.15rem 1.25rem; }
+.guide-card > div:not(.guide-card-image-link) { padding: 1.1rem 1.15rem 1.25rem; }
 .guide-card h2 { margin: 0.15rem 0 0.45rem; font-size: clamp(1.35rem, 3vw, 1.8rem); }
 .guide-card h2 a { color: var(--ink); text-decoration: none; }
 .guide-card p { color: var(--muted); }
@@ -4790,6 +4790,8 @@ main:not(.home) .wizard-fields select {
 .guide-hub-hero-art img {
   width: min(100%, 31rem);
   height: auto;
+  border: 2px solid var(--forest-deep);
+  border-radius: .65rem;
   filter: drop-shadow(0.8rem 1rem 0 rgba(15, 40, 31, 0.13));
   transform: rotate(2deg);
 }
@@ -4866,6 +4868,9 @@ main:not(.home) .wizard-fields select {
   transition: transform 180ms ease;
 }
 
+.standalone-guide-cover { width: 100%; max-width: 42rem; margin: 1.5rem 0 2rem; overflow: hidden; border: 2px solid var(--forest); border-radius: .65rem; background: #f4d447; }
+.standalone-guide-cover img { display: block; width: 100%; height: auto; max-height: 24rem; object-fit: contain; }
+
 .guide-card:nth-child(4n + 1) .guide-card-image-link { background: var(--yellow); }
 .guide-card:nth-child(4n + 2) .guide-card-image-link { background: var(--coral); }
 .guide-card:nth-child(4n + 3) .guide-card-image-link { background: var(--lavender); }
@@ -4875,7 +4880,7 @@ main:not(.home) .wizard-fields select {
   transform: scale(1.035) rotate(-1deg);
 }
 
-.guide-hub .guide-card > div {
+.guide-hub .guide-card > div:not(.guide-card-image-link) {
   display: flex;
   flex: 1;
   flex-direction: column;

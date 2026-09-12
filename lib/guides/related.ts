@@ -3,6 +3,9 @@ import { PRODUCT_CATEGORIES, plantMatchesCategory, type Plant, type ProductCateg
 export interface RelatedGuideLink { href: string; title: string; description: string }
 
 const G = {
+  bakery: { href: "/guides/bakery-manufacturing", title: "Prepare a bakery product", description: "Compare finished bake, frozen dough, batter, and dry mixes." },
+  dryBlending: { href: "/guides/dry-blending", title: "Plan a spice blend or drink powder", description: "Separate blending, filling, sourcing, and first-run costs." },
+  frozen: { href: "/guides/frozen-food-cold-chain", title: "Prepare a frozen food", description: "Plan cooling, freezing, packaging, storage, and freight." },
   find: { href: "/guides/how-to-find-a-co-packer", title: "How to find a co-packer", description: "Build a focused, evidence-based shortlist." },
   send: { href: "/guides/what-to-send-a-manufacturer", title: "What to send a manufacturer", description: "Prepare a brief that can get a useful reply." },
   moq: { href: "/guides/food-manufacturing-moqs", title: "How minimum orders work", description: "Compare units, costs, and first-run risk." },
@@ -30,7 +33,10 @@ const CATEGORY_GUIDES: Partial<Record<ProductCategorySlug, RelatedGuideLink[]>> 
   "prepared-refrigerated-foods": [G.refrigerated, G.process, G.package],
   "dips-hummus": [G.refrigerated, G.process, G.package],
   supplements: [G.certs, G.moq, G.send],
-  "spices-dry-mixes": [G.package, G.moq, G.send],
+  "spices-dry-mixes": [G.dryBlending, G.package, G.moq],
+  "dry-coffee-tea": [G.dryBlending, G.package, G.moq],
+  bakery: [G.bakery, G.frozen, G.moq],
+  "frozen-foods": [G.frozen, G.package, G.moq],
 };
 
 export function relatedGuidesForCategory(category: ProductCategorySlug): RelatedGuideLink[] {

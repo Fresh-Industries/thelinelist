@@ -1,0 +1,380 @@
+{
+  "/": {
+    "url": "/images/og/home.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Your food or drink idea starts here. — The Line List"
+  },
+  "/find-manufacturers": {
+    "url": "/images/og/find-manufacturers.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Find your next manufacturer conversation. — The Line List"
+  },
+  "/guides": {
+    "url": "/images/og/guides.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Big idea. Clear next steps. — The Line List"
+  },
+  "/find-manufacturers/wizard": {
+    "url": "/images/og/find-manufacturers-wizard.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "What are you making? Start there. — The Line List"
+  },
+  "/sourcing": {
+    "url": "/images/og/sourcing.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Start your food or drink brand. — The Line List"
+  },
+  "/about": {
+    "url": "/images/og/about.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Making the first step a little clearer. — The Line List"
+  },
+  "/newsletter": {
+    "url": "/images/og/newsletter.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "A little clarity for your next big idea. — The Line List"
+  },
+  "/how-we-verify": {
+    "url": "/images/og/how-we-verify.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Public sources. Clear unknowns. — The Line List"
+  },
+  "/glossary": {
+    "url": "/images/og/glossary.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Manufacturing words, in plain English. — The Line List"
+  },
+  "/for-manufacturers": {
+    "url": "/images/og/for-manufacturers.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Help founders understand what you make. — The Line List"
+  },
+  "/claim-submit": {
+    "url": "/images/og/claim-submit.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Keep your manufacturer listing useful. — The Line List"
+  },
+  "/guides/start-hot-sauce": {
+    "url": "/images/og/guides-start-hot-sauce.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How to start a hot sauce brand — The Line List"
+  },
+  "/guides/energy-drink": {
+    "url": "/images/og/guides-energy-drink.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How to start an energy drink brand — The Line List"
+  },
+  "/guides/cold-pressed-juice": {
+    "url": "/images/og/guides-cold-pressed-juice.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How to manufacture cold-pressed juice — The Line List"
+  },
+  "/guides/first-production-run": {
+    "url": "/images/og/guides-first-production-run.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How to prepare for your first manufacturing run — The Line List"
+  },
+  "/guides/co-packer-vs-private-label": {
+    "url": "/images/og/guides-co-packer-vs-private-label.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Co-packer vs. private label: what is the difference? — The Line List"
+  },
+  "/guides/how-to-find-a-co-packer": {
+    "url": "/images/og/guides-how-to-find-a-co-packer.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How do you find the right co-packer? — The Line List"
+  },
+  "/guides/what-to-send-a-manufacturer": {
+    "url": "/images/og/guides-what-to-send-a-manufacturer.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "What should you send a food manufacturer? — The Line List"
+  },
+  "/guides/first-manufacturer-call": {
+    "url": "/images/og/guides-first-manufacturer-call.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "What should you ask on your first manufacturer call? — The Line List"
+  },
+  "/guides/food-manufacturing-moqs": {
+    "url": "/images/og/guides-food-manufacturing-moqs.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How do food manufacturing minimum orders work? — The Line List"
+  },
+  "/guides/packaging-formats": {
+    "url": "/images/og/guides-packaging-formats.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Which food packaging format should you choose? — The Line List"
+  },
+  "/guides/food-processing-methods": {
+    "url": "/images/og/guides-food-processing-methods.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Hot fill, cold fill, HPP, or retort: which process fits? — The Line List"
+  },
+  "/guides/food-manufacturing-certifications": {
+    "url": "/images/og/guides-food-manufacturing-certifications.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "What do food manufacturing certifications mean? — The Line List"
+  },
+  "/guides/private-label-bottled-water": {
+    "url": "/images/og/guides-private-label-bottled-water.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How do you start a private-label bottled water brand? — The Line List"
+  },
+  "/guides/fermented-food-manufacturing": {
+    "url": "/images/og/guides-fermented-food-manufacturing.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How do you manufacture a fermented food or drink? — The Line List"
+  },
+  "/guides/refrigerated-food-manufacturing": {
+    "url": "/images/og/guides-refrigerated-food-manufacturing.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How do you manufacture a refrigerated food? — The Line List"
+  },
+  "/guides/dry-blending": {
+    "url": "/images/og/guides-dry-blending.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Dry blending for spices, seasonings, and drink powders — The Line List"
+  },
+  "/guides/frozen-food-cold-chain": {
+    "url": "/images/og/guides-frozen-food-cold-chain.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How to prepare a frozen food for manufacturing — The Line List"
+  },
+  "/guides/bakery-manufacturing": {
+    "url": "/images/og/guides-bakery-manufacturing.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How to prepare a bakery product for a co-packer — The Line List"
+  },
+  "/guides/test-food-business-idea": {
+    "url": "/images/og/guides-test-food-business-idea.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "How to test your food or drink business idea — The Line List"
+  },
+  "/guides/food-product-development": {
+    "url": "/images/og/guides-food-product-development.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Who can help turn your recipe into a food product? — The Line List"
+  },
+  "/guides/manufacturer-inquiry-examples": {
+    "url": "/images/og/guides-manufacturer-inquiry-examples.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "What does a useful manufacturer inquiry look like? — The Line List"
+  },
+  "/guides/hpp": {
+    "url": "/images/og/guides-hpp.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "High pressure processing (HPP) — The Line List"
+  },
+  "/guides/hot-fill": {
+    "url": "/images/og/guides-hot-fill.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Hot-fill manufacturing — The Line List"
+  },
+  "/guides/retort": {
+    "url": "/images/og/guides-retort.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Retort food manufacturing — The Line List"
+  },
+  "/guides/sauce": {
+    "url": "/images/og/guides-sauce.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Choose your sauce process — The Line List"
+  },
+  "/guides/small-moq": {
+    "url": "/images/og/guides-small-moq.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Understand small production runs — The Line List"
+  },
+  "/guides/first-run-costs": {
+    "url": "/images/og/guides-first-run-costs.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Estimate your first production run — The Line List"
+  },
+  "/find-manufacturers/soda": {
+    "url": "/images/og/find-manufacturers-soda.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Soda manufacturers — The Line List"
+  },
+  "/find-manufacturers/energy-drink": {
+    "url": "/images/og/find-manufacturers-energy-drink.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Energy drinks manufacturers — The Line List"
+  },
+  "/find-manufacturers/sports-hydration": {
+    "url": "/images/og/find-manufacturers-sports-hydration.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Sports and hydration manufacturers — The Line List"
+  },
+  "/find-manufacturers/functional-beverages": {
+    "url": "/images/og/find-manufacturers-functional-beverages.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Wellness drinks & shots manufacturers — The Line List"
+  },
+  "/find-manufacturers/cold-pressed-juice": {
+    "url": "/images/og/find-manufacturers-cold-pressed-juice.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Cold-pressed juice manufacturers — The Line List"
+  },
+  "/find-manufacturers/juice": {
+    "url": "/images/og/find-manufacturers-juice.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Juice manufacturers — The Line List"
+  },
+  "/find-manufacturers/rtd-coffee-tea": {
+    "url": "/images/og/find-manufacturers-rtd-coffee-tea.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Tea and coffee drinks manufacturers — The Line List"
+  },
+  "/find-manufacturers/water": {
+    "url": "/images/og/find-manufacturers-water.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Water manufacturers — The Line List"
+  },
+  "/find-manufacturers/hot-sauce": {
+    "url": "/images/og/find-manufacturers-hot-sauce.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Hot sauce manufacturers — The Line List"
+  },
+  "/find-manufacturers/sauce": {
+    "url": "/images/og/find-manufacturers-sauce.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Sauce manufacturers — The Line List"
+  },
+  "/find-manufacturers/salsa": {
+    "url": "/images/og/find-manufacturers-salsa.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Salsa manufacturers — The Line List"
+  },
+  "/find-manufacturers/dressings-marinades": {
+    "url": "/images/og/find-manufacturers-dressings-marinades.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Dressings and marinades manufacturers — The Line List"
+  },
+  "/find-manufacturers/dips-hummus": {
+    "url": "/images/og/find-manufacturers-dips-hummus.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Dips and hummus manufacturers — The Line List"
+  },
+  "/find-manufacturers/snacks": {
+    "url": "/images/og/find-manufacturers-snacks.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Snacks manufacturers — The Line List"
+  },
+  "/find-manufacturers/bakery": {
+    "url": "/images/og/find-manufacturers-bakery.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Bakery manufacturers — The Line List"
+  },
+  "/find-manufacturers/confectionery": {
+    "url": "/images/og/find-manufacturers-confectionery.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Confectionery manufacturers — The Line List"
+  },
+  "/find-manufacturers/spices-dry-mixes": {
+    "url": "/images/og/find-manufacturers-spices-dry-mixes.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Spices and dry mixes manufacturers — The Line List"
+  },
+  "/find-manufacturers/supplements": {
+    "url": "/images/og/find-manufacturers-supplements.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Supplements manufacturers — The Line List"
+  },
+  "/find-manufacturers/dry-coffee-tea": {
+    "url": "/images/og/find-manufacturers-dry-coffee-tea.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Dry coffee, tea, and pods manufacturers — The Line List"
+  },
+  "/find-manufacturers/dairy": {
+    "url": "/images/og/find-manufacturers-dairy.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Dairy manufacturers — The Line List"
+  },
+  "/find-manufacturers/frozen-foods": {
+    "url": "/images/og/find-manufacturers-frozen-foods.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Frozen foods manufacturers — The Line List"
+  },
+  "/find-manufacturers/prepared-refrigerated-foods": {
+    "url": "/images/og/find-manufacturers-prepared-refrigerated-foods.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Refrigerated prepared foods manufacturers — The Line List"
+  },
+  "/find-manufacturers/shelf-stable-meals": {
+    "url": "/images/og/find-manufacturers-shelf-stable-meals.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Shelf-stable meals and retort foods manufacturers — The Line List"
+  },
+  "/find-manufacturers/soups-broths-entrees": {
+    "url": "/images/og/find-manufacturers-soups-broths-entrees.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Soups, broths, and entrées manufacturers — The Line List"
+  },
+  "/find-manufacturers/fermented-foods": {
+    "url": "/images/og/find-manufacturers-fermented-foods.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Fermented foods manufacturers — The Line List"
+  }
+}

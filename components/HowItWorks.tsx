@@ -1,16 +1,16 @@
-import { FindManufacturerCta } from "@/components/FindManufacturerCta";
+import Link from "next/link";
 
 const STEPS = [
   {
     n: "1",
-    title: "Choose your product",
-    body: "Pick the closest food or beverage idea. “Not sure” works too.",
+    title: "Describe your idea",
+    body: "A food or drink idea is enough. Save what you know and leave the rest open.",
     icon: "bottle",
   },
   {
     n: "2",
-    title: "Tell us what you know",
-    body: "Share details like formula, packaging, volume, and timing—or skip what you do not know yet.",
+    title: "Make the next decision",
+    body: "Use short guides and examples to work through recipe, packaging, and first-run questions.",
     icon: "notes",
   },
   {
@@ -22,7 +22,7 @@ const STEPS = [
   {
     n: "4",
     title: "Decide who to contact",
-    body: "Open a profile when you are ready to view public contact details or request help reaching the manufacturer.",
+    body: "Prepare a useful introduction, review what you will share, and choose when to send it.",
     icon: "contact",
   },
 ] as const;
@@ -67,11 +67,11 @@ export function HowItWorks() {
         ))}
       </ol>
       <div className="how-action">
-        <FindManufacturerCta className="btn btn-gold how-button">
-          Find my manufacturer
+        <Link href="/sourcing" className="btn btn-gold how-button">
+          Start my product plan
           <span aria-hidden="true"> →</span>
-        </FindManufacturerCta>
-        <p>Preview possible matches, then open a profile when you’re ready to view public contact details.</p>
+        </Link>
+        <p>No manufacturing experience needed. Your plan stays useful as you learn.</p>
       </div>
     </section>
   );

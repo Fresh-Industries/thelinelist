@@ -1,5 +1,6 @@
 import { SourcingWorkspace } from "@/components/sourcing/SourcingWorkspace";
 import type { Metadata } from "next";
+import { CORNERSTONE_GUIDES } from "@/lib/guides/cornerstones";
 
 export const metadata: Metadata = {
   title: "Your product plan",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default function WorkspacePage() {
   return (
     <main id="main" className="sourcing-workspace-view sourcing-brief-view">
-      <SourcingWorkspace />
+      <SourcingWorkspace guides={CORNERSTONE_GUIDES.map(({ slug, title }) => ({ slug, title }))} />
     </main>
   );
 }

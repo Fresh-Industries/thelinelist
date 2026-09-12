@@ -18,6 +18,7 @@ import type {
 import { LAST_VERIFIED } from "./types";
 import { hasPackagingFormat } from "./packaging";
 import { matchesCertificationClaim } from "./certifications";
+import { matchesDirectoryHelp } from "./service-help";
 
 export const DIRECTORY_PAGE_SIZE = 18;
 
@@ -160,6 +161,7 @@ export function paginatePlants(plants: Plant[], page: number, pageSize = DIRECTO
 }
 
 export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
+  if (query.help && !matchesDirectoryHelp(plant, query.help)) return false;
   if (query.product && !matchesFinderProduct(plant, query.product)) {
     return false;
   }
@@ -261,6 +263,7 @@ export function parseDirectoryQuery(
   options: { allowSort?: boolean } = {},
 ): DirectoryQuery {
   return {
+    help: first(searchParams.help) === "production" ? "production" : first(searchParams.help) === "kitchen" ? "kitchen" : undefined,
     product: readProduct(first(searchParams.product)),
     category: readCategory(first(searchParams.category)),
     process: readProcess(first(searchParams.process)),
@@ -279,6 +282,7 @@ export function parseDirectoryQuery(
 
 export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
   const params = new URLSearchParams();
+  if (query.help) params.set("help", query.help);
   if (query.product) params.set("product", query.product);
   if (query.category) params.set("category", query.category);
   if (query.process) params.set("process", query.process);

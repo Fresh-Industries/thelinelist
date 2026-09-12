@@ -7,6 +7,9 @@ import { NextResponse } from "next/server";
 import { getRequestContext } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
 import type { SourcingWorkspace } from "@/lib/sourcing/types";
+import { checklistItemId, preparationUpdateSchema } from "@/lib/sourcing/preparation";
+import { applyPreparationUpdate } from "@/lib/sourcing/workspace";
+import { getCornerstoneGuide } from "@/lib/guides/cornerstones";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +41,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const packageStage = packageDesignStageSchema.safeParse(body);
   const packageCommit = packageDesignCommitSchema.safeParse(body);
   const undo = undoAgentChangeSchema.safeParse(body);
+  const preparation = preparationUpdateSchema.safeParse(body);
   if (packageStage.success && workspace.stagedPackageDesign?.id === packageStage.data.stagePackageDesign.stageId) {
     if (workspace.stagedPackageDesign.designHash !== packageDesignHash(packageStage.data.stagePackageDesign.packageDesign)) {
       return error("That package stage ID was already used for a different design.", 409);
@@ -58,7 +62,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       receipt: packageReceipt("commit_package_design", "replayed", workspace, workspace.packageCommit.stagedPackageId, workspace.packageCommit.id),
     });
   }
-  const requestedRevision = agent.success ? agent.data.revision : founderAnswer.success ? founderAnswer.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : packageStage.success ? packageStage.data.revision : packageCommit.success ? packageCommit.data.revision : undo.success ? undo.data.revision : undefined;
+  const requestedRevision = agent.success ? agent.data.revision : founderAnswer.success ? founderAnswer.data.revision : founder.success ? founder.data.revision : selection.success ? selection.data.revision : packageStage.success ? packageStage.data.revision : packageCommit.success ? packageCommit.data.revision : undo.success ? undo.data.revision : preparation.success ? preparation.data.revision : undefined;
   if (requestedRevision && requestedRevision !== workspace.revision) {
     return NextResponse.json({ error: "The workspace changed. Refresh and try again.", workspace }, { status: 409 });
   }
@@ -90,6 +94,14 @@ export async function PATCH(request: Request, context: RouteContext) {
   } else if (undo.success) {
     if (workspace.lastAgentChange?.id !== undo.data.undoAgentChangeId) return error("That agent change can no longer be undone.", 409);
     updated = undoLastAgentChange(workspace, undo.data.undoAgentChangeId);
+  } else if (preparation.success) {
+    const update = preparation.data.preparationUpdate;
+    if ("checklist" in update) {
+      const guide = getCornerstoneGuide(update.checklist.guideSlug);
+      const allowed = new Set(guide?.checklist.map(checklistItemId));
+      if (!guide || update.checklist.completedItemIds.some((id) => !allowed.has(id))) return error("That checklist has changed. Reload the guide before saving.", 400);
+    }
+    updated = applyPreparationUpdate(workspace, update);
   } else {
     return error("Invalid workspace update.", 400);
   }

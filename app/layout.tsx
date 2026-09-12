@@ -7,7 +7,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { UtmCapture } from "@/components/UtmCapture";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
 import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
+import { socialImageForPage } from "@/lib/seo/social-images";
 import "./globals.css";
+import "./founder.css";
 
 const display = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -40,14 +42,14 @@ export const metadata: Metadata = {
     title: "The Line List | Food and Beverage Manufacturers",
     description:
       "Learn what your food or drink product needs, find manufacturers that may fit, and prepare for your first conversation.",
-    images: [{ url: absoluteUrl("/opengraph-image"), width: 1200, height: 630, alt: "The Line List" }],
+    images: [socialImageForPage("/")],
   },
   twitter: {
     card: "summary_large_image",
     title: "The Line List | Food and Beverage Manufacturers",
     description:
       "Learn what your food or drink product needs, find manufacturers that may fit, and prepare for your first conversation.",
-    images: [absoluteUrl("/opengraph-image")],
+    images: [socialImageForPage("/")],
   },
 };
 

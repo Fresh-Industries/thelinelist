@@ -3,6 +3,7 @@ import { FIELD_DEFINITION_BY_KEY, SOURCING_FIELD_DEFINITIONS } from "./fields";
 import { deriveProductDescriptorFromIdea, isOpenBrandAnswer } from "./product-identity";
 import { extractExplicitFounderFacts } from "./intake-extractor";
 import { normalizeCertificationRequirements } from "./certification-requirements";
+import { emptyPreparation, type FounderStage, type PreparationUpdate } from "./preparation";
 import type { AgentFieldUpdate, ManufacturerMatch, ManufacturerResearchBroadeningApproval, ManufacturerResearchRequest, OutreachDraft, PackageDesign, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingValidationStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
 
 function now(): string {
@@ -126,6 +127,7 @@ export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorksp
   }));
   const normalized: SourcingWorkspace = {
     ...workspace,
+    preparation: workspace.preparation ?? emptyPreparation(),
     ownership: workspace.ownership ?? { userId: null, brandId: null },
     originalIdea,
     creationRequestHash: workspace.creationRequestHash ?? null,
@@ -156,7 +158,7 @@ export function normalizeWorkspace(workspace: SourcingWorkspace): SourcingWorksp
   };
 }
 
-export function createWorkspace(options: { demo?: boolean; id?: string; idea?: string; initialUpdates?: AgentFieldUpdate[]; creationRequestHash?: string } = {}): SourcingWorkspace {
+export function createWorkspace(options: { demo?: boolean; id?: string; idea?: string; initialUpdates?: AgentFieldUpdate[]; creationRequestHash?: string; startingStage?: FounderStage } = {}): SourcingWorkspace {
   const timestamp = now();
   const fields = Object.fromEntries(
     SOURCING_FIELD_DEFINITIONS.map(({ key }) => [key, blankField(key, timestamp)]),
@@ -164,6 +166,7 @@ export function createWorkspace(options: { demo?: boolean; id?: string; idea?: s
 
   const workspace: SourcingWorkspace = {
     id: options.id ?? randomBytes(18).toString("base64url"),
+    preparation: { ...emptyPreparation(), stage: options.startingStage ?? null },
     ownership: { userId: null, brandId: null },
     originalIdea: options.idea?.trim() || null,
     creationRequestHash: options.creationRequestHash ?? null,
@@ -692,6 +695,16 @@ function stableSerialize(value: unknown): string {
 
 export function addWorkspaceActivity(workspace: SourcingWorkspace, kind: WorkspaceActivity["kind"], message: string): SourcingWorkspace {
   return touch({ ...workspace, activity: addActivity(workspace.activity, activity(kind, message)) });
+}
+
+export function applyPreparationUpdate(workspace: SourcingWorkspace, update: PreparationUpdate): SourcingWorkspace {
+  const previous = workspace.preparation ?? emptyPreparation();
+  const preparation = "checklist" in update
+    ? { ...previous, checklists: { ...previous.checklists, [update.checklist.guideSlug]: [...new Set(update.checklist.completedItemIds)] } }
+    : { ...previous, ...update };
+  const message = "checklist" in update ? "Guide checklist saved to the private product plan."
+    : "costWorksheet" in update ? "First-run cost worksheet saved privately." : "Starting stage updated by the founder.";
+  return addWorkspaceActivity({ ...workspace, preparation }, "founder_updated", message);
 }
 
 function addActivity(current: WorkspaceActivity[], next: WorkspaceActivity): WorkspaceActivity[] {

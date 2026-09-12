@@ -113,6 +113,11 @@ export function CopackerCard({ plant, prioritizedCategory }: { plant: Plant; pri
           </p>
         ) : null}
 
+        <details className="plant-fit-questions"><summary>What should I confirm?</summary><ul>
+          <li>{plant.operationType === "shared-kitchen-incubator" ? "Which equipment and permitted uses are included, and who performs the production?" : "Can you make my exact product, and do you offer any recipe-development help I need?"}</li>
+          <li>{minimums.length ? "Does the published minimum apply to my formula, package, and first run?" : "What is your current minimum for my product, with units and included services?"}</li>
+          <li>{plant.packaging?.length ? "Which exact container, closure, and process combinations can your line handle?" : "My package format is not confirmed by this listing. Which formats do you support?"}</li>
+        </ul><p>Review the profile’s sources and dates before treating any detail as current project fit.</p></details>
         <footer className="plant-card-footer">
           {plant.needsCurrentOwnershipVerification ? <span className="ownership-review-badge">Ownership review needed</span> : null}
           {certificationClaims.length > 0 ? (

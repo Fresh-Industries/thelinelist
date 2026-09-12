@@ -29,3 +29,7 @@ The 2026-08-25 expansion added official-site-reviewed records that fill beverage
 The no-argument command and `manufacturers:dry-run` are read-only. Run the dry run first, inspect its counts and Batch 26 dispositions, then apply and run the check. Re-running the same inputs is idempotent.
 
 To add a future batch, place its cleaned CSV in this directory and rerun the three commands. Review the generated report and diff before shipping.
+
+The 2026-09-10 Drive review found no batch 27 or later. A sourced correction in `batch-07-b.csv` marks Trillium's Brundidge facility `distinct_facility_confirmed`: the official location pages distinguish it from Lancaster despite their shared domain. Apply this flag only after checking separate physical facilities, not merely different city spellings or a possible company move. Other duplicate rules remain in place.
+
+Research flags about first-run suitability do not establish a public small-run capability. The importer uses published capability language and minimums; `not_first_run`, `first_run_unknown`, and speculative fit notes cannot become public claims. See `docs/drive-seo-review-2026-09-10.md` for the source review and results.

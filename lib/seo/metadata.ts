@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { socialImageForPage } from "./social-images";
 
 export function pageMetadata({
   title,
@@ -24,11 +25,13 @@ export function pageMetadata({
       siteName: SITE_NAME,
       title: absoluteTitle ? title : `${title} | ${SITE_NAME}`,
       description,
+      images: [socialImageForPage(path)],
     },
     twitter: {
       card: "summary_large_image",
       title: absoluteTitle ? title : `${title} | ${SITE_NAME}`,
       description,
+      images: [socialImageForPage(path)],
     },
   };
 }

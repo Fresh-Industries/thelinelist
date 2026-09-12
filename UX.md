@@ -57,7 +57,7 @@ Owns the complete sourced record, last-reviewed date, questions to ask, and the 
 
 ### Guides
 
-Own education. Product guides introduce process terms in context and link back to relevant directory pages.
+Own education. Product guides introduce process terms in context and link back to relevant directory pages. Starting-stage lessons help founders test an idea, find development help, and prepare a first inquiry. Saveable checklists and explicit founder answers write to the existing private product plan; guide completion never confirms a capability, specification, or readiness gate. The first-run cost worksheet is usable before sign-in and saves its estimates privately to that same plan.
 
 ### Claim or submit
 
@@ -89,7 +89,7 @@ Owns the portable, manufacturer-safe project summary. It never contains internal
 
 1. Choose a product or goal in Guides.
 2. Learn only the process and preparation terms needed for that goal.
-3. Continue into the matching product hub or wizard.
+3. Save learning notes or an explicit decision to the same product plan, or continue into the matching product hub or wizard.
 
 ### Correct a listing
 
@@ -120,6 +120,9 @@ Owns the portable, manufacturer-safe project summary. It never contains internal
 - Prefer compact corner radii and visibly physical press states over pills on primary controls. Pills remain appropriate only for small tags or filters.
 - On mobile, remove decorative transforms and reduce offset shadows before reducing text size or tap targets.
 - Progressive disclosure for wizard and introduction flows.
+- Home and navigation expose the existing product plan. An optional starting stage helps select a lesson; it is not formula readiness. Guide and worksheet drafts may remain temporarily in the current browser tab, but the saved canonical record lives in the authorized workspace. A browser navigation pointer never grants workspace access.
+- First-run costing separates per-unit and whole-run inputs, labels currency and quantity units, leaves unknown amounts blank, and explains excluded costs. Changing a cost scenario does not change a production-volume requirement. Worksheets and checklist notes stay outside manufacturer packets.
+- Directory visitors may choose outsourced production, shared kitchen space, or all services. This uses sourced operating-model records and excludes unknown models from a specific choice; it never establishes product-level compatibility.
 - Product-plan workflows are organized around an agent-assisted living brief and one dominant next decision, without locking direct editing elsewhere. The document remains primary. A saved package direction in the supported 3D workbench is part of manufacturer-brief readiness; it is a communication mockup, not a dieline or production validation. Agent packaging work always opens as a visible staged refinement, and only the founder's “Use this package direction” action commits it. 3D otherwise recedes when it is not useful and never makes an unconfirmed choice look resolved. Readiness uses human language rather than a percentage. Matching may begin with explicit unknowns and become narrower as relevant decisions are confirmed.
 - Readiness is split into honest stages: ready to research, ready for an introductory manufacturer fit conversation, and launch planning complete. None of these states claims regulatory, safety, shelf-life, or production validation.
 - Agent-authored fields identify their provenance, the latest agent update is reviewable, and the founder has a lightweight undo. The workspace and agent can both export the current private plan as a PDF without sharing it externally.
@@ -132,7 +135,8 @@ Owns the portable, manufacturer-safe project summary. It never contains internal
 - Visible breadcrumbs on nested routes.
 - Use face-free claymation product imagery for exploration surfaces: the homepage hero, product selection, guide covers, beginner onboarding, empty states, newsletter sections, and educational callouts.
 - Clay assets share handmade material, three-quarter isometric camera, soft studio lighting, scale, and a restrained deep-green, yellow, coral, lavender, aqua, navy, and cream family. Each category still needs its own silhouette, color story, packaging structure, and relevant props; do not repeat one label pattern across products.
-- Clay assets use real alpha transparency and no baked background. They contain no people, faces, hands, readable labels, real brands, fake company names, or watermarks. The homepage hero may use simple, plausible, unbranded manufacturing equipment to tell the high-level idea-to-product story; exact process education still belongs in accessible SVG diagrams.
+- Product and supporting cutouts use real alpha transparency. Editorial guide covers may use the warm yellow studio background shown in the founder's September 12 references. Every guide has a distinct illustration; its card, cover, and social preview share that guide's identity. Clay imagery contains no people, faces, hands, readable labels, real brands, fake company names, or watermarks. The homepage hero may use simple, plausible, unbranded manufacturing equipment to tell the high-level idea-to-product story; exact process education still belongs in accessible SVG diagrams.
+- Public social previews use a 1200-by-630 cream-and-yellow composition, the approved logo, Bricolage Grotesque headings, and Manrope supporting text. Text is rendered with the real fonts. Private workspace contents never enter a social image.
 - Keep manufacturer search results, manufacturer cards and profiles, verification information, sources, reviewed dates, introduction forms, and legal pages clean and data-focused. Clay products represent the founder's idea, never an actual manufacturer or facility.
 - Keep copy universal and practical. Color and interaction may feel current, but never describe the product publicly as being for a generation or age group.
 - Accurate accessible SVG diagrams for manufacturing lessons; never use generated imagery to explain an exact process sequence.

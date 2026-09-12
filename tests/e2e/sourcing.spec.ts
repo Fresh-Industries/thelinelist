@@ -153,7 +153,7 @@ test("keeps the sourcing entry usable when WebMCP registers synchronously", asyn
 
   await page.goto("/sourcing");
 
-  await expect(page.getByRole("heading", { name: "Tell your agent what you want to make." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start your food or drink brand." })).toBeVisible();
   await expect(page.getByText("Agent connected", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
   expect(pageErrors).toEqual([]);
@@ -221,8 +221,12 @@ test("workspace creation returns an authoritative idempotent receipt and guest w
 
 test("single sourcing entry creates the agent-led living document", async ({ page }) => {
   await page.goto("/sourcing");
-  await expect(page.getByRole("heading", { name: "Tell your agent what you want to make." })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Build with your agent" })).toHaveCount(1);
+  await expect(page.getByRole("heading", { name: "Start your food or drink brand." })).toBeVisible();
+  const entryInput = page.getByLabel("What do you want to make?", { exact: true });
+  await expect(entryInput).toBeAttached();
+  if (!await entryInput.isVisible()) await page.locator("details.manual-start > summary").click();
+  await entryInput.focus();
+  await expect(page.getByRole("button", { name: "Create my product plan" })).toHaveCount(1);
   for (const starter of ["Drink", "Sauce or condiment", "Baked good", "Snack", "Prepared food", "Something else"]) {
     await expect(page.getByRole("button", { name: starter })).toBeVisible();
   }
@@ -1706,4 +1710,27 @@ test("mobile keeps both workspace views inside the viewport", async ({ page }) =
   await expect(page.getByRole("button", { name: "All possibilities" })).toBeVisible();
   const detailGeometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
   expect(detailGeometry.document).toBeLessThanOrEqual(detailGeometry.viewport);
+});
+
+test("saved learning costs remain canonical and private when the agent reads the product", async ({ page }) => {
+  await installWebMcpHarness(page);
+  const id = await startProduct(page, "A bottled sauce idea for specialty stores");
+  const before = (await (await page.request.get(workspaceApiPath(id))).json()).workspace;
+  await page.goto("/guides/first-run-costs");
+  await page.getByLabel("Finished units for this run").fill("1500");
+  await page.getByLabel("Quote sources and assumptions").fill("Private costing note for the founder only");
+  await page.getByRole("button", { name: "Save cost worksheet to my plan" }).click();
+  await expect(page.getByRole("status")).toContainText("saved privately");
+  await page.goto(`/sourcing/${id}/manufacturers`);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+  const state = await invokeWebMcp<{
+    privatePreparation: { costWorksheet: { quantity: number; notes: string }; sharing: string };
+    outreach: { agentSendAvailable: boolean };
+  }>(page, "get_sourcing_workspace", {});
+  expect(state.privatePreparation.costWorksheet).toMatchObject({ quantity: 1500, notes: "Private costing note for the founder only" });
+  expect(state.privatePreparation.sharing).toMatch(/private/i);
+  expect(state.outreach.agentSendAvailable).toBe(false);
+  const after = (await (await page.request.get(workspaceApiPath(id))).json()).workspace;
+  expect(after.fields).toEqual(before.fields);
+  expect(after.outreachDrafts).toEqual([]);
 });

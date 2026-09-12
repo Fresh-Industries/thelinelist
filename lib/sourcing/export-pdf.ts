@@ -8,6 +8,8 @@ import { getSourcingReadiness } from "./readiness";
 import { getProductArtwork } from "./store";
 import { getCurrentManufacturerResearch } from "./workspace";
 import type { PackageDesign, SourcingWorkspace } from "./types";
+import { calculateRunCosts, COST_ITEMS, FOUNDER_STAGES, checklistItemId } from "./preparation";
+import { getCornerstoneGuide } from "@/lib/guides/cornerstones";
 
 const PAGE = { width: 612, height: 792, margin: 48 };
 
@@ -131,6 +133,30 @@ export async function createProductPlanPdf(
     line(`Finish: ${design.finish} · Package color: ${design.baseColor} · Label color: ${design.labelColor}`);
     line(`Dimensions: ${design.dimensions.width ?? "open"} × ${design.dimensions.height ?? "open"} × ${design.dimensions.depth ?? "open"}`);
     line("Planning mockup only. Final dimensions, materials, labels, and production compatibility require manufacturer validation.", { size: 8, color: rgb(0.35, 0.35, 0.32) });
+  }
+
+  const preparation = workspace.preparation;
+  if (preparation && (preparation.stage || preparation.costWorksheet || Object.keys(preparation.checklists).length)) {
+    section("Private learning and estimates");
+    line("Founder planning notes only. These are not manufacturer requirements, validated specifications, or part of a recipient packet.", { size: 9 });
+    const startingStage = FOUNDER_STAGES.find((stage) => stage.value === preparation.stage);
+    if (startingStage) fieldBlock("Starting stage", startingStage.label);
+    for (const [slug, checked] of Object.entries(preparation.checklists)) {
+      const guide = getCornerstoneGuide(slug);
+      if (!guide) continue;
+      fieldBlock("Saved guide", guide.title);
+      for (const item of guide.checklist) line(`${checked.includes(checklistItemId(item)) ? "[x]" : "[ ]"} ${item}`, { size: 9 });
+    }
+    const worksheet = preparation.costWorksheet;
+    if (worksheet) {
+      const costs = calculateRunCosts(worksheet);
+      fieldBlock("Cost scenario quantity", worksheet.quantity === null ? "Unknown" : `${worksheet.quantity.toLocaleString("en-US")} finished units; one unit means ${worksheet.unitLabel}`);
+      for (const item of COST_ITEMS) fieldBlock(`${item.label} (${item.basis === "unit" ? "USD per unit" : "USD per run"})`, worksheet[item.key] === null ? "Unknown" : String(worksheet[item.key]));
+      fieldBlock(costs.complete ? "Estimated run cost (USD)" : "Subtotal of entered costs (USD)", costs.subtotal === null ? "Unknown" : costs.subtotal.toFixed(2));
+      if (costs.missing.length) line(`Not included yet: ${costs.missing.join(", ")}.`);
+      if (worksheet.sellingPrice !== null) fieldBlock("Your selling price per unit (USD)", String(worksheet.sellingPrice));
+      if (worksheet.notes) fieldBlock("Private quote sources and assumptions", worksheet.notes);
+    }
   }
 
   section("Manufacturer research", lineHeight(researchStatus));

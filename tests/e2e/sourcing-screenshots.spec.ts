@@ -8,7 +8,7 @@ test("capture production product workspace", async ({ page }) => {
   test.skip(process.env.UPDATE_SOURCING_SCREENSHOTS !== "1", "Set UPDATE_SOURCING_SCREENSHOTS=1 to refresh documentation screenshots.");
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/sourcing");
-  await expect(page.getByRole("heading", { name: "Tell your agent what you want to make." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start your food or drink brand." })).toBeVisible();
   await hideDevOverlay(page);
   await page.screenshot({ path: "docs/screenshots/sourcing-landing-desktop.png", fullPage: false });
 

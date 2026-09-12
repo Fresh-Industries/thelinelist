@@ -11,6 +11,7 @@ import { getCategoryDecisionGuardrails, getSourcingQuestion } from "./questions"
 import { getSourcingReadiness } from "./readiness";
 import { getCurrentManufacturerResearch, hasValidFounderPackageCommit } from "./workspace";
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
+import { emptyPreparation } from "./preparation";
 
 const VALIDATION_OWNERS: Partial<Record<SourcingFieldKey, string>> = {
   formula_status: "qualified product developer or manufacturer",
@@ -165,6 +166,10 @@ export function buildSourcingAgentState(workspace: SourcingWorkspace) {
   if (currentOutreachDrafts.length) availableActions.push("open_manufacturer_introduction_review");
 
   return {
+    privatePreparation: {
+      ...workspace.preparation ?? emptyPreparation(),
+      sharing: "Private learning notes and estimates. Never include in manufacturer outreach or treat stage/checklist completion as a production requirement or validation.",
+    },
     workspace: {
       id: workspace.id,
       revision: workspace.revision,

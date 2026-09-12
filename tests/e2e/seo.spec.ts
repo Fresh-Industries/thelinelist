@@ -1,5 +1,25 @@
 import { expect, test } from "@playwright/test";
 
+test("a guide sets expectations before opening a small manufacturer shortlist", async ({ page }) => {
+  await page.goto("/guides/private-label-bottled-water");
+  await expect(page.locator("[data-directory-coverage]")).toContainText(/current shortlist has \d+ manufacturers/);
+  await page.locator('.guide-directory-cta a[href="/find-manufacturers/water"]').click();
+  await expect(page).toHaveURL(/\/find-manufacturers\/water$/);
+  const count = await page.locator(".plant-card").count();
+  await expect(page.locator("[data-directory-coverage]")).toContainText(`current shortlist has ${count} manufacturers`);
+});
+
+test("September guides expose article metadata and links to their manufacturer directories", async ({ page }) => {
+  for (const [slug, category] of [["dry-blending", "spices-dry-mixes"], ["frozen-food-cold-chain", "frozen-foods"], ["bakery-manufacturing", "bakery"]]) {
+    await page.goto(`/guides/${slug}`);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `https://www.thelinelist.com/guides/${slug}`);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.locator('.guide-directory-cta a')).toHaveAttribute("href", `/find-manufacturers/${category}`);
+    const schemas = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((value) => JSON.parse(value));
+    expect(schemas.find((item) => item["@type"] === "Article")).toMatchObject({ datePublished: "2026-09-10", dateModified: "2026-09-10" });
+  }
+});
+
 test("redirects the apex host directly to the canonical host and preserves the request", async ({ request }) => {
   const response = await request.get("/some/path?category=hot-sauce", {
     headers: { host: "thelinelist.com" },

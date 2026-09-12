@@ -88,6 +88,30 @@ describe("sourcing creation integrity", () => {
     expect(response.status).toBe(404);
     expect(mocks.saveSourcingWorkspace).not.toHaveBeenCalled();
   });
+
+  it("saves an optional starting stage without promoting the recipe to manufacturing readiness", async () => {
+    mocks.getSourcingWorkspace.mockResolvedValue(null);
+    mocks.saveSourcingWorkspace.mockResolvedValue(undefined);
+    const response = await create({ idea: "A sauce idea", startingStage: "ready", mutationId: "founder-stage-create-mutation-001" });
+    expect(response.status).toBe(201);
+    const { workspace } = await response.json();
+    expect(workspace.preparation.stage).toBe("ready");
+    expect(workspace.fields.formula_status).toMatchObject({ value: null, status: "unknown" });
+    expect(workspace.outreachDrafts).toEqual([]);
+  });
+
+  it("rejects a changed starting stage on an otherwise identical authorized creation retry", async () => {
+    const idea = "A sauce idea";
+    const mutationId = "founder-stage-retry-mutation-001";
+    const id = createHash("sha256").update(`workspace:${mutationId}`).digest("base64url").slice(0, 24);
+    const creationRequestHash = createHash("sha256").update(JSON.stringify({ idea, initialUpdates: [], startingStage: "idea" })).digest("hex");
+    const workspace = createWorkspace({ id, idea, startingStage: "idea", creationRequestHash });
+    mocks.getSourcingWorkspace.mockResolvedValue(workspace);
+    mocks.getAuthorizedWorkspace.mockResolvedValue({ workspace });
+    const response = await create({ idea, mutationId, startingStage: "ready" });
+    expect(response.status).toBe(409);
+    expect(mocks.saveSourcingWorkspace).not.toHaveBeenCalled();
+  });
 });
 
 function create(body: Record<string, unknown>) {

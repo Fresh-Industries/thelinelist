@@ -1,3 +1,5 @@
+import type { FounderPreparation } from "./preparation";
+
 export const SOURCING_FIELD_KEYS = [
   "brand_name",
   "product_name",
@@ -288,6 +290,7 @@ export interface WorkspaceOwnership {
 
 export interface SourcingWorkspace {
   id: string;
+  preparation: FounderPreparation;
   ownership: WorkspaceOwnership;
   originalIdea: string | null;
   creationRequestHash: string | null;

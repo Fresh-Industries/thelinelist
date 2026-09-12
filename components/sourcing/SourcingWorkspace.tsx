@@ -3,6 +3,7 @@
 import { ArrowRight, Check, Cube, PencilSimple, Sparkle, TrashSimple } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { FounderLearning } from "./FounderLearning";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
@@ -26,7 +27,7 @@ const BRIEF_GROUPS: Array<{ title: string; keys: SourcingFieldKey[] }> = [
   { title: "Production", keys: ["production_volume", "storage_distribution", "preferred_geography", "target_launch_date"] },
 ];
 
-export function SourcingWorkspace() {
+export function SourcingWorkspace({ guides }: { guides: { slug: string; title: string }[] }) {
   const { workspace, busy, setBusy, error, setError, agentNote, setAgentNote, acceptWorkspace, openPackageWorkbench } = useSourcingWorkspace();
   const router = useRouter();
   const [answer, setAnswer] = useState("");
@@ -189,6 +190,7 @@ export function SourcingWorkspace() {
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
 
         {workspace.matchesUpdatedAt ? <section className="brief-section manufacturing-writeback" aria-labelledby="manufacturing-summary-heading"><div><p className="document-kicker">Manufacturer research</p><h2 id="manufacturing-summary-heading">{workspace.matches.length ? `${workspace.matches.length} possibilit${workspace.matches.length === 1 ? "y" : "ies"} ready to review` : "No current possibilities"}</h2><p>{workspace.selectedManufacturerSlugs.length ? `${workspace.selectedManufacturerSlugs.length} selected. Review evidence and next steps in the focused manufacturer workspace.` : "Review the evidence, unknowns, and possible conflicts away from the product brief."}</p></div><Link href={`/sourcing/${workspace.id}/manufacturers`} prefetch={false}>Review manufacturers <ArrowRight aria-hidden="true" /></Link></section> : null}
+        <FounderLearning guides={guides} />
       </article>
     </div>
   );

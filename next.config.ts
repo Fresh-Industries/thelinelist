@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     const filterKeys = [
+      "help",
       "product",
       "category",
       "process",

@@ -364,6 +364,15 @@ function existingMatch(row, curatedIdentities) {
   ));
 }
 
+function confirmedSeparateFacilities(left, right) {
+  // A shared company domain is still a duplicate signal unless a source review
+  // explicitly established separate plants. Different city spellings alone are
+  // not evidence: they can describe a move, an office, or the same metro area.
+  const reviewed = [left, right].some((row) => splitList(row.flags).includes("distinct_facility_confirmed"));
+  return reviewed && left.city && right.city && left.state && right.state
+    && (normalizeWords(left.city) !== normalizeWords(right.city) || left.state !== right.state);
+}
+
 function consolidateSafeRows(rows) {
   const byMasterKey = new Map();
   const repeatedMasterKeys = [];
@@ -379,7 +388,7 @@ function consolidateSafeRows(rows) {
     const domain = normalizedDomain(row.website);
     const phone = normalizedPhone(row.phone);
     const email = normalizedEmail(row.public_email);
-    const duplicateIndex = consolidated.findIndex((candidate) => (
+    const duplicateIndex = consolidated.findIndex((candidate) => !confirmedSeparateFacilities(row, candidate) && (
       (domain && domain === normalizedDomain(candidate.website))
       || (phone && email && phone === normalizedPhone(candidate.phone) && email === normalizedEmail(candidate.public_email))
       || (aliasesOverlap(row, candidate)
@@ -505,9 +514,9 @@ function getSmallRunSignal(row, sourceUrls, moqDisplay) {
   if (flags.some((flag) => /pilot/i.test(flag))) {
     return { evidence: "Public sources list a pilot-run production option.", sourceUrls };
   }
-  if (flags.some((flag) => /first_run/i.test(flag))) {
-    return { evidence: "Public sources list a first-run production signal.", sourceUrls };
-  }
+  // Research fit flags (including not_first_run, first_run_unknown and
+  // first_run_possible) are not statements of a public small-run capability.
+  // Explicit first-run language in the published capabilities is handled above.
   return undefined;
 }
 

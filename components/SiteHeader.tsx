@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ProductPlanLink } from "./ProductPlanLink";
 
 type NavMatch = "directory" | "guides" | "about" | "newsletter";
 
@@ -44,6 +45,7 @@ export function SiteHeader({ current }: { current?: string }) {
         <details className="nav-menu">
           <summary>Menu</summary>
           <nav className="site-nav" aria-label="Primary mobile">
+            <ProductPlanLink current={current?.startsWith("/sourcing")} />
             {BASE_NAV.map((item) => (
               <Link
                 key={item.href}
@@ -56,6 +58,7 @@ export function SiteHeader({ current }: { current?: string }) {
           </nav>
         </details>
         <nav className="site-nav site-nav-desktop" aria-label="Primary desktop">
+          <ProductPlanLink current={current?.startsWith("/sourcing")} />
           {BASE_NAV.map((item) => (
             <Link
               key={item.href}

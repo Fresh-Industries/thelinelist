@@ -25,6 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   return [
+    { url: absoluteUrl("/guides/first-run-costs"), lastModified: "2026-09-10", changeFrequency: "monthly" as const },
     ...staticRoutes.map((path) => ({
       url: absoluteUrl(path),
       lastModified: LAST_VERIFIED,
@@ -42,7 +43,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...CORNERSTONE_GUIDES.map((guide) => ({
       url: absoluteUrl(`/guides/${guide.slug}`),
-      lastModified: LAST_VERIFIED,
+      lastModified: guide.dateModified,
       changeFrequency: "monthly" as const,
     })),
     ...getDirectoryPlants().flatMap((plant) => isPlantIndexable(plant) ? [{

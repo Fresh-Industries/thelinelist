@@ -18,9 +18,17 @@ import {
 } from "@/lib/seo/jsonld";
 import { absoluteUrl } from "@/lib/site";
 import nextConfig from "@/next.config";
+import { CORNERSTONE_GUIDES } from "@/lib/guides/cornerstones";
 import { describe, expect, it } from "vitest";
 
 describe("SEO URL and structured-data conventions", () => {
+  it("uses each guide's editorial update date in the sitemap", () => {
+    const entries = sitemap();
+    for (const guide of CORNERSTONE_GUIDES) {
+      const entry = entries.find((item) => item.url === absoluteUrl(`/guides/${guide.slug}`));
+      expect(entry?.lastModified, guide.slug).toBe(guide.dateModified);
+    }
+  });
   it("permanently redirects the legacy claim route to the canonical form", async () => {
     const redirects = await nextConfig.redirects?.();
     expect(redirects).toContainEqual({ source: "/claim", destination: "/claim-submit", permanent: true });

@@ -18,7 +18,9 @@
     "manufacturers:dry-run": "node scripts/import-manufacturers.mjs --dry-run",
     "manufacturers:import": "node scripts/import-manufacturers.mjs --apply",
     "manufacturers:check": "node scripts/import-manufacturers.mjs --check",
-    "report:weekly": "node scripts/weekly-directory-report.mjs"
+    "report:weekly": "node scripts/weekly-directory-report.mjs",
+    "guides:images": "node scripts/process-guide-art.mjs",
+    "social:images": "node scripts/generate-social-images.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

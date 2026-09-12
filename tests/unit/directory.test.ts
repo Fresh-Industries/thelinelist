@@ -18,6 +18,32 @@ import { certificationCardClaims, claimSourceLabel, classifyCertificationClaims 
 import { describe, expect, it } from "vitest";
 
 describe("directory trust and pagination", () => {
+  it("preserves reviewed separate Trillium plants despite their shared website", () => {
+    const alabama = getPlantBySlug("trillium-foods-formerly-southern-classic-food-group");
+    const pennsylvania = getPlantBySlug("lancaster-sauce-co-trillium-foods-lancaster-formerly-lancaster-fine-foods-stir-foods-lancaster");
+    expect(alabama?.sites).toEqual([{ city: "Brundidge", state: "AL" }]);
+    expect(pennsylvania?.sites).toEqual([{ city: "Lancaster", state: "PA" }]);
+    expect(alabama?.website.href).toBe(pennsylvania?.website.href);
+    expect(filterPlants({ state: "AL" })).toContain(alabama);
+    expect(isPlantIndexable(alabama!)).toBe(true);
+    expect(alabama?.moqDisplay).toBeNull();
+    expect(alabama?.certs).toEqual([]);
+  });
+
+  it("does not convert negative or speculative first-run research flags into public claims", () => {
+    const matches = filterPlants({ smallRunSignal: true }).map((plant) => plant.slug);
+    for (const slug of [
+      "trillium-foods-formerly-southern-classic-food-group",
+      "lancaster-sauce-co-trillium-foods-lancaster-formerly-lancaster-fine-foods-stir-foods-lancaster",
+      "allied-old-english-inc",
+      "braswell-s-foods-inc",
+    ]) {
+      const plant = getPlantBySlug(slug);
+      expect(plant, slug).toBeDefined();
+      expect(smallRunSignalForPlant(plant!)).toBeUndefined();
+      expect(matches).not.toContain(slug);
+    }
+  });
   it("keeps the dry-only California Spice Basket out of prepared refrigerated foods", () => {
     const prepared = filterPlants({ category: "prepared-refrigerated-foods" }).map((plant) => plant.slug);
     expect(prepared).toEqual(expect.arrayContaining(["boulder-organic-foods-bolder-foods", "harvest-food-group", "portland-plant-foods"]));

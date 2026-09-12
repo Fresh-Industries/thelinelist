@@ -9,9 +9,11 @@ import { getSession } from "@/lib/auth/server";
 import { createGuestCredential, getAuthorizedWorkspace, setGuestWorkspaceCookie } from "@/lib/sourcing/access";
 import { agentFieldUpdateSchema } from "@/lib/sourcing/schemas";
 import { SOURCING_FIELD_KEYS } from "@/lib/sourcing/types";
+import { founderStageSchema } from "@/lib/sourcing/preparation";
 
 const createWorkspaceSchema = z.object({
   idea: z.string().trim().min(2).max(1_500),
+  startingStage: founderStageSchema.optional(),
   initialUpdates: z.array(agentFieldUpdateSchema).max(SOURCING_FIELD_KEYS.length).optional(),
   mutationId: z.string().trim().min(20).max(128).regex(/^[A-Za-z0-9_-]+$/).optional(),
 });
@@ -38,8 +40,9 @@ export async function POST(request: Request) {
   const creationRequestHash = createHash("sha256").update(JSON.stringify({
     idea: parsed.data.idea,
     initialUpdates: parsed.data.initialUpdates ?? [],
+    ...(parsed.data.startingStage ? { startingStage: parsed.data.startingStage } : {}),
   })).digest("hex");
-  const workspace = createWorkspace({ id: workspaceId, idea: parsed.data.idea, initialUpdates: parsed.data.initialUpdates, creationRequestHash });
+  const workspace = createWorkspace({ id: workspaceId, idea: parsed.data.idea, initialUpdates: parsed.data.initialUpdates, creationRequestHash, startingStage: parsed.data.startingStage });
   const session = await getSession();
   const guestCredential = session?.user.id ? null : createGuestCredential(workspace.id, mutationId);
   let current = await getSourcingWorkspace(workspace.id);

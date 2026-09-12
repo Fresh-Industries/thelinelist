@@ -22,6 +22,7 @@ Neither view opens an external AI website or presents a manual prompt handoff. W
 - `WorkspaceAsset` links a workspace to private Blob artwork and saved 3D package-preview bytes.
 - `ManufacturerPacket` owns expiring packet-token metadata and snapshots.
 - Writes use optimistic revision checks; stale writes return `409` instead of overwriting newer changes. Package-stage and founder-commit mutations use opaque IDs: reuse an ID only for an exact retry, and use a new ID when the payload changes. Their authoritative receipts identify replay versus first application and make a post-response refetch safe.
+- The additive `preparation` object stores the founder's optional starting stage, content-identified guide checklists, and first-run cost worksheet. Existing version-3 plans default to empty preparation. Public guide/worksheet clients use the same authorized workspace route and required revision checks. The agent reads these values as `privatePreparation`; they are not manufacturer requirements and are excluded from recipient packets. Public pages retain only unsaved drafts in session storage and a non-secret active-plan navigation pointer in local storage.
 
 Vercel Blob is not a workspace store. It is used only for uploaded artwork bytes.
 
