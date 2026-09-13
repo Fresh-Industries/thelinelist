@@ -1,3 +1,4 @@
+import { ALLOCATION_SUFFIX } from "@/lib/directory/evidence-text.mjs";
 import { certificationEvidenceSpans, normalizeCertificationRequirements } from "./certification-requirements";
 import type { AgentFieldUpdate, FounderSourceSpan, SourcingFieldKey, SourcingFieldStatus } from "./types";
 
@@ -88,7 +89,7 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
   }
 
   const packageIndexes = new Set(sizedPackages.map((match) => match.index));
-  const quantities = allMatches(idea, /\b(?:(?:first\s+(?:run|pilot)|pilot|private[- ]label|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\s*[:=-]?\s*)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?(?:\s*(?:-|–|to)\s*\d[\d,]*(?:\.\d+)?)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b(\s+(?:per|each)\s+(?:SKU|flavo[u]?r|product|run|batch|order)|\s+(?:across|split between)\s+\d+\s+(?:SKUs?|flavo[u]?rs?|products?))?/gi)
+  const quantities = allMatches(idea, new RegExp(String.raw`\b(?:(?:first\s+(?:run|pilot)|pilot|private[- ]label|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\s*[:=-]?\s*)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?(?:\s*(?:-|–|to)\s*\d[\d,]*(?:\.\d+)?)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b(${ALLOCATION_SUFFIX})?`, "gi"))
     .filter((match) => !packageIndexes.has(match.index) && Number.parseFloat(match[1].replace(/,/g, "")) >= 10);
   const quantity = canonicalFirstRunQuantity(idea, quantities);
   if (quantity) {

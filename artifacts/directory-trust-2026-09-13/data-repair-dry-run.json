@@ -4,17 +4,17 @@
   "baseline": "dde5d4d",
   "productionWrites": false,
   "deployed": false,
-  "coverage": "All 98 prior signals checked against stored source claims and extraction rules; priority official-source reviews are separately listed. This is not a live re-verification of every supplier.",
+  "coverage": "All 98 baseline signals checked against stored source claims and extraction rules. External-program reviews cover all 38 options from 8e48f14 and separately identify newly recovered options. Live official-source program reviews are explicitly dated; other records retain their original source dates. This is not a live re-verification of every supplier.",
   "counts": {
     "sourceFiles": 50,
     "sourceRows": 648,
     "imported": 309,
     "total": 345,
     "originalSignals": 98,
-    "removedOriginalSignals": 66,
-    "retainedOriginalOptions": 32,
-    "newExplicitOptions": 6,
-    "proposedImportedOptions": 38,
+    "removedOriginalSignals": 65,
+    "retainedOriginalOptions": 33,
+    "newExplicitOptions": 8,
+    "proposedImportedOptions": 41,
     "negatedFirstRunSignals": 14,
     "duplicateRowsAlreadyExcluded": 31,
     "invalidRowsAlreadyExcluded": 2
@@ -96,6 +96,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "1",
         "company_name": "8th Avenue Food & Provisions (formerly Attune Foods)",
@@ -154,6 +155,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "7",
         "company_name": "Absolutely World Class, Inc.",
@@ -220,7 +222,20 @@
           "https://www.mda.state.mn.us/minnesota-co-packer-directory"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Processing-services statement explicitly offers experimental pilot runs; commercial MOQ remains separate.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.aafoods.com/",
+          "https://www.aafoods.com/products/processing-services/",
+          "https://www.aafoods.com/products/customized-packaging/",
+          "https://www.aafoods.com/about-us/quality-assurance/",
+          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+        ],
+        "reason": "Processing-services statement explicitly offers experimental pilot runs; commercial MOQ remains separate."
+      },
       "importSourceRecord": {
         "": "2",
         "company_name": "All American Foods, Inc.",
@@ -275,7 +290,7 @@
         ]
       },
       "proposedSignal": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Small-batch manufacturer plus co-pack/private label of sauces, dressings, and marinades",
         "sourceUrls": [
           "https://www.allseasonskitchen.com/",
@@ -283,7 +298,18 @@
           "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch claim directly names the external co-pack/private-label program; no quantity inferred.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.allseasonskitchen.com/",
+          "https://www.allseasonskitchen.com/contact/",
+          "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+        ],
+        "reason": "Small-batch claim directly names the external co-pack/private-label program; no quantity inferred."
+      },
       "importSourceRecord": {
         "": "10",
         "company_name": "All Seasons Kitchen",
@@ -345,7 +371,18 @@
           "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch and paid test work explicitly uses customer recipes and project assessment.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.alohafromoregon.com/",
+          "https://alohafromoregon.com/copacking-with-aloha-from-oregon/",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Small-batch and paid test work explicitly uses customer recipes and project assessment."
+      },
       "importSourceRecord": {
         "": "5",
         "company_name": "Aloha From Oregon",
@@ -399,7 +436,7 @@
         ]
       },
       "proposedSignal": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Origin About states manufacturing and packaging food to the order and specification of others, matching existing formulas or commercializing new products, small-batch or long-run options, and private label and/or Amigos Brand programs",
         "sourceUrls": [
           "https://amigosfoods.com/",
@@ -407,7 +444,18 @@
           "https://www.pickyourown.org/copackers-Texas.php"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Program expressly makes products to others specifications and includes small-batch options, not only the Amigos brand.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://amigosfoods.com/",
+          "https://amigosfoods.com/about",
+          "https://www.pickyourown.org/copackers-Texas.php"
+        ],
+        "reason": "Program expressly makes products to others specifications and includes small-batch options, not only the Amigos brand."
+      },
       "importSourceRecord": {
         "": "0",
         "company_name": "Amigos Canning Co. (Amigos Foods)",
@@ -464,6 +512,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "Arty's Premium Beverages / FLOOID",
@@ -521,6 +570,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "12",
         "company_name": "Assemblies Unlimited Inc",
@@ -578,6 +628,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "11",
         "company_name": "At Last! Gourmet Foods",
@@ -633,7 +684,7 @@
       },
       "proposedSignal": {
         "kind": "pilot",
-        "evidence": "small-batch pilot and pre-launch runs",
+        "evidence": "Co-manufacturing since 2018 as a Humm Kombucha division. small-batch pilot and pre-launch runs",
         "sourceUrls": [
           "https://betterbeveragecompany.com/",
           "https://betterbeveragecompany.com/capabilities/",
@@ -641,7 +692,19 @@
           "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Pilot/pre-launch runs occur in the co-manufacturing service list; no numerical floor inferred.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://betterbeveragecompany.com/",
+          "https://betterbeveragecompany.com/capabilities/",
+          "https://betterbeveragecompany.com/about-us/",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Pilot/pre-launch runs occur in the co-manufacturing service list; no numerical floor inferred."
+      },
       "importSourceRecord": {
         "": "2",
         "company_name": "Better Beverage Company (Humm Kombucha division)",
@@ -695,6 +758,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "17",
         "company_name": "BevPro Solutions (formerly Beer Dudes Canning)",
@@ -751,6 +815,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "10",
         "company_name": "Big Watt Inc. (Big Watt CoPack / Big Watt Beverage)",
@@ -804,15 +869,32 @@
         ]
       },
       "proposedSignal": {
-        "kind": "small-batch",
-        "evidence": "Handmade small-batch fruit-forward goods",
+        "kind": "private-label",
+        "evidence": "Private-label program supplies handmade small-batch products from the company's own formulas with custom labels. The custom-label minimum is 10 cases.",
+        "sourceUrls": [
+          "https://www.blackberrypatch.com/pages/wholesale"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "Official wholesale page binds handmade products to custom labels on its existing products, not client recipe manufacturing.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
         "sourceUrls": [
           "https://www.blackberrypatch.com/",
           "https://www.blackberrypatch.com/pages/wholesale",
           "https://www.pickyourown.org/copackers-Georgia.php"
-        ]
+        ],
+        "reason": "Official wholesale page binds handmade products to custom labels on its existing products, not client recipe manufacturing.",
+        "publicProgram": {
+          "evidence": "Private-label program supplies handmade small-batch products from the company's own formulas with custom labels. The custom-label minimum is 10 cases.",
+          "sourceUrls": [
+            "https://www.blackberrypatch.com/pages/wholesale"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "9",
         "company_name": "Blackberry Patch",
@@ -873,6 +955,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "1",
         "company_name": "Blount Fine Foods (formerly Blount Seafood Corp)",
@@ -935,7 +1018,17 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "Small-batch through 250 metric tons/year claimed",
+        "evidence": "Contract manufacturing and private-label services offer small-batch tea products and blends to customer specifications. Annual plant capacity is a separate claim.",
+        "sourceUrls": [
+          "https://blueoceantea.com/private-label-manufacturing/"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "Official contract/private-label page explicitly ties small-batch products to customer specifications; annual capacity is not a MOQ.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
         "sourceUrls": [
           "https://blueoceantea.com/",
           "https://blueoceantea.com/private-label-manufacturing/",
@@ -944,9 +1037,16 @@
           "https://blueoceantea.com/quality-assurance/",
           "https://blueoceantea.com/contact-us/",
           "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-        ]
+        ],
+        "reason": "Official contract/private-label page explicitly ties small-batch products to customer specifications; annual capacity is not a MOQ.",
+        "publicProgram": {
+          "evidence": "Contract manufacturing and private-label services offer small-batch tea products and blends to customer specifications. Annual plant capacity is a separate claim.",
+          "sourceUrls": [
+            "https://blueoceantea.com/private-label-manufacturing/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "9",
         "company_name": "Blue Ocean Group (Blue Ocean Tea Co.)",
@@ -997,15 +1097,19 @@
           "https://bouldersausage.com/food-service/"
         ]
       },
-      "proposedSignal": {
-        "kind": "small-batch",
-        "evidence": "Small-batch sausage manufacturing",
+      "proposedSignal": null,
+      "disposition": "Official foodservice page describes own-brand small batches and separately lists custom/private-label programs. External batch applicability is not established.",
+      "programReview": {
+        "decision": "needs-verification",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-22",
         "sourceUrls": [
           "https://www.bouldersausage.com/",
           "https://bouldersausage.com/food-service/"
-        ]
+        ],
+        "reason": "Official foodservice page describes own-brand small batches and separately lists custom/private-label programs. External batch applicability is not established.",
+        "programCheckedAt": "2026-09-13"
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "10",
         "company_name": "Boulder Sausage",
@@ -1061,6 +1165,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove flag-only or unsupported production signal.",
+      "programReview": null,
       "importSourceRecord": {
         "": "2",
         "company_name": "Bronx River Bottling LLC",
@@ -1117,6 +1222,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "4",
         "company_name": "BrucePac",
@@ -1172,6 +1278,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "7",
         "company_name": "Burnette Foods, Inc.",
@@ -1225,7 +1332,7 @@
         ]
       },
       "proposedSignal": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Licensed food processing plant with small-batch co-packing and private label from idea through fulfillment",
         "sourceUrls": [
           "https://www.bushelandpecks.com/",
@@ -1233,7 +1340,18 @@
           "https://www.pickyourown.org/copackers-Wisconsin.php"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch directly modifies co-packing; private-label also offered. It is not a kitchen-rental inference.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.bushelandpecks.com/",
+          "https://bushelandpecks.com/pages/co-packing-by-b-p",
+          "https://www.pickyourown.org/copackers-Wisconsin.php"
+        ],
+        "reason": "Small-batch directly modifies co-packing; private-label also offered. It is not a kitchen-rental inference."
+      },
       "importSourceRecord": {
         "": "9",
         "company_name": "Bushel & Peck's",
@@ -1292,6 +1410,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "11",
         "company_name": "Byler Canning Co. (Byler's Relish House)",
@@ -1358,6 +1477,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "8",
         "company_name": "Casa Visco Finer Foods",
@@ -1411,6 +1531,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "3",
         "company_name": "Cassie's Country Cupboard, LLC",
@@ -1462,6 +1583,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "7",
         "company_name": "Century Oak Packing Co.",
@@ -1515,6 +1637,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "9",
         "company_name": "Chesapeake Bay Snacks",
@@ -1573,6 +1696,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "6",
         "company_name": "Classic Foods",
@@ -1624,6 +1748,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "9",
         "company_name": "Complete CoPack (Kcupcopack)",
@@ -1681,6 +1806,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "Con Yeager Spice Company",
@@ -1738,7 +1864,7 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "small-batch production runs for test items as well as large volume",
+        "evidence": "Live consolidatedmills.com states food contract packaging and product solutions for institutional and retail. small-batch production runs for test items as well as large volume",
         "sourceUrls": [
           "https://consolidatedmills.com/",
           "https://consolidatedmills.com/contact-us/",
@@ -1747,7 +1873,20 @@
           "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://consolidatedmills.com/",
+          "https://consolidatedmills.com/contact-us/",
+          "https://consolidatedmills.com/about-us/",
+          "https://consolidatedmills.com/facility/",
+          "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
+        ],
+        "reason": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred."
+      },
       "importSourceRecord": {
         "": "4",
         "company_name": "Consolidated Mills Inc.",
@@ -1800,13 +1939,23 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "Copy says small batch to major brand and retail prep",
+        "evidence": "Live contractcomestibles.com: full-service co packer, formulation to full production, processing, development, packaging. Copy says small batch to major brand and retail prep",
         "sourceUrls": [
           "https://contractcomestibles.com/",
           "https://www.pickyourown.org/copackers-Wisconsin.php"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-to-major-brand production statement follows a full-service co-packer description; retain with that context.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://contractcomestibles.com/",
+          "https://www.pickyourown.org/copackers-Wisconsin.php"
+        ],
+        "reason": "Small-to-major-brand production statement follows a full-service co-packer description; retain with that context."
+      },
       "importSourceRecord": {
         "": "11",
         "company_name": "Contract Comestibles",
@@ -1859,13 +2008,23 @@
       },
       "proposedSignal": {
         "kind": "pilot",
-        "evidence": "pilot/prototype",
+        "evidence": "Contract manufacturing. pilot/prototype",
         "sourceUrls": [
           "https://www.craftcannery.com/",
           "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Pilot/prototype service is in the contract-manufacturing service list. Kettle size remains excluded from minimum evidence.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.craftcannery.com/",
+          "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+        ],
+        "reason": "Pilot/prototype service is in the contract-manufacturing service list. Kettle size remains excluded from minimum evidence."
+      },
       "importSourceRecord": {
         "": "4",
         "company_name": "Craft Cannery",
@@ -1930,6 +2089,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "9",
         "company_name": "Create-A-Pack Foods Inc.",
@@ -1988,6 +2148,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "10",
         "company_name": "Creative Spiceworks (formerly Georgia Spice Company / Doug Jeffords)",
@@ -2045,6 +2206,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "8",
         "company_name": "Croix Valley Foods",
@@ -2110,7 +2272,17 @@
           "https://www.pickyourown.org/copackers-Texas.php"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch commercial production is part of formulation/commercialization services; the approximate per-flavor range is not a confirmed MOQ.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://curiosweets.com/",
+          "https://www.pickyourown.org/copackers-Texas.php"
+        ],
+        "reason": "Small-batch commercial production is part of formulation/commercialization services; the approximate per-flavor range is not a confirmed MOQ."
+      },
       "importSourceRecord": {
         "": "18",
         "company_name": "Curio Sweets",
@@ -2164,6 +2336,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "14",
         "company_name": "DakPak Solutions LLC",
@@ -2219,6 +2392,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "6",
         "company_name": "Das Jam Haus",
@@ -2276,6 +2450,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "1",
         "company_name": "Day-Lee Foods, Inc.",
@@ -2332,6 +2507,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "Earth Ranch",
@@ -2391,6 +2567,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "Feral Fungi",
@@ -2445,6 +2622,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "12",
         "company_name": "FishSki Provisions",
@@ -2502,16 +2680,35 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "Small-batch (story page says 240 jars or less per batch for their brand)",
+        "evidence": "Small-batch co-packing of client recipes is offered in the official co-pack program. Minimum 1,200 units per product; private-label catalog products are a separate program.",
+        "sourceUrls": [
+          "https://foodforthought.net/pages/build-your-brand-with-us",
+          "https://foodforthought.net/pages/our-story"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "Reject the 240-jar own-brand story as external evidence. Separately reviewed official co-pack program supports small-batch client production with a 1200-unit per-product MOQ.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
         "sourceUrls": [
           "https://foodforthought.net",
           "https://foodforthought.net/pages/our-story",
           "https://foodforthought.net/pages/build-your-brand-with-us",
           "https://foodforthought.net/pages/contact-us",
           "https://www.pickyourown.org/copackers-Michigan.php"
-        ]
+        ],
+        "reason": "Reject the 240-jar own-brand story as external evidence. Separately reviewed official co-pack program supports small-batch client production with a 1200-unit per-product MOQ.",
+        "publicProgram": {
+          "evidence": "Small-batch co-packing of client recipes is offered in the official co-pack program. Minimum 1,200 units per product; private-label catalog products are a separate program.",
+          "sourceUrls": [
+            "https://foodforthought.net/pages/build-your-brand-with-us",
+            "https://foodforthought.net/pages/our-story"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "4",
         "company_name": "Food for Thought",
@@ -2567,8 +2764,35 @@
           "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
         ]
       },
-      "proposedSignal": null,
-      "disposition": "Remove flag-only or unsupported production signal.",
+      "proposedSignal": {
+        "kind": "small-batch",
+        "evidence": "Manufacturing services supply custom small-batch pasta orders for chefs, restaurants and retailers, fresh or dried and made to order. Private-label packaging consulting is also available.",
+        "sourceUrls": [
+          "https://www.forchettapasta.com/pages/5-custom-pasta"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "The dedicated custom-pasta page explicitly offers small-batch orders for chefs, restaurants and retailers; private-label consulting does not restrict this manufacturing program.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.forchettapasta.com/",
+          "https://www.forchettapasta.com/pages/5-custom-pasta",
+          "https://www.forchettapasta.com/contact",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "The dedicated custom-pasta page explicitly offers small-batch orders for chefs, restaurants and retailers; private-label consulting does not restrict this manufacturing program.",
+        "previousOption": false,
+        "publicProgram": {
+          "evidence": "Manufacturing services supply custom small-batch pasta orders for chefs, restaurants and retailers, fresh or dried and made to order. Private-label packaging consulting is also available.",
+          "sourceUrls": [
+            "https://www.forchettapasta.com/pages/5-custom-pasta"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
       "importSourceRecord": {
         "": "4",
         "company_name": "Forchetta Pasta",
@@ -2630,7 +2854,18 @@
           "https://www.pickyourown.org/cottagefood/Colorado%20Co%20Pack%20Directory_2019.pdf"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Directory-sourced small-batch fermentation co-packing is explicit; keep original directory provenance and dates.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.picaflor.co/",
+          "https://www.pickyourown.org/copackers-Colorado.php",
+          "https://www.pickyourown.org/cottagefood/Colorado%20Co%20Pack%20Directory_2019.pdf"
+        ],
+        "reason": "Directory-sourced small-batch fermentation co-packing is explicit; keep original directory provenance and dates."
+      },
       "importSourceRecord": {
         "": "6",
         "company_name": "Foremother Foods, LLC (Picaflor)",
@@ -2697,7 +2932,20 @@
           "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch options occur within the contract-packaging service description, not only the related retail pecan brand.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://foxcopacking.com/",
+          "https://tannerspecans.com/",
+          "https://tannerspecans.com/about-us/",
+          "https://tannerspecans.com/contact-us/",
+          "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+        ],
+        "reason": "Small-batch options occur within the contract-packaging service description, not only the related retail pecan brand."
+      },
       "importSourceRecord": {
         "": "10",
         "company_name": "FoxCo Packing",
@@ -2754,6 +3002,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "11",
         "company_name": "Fresh Roasted Coffee",
@@ -2817,7 +3066,19 @@
           "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Explicit small-batch contract-manufacturing claim; kitchen rental stays separate.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.genuinelocal.org/",
+          "https://www.genuinelocal.org/contract-manufacturing",
+          "https://www.genuinelocal.org/local-maker-kitchen-rental",
+          "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+        ],
+        "reason": "Explicit small-batch contract-manufacturing claim; kitchen rental stays separate."
+      },
       "importSourceRecord": {
         "": "11",
         "company_name": "Genuine Local",
@@ -2872,6 +3133,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "6",
         "company_name": "GF Blends, Inc.",
@@ -2931,6 +3193,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "6",
         "company_name": "H&H Products Company",
@@ -2984,6 +3247,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "6",
         "company_name": "Harrison Packing Co., Inc.",
@@ -3041,6 +3305,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "7",
         "company_name": "Hongar Farms Gourmet Foods",
@@ -3098,6 +3363,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "11",
         "company_name": "Islamorada Beverages",
@@ -3155,6 +3421,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "3",
         "company_name": "Kagome USA, Inc.",
@@ -3210,6 +3477,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove flag-only or unsupported production signal.",
+      "programReview": null,
       "importSourceRecord": {
         "": "9",
         "company_name": "Kaye Family Foods",
@@ -3270,6 +3538,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "7",
         "company_name": "King's Cupboard (West Fork Creations)",
@@ -3328,6 +3597,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "Kitchen Fusions (MyCoPacker)",
@@ -3381,6 +3651,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "2",
         "company_name": "MBH, LLC (Flying Colors Coffeeworks)",
@@ -3436,6 +3707,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "8",
         "company_name": "Michigan Freeze Pack",
@@ -3494,6 +3766,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "2",
         "company_name": "Mickelberry Gardens",
@@ -3552,6 +3825,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "4",
         "company_name": "Milk Specialties Global (now Actus Nutrition)",
@@ -3610,7 +3884,7 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "Small-batch",
+        "evidence": "Boutique co-packer. Small-batch",
         "sourceUrls": [
           "https://miloswholeworld.com/",
           "https://miloswholeworld.com/copacking/",
@@ -3619,7 +3893,20 @@
           "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch and consulting for copack customers belong to the copacking source context; retain context instead of a two-word label.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://miloswholeworld.com/",
+          "https://miloswholeworld.com/copacking/",
+          "https://miloswholeworld.com/about/",
+          "https://www.miloscopacking.com/",
+          "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+        ],
+        "reason": "Small-batch and consulting for copack customers belong to the copacking source context; retain context instead of a two-word label."
+      },
       "importSourceRecord": {
         "": "8",
         "company_name": "Milo's Whole World Gourmet (Milo's Co-Packing)",
@@ -3678,6 +3965,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "12",
         "company_name": "Mincing Spice Company",
@@ -3737,7 +4025,7 @@
         ]
       },
       "proposedSignal": {
-        "kind": "private-label",
+        "kind": "pilot",
         "evidence": "Live manufacturing page on mixlybeverageco.com (same copy on mixlycocktailco.com) confirms women-owned New Hope beverage co-manufacturing and private label, with in-house R&D, small-batch/pilot, and full-scale hot-fill style shelf-stable production",
         "sourceUrls": [
           "https://www.mixlybeverageco.com/",
@@ -3748,7 +4036,21 @@
           "https://www.mda.state.mn.us/minnesota-co-packer-directory"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Manufacturing page explicitly describes small-batch/pilot and full-scale co-manufacturing; classify the option as pilot, not private-label by keyword precedence.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.mixlybeverageco.com/",
+          "https://www.mixlybeverageco.com/pages/manufacturing",
+          "https://www.mixlybeverageco.com/pages/contact-us",
+          "https://www.mixlycocktailco.com/pages/manufacturing",
+          "https://www.prnewswire.com/news-releases/mixly-beverage-co-launches-rebrand-ahead-of-summer-fancy-food-show-and-national-retail-expansion-302809890.html",
+          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+        ],
+        "reason": "Manufacturing page explicitly describes small-batch/pilot and full-scale co-manufacturing; classify the option as pilot, not private-label by keyword precedence."
+      },
       "importSourceRecord": {
         "": "10",
         "company_name": "Mixly Beverage Co. (formerly Mixly Cocktail Co.)",
@@ -3803,6 +4105,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "Motherlode Co-Packing",
@@ -3864,7 +4167,18 @@
           "https://neuspice.com/contact/"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch custom spice blending and recipe development describe outside formula work.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://neuspice.com/",
+          "https://neuspice.com/about/",
+          "https://neuspice.com/contact/"
+        ],
+        "reason": "Small-batch custom spice blending and recipe development describe outside formula work."
+      },
       "importSourceRecord": {
         "": "9",
         "company_name": "NeuSpice & Seasoning, LLC",
@@ -3916,13 +4230,23 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "small-batch to bulk",
+        "evidence": "Co-packing. small-batch to bulk",
         "sourceUrls": [
           "https://www.oregonhill.com/",
           "https://www.oregonhill.com/co-packing"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-to-bulk is in the co-packing service list; wholesale is a separate service, not its batch minimum.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.oregonhill.com/",
+          "https://www.oregonhill.com/co-packing"
+        ],
+        "reason": "Small-to-bulk is in the co-packing service list; wholesale is a separate service, not its batch minimum."
+      },
       "importSourceRecord": {
         "": "2",
         "company_name": "Oregon Hill Farms",
@@ -3977,6 +4301,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "1",
         "company_name": "Oregon Trail Mountain Spring Water",
@@ -4034,7 +4359,7 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "Low-volume and high-volume runs claimed",
+        "evidence": "Specialty food co-packing and contract manufacturing in Reading since 1988. Low-volume and high-volume runs claimed",
         "sourceUrls": [
           "https://palacefoodsinc.com/",
           "https://palacefoodsinc.com/about-us/",
@@ -4043,7 +4368,20 @@
           "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Low/high-volume runs occur in a bring-your-recipe co-packing program; later own-brand examples do not provide the batch evidence.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://palacefoodsinc.com/",
+          "https://palacefoodsinc.com/about-us/",
+          "https://palacefoodsinc.com/contact/",
+          "https://palacefoodsinc.com/co-packing/packaging-your-recipe-with-palace-foods/",
+          "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+        ],
+        "reason": "Low/high-volume runs occur in a bring-your-recipe co-packing program; later own-brand examples do not provide the batch evidence."
+      },
       "importSourceRecord": {
         "": "6",
         "company_name": "Palace Foods, Inc.",
@@ -4108,6 +4446,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "9",
         "company_name": "Palmetto Canning Co., Inc.",
@@ -4164,6 +4503,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "11",
         "company_name": "Pan-O-Gold Baking Company",
@@ -4221,7 +4561,7 @@
         ]
       },
       "proposedSignal": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Small-batch co-packing and start-to-finish private label",
         "sourceUrls": [
           "https://www.pembertonsgourmetfoods.com/",
@@ -4231,7 +4571,20 @@
           "https://www.pickyourown.org/copackers-Maine.php"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Explicit small-batch co-packing source, with private-label separately listed; retain external co-pack context.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.pembertonsgourmetfoods.com/",
+          "https://www.pembertonsgourmetfoods.com/small-batch-co-packing",
+          "https://www.pembertonsgourmetfoods.com/our-story",
+          "https://www.pembertonsgourmetfoods.com/contact-us",
+          "https://www.pickyourown.org/copackers-Maine.php"
+        ],
+        "reason": "Explicit small-batch co-packing source, with private-label separately listed; retain external co-pack context."
+      },
       "importSourceRecord": {
         "": "6",
         "company_name": "Pemberton's Gourmet Foods",
@@ -4286,14 +4639,25 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "Small-batch and high-volume runs",
+        "evidence": "Full-service dairy co-packing and private label. Small-batch and high-volume runs",
         "sourceUrls": [
           "https://www.pnwcreamery.com/",
           "https://www.crystalcreekusa.com/",
           "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small/high-volume runs follow a dairy co-packing program that receives client milk; retain only dairy program scope.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.pnwcreamery.com/",
+          "https://www.crystalcreekusa.com/",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Small/high-volume runs follow a dairy co-packing program that receives client milk; retain only dairy program scope."
+      },
       "importSourceRecord": {
         "": "2",
         "company_name": "PNW Creamery",
@@ -4347,15 +4711,32 @@
         ]
       },
       "proposedSignal": {
-        "kind": "small-batch",
-        "evidence": "Slow-simmer small batches claimed",
+        "kind": "private-label",
+        "evidence": "Private-label program is limited to existing products made from the company's own recipes in small batches. Minimum 100 cases for that private-label offer; custom co-packing has a separate 250-gallon minimum.",
+        "sourceUrls": [
+          "https://www.porkysgourmetstore.com/aboutus.php"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "Own recipes are described as slow-simmered small batches; only the limited private-label existing-product offer can use that claim. The 250-gallon custom co-pack floor stays separate.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
         "sourceUrls": [
           "https://porkysgourmet.com/",
           "https://www.porkysgourmetstore.com/aboutus.php",
           "https://www.pickyourown.org/copackers-Tennessee.php"
-        ]
+        ],
+        "reason": "Own recipes are described as slow-simmered small batches; only the limited private-label existing-product offer can use that claim. The 250-gallon custom co-pack floor stays separate.",
+        "publicProgram": {
+          "evidence": "Private-label program is limited to existing products made from the company's own recipes in small batches. Minimum 100 cases for that private-label offer; custom co-packing has a separate 250-gallon minimum.",
+          "sourceUrls": [
+            "https://www.porkysgourmetstore.com/aboutus.php"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "2",
         "company_name": "Porky's Gourmet Foods",
@@ -4410,6 +4791,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "1",
         "company_name": "Portland Plant Foods Inc DBA Better Bean",
@@ -4467,17 +4849,34 @@
         ]
       },
       "proposedSignal": {
-        "kind": "small-batch",
-        "evidence": "Small-batch and large-batch claimed",
+        "kind": "private-label",
+        "evidence": "Private-label program offers small and large batch production of its refrigerated salads, dressings and desserts. No numeric order minimum is stated for this offer.",
+        "sourceUrls": [
+          "https://ronsfoods.com/co-packing/"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "The current co-packing page places the small/large batch statement in its Private Labeling section. Keep that offer restriction; do not apply it to custom recipe production.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
         "sourceUrls": [
           "https://ronsfoods.com/",
           "https://ronsfoods.com/co-packing/",
           "https://ronsfoods.com/contact/",
           "https://ronsfoods.com/policies/",
           "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-        ]
+        ],
+        "reason": "The current co-packing page places the small/large batch statement in its Private Labeling section. Keep that offer restriction; do not apply it to custom recipe production.",
+        "publicProgram": {
+          "evidence": "Private-label program offers small and large batch production of its refrigerated salads, dressings and desserts. No numeric order minimum is stated for this offer.",
+          "sourceUrls": [
+            "https://ronsfoods.com/co-packing/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "1",
         "company_name": "Ron's Home Style Foods, Inc.",
@@ -4532,14 +4931,31 @@
       },
       "proposedSignal": {
         "kind": "pilot",
-        "evidence": "pilot and small-scale manufacturing",
+        "evidence": "Manufacturing services offer pilot and small-scale production for customer formulas. The advertised starting budget is a price, not a production quantity.",
+        "sourceUrls": [
+          "https://www.scalefoodlabs.com/"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "The official manufacturing services explicitly offer pilot and small-scale runs for client products; published dollar pricing is not a unit MOQ.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-22",
         "sourceUrls": [
           "https://www.scalefoodlabs.com",
           "https://www.scalefoodlabs.com/contact",
           "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
-        ]
+        ],
+        "reason": "The official manufacturing services explicitly offer pilot and small-scale runs for client products; published dollar pricing is not a unit MOQ.",
+        "publicProgram": {
+          "evidence": "Manufacturing services offer pilot and small-scale production for customer formulas. The advertised starting budget is a price, not a production quantity.",
+          "sourceUrls": [
+            "https://www.scalefoodlabs.com/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "1",
         "company_name": "Scale Food Labs",
@@ -4595,6 +5011,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "Schwan's Global Supply Chain Inc.",
@@ -4653,7 +5070,7 @@
       },
       "proposedSignal": {
         "kind": "pilot",
-        "evidence": "Culinary R&D, custom formulations, small-batch test runs, shelf-stable development",
+        "evidence": "Proprietary manufacturer and private-label / contract manufacturing. Culinary R&D, custom formulations, small-batch test runs, shelf-stable development",
         "sourceUrls": [
           "https://signaturesauces.com/",
           "https://signaturekettlecrafted.com/",
@@ -4662,7 +5079,20 @@
           "https://www.pickyourown.org/copackers-Ohio.php"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch test runs occur with custom formulation under contract manufacturing; annual commercial floors are separate.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://signaturesauces.com/",
+          "https://signaturekettlecrafted.com/",
+          "https://signaturekettlecrafted.com/contact/",
+          "https://signaturekettlecrafted.com/capabilities/",
+          "https://www.pickyourown.org/copackers-Ohio.php"
+        ],
+        "reason": "Small-batch test runs occur with custom formulation under contract manufacturing; annual commercial floors are separate."
+      },
       "importSourceRecord": {
         "": "9",
         "company_name": "Signature Kettle (Signature Sauces)",
@@ -4718,6 +5148,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "2",
         "company_name": "Skyway Foods",
@@ -4773,6 +5204,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "2",
         "company_name": "Son Beverage Company",
@@ -4833,6 +5265,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "0",
         "company_name": "St. Cousair, Inc. (St. Cousair Oregon Orchards)",
@@ -4889,8 +5322,36 @@
           "https://www.mda.state.mn.us/minnesota-co-packer-directory"
         ]
       },
-      "proposedSignal": null,
-      "disposition": "Remove flag-only or unsupported production signal.",
+      "proposedSignal": {
+        "kind": "pilot",
+        "evidence": "Co-packing offers a pilot run for customer recipes, sampling, package approval and shelf-life testing. Commercial minimums are set in a subsequent production agreement.",
+        "sourceUrls": [
+          "https://www.stittsworthmeats.com/pages/wholesale-co-packing"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "The co-packing workflow expressly includes a pilot sampling/packaging/shelf-life batch before agreeing commercial MOQs.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.stittsworthmeats.com/",
+          "https://www.stittsworthmeats.com/pages/wholesale-co-packing",
+          "https://www.stittsworthmeats.com/pages/contact",
+          "https://www.stittsworthmeats.com/about",
+          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+        ],
+        "reason": "The co-packing workflow expressly includes a pilot sampling/packaging/shelf-life batch before agreeing commercial MOQs.",
+        "previousOption": false,
+        "publicProgram": {
+          "evidence": "Co-packing offers a pilot run for customer recipes, sampling, package approval and shelf-life testing. Commercial minimums are set in a subsequent production agreement.",
+          "sourceUrls": [
+            "https://www.stittsworthmeats.com/pages/wholesale-co-packing"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
       "importSourceRecord": {
         "": "2",
         "company_name": "Stittsworth Smokehouse Company",
@@ -4948,6 +5409,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "3",
         "company_name": "Sunbelt Packaging Co.",
@@ -5007,7 +5469,19 @@
       },
       "proposedSignal": {
         "kind": "small-batch",
-        "evidence": "Small-batch copy",
+        "evidence": "The co-packing and private-label manufacturer describes small-batch production serving brands and retailers. No numerical order minimum is published in the reviewed program pages.",
+        "sourceUrls": [
+          "https://www.sunnydellspecialty.com/",
+          "https://www.sunnydellspecialty.com/about",
+          "https://www.sunnydellspecialty.com/capabilities-offerings"
+        ],
+        "reviewedAt": "2026-09-13"
+      },
+      "disposition": "Homepage and About text describe small-batch manufacturing serving national brands and retailers alongside the co-packing/private-label offering. Retain a public program lead without implying a small order MOQ.",
+      "programReview": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
         "sourceUrls": [
           "https://www.sunnydellspecialty.com/",
           "https://www.sunnydellspecialty.com/about",
@@ -5015,9 +5489,18 @@
           "https://www.sunnydellspecialty.com/contact",
           "http://www.sunnydell.com/",
           "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
-        ]
+        ],
+        "reason": "Homepage and About text describe small-batch manufacturing serving national brands and retailers alongside the co-packing/private-label offering. Retain a public program lead without implying a small order MOQ.",
+        "publicProgram": {
+          "evidence": "The co-packing and private-label manufacturer describes small-batch production serving brands and retailers. No numerical order minimum is published in the reviewed program pages.",
+          "sourceUrls": [
+            "https://www.sunnydellspecialty.com/",
+            "https://www.sunnydellspecialty.com/about",
+            "https://www.sunnydellspecialty.com/capabilities-offerings"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
       "importSourceRecord": {
         "": "4",
         "company_name": "Sunny Dell Specialty, LLC",
@@ -5072,6 +5555,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "1",
         "company_name": "Swift Cider",
@@ -5125,6 +5609,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "12",
         "company_name": "Tall Hat Foods",
@@ -5185,6 +5670,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove flag-only or unsupported production signal.",
+      "programReview": null,
       "importSourceRecord": {
         "": "5",
         "company_name": "Teasdale Latin Foods (Jardine / Buda plant)",
@@ -5239,6 +5725,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "3",
         "company_name": "Tender Heifer Snack Co.",
@@ -5294,6 +5781,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "3",
         "company_name": "Tillamook Bay Cannery",
@@ -5351,7 +5839,7 @@
       },
       "proposedSignal": {
         "kind": "pilot",
-        "evidence": "Small- or large-batch volumes, custom formulations, mixed package sizes, test batches before a full run",
+        "evidence": "Family dairy co-packer and private-label producer since 1936. Small- or large-batch volumes, custom formulations, mixed package sizes, test batches before a full run",
         "sourceUrls": [
           "https://tillerfoods.com",
           "https://tillerfoods.com/about/",
@@ -5360,7 +5848,20 @@
           "https://edis.ifas.ufl.edu/publication/FS380"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Custom formulations and test batches before a full run appear in the dairy co-packer program; no cross-category inference.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://tillerfoods.com",
+          "https://tillerfoods.com/about/",
+          "https://tillerfoods.com/products/",
+          "https://tillerfoods.com/contact",
+          "https://edis.ifas.ufl.edu/publication/FS380"
+        ],
+        "reason": "Custom formulations and test batches before a full run appear in the dairy co-packer program; no cross-category inference."
+      },
       "importSourceRecord": {
         "": "11",
         "company_name": "Tiller Foods (Southeast Dairy Processors)",
@@ -5412,14 +5913,24 @@
         ]
       },
       "proposedSignal": {
-        "kind": "small-batch",
-        "evidence": "Small-batch sauce production",
+        "kind": "private-label",
+        "evidence": "private labeling. Small-batch sauce production",
         "sourceUrls": [
           "https://to-gopacks.com",
           "https://www.pickyourown.org/copackers-Ohio.php"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Small-batch packet production is scoped to the published private-label/custom-packaging program; 15000-500000 packets is a range, not a guaranteed small initial order.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://to-gopacks.com",
+          "https://www.pickyourown.org/copackers-Ohio.php"
+        ],
+        "reason": "Small-batch packet production is scoped to the published private-label/custom-packaging program; 15000-500000 packets is a range, not a guaranteed small initial order."
+      },
       "importSourceRecord": {
         "": "7",
         "company_name": "To-Go Packs",
@@ -5475,6 +5986,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "9",
         "company_name": "Townsend Farms",
@@ -5532,6 +6044,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "4",
         "company_name": "True Spice Foods",
@@ -5585,6 +6098,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "5",
         "company_name": "Turasky Meats (Y-T Packing Co.)",
@@ -5643,6 +6157,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "9",
         "company_name": "Van Drunen Farms",
@@ -5701,6 +6216,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+      "programReview": null,
       "importSourceRecord": {
         "": "4",
         "company_name": "Venus Wafers, Inc.",
@@ -5754,7 +6270,7 @@
         ]
       },
       "proposedSignal": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Indexed official pages describe a small-batch co-packer and private-label manufacturer with production in Albany NY (5 oz bottles to jugs",
         "sourceUrls": [
           "https://www.vitaleats.com/",
@@ -5762,7 +6278,18 @@
           "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
         ]
       },
-      "disposition": "Scoped public option; quantity and project fit still need confirmation.",
+      "disposition": "Indexed sources directly name a small-batch co-packer; retain original dated and directory/indexed-source limitations, not a fresh verification.",
+      "programReview": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.vitaleats.com/",
+          "https://www.vitaleats.com/co-packing-faq",
+          "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+        ],
+        "reason": "Indexed sources directly name a small-batch co-packer; retain original dated and directory/indexed-source limitations, not a fresh verification."
+      },
       "importSourceRecord": {
         "": "5",
         "company_name": "Vital Eats",
@@ -5821,6 +6348,7 @@
       },
       "proposedSignal": null,
       "disposition": "Remove false positive extracted from a negated/comparative first-run statement.",
+      "programReview": null,
       "importSourceRecord": {
         "": "10",
         "company_name": "Winter Gardens Quality Foods (now Sandridge Crafted Foods New Oxford)",
@@ -5925,7 +6453,7 @@
         ]
       },
       "proposed": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Small-batch manufacturer plus co-pack/private label of sauces, dressings, and marinades",
         "sourceUrls": [
           "https://www.allseasonskitchen.com/",
@@ -5969,7 +6497,7 @@
         ]
       },
       "proposed": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Origin About states manufacturing and packaging food to the order and specification of others, matching existing formulas or commercializing new products, small-batch or long-run options, and private label and/or Amigos Brand programs",
         "sourceUrls": [
           "https://amigosfoods.com/",
@@ -6046,7 +6574,7 @@
       },
       "proposed": {
         "kind": "pilot",
-        "evidence": "small-batch pilot and pre-launch runs",
+        "evidence": "Co-manufacturing since 2018 as a Humm Kombucha division. small-batch pilot and pre-launch runs",
         "sourceUrls": [
           "https://betterbeveragecompany.com/",
           "https://betterbeveragecompany.com/capabilities/",
@@ -6104,13 +6632,12 @@
         ]
       },
       "proposed": {
-        "kind": "small-batch",
-        "evidence": "Handmade small-batch fruit-forward goods",
+        "kind": "private-label",
+        "evidence": "Private-label program supplies handmade small-batch products from the company's own formulas with custom labels. The custom-label minimum is 10 cases.",
         "sourceUrls": [
-          "https://www.blackberrypatch.com/",
-          "https://www.blackberrypatch.com/pages/wholesale",
-          "https://www.pickyourown.org/copackers-Georgia.php"
-        ]
+          "https://www.blackberrypatch.com/pages/wholesale"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -6148,16 +6675,11 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "Small-batch through 250 metric tons/year claimed",
+        "evidence": "Contract manufacturing and private-label services offer small-batch tea products and blends to customer specifications. Annual plant capacity is a separate claim.",
         "sourceUrls": [
-          "https://blueoceantea.com/",
-          "https://blueoceantea.com/private-label-manufacturing/",
-          "https://blueoceantea.com/our-services/",
-          "https://blueoceantea.com/manufacturing-infrastructure/",
-          "https://blueoceantea.com/quality-assurance/",
-          "https://blueoceantea.com/contact-us/",
-          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-        ]
+          "https://blueoceantea.com/private-label-manufacturing/"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -6171,14 +6693,7 @@
           "https://bouldersausage.com/food-service/"
         ]
       },
-      "proposed": {
-        "kind": "small-batch",
-        "evidence": "Small-batch sausage manufacturing",
-        "sourceUrls": [
-          "https://www.bouldersausage.com/",
-          "https://bouldersausage.com/food-service/"
-        ]
-      }
+      "proposed": null
     },
     {
       "slug": "bronx-river-bottling-llc",
@@ -6238,7 +6753,7 @@
         ]
       },
       "proposed": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Licensed food processing plant with small-batch co-packing and private label from idea through fulfillment",
         "sourceUrls": [
           "https://www.bushelandpecks.com/",
@@ -6357,7 +6872,7 @@
       "before": null,
       "proposed": {
         "kind": "pilot",
-        "evidence": "test batches",
+        "evidence": "Co-packing. test batches",
         "sourceUrls": [
           "https://coloradocopacker.com/",
           "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
@@ -6408,7 +6923,7 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "small-batch production runs for test items as well as large volume",
+        "evidence": "Live consolidatedmills.com states food contract packaging and product solutions for institutional and retail. small-batch production runs for test items as well as large volume",
         "sourceUrls": [
           "https://consolidatedmills.com/",
           "https://consolidatedmills.com/contact-us/",
@@ -6431,7 +6946,7 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "Copy says small batch to major brand and retail prep",
+        "evidence": "Live contractcomestibles.com: full-service co packer, formulation to full production, processing, development, packaging. Copy says small batch to major brand and retail prep",
         "sourceUrls": [
           "https://contractcomestibles.com/",
           "https://www.pickyourown.org/copackers-Wisconsin.php"
@@ -6451,7 +6966,7 @@
       },
       "proposed": {
         "kind": "pilot",
-        "evidence": "pilot/prototype",
+        "evidence": "Contract manufacturing. pilot/prototype",
         "sourceUrls": [
           "https://www.craftcannery.com/",
           "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
@@ -6603,6 +7118,20 @@
       "proposed": null
     },
     {
+      "slug": "drayhorse-canning",
+      "source": "batch-12-a.csv:12",
+      "field": "smallRunSignal",
+      "before": null,
+      "proposed": {
+        "kind": "pilot",
+        "evidence": "Beverage co-manufacturing offers pilot programs for client brands. No numeric minimum is stated for those programs.",
+        "sourceUrls": [
+          "https://www.drayhorse.co/"
+        ],
+        "reviewedAt": "2026-09-13"
+      }
+    },
+    {
       "slug": "earth-ranch",
       "source": "batch-20-b.csv:2",
       "field": "smallRunSignal",
@@ -6684,14 +7213,12 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "Small-batch (story page says 240 jars or less per batch for their brand)",
+        "evidence": "Small-batch co-packing of client recipes is offered in the official co-pack program. Minimum 1,200 units per product; private-label catalog products are a separate program.",
         "sourceUrls": [
-          "https://foodforthought.net",
-          "https://foodforthought.net/pages/our-story",
           "https://foodforthought.net/pages/build-your-brand-with-us",
-          "https://foodforthought.net/pages/contact-us",
-          "https://www.pickyourown.org/copackers-Michigan.php"
-        ]
+          "https://foodforthought.net/pages/our-story"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -6707,7 +7234,14 @@
           "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
         ]
       },
-      "proposed": null
+      "proposed": {
+        "kind": "small-batch",
+        "evidence": "Manufacturing services supply custom small-batch pasta orders for chefs, restaurants and retailers, fresh or dried and made to order. Private-label packaging consulting is also available.",
+        "sourceUrls": [
+          "https://www.forchettapasta.com/pages/5-custom-pasta"
+        ],
+        "reviewedAt": "2026-09-13"
+      }
     },
     {
       "slug": "foremother-foods-llc-picaflor",
@@ -7028,7 +7562,7 @@
       "before": null,
       "proposed": {
         "kind": "pilot",
-        "evidence": "test batches",
+        "evidence": "Co-packing. test batches",
         "sourceUrls": [
           "https://www.madwills.com",
           "https://www.madwills.com/co-packing",
@@ -7113,7 +7647,7 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "Small-batch",
+        "evidence": "Boutique co-packer. Small-batch",
         "sourceUrls": [
           "https://miloswholeworld.com/",
           "https://miloswholeworld.com/copacking/",
@@ -7155,7 +7689,7 @@
         ]
       },
       "proposed": {
-        "kind": "private-label",
+        "kind": "pilot",
         "evidence": "Live manufacturing page on mixlybeverageco.com (same copy on mixlycocktailco.com) confirms women-owned New Hope beverage co-manufacturing and private label, with in-house R&D, small-batch/pilot, and full-scale hot-fill style shelf-stable production",
         "sourceUrls": [
           "https://www.mixlybeverageco.com/",
@@ -7187,6 +7721,20 @@
       "field": "publishedSmallMoq",
       "before": true,
       "proposed": false
+    },
+    {
+      "slug": "nashville-kitchen-and-cannery",
+      "source": "batch-15-b.csv:3",
+      "field": "smallRunSignal",
+      "before": null,
+      "proposed": {
+        "kind": "small-batch",
+        "evidence": "Co-packing offers small and large batch production of customer recipes. Private-label services and recipe testing are separate offerings; no numerical minimum is stated.",
+        "sourceUrls": [
+          "https://nashvillekitchenandcannery.com/services"
+        ],
+        "reviewedAt": "2026-09-13"
+      }
     },
     {
       "slug": "neuspice-and-seasoning-llc",
@@ -7223,7 +7771,7 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "small-batch to bulk",
+        "evidence": "Co-packing. small-batch to bulk",
         "sourceUrls": [
           "https://www.oregonhill.com/",
           "https://www.oregonhill.com/co-packing"
@@ -7257,12 +7805,12 @@
       "field": "smallRunSignal",
       "before": null,
       "proposed": {
-        "kind": "private-label",
-        "evidence": "Contract manufacturing, co-packing, private label, recipe development, packaging design, labeling, pilot plant, custom formulation, recipe matching",
+        "kind": "pilot",
+        "evidence": "Contract manufacturing R&D lists pilot plant operation for customer product development and custom formulation. This describes a pilot development option, not a commercial production minimum.",
         "sourceUrls": [
-          "https://pcbrands.com/",
-          "https://ucfoodsafety.ucdavis.edu/sites/g/files/dgvnsk7366/files/inline-files/240926.pdf"
-        ]
+          "https://pcbrands.com/"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -7299,7 +7847,7 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "Low-volume and high-volume runs claimed",
+        "evidence": "Specialty food co-packing and contract manufacturing in Reading since 1988. Low-volume and high-volume runs claimed",
         "sourceUrls": [
           "https://palacefoodsinc.com/",
           "https://palacefoodsinc.com/about-us/",
@@ -7370,7 +7918,7 @@
         ]
       },
       "proposed": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Small-batch co-packing and start-to-finish private label",
         "sourceUrls": [
           "https://www.pembertonsgourmetfoods.com/",
@@ -7395,7 +7943,7 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "Small-batch and high-volume runs",
+        "evidence": "Full-service dairy co-packing and private label. Small-batch and high-volume runs",
         "sourceUrls": [
           "https://www.pnwcreamery.com/",
           "https://www.crystalcreekusa.com/",
@@ -7416,13 +7964,12 @@
         ]
       },
       "proposed": {
-        "kind": "small-batch",
-        "evidence": "Slow-simmer small batches claimed",
+        "kind": "private-label",
+        "evidence": "Private-label program is limited to existing products made from the company's own recipes in small batches. Minimum 100 cases for that private-label offer; custom co-packing has a separate 250-gallon minimum.",
         "sourceUrls": [
-          "https://porkysgourmet.com/",
-          "https://www.porkysgourmetstore.com/aboutus.php",
-          "https://www.pickyourown.org/copackers-Tennessee.php"
-        ]
+          "https://www.porkysgourmetstore.com/aboutus.php"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -7453,14 +8000,12 @@
       "before": null,
       "proposed": {
         "kind": "pilot",
-        "evidence": "Three Tall Form / cone-bottom towers plus a Niro Mobile Minor pilot unit for proof of concept and scale-up",
+        "evidence": "Contract manufacturing customers can request pilot proof-of-concept and formulation-validation services for food powders. Commercial spray drying is a separate production stage; no pilot quantity minimum is stated.",
         "sourceUrls": [
-          "https://www.qic.us/",
-          "https://www.qic.us/snapshot-today",
           "https://www.qic.us/custom-spray-drying",
-          "https://www.qic.us/contact",
-          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-        ]
+          "https://www.qic.us/snapshot-today"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -7478,15 +8023,12 @@
         ]
       },
       "proposed": {
-        "kind": "small-batch",
-        "evidence": "Small-batch and large-batch claimed",
+        "kind": "private-label",
+        "evidence": "Private-label program offers small and large batch production of its refrigerated salads, dressings and desserts. No numeric order minimum is stated for this offer.",
         "sourceUrls": [
-          "https://ronsfoods.com/",
-          "https://ronsfoods.com/co-packing/",
-          "https://ronsfoods.com/contact/",
-          "https://ronsfoods.com/policies/",
-          "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-        ]
+          "https://ronsfoods.com/co-packing/"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -7496,7 +8038,7 @@
       "before": null,
       "proposed": {
         "kind": "pilot",
-        "evidence": "Pilot runs billed $40/hour per person, then per-piece pricing",
+        "evidence": "10,000 sq ft strictly gluten-free, vegetarian shared manufacturing facility that also co-packs/co-manufactures. Pilot runs billed $40/hour per person, then per-piece pricing",
         "sourceUrls": [
           "http://www.saltroadfoodhub.com",
           "https://saltroadfoodhub.com/",
@@ -7519,12 +8061,11 @@
       },
       "proposed": {
         "kind": "pilot",
-        "evidence": "pilot and small-scale manufacturing",
+        "evidence": "Manufacturing services offer pilot and small-scale production for customer formulas. The advertised starting budget is a price, not a production quantity.",
         "sourceUrls": [
-          "https://www.scalefoodlabs.com",
-          "https://www.scalefoodlabs.com/contact",
-          "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
-        ]
+          "https://www.scalefoodlabs.com/"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -7564,7 +8105,7 @@
       },
       "proposed": {
         "kind": "pilot",
-        "evidence": "Culinary R&D, custom formulations, small-batch test runs, shelf-stable development",
+        "evidence": "Proprietary manufacturer and private-label / contract manufacturing. Culinary R&D, custom formulations, small-batch test runs, shelf-stable development",
         "sourceUrls": [
           "https://signaturesauces.com/",
           "https://signaturekettlecrafted.com/",
@@ -7648,7 +8189,14 @@
           "https://www.mda.state.mn.us/minnesota-co-packer-directory"
         ]
       },
-      "proposed": null
+      "proposed": {
+        "kind": "pilot",
+        "evidence": "Co-packing offers a pilot run for customer recipes, sampling, package approval and shelf-life testing. Commercial minimums are set in a subsequent production agreement.",
+        "sourceUrls": [
+          "https://www.stittsworthmeats.com/pages/wholesale-co-packing"
+        ],
+        "reviewedAt": "2026-09-13"
+      }
     },
     {
       "slug": "sunbelt-packaging-co",
@@ -7682,15 +8230,13 @@
       },
       "proposed": {
         "kind": "small-batch",
-        "evidence": "Small-batch copy",
+        "evidence": "The co-packing and private-label manufacturer describes small-batch production serving brands and retailers. No numerical order minimum is published in the reviewed program pages.",
         "sourceUrls": [
           "https://www.sunnydellspecialty.com/",
           "https://www.sunnydellspecialty.com/about",
-          "https://www.sunnydellspecialty.com/capabilities-offerings",
-          "https://www.sunnydellspecialty.com/contact",
-          "http://www.sunnydell.com/",
-          "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
-        ]
+          "https://www.sunnydellspecialty.com/capabilities-offerings"
+        ],
+        "reviewedAt": "2026-09-13"
       }
     },
     {
@@ -7783,7 +8329,7 @@
       },
       "proposed": {
         "kind": "pilot",
-        "evidence": "Small- or large-batch volumes, custom formulations, mixed package sizes, test batches before a full run",
+        "evidence": "Family dairy co-packer and private-label producer since 1936. Small- or large-batch volumes, custom formulations, mixed package sizes, test batches before a full run",
         "sourceUrls": [
           "https://tillerfoods.com",
           "https://tillerfoods.com/about/",
@@ -7805,8 +8351,8 @@
         ]
       },
       "proposed": {
-        "kind": "small-batch",
-        "evidence": "Small-batch sauce production",
+        "kind": "private-label",
+        "evidence": "private labeling. Small-batch sauce production",
         "sourceUrls": [
           "https://to-gopacks.com",
           "https://www.pickyourown.org/copackers-Ohio.php"
@@ -7909,7 +8455,7 @@
         ]
       },
       "proposed": {
-        "kind": "private-label",
+        "kind": "small-batch",
         "evidence": "Indexed official pages describe a small-batch co-packer and private-label manufacturer with production in Albany NY (5 oz bottles to jugs",
         "sourceUrls": [
           "https://www.vitaleats.com/",
@@ -8103,6 +8649,607 @@
         "note": "Official page reconfirms info@packnfresh.com and the 888.70.FRESH toll-free number; it also lists 847-727-0386. No named recipient is inferred."
       },
       "basis": "Official page describes packaging, mixing and fulfillment. The source snapshot rejected the old acidified co-packer claim; remove that unsupported tag."
+    }
+  },
+  "externalProgramReviews": {
+    "baseline": "8e48f14",
+    "reviewedAt": "2026-09-13",
+    "coverage": "All 38 options at 8e48f14 reviewed for external program applicability, plus four recovered public programs. Official-source program reviews are separately identified; other source snapshots retain their original dates.",
+    "records": {
+      "all-american-foods-inc": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.aafoods.com/",
+          "https://www.aafoods.com/products/processing-services/",
+          "https://www.aafoods.com/products/customized-packaging/",
+          "https://www.aafoods.com/about-us/quality-assurance/",
+          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+        ],
+        "reason": "Processing-services statement explicitly offers experimental pilot runs; commercial MOQ remains separate."
+      },
+      "all-seasons-kitchen": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.allseasonskitchen.com/",
+          "https://www.allseasonskitchen.com/contact/",
+          "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+        ],
+        "reason": "Small-batch claim directly names the external co-pack/private-label program; no quantity inferred."
+      },
+      "aloha-from-oregon": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.alohafromoregon.com/",
+          "https://alohafromoregon.com/copacking-with-aloha-from-oregon/",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Small-batch and paid test work explicitly uses customer recipes and project assessment."
+      },
+      "amigos-canning-co-amigos-foods": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://amigosfoods.com/",
+          "https://amigosfoods.com/about",
+          "https://www.pickyourown.org/copackers-Texas.php"
+        ],
+        "reason": "Program expressly makes products to others specifications and includes small-batch options, not only the Amigos brand."
+      },
+      "better-beverage-company": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://betterbeveragecompany.com/",
+          "https://betterbeveragecompany.com/capabilities/",
+          "https://betterbeveragecompany.com/about-us/",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Pilot/pre-launch runs occur in the co-manufacturing service list; no numerical floor inferred."
+      },
+      "blackberry-patch": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.blackberrypatch.com/",
+          "https://www.blackberrypatch.com/pages/wholesale",
+          "https://www.pickyourown.org/copackers-Georgia.php"
+        ],
+        "reason": "Official wholesale page binds handmade products to custom labels on its existing products, not client recipe manufacturing.",
+        "publicProgram": {
+          "evidence": "Private-label program supplies handmade small-batch products from the company's own formulas with custom labels. The custom-label minimum is 10 cases.",
+          "sourceUrls": [
+            "https://www.blackberrypatch.com/pages/wholesale"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "blue-ocean-group-blue-ocean-tea-co": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://blueoceantea.com/",
+          "https://blueoceantea.com/private-label-manufacturing/",
+          "https://blueoceantea.com/our-services/",
+          "https://blueoceantea.com/manufacturing-infrastructure/",
+          "https://blueoceantea.com/quality-assurance/",
+          "https://blueoceantea.com/contact-us/",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Official contract/private-label page explicitly ties small-batch products to customer specifications; annual capacity is not a MOQ.",
+        "publicProgram": {
+          "evidence": "Contract manufacturing and private-label services offer small-batch tea products and blends to customer specifications. Annual plant capacity is a separate claim.",
+          "sourceUrls": [
+            "https://blueoceantea.com/private-label-manufacturing/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "boulder-sausage": {
+        "decision": "needs-verification",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.bouldersausage.com/",
+          "https://bouldersausage.com/food-service/"
+        ],
+        "reason": "Official foodservice page describes own-brand small batches and separately lists custom/private-label programs. External batch applicability is not established.",
+        "programCheckedAt": "2026-09-13"
+      },
+      "bushel-and-peck-s": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.bushelandpecks.com/",
+          "https://bushelandpecks.com/pages/co-packing-by-b-p",
+          "https://www.pickyourown.org/copackers-Wisconsin.php"
+        ],
+        "reason": "Small-batch directly modifies co-packing; private-label also offered. It is not a kitchen-rental inference."
+      },
+      "colorado-copacking-company": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://coloradocopacker.com/",
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
+        ],
+        "reason": "Test batches are listed within the co-packing services, alongside recipe development."
+      },
+      "consolidated-mills-inc": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://consolidatedmills.com/",
+          "https://consolidatedmills.com/contact-us/",
+          "https://consolidatedmills.com/about-us/",
+          "https://consolidatedmills.com/facility/",
+          "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
+        ],
+        "reason": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred."
+      },
+      "contract-comestibles": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://contractcomestibles.com/",
+          "https://www.pickyourown.org/copackers-Wisconsin.php"
+        ],
+        "reason": "Small-to-major-brand production statement follows a full-service co-packer description; retain with that context."
+      },
+      "craft-cannery": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.craftcannery.com/",
+          "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+        ],
+        "reason": "Pilot/prototype service is in the contract-manufacturing service list. Kettle size remains excluded from minimum evidence."
+      },
+      "curio-sweets": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://curiosweets.com/",
+          "https://www.pickyourown.org/copackers-Texas.php"
+        ],
+        "reason": "Small-batch commercial production is part of formulation/commercialization services; the approximate per-flavor range is not a confirmed MOQ."
+      },
+      "drayhorse-canning": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.drayhorse.co/",
+          "http://www.drayhorse.co",
+          "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+        ],
+        "reason": "Beverage co-manufacturing offers pilot programs to client brands; a qualitative low-MOQ statement supplies no quantity.",
+        "previousOption": false,
+        "publicProgram": {
+          "evidence": "Beverage co-manufacturing offers pilot programs for client brands. No numeric minimum is stated for those programs.",
+          "sourceUrls": [
+            "https://www.drayhorse.co/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "encore-cider-llc-republic-of-cider": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://republicofcider.com/incubator",
+          "https://republicofcider.com/home",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Named pilot batches were made for other cider brands. This remains a cider-specific incubator, not conventional sauce/juice support."
+      },
+      "food-for-thought": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://foodforthought.net",
+          "https://foodforthought.net/pages/our-story",
+          "https://foodforthought.net/pages/build-your-brand-with-us",
+          "https://foodforthought.net/pages/contact-us",
+          "https://www.pickyourown.org/copackers-Michigan.php"
+        ],
+        "reason": "Reject the 240-jar own-brand story as external evidence. Separately reviewed official co-pack program supports small-batch client production with a 1200-unit per-product MOQ.",
+        "publicProgram": {
+          "evidence": "Small-batch co-packing of client recipes is offered in the official co-pack program. Minimum 1,200 units per product; private-label catalog products are a separate program.",
+          "sourceUrls": [
+            "https://foodforthought.net/pages/build-your-brand-with-us",
+            "https://foodforthought.net/pages/our-story"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "forchetta-pasta": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.forchettapasta.com/",
+          "https://www.forchettapasta.com/pages/5-custom-pasta",
+          "https://www.forchettapasta.com/contact",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "The dedicated custom-pasta page explicitly offers small-batch orders for chefs, restaurants and retailers; private-label consulting does not restrict this manufacturing program.",
+        "previousOption": false,
+        "publicProgram": {
+          "evidence": "Manufacturing services supply custom small-batch pasta orders for chefs, restaurants and retailers, fresh or dried and made to order. Private-label packaging consulting is also available.",
+          "sourceUrls": [
+            "https://www.forchettapasta.com/pages/5-custom-pasta"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "foremother-foods-llc-picaflor": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.picaflor.co/",
+          "https://www.pickyourown.org/copackers-Colorado.php",
+          "https://www.pickyourown.org/cottagefood/Colorado%20Co%20Pack%20Directory_2019.pdf"
+        ],
+        "reason": "Directory-sourced small-batch fermentation co-packing is explicit; keep original directory provenance and dates."
+      },
+      "foxco-packing": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://foxcopacking.com/",
+          "https://tannerspecans.com/",
+          "https://tannerspecans.com/about-us/",
+          "https://tannerspecans.com/contact-us/",
+          "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+        ],
+        "reason": "Small-batch options occur within the contract-packaging service description, not only the related retail pecan brand."
+      },
+      "genuine-local": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.genuinelocal.org/",
+          "https://www.genuinelocal.org/contract-manufacturing",
+          "https://www.genuinelocal.org/local-maker-kitchen-rental",
+          "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+        ],
+        "reason": "Explicit small-batch contract-manufacturing claim; kitchen rental stays separate."
+      },
+      "mad-will-s-food-company": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.madwills.com",
+          "https://www.madwills.com/co-packing",
+          "https://www.pickyourown.org/copackers-California.php"
+        ],
+        "reason": "Test batches appear in the co-packing/private-label service list; pilot option does not establish commercial volume fit."
+      },
+      "milo-s-whole-world-gourmet-milo-s-co-packing": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://miloswholeworld.com/",
+          "https://miloswholeworld.com/copacking/",
+          "https://miloswholeworld.com/about/",
+          "https://www.miloscopacking.com/",
+          "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
+        ],
+        "reason": "Small-batch and consulting for copack customers belong to the copacking source context; retain context instead of a two-word label."
+      },
+      "mixly-beverage-co-formerly-mixly-cocktail-co": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.mixlybeverageco.com/",
+          "https://www.mixlybeverageco.com/pages/manufacturing",
+          "https://www.mixlybeverageco.com/pages/contact-us",
+          "https://www.mixlycocktailco.com/pages/manufacturing",
+          "https://www.prnewswire.com/news-releases/mixly-beverage-co-launches-rebrand-ahead-of-summer-fancy-food-show-and-national-retail-expansion-302809890.html",
+          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+        ],
+        "reason": "Manufacturing page explicitly describes small-batch/pilot and full-scale co-manufacturing; classify the option as pilot, not private-label by keyword precedence."
+      },
+      "nashville-kitchen-and-cannery": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.nashvillekitchenandcannery.com/",
+          "https://nashvillekitchenandcannery.com/services",
+          "https://nashvillekitchenandcannery.com/about",
+          "https://nashvillekitchenandcannery.com/contact",
+          "https://www.pickyourown.org/copackers-Tennessee.php"
+        ],
+        "reason": "Official services directly bind small and large batches to client recipes; shared batch wording previously hid a legitimate co-packing option.",
+        "previousOption": false,
+        "publicProgram": {
+          "evidence": "Co-packing offers small and large batch production of customer recipes. Private-label services and recipe testing are separate offerings; no numerical minimum is stated.",
+          "sourceUrls": [
+            "https://nashvillekitchenandcannery.com/services"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "neuspice-and-seasoning-llc": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://neuspice.com/",
+          "https://neuspice.com/about/",
+          "https://neuspice.com/contact/"
+        ],
+        "reason": "Small-batch custom spice blending and recipe development describe outside formula work."
+      },
+      "oregon-hill-farms": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.oregonhill.com/",
+          "https://www.oregonhill.com/co-packing"
+        ],
+        "reason": "Small-to-bulk is in the co-packing service list; wholesale is a separate service, not its batch minimum."
+      },
+      "pacific-choice-brands": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://pcbrands.com/",
+          "https://ucfoodsafety.ucdavis.edu/sites/g/files/dgvnsk7366/files/inline-files/240926.pdf"
+        ],
+        "reason": "The official R&D section binds pilot plant operation to new-product development and custom formulation for customers. Retain a pilot research option; commercial quantities remain unknown.",
+        "publicProgram": {
+          "evidence": "Contract manufacturing R&D lists pilot plant operation for customer product development and custom formulation. This describes a pilot development option, not a commercial production minimum.",
+          "sourceUrls": [
+            "https://pcbrands.com/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "palace-foods-inc": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://palacefoodsinc.com/",
+          "https://palacefoodsinc.com/about-us/",
+          "https://palacefoodsinc.com/contact/",
+          "https://palacefoodsinc.com/co-packing/packaging-your-recipe-with-palace-foods/",
+          "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+        ],
+        "reason": "Low/high-volume runs occur in a bring-your-recipe co-packing program; later own-brand examples do not provide the batch evidence."
+      },
+      "pemberton-s-gourmet-foods": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.pembertonsgourmetfoods.com/",
+          "https://www.pembertonsgourmetfoods.com/small-batch-co-packing",
+          "https://www.pembertonsgourmetfoods.com/our-story",
+          "https://www.pembertonsgourmetfoods.com/contact-us",
+          "https://www.pickyourown.org/copackers-Maine.php"
+        ],
+        "reason": "Explicit small-batch co-packing source, with private-label separately listed; retain external co-pack context."
+      },
+      "pnw-creamery": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.pnwcreamery.com/",
+          "https://www.crystalcreekusa.com/",
+          "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+        ],
+        "reason": "Small/high-volume runs follow a dairy co-packing program that receives client milk; retain only dairy program scope."
+      },
+      "porky-s-gourmet-foods": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://porkysgourmet.com/",
+          "https://www.porkysgourmetstore.com/aboutus.php",
+          "https://www.pickyourown.org/copackers-Tennessee.php"
+        ],
+        "reason": "Own recipes are described as slow-simmered small batches; only the limited private-label existing-product offer can use that claim. The 250-gallon custom co-pack floor stays separate.",
+        "publicProgram": {
+          "evidence": "Private-label program is limited to existing products made from the company's own recipes in small batches. Minimum 100 cases for that private-label offer; custom co-packing has a separate 250-gallon minimum.",
+          "sourceUrls": [
+            "https://www.porkysgourmetstore.com/aboutus.php"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "quality-ingredients-corporation": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.qic.us/",
+          "https://www.qic.us/snapshot-today",
+          "https://www.qic.us/custom-spray-drying",
+          "https://www.qic.us/contact",
+          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+        ],
+        "reason": "Official custom spray drying and company snapshot pages explicitly offer customer proof-of-concept/formulation validation work, beyond merely owning pilot equipment.",
+        "publicProgram": {
+          "evidence": "Contract manufacturing customers can request pilot proof-of-concept and formulation-validation services for food powders. Commercial spray drying is a separate production stage; no pilot quantity minimum is stated.",
+          "sourceUrls": [
+            "https://www.qic.us/custom-spray-drying",
+            "https://www.qic.us/snapshot-today"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "ron-s-home-style-foods-inc": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://ronsfoods.com/",
+          "https://ronsfoods.com/co-packing/",
+          "https://ronsfoods.com/contact/",
+          "https://ronsfoods.com/policies/",
+          "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
+        ],
+        "reason": "The current co-packing page places the small/large batch statement in its Private Labeling section. Keep that offer restriction; do not apply it to custom recipe production.",
+        "publicProgram": {
+          "evidence": "Private-label program offers small and large batch production of its refrigerated salads, dressings and desserts. No numeric order minimum is stated for this offer.",
+          "sourceUrls": [
+            "https://ronsfoods.com/co-packing/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "salt-road-food-hub": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "http://www.saltroadfoodhub.com",
+          "https://saltroadfoodhub.com/",
+          "https://saltroadfoodhub.com/copacking",
+          "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+        ],
+        "reason": "Co-packing page prices externally offered pilot runs by labor and says clients supply inputs; not a volume minimum."
+      },
+      "scale-food-labs": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://www.scalefoodlabs.com",
+          "https://www.scalefoodlabs.com/contact",
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
+        ],
+        "reason": "The official manufacturing services explicitly offer pilot and small-scale runs for client products; published dollar pricing is not a unit MOQ.",
+        "publicProgram": {
+          "evidence": "Manufacturing services offer pilot and small-scale production for customer formulas. The advertised starting budget is a price, not a production quantity.",
+          "sourceUrls": [
+            "https://www.scalefoodlabs.com/"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "signature-kettle-signature-sauces": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://signaturesauces.com/",
+          "https://signaturekettlecrafted.com/",
+          "https://signaturekettlecrafted.com/contact/",
+          "https://signaturekettlecrafted.com/capabilities/",
+          "https://www.pickyourown.org/copackers-Ohio.php"
+        ],
+        "reason": "Small-batch test runs occur with custom formulation under contract manufacturing; annual commercial floors are separate."
+      },
+      "stittsworth-smokehouse-company": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.stittsworthmeats.com/",
+          "https://www.stittsworthmeats.com/pages/wholesale-co-packing",
+          "https://www.stittsworthmeats.com/pages/contact",
+          "https://www.stittsworthmeats.com/about",
+          "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+        ],
+        "reason": "The co-packing workflow expressly includes a pilot sampling/packaging/shelf-life batch before agreeing commercial MOQs.",
+        "previousOption": false,
+        "publicProgram": {
+          "evidence": "Co-packing offers a pilot run for customer recipes, sampling, package approval and shelf-life testing. Commercial minimums are set in a subsequent production agreement.",
+          "sourceUrls": [
+            "https://www.stittsworthmeats.com/pages/wholesale-co-packing"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "sunny-dell-specialty-llc": {
+        "decision": "replace-evidence",
+        "basis": "official-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.sunnydellspecialty.com/",
+          "https://www.sunnydellspecialty.com/about",
+          "https://www.sunnydellspecialty.com/capabilities-offerings",
+          "https://www.sunnydellspecialty.com/contact",
+          "http://www.sunnydell.com/",
+          "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
+        ],
+        "reason": "Homepage and About text describe small-batch manufacturing serving national brands and retailers alongside the co-packing/private-label offering. Retain a public program lead without implying a small order MOQ.",
+        "publicProgram": {
+          "evidence": "The co-packing and private-label manufacturer describes small-batch production serving brands and retailers. No numerical order minimum is published in the reviewed program pages.",
+          "sourceUrls": [
+            "https://www.sunnydellspecialty.com/",
+            "https://www.sunnydellspecialty.com/about",
+            "https://www.sunnydellspecialty.com/capabilities-offerings"
+          ],
+          "reviewedAt": "2026-09-13"
+        }
+      },
+      "tiller-foods-southeast-dairy-processors": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://tillerfoods.com",
+          "https://tillerfoods.com/about/",
+          "https://tillerfoods.com/products/",
+          "https://tillerfoods.com/contact",
+          "https://edis.ifas.ufl.edu/publication/FS380"
+        ],
+        "reason": "Custom formulations and test batches before a full run appear in the dairy co-packer program; no cross-category inference."
+      },
+      "to-go-packs": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-22",
+        "sourceUrls": [
+          "https://to-gopacks.com",
+          "https://www.pickyourown.org/copackers-Ohio.php"
+        ],
+        "reason": "Small-batch packet production is scoped to the published private-label/custom-packaging program; 15000-500000 packets is a range, not a guaranteed small initial order."
+      },
+      "vital-eats": {
+        "decision": "retain-scoped",
+        "basis": "stored-source review",
+        "sourceReviewedAt": "2026-08-26",
+        "sourceUrls": [
+          "https://www.vitaleats.com/",
+          "https://www.vitaleats.com/co-packing-faq",
+          "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+        ],
+        "reason": "Indexed sources directly name a small-batch co-packer; retain original dated and directory/indexed-source limitations, not a fresh verification."
+      }
     }
   },
   "excludedDuplicates": [

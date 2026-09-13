@@ -15,6 +15,7 @@ const CURATED_CATALOG = join(ROOT, "lib/directory/plants.ts");
 const GENERATED_CATALOG = join(ROOT, "lib/directory/imported-plants.generated.ts");
 const GENERATED_REPORT = join(ROOT, "data/manufacturer-imports/import-report.generated.json");
 const CATALOG_BASELINE = join(ROOT, "data/manufacturer-imports/catalog-baseline.json");
+const PROGRAM_REVIEWS = JSON.parse(readFileSync(join(ROOT, "data/manufacturer-imports/small-run-program-reviews-2026-09-13.json"), "utf8")).records;
 const SAFE_STATUSES = new Set(["VERIFIED", "LISTABLE"]);
 const ALL_STATUSES = ["VERIFIED", "LISTABLE", "NEEDS_REVIEW", "EXCLUDE"];
 const APPLY = process.argv.includes("--apply");
@@ -713,6 +714,7 @@ function generate() {
       usedSlugs.add(plant.slug);
     }
     plant = mergeStrongerPlant(findBaselinePlant(row, baselineRecords), plant);
+    plant.smallRunSignal = publishedSmallRunOption(plant.manufacturingCapabilitiesPublished, plant.moqDisplay, splitList(row.source_urls), PROGRAM_REVIEWS[plant.slug]);
     const currentProcesses = mapProcesses(row);
     plant.processes = plant.processes.filter((process) => currentProcesses.includes(process));
     plant.finderProcesses = plant.finderProcesses.filter((process) => currentProcesses.includes(process));

@@ -90,6 +90,8 @@ export interface Plant {
   /** A public production option, not a confirmed MOQ or project fit. */
   smallRunSignal?: {
     kind?: "small-batch" | "pilot" | "private-label";
+    /** Date of this program-specific public source check, when separately reviewed. */
+    reviewedAt?: string;
     evidence: string;
     sourceUrls: string[];
   };

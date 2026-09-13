@@ -2,6 +2,8 @@
 
 Implemented locally on `fix/directory-trust-matching`, based on `dde5d4d`. Awaiting code/data review and a separately authorized release. Nothing deployed, merged, sent, or written to production. The original `main` worktree and its README/ProductMockup edits were preserved.
 
+The [manufacturer evidence parsing follow-up](manufacturer-evidence-parsing-review-2026-09-13.md) supersedes the parser conclusions and option counts below. This document records the earlier implementation; its generated 98-signal dry run now includes the follow-up dispositions.
+
 ## Confirmed problems and fixes
 
 | Problem verified in the checked-out code/data | Root cause | Local change |

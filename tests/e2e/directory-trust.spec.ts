@@ -1,5 +1,23 @@
 import { expect, test } from "@playwright/test";
 
+test("small-run program labels retain own-product restrictions and source evidence", async ({ page }) => {
+  await page.goto("/manufacturers/food-for-thought");
+  const signal = page.locator(".profile-small-run-signal");
+  await expect(signal).toContainText("1,200 units per product");
+  await expect(signal).not.toContainText("240");
+  const sourceAnchor = await signal.getByRole("link", { name: /^See source/ }).first().getAttribute("href");
+  expect(sourceAnchor).toMatch(/^#source-\d+$/);
+  await expect(page.locator(sourceAnchor!).locator('a[href="https://foodforthought.net/pages/build-your-brand-with-us"]')).toBeVisible();
+  await page.goto("/manufacturers/blackberry-patch");
+  await expect(signal).toContainText("own formulas with custom labels");
+  await expect(signal).toContainText("10 cases");
+  await page.goto("/find-manufacturers?state=GA&smallRun=1");
+  const blackberry = page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: "Blackberry Patch" }) });
+  await expect(blackberry.locator(".small-run-signal")).toContainText("Small-batch private label listed");
+  await page.goto("/find-manufacturers?state=CO&smallRun=1");
+  await expect(page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: "Boulder Sausage" }) })).toHaveCount(0);
+});
+
 test("directory separates a published minimum from small-run suitability", async ({ page }) => {
   const cap = page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: /Create-A-Pack/ }) });
   await page.goto("/find-manufacturers?state=WI&moq=disclosed");

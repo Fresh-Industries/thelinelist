@@ -1,0 +1,4 @@
+> the-line-list@0.1.0 manufacturers:check
+> node scripts/import-manufacturers.mjs --check
+
+Manufacturer import is current: 309 imported, 345 total.
