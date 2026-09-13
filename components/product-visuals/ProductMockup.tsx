@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 import type { PackageFrontText } from "@/lib/sourcing/types";
 import type { BottleFinish, PackagingType } from "./package-config";
 import { StaticPackagePreview } from "./StaticPackagePreview";
@@ -54,7 +54,7 @@ class ProductMockupErrorBoundary extends Component<{
     return { failed: true };
   }
 
-  componentDidCatch(_error: Error, _info: ErrorInfo): void {
+  componentDidCatch(): void {
     // The labeled 2D preview is the deliberate recovery path.
   }
 
