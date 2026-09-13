@@ -56,15 +56,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://www.8avegranola.com/solutions/",
-        "https://www.postconsumerbrands.com/brands/8th-avenue-food-provisions/granola/",
-        "https://www.postconsumerbrands.com/brands/8th-avenue-food-provisions/",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Organic and non-GMO granola (cereal and snack); 8th Avenue division also states nut butters, dried fruits, nuts, and trail mix at the parent private-label page.",
       "Public sources describe these capabilities: 8avegranola.com HTTP redirects to Post Consumer Brands 8th Avenue granola co-manufacturing and private-label page. Copy: granola division in Oregon's Willamette Valley, half-century of granola production, co-man and private label for retailers/restaurants/schools. attunefoods.com is 404/unresolved. Seed Attune Foods / 541-743-9600 not on retrieved Post pages. Industrial retailer-scale, not a first-run kitchen.."
@@ -213,16 +204,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@absolutelyworldclass.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Minimum batch 150 gallons finished product (about 1100 of 16 oz bottles). Maximum 1 truckload or 20 pallets (about 180 cases/pallet, 6 jars/case).",
-      "sourceUrls": [
-        "https://www.absolutelyworldclass.com/",
-        "https://www.absolutelyworldclass.com/co-packing/",
-        "https://www.absolutelyworldclass.com/about-us/",
-        "https://www.absolutelyworldclass.com/contact-us/",
-        "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Sauces and condiments (house recipes and customer recipes).",
       "Public sources describe these capabilities: Family sauce plant at 242 Cottonwood St, Abilene TX. Co-packing page: recipe analysis, samples, third-party shelf-life lab, manufacture, date code, package, palletize; packaging, labeling, QA, nutrition facts, distribution, regulatory paperwork. Also restaurant bulk supply. Development fee $500 per formula (up to 3 shipped samples) effective May 2024.."
@@ -354,7 +335,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
-      "evidence": "Pilot batches as small as 50 pounds. Commercial MOQ not published.",
+      "kind": "pilot",
+      "evidence": "Live aafoods.com Processing Services page offers custom drying, co-drying, blending, liquid blending, plating/encapsulation, sifting, and a pilot facility for experimental runs as small as 50 pounds",
       "sourceUrls": [
         "https://www.aafoods.com/",
         "https://www.aafoods.com/products/processing-services/",
@@ -435,7 +417,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "private-label",
+      "evidence": "Small-batch manufacturer plus co-pack/private label of sauces, dressings, and marinades",
       "sourceUrls": [
         "https://www.allseasonskitchen.com/",
         "https://www.allseasonskitchen.com/contact/",
@@ -583,7 +566,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "pilot",
+      "evidence": "Small-batch production of customer recipes after NDA, sample/pH assessment, and paid test batches",
       "sourceUrls": [
         "https://www.alohafromoregon.com/",
         "https://alohafromoregon.com/copacking-with-aloha-from-oregon/",
@@ -795,7 +779,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch or long-run options.",
+      "kind": "private-label",
+      "evidence": "Origin About states manufacturing and packaging food to the order and specification of others, matching existing formulas or commercializing new products, small-batch or long-run options, and private label and/or Amigos Brand programs",
       "sourceUrls": [
         "https://amigosfoods.com/",
         "https://amigosfoods.com/about",
@@ -872,16 +857,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Beverage co-packing; recipe scaling; brand development; Co-Source dedicated lines; Steady State inventory/production management."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "The company promotes ‘On The Money Minimums’ but does not publish a numeric minimum.",
-      "sourceUrls": [
-        "https://www.drinkartys.com",
-        "https://www.drinkartys.com/solutions",
-        "https://www.drinkartys.com/services-1",
-        "https://www.pickyourown.org/copackers-Wisconsin.php"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "ashman-manufacturing-company",
@@ -1106,16 +1082,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "sales@assemblies.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Typical 25,000 units per SKU per run (RFQ form and food FAQ). Food packaging page also cites typical minimum runs of 50K-100K units.",
-      "sourceUrls": [
-        "https://www.assemblies.com/",
-        "https://www.assemblies.com/contract-packaging/food-packaging/",
-        "https://www.assemblies.com/about-us/plant-locations/",
-        "https://www.assemblers.com/",
-        "https://www.pickyourown.org/copackers-Illinois.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Food-grade powders, solids, and liquids: drink mixes, baking and soup mixes, spices, trail mixes, dried fruit and nuts, confectionery, coffee and tea, cereals, gummies, supplements (network fill list).",
       "Public sources describe these capabilities: Live contract packaging network since 1993. Primary filling (VFFS, HFFS, bottles, pouches, cups, bag-in-box, stick packs, hot fill/pasteurization) plus secondary (blister, clamshell, POP, club packs, shrink, kitting). Customers supply raw food ingredients; blending on request. Bloomingdale IL is Midwest HQ and sales office, not a listed production plant. Chicago IL is the nearest listed food fill plant. Distinct company from Batch 01 VERIFIED Assemblers, Inc. (assemblers.com, 773-378-3000, Chicago manufacturing).."
@@ -1169,7 +1135,7 @@ export const IMPORTED_PLANTS = [
       "flexible batch sizes"
     ],
     "moqDisplay": "The Minnesota Department of Agriculture co-packer directory lists a one-pallet minimum (1,200 pounds).",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "USDA inspected",
       "USDA certified organic",
@@ -1205,16 +1171,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Private label production; co-manufacturing; custom formulation; product development; ingredient sourcing; flexible batch sizes."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "The Minnesota Department of Agriculture co-packer directory lists a one-pallet minimum (1,200 pounds).",
-      "sourceUrls": [
-        "https://www.atlastgourmetfoods.com",
-        "https://www.atlastgourmetfoods.com/products",
-        "https://www.atlastgourmetfoods.com/solutions",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "avon-food-company",
@@ -2113,7 +2070,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch.",
+      "kind": "pilot",
+      "evidence": "small-batch pilot and pre-launch runs",
       "sourceUrls": [
         "https://betterbeveragecompany.com/",
         "https://betterbeveragecompany.com/capabilities/",
@@ -2159,7 +2117,7 @@ export const IMPORTED_PLANTS = [
       "packaging and shipping"
     ],
     "moqDisplay": "The company states that its standard batch size is 2,000 gallons.",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
@@ -2187,15 +2145,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Beverage co-packing; batching and blending; filling and canning; testing/compliance; packaging and shipping."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "The company states that its standard batch size is 2,000 gallons.",
-      "sourceUrls": [
-        "https://www.bevprosolutions.com/",
-        "https://www.beerdudescanning.com",
-        "https://www.pickyourown.org/copackers-Texas.php"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "big-watt-inc-big-watt-copack-big-watt-beverage",
@@ -2267,15 +2217,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Minneapolis: 2 pallets per SKU. New Richmond WI: 4 pallets per SKU",
-      "sourceUrls": [
-        "https://bigwattcopack.com/",
-        "https://bigwattcopack.com/about-us/",
-        "https://bigwattcopack.com/contact-us/",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: Cold brew coffee and teas; functional sparkling waters; alcoholic and NA beverages; hard seltzers; RTD cocktails; THC/CBD infusions; coffee roasting; kegged beverages.",
       "Public sources describe these capabilities: Live bigwattcopack.com states co-packing and co-manufacturing for brands of any size, including formulation, R&D, packaging, manufacturing, sales, and distribution. About page: Minneapolis 5000 sq ft for smaller runs (batch pasteurization; THC/CBD, cold press coffees, teas, functional sparkling waters) and New Richmond WI 13500 sq ft for scale (in-line flash; hard seltzers, RTD cocktails). Also coffee roasting and kegging. Contact page is a form only; seed 612-354-2897 unused. Seed MDA 2500 units unused (origin publishes pallet floors instead). THC/CBD-adjacent.."
@@ -2397,7 +2338,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
     "smallRunSignal": {
-      "evidence": "10 case minimum for custom labeling",
+      "kind": "small-batch",
+      "evidence": "Handmade small-batch fruit-forward goods",
       "sourceUrls": [
         "https://www.blackberrypatch.com/",
         "https://www.blackberrypatch.com/pages/wholesale",
@@ -2678,17 +2620,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://blountfinefoods.com/",
-        "https://blountfinefoods.com/about-us",
-        "https://blountfinefoods.com/contact",
-        "https://blountfinefoods.com/component/content/category/8-side-content",
-        "https://business.sos.ri.gov/CorpWeb/CorpSearch/CorpSummary.aspx?FEIN=000002550",
-        "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
-      ]
-    },
     "overview": [
       "Public sources list these products: Refrigerated and frozen soups, chowders, sides, sauces, and entrees; foodservice and retail (origin).",
       "Public sources describe these capabilities: Live blountfinefoods.com is the family prepared-foods company formerly named Blount Seafood Corporation (RI SOS rename 2012). Origin About: marketer, manufacturer, and developer of premium fresh prepared foods sold in grocery, club, and restaurants in all 50 states; foodservice/hot-to-go line making products for some of your favorite brands. Older origin side-content still lists Legal Sea Foods, Panera Bread, and private-label brands. Contact lists Corporate HQ 308 Market Street Warren (401-998-1100), RI manufacturing 383 Water Street Warren (401-245-8800), Fall River MA (774-888-1300), and McKinney TX (972-548-9001). Customer care 800-274-2526. No public email (form only). Large soup/seafood co-man, not a first-run kitchen.."
@@ -2769,7 +2700,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch through 250 metric tons/year claimed",
       "sourceUrls": [
         "https://blueoceantea.com/",
         "https://blueoceantea.com/private-label-manufacturing/",
@@ -2914,7 +2846,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch sausage manufacturing",
       "sourceUrls": [
         "https://www.bouldersausage.com/",
         "https://bouldersausage.com/food-service/"
@@ -3147,15 +3080,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@bronxriverbottling.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
-      "sourceUrls": [
-        "https://www.bronxriverbottling.com/",
-        "https://www.bronxriverbottling.com/certifications",
-        "https://www.bronxriverbottling.com/contact-us",
-        "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
-      ]
-    },
     "overview": [
       "Public sources list these products: Hot sauces; BBQ sauces; Asian marinades; pasta sauces; low-acid and acidified sauces.",
       "Public sources describe these capabilities: Full-service sauce facility. Co-packing and private label. Hot fill. Ingredient/container/label sourcing. Small-batch kettles through institutional runs claimed. Exclusive co-packer of Iron Kitchen / Iron Chef sauce line. Women-owned claimed in footer.."
@@ -3274,15 +3198,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://www.brucepac.com/",
-        "https://www.brucepac.com/aboutus/",
-        "https://www.brucepac.com/products/",
-        "https://www.brucepac.com/products/packaging/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Custom fully cooked chicken, beef, pork, and turkey proteins (origin product pages).",
       "Public sources describe these capabilities: Live brucepac.com. Family-owned since 1949. USDA plants in Woodburn, OR and Durant, OK with capacity of millions of pounds per week. Origin: custom-crafted pre-cooked proteins for retail, foodservice, and industrial customers. About: BRC certified; ISO 17025 third-party pathogen labs; all-natural, humanely raised, antibiotic-free, and organic product options. Packaging page: VFFS pouches 4 oz to 5 lb, MAP, bulk cases and totes. Seed mmclaughlin@brucepac.com unused. Seed Halal and BRCGS unused (origin says BRC, not Halal). Not a first-run kitchen.."
@@ -3482,15 +3397,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://www.burnettefoods.com/",
-        "https://www.burnettefoods.com/private-label-retail/",
-        "https://www.burnettefoods.com/logistics/",
-        "https://www.michfpa.org/processors/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Shelf-stable canned fruit and vegetables; fruit juices; applesauce; fruit fillings; fruit cups; pumpkin; hummus; canned dry-pack beans; meat items and salads.",
       "Public sources describe these capabilities: Live burnettefoods.com states makers of shelf-stable products for three generations. Private Label Retail page: all Burnette Foods products are available for private labeling with varying package sizes, configurations, and customization options. That is catalog private label of their fruit/veg line, not a published custom-formula first-run kitchen. Locations: Elk Rapids HQ 701 US-31 South, 231-264-8116; also East Jordan, New Era, Hartford, and Burnette Farms. Contact form subjects include Private Label Retail. No public email on retrieved pages.."
@@ -3553,7 +3459,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch.",
+      "kind": "private-label",
+      "evidence": "Licensed food processing plant with small-batch co-packing and private label from idea through fulfillment",
       "sourceUrls": [
         "https://www.bushelandpecks.com/",
         "https://bushelandpecks.com/pages/co-packing-by-b-p",
@@ -3636,16 +3543,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "sales@bylercanningco.com",
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "evidence": "Private label: 20 cases per product. Unlabeled products: $750 per order. Label design from $125 per label.",
-      "sourceUrls": [
-        "https://bylersrelishhouse.com/",
-        "https://bylercanningco.com/",
-        "https://bylercanningco.com/private-label/",
-        "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/",
-        "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
-      ]
-    },
     "overview": [
       "Public sources list these products: Pickles; relishes; jams; jellies; mustards; pickled products (private-label of their catalog, 60+ SKUs claimed).",
       "Public sources describe these capabilities: bylersrelishhouse.com redirects to bylercanningco.com. Private-label page: they pack their recipes under a client's label (label design, print, apply). Not a custom-recipe copack offer on the page reviewed. Cornell/PSU listed acidified copack under the Relish House name; live offer is private label of Byler's SKUs.."
@@ -3845,16 +3742,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@casavisco.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://casavisco.com/",
-        "https://casavisco.com/contact-us/",
-        "https://casavisco.com/distributor-private-label/",
-        "https://casavisco.com/white-labeling/",
-        "https://casavisco.com/wp-content/uploads/2015/07/Casa-Visco-Private-Label-Information.pdf"
-      ]
-    },
     "overview": [
       "Public sources list these products: Pasta and pizza sauces; white-label / private-label sauces (origin).",
       "Public sources describe these capabilities: Live casavisco.com. Distributor and Private Label page asks prospects to download the copack brochure first. White Labeling page names Beekman 1802 Mortgage Lifter at Target. Contact: 819 Kings Road, 518-377-8814, info@casavisco.com. Banner: no longer offering Kosher products at this time. Origin PDF lists jar sizes. Not a first-run kitchen.."
@@ -3915,14 +3802,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "cassie@cassiescountrycupboard.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Typically 100 of each SKU",
-      "sourceUrls": [
-        "https://www.cassiescountrycupboard.com/blogs/news/co-packing-services-available",
-        "https://www.cassiescountrycupboard.com/",
-        "https://www.pickyourown.org/copackers-Ohio.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Dry spice blends; soup mixes; baking mixes; dry shelf-stable mixes.",
       "Public sources describe these capabilities: Co-packing for dry food products; own-brand manufacturing in licensed homestead facility."
@@ -4168,7 +4047,7 @@ export const IMPORTED_PLANTS = [
       "Live centuryoakpacking.com. USDA further processor at 9970 Lonely Ln NE for farms, ranches, and other USDA plants. Origin: we do not produce jerky for standalone brands or private-label startups. Beef, pork, lamb, goat. No poultry, rabbit, fish, or game. No harvest floor on site. Real hardwood smoke, no liquid smoke. Vacuum packaging. Batch sizes 50 to 1,000 lb. Phone 503-845-4180 on origin footer. Seed patty@centuryoakpacking.com unused."
     ],
     "moqDisplay": "Jerky 45 lb green wt; sticks 150 lb; bacon 75 lb; summer sausage and salami 100 lb; ground non-linked 50 lb; linked fresh 50 lb; linked cooked 100 lb; sliced cooked 50 lb; smoked boneless 50 lb (origin)",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "USDA inspected (origin)"
     ],
@@ -4189,13 +4068,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Jerky 45 lb green wt; sticks 150 lb; bacon 75 lb; summer sausage and salami 100 lb; ground non-linked 50 lb; linked fresh 50 lb; linked cooked 100 lb; sliced cooked 50 lb; smoked boneless 50 lb (origin)",
-      "sourceUrls": [
-        "https://centuryoakpacking.com/",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Further processed red meat: jerky, snack sticks, bacon, summer sausage and salami, ground and linked products, smoked whole muscle (origin).",
       "Public sources describe these capabilities: Live centuryoakpacking.com. USDA further processor at 9970 Lonely Ln NE for farms, ranches, and other USDA plants. Origin: we do not produce jerky for standalone brands or private-label startups. Beef, pork, lamb, goat. No poultry, rabbit, fish, or game. No harvest floor on site. Real hardwood smoke, no liquid smoke. Vacuum packaging. Batch sizes 50 to 1,000 lb. Phone 503-845-4180 on origin footer. Seed patty@centuryoakpacking.com unused.."
@@ -4319,7 +4191,7 @@ export const IMPORTED_PLANTS = [
       "dropshipping"
     ],
     "moqDisplay": "Exact minimum not published. The company’s co-packing page states batch sizes from 50 to 500 gallons.",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
@@ -4347,15 +4219,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Co-packing and private label for liquid products; tolling; cost-plus purchasing; dropshipping."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "Exact minimum not published. The company’s co-packing page states batch sizes from 50 to 500 gallons.",
-      "sourceUrls": [
-        "https://koldkiss.com/pages/co-packing",
-        "https://www.chesapeakebaysnacks.com",
-        "https://www.pickyourown.org/copackers-Maryland.php"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "chubby-s-sauces",
@@ -4667,16 +4531,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@classic-foods.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "25 lb custom spice blend",
-      "sourceUrls": [
-        "https://classic-foods.com/wp/",
-        "https://classic-foods.com/wp/spices/",
-        "https://classic-foods.com/wp/about/",
-        "https://classic-foods.com/wp/contact-us/",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Custom spice blends; own-brand fresh pasta, ravioli, tortellini, gnocchi.",
       "Public sources describe these capabilities: Spice Box page: blend and package the customer's spice recipe. Published 25 lb batch minimum and $150 R&D fee. Also Portland's specialty food distributor since 1984. Fresh pasta is made in-house for Classic Foods' own line, not described as third-party pasta copack. 817 NE Madrona St.."
@@ -4892,7 +4746,15 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Co-packing; FDA facility; recipe development; test batches; ingredient sourcing; consulting; kettle cooking; emulsion/shear mixing; filling and labeling."
     ],
     "appearedOn": [],
-    "guideRows": {}
+    "guideRows": {},
+    "smallRunSignal": {
+      "kind": "pilot",
+      "evidence": "test batches",
+      "sourceUrls": [
+        "https://coloradocopacker.com/",
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
+      ]
+    }
   },
   {
     "slug": "combined-technologies-inc-cti",
@@ -5090,14 +4952,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: K-Cup / single-serve co-packing; private label; nitrogen-flushed filling; pouch and related dry packing (per site)."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "The company says minimums start at about 5,000 pods per SKU.",
-      "sourceUrls": [
-        "https://kcupcopack.com",
-        "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "con-yeager-spice-company",
@@ -5160,15 +5015,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "sales@conyeagerspice.com",
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "100 lbs custom blend",
-      "sourceUrls": [
-        "https://www.conyeagerspice.com/about/",
-        "https://www.conyeagerspice.com/our-sizes-explained/",
-        "https://www.conyeagerspice.com/ordering-and-shipping-policy/",
-        "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Spices, seasonings, curing salts, blended binders; custom meat-processing blends.",
       "Public sources describe these capabilities: About: all production in Zelienople; New Castle is storage and distribution. Sizes page: custom blending of the customer's formula with custom labeling in bulk or plastic containers. Published custom-blend minimum is normally 100 lbs. Also 800-222-2460.."
@@ -5311,7 +5157,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch production runs for test items as well as large volume.",
+      "kind": "small-batch",
+      "evidence": "small-batch production runs for test items as well as large volume",
       "sourceUrls": [
         "https://consolidatedmills.com/",
         "https://consolidatedmills.com/contact-us/",
@@ -5380,7 +5227,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list small batch.",
+      "kind": "small-batch",
+      "evidence": "Copy says small batch to major brand and retail prep",
       "sourceUrls": [
         "https://contractcomestibles.com/",
         "https://www.pickyourown.org/copackers-Wisconsin.php"
@@ -5662,7 +5510,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "No minimum is published. The company lists 40-gallon kettles for small or trial batches.",
+      "kind": "pilot",
+      "evidence": "pilot/prototype",
       "sourceUrls": [
         "https://www.craftcannery.com/",
         "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
@@ -5790,7 +5639,7 @@ export const IMPORTED_PLANTS = [
       "over 14 processing lines and 26-plus packaging lines claimed. On-staff food scientist/R&D. Does not sell competing own-label foods. Quote form lists 50000 as the lowest bottle/pouch band."
     ],
     "moqDisplay": "Contact form lowest band is 50000 units for glass bottles, plastic bottles, or pouches",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "SQF 2000 Level 3 / GFSI (claimed)",
       "FDA low-acid/acidified licensed",
@@ -5838,19 +5687,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Contact form lowest band is 50000 units for glass bottles, plastic bottles, or pouches",
-      "sourceUrls": [
-        "https://www.create-a-pack.com/",
-        "https://www.capfoodinc.com/",
-        "https://www.capfoodinc.com/about-us/",
-        "https://www.capfoodinc.com/contact/",
-        "https://www.capfoodinc.com/food-safety/",
-        "https://www.capfoodinc.com/food-co-packing/dry-food-co-packaging/",
-        "https://www.capfoodinc.com/food-co-packing/private-label-food-packaging/",
-        "https://www.pickyourown.org/copackers-Wisconsin.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Liquid foods (condiments, sauces, dressings, juices, energy gels, icings); dry foods; confectionery; private-label supplements; custom kits.",
       "Public sources describe these capabilities: create-a-pack.com redirects to capfoodinc.com. Full-service cooking, processing, blending, and contract packaging since 1997. Four facilities in Ixonia and Oconomowoc: HQ W1344 Industrial Drive, Ixonia; dry plant 1730 Executive Drive, Oconomowoc; allergen facility W1205 Elmwood Ave, Ixonia; over 14 processing lines and 26-plus packaging lines claimed. On-staff food scientist/R&D. Does not sell competing own-label foods. Quote form lists 50000 as the lowest bottle/pouch band.."
@@ -5918,14 +5754,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Traditional seasonings, dry marinades and soup mixes: 1000 lbs per order. Bulk seasoning bags or bag-in-box: 1000 lbs. House blends (ready-to-go): 200 lbs. Bulk spices (50 lb cases): 500 lbs. Retail packaging: 2000 units per order. Batch packaging: 1000 lbs per batch.",
-      "sourceUrls": [
-        "https://creativespiceworks.com/",
-        "http://gaspiceco.com/",
-        "https://edis.ifas.ufl.edu/publication/FS380"
-      ]
-    },
     "overview": [
       "Public sources list these products: Custom seasonings; dry marinades; soup mixes; house blends; bulk spices; retail-packed seasonings.",
       "Public sources describe these capabilities: Dedicated custom dry blending facility; custom R&D / product development. Will not accept outside ingredients (supplier-approval process).."
@@ -6005,12 +5833,8 @@ export const IMPORTED_PLANTS = [
       }
     ],
     "locationDisplay": "Hudson, WI",
-    "processes": [
-      "cold-fill"
-    ],
-    "finderProcesses": [
-      "cold-fill"
-    ],
+    "processes": [],
+    "finderProcesses": [],
     "finderProducts": [
       "sauce"
     ],
@@ -6067,16 +5891,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@croixvalleyfoods.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "100 gallons per SKU liquid; 150 pounds per SKU dry. Gallon sauce packing from 48 gallons on private-label FAQ.",
-      "sourceUrls": [
-        "https://www.croixvalleyfoods.com/",
-        "https://www.croixvalleyfoods.com/pages/copacking",
-        "https://www.croixvalleyfoods.com/pages/private-label",
-        "https://www.croixvalleyfoods.com/pages/contact-us",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: BBQ sauces, hot sauces, salsas, Bloody Mary mixes, marinades; dry rubs, seasonings, and spice blends; private-label versions of house formulas.",
       "Public sources describe these capabilities: Live croixvalleyfoods.com/pages/copacking confirms recipe copack in a Hudson plant, plus a separate private-label program for existing Croix Valley formulas. They do not copack dairy, mayo, or cold-fill. Contact: 2320 Jack Breault Drive, Hudson (moved from older 650 Brakke Dr listings). Distinct from TWT Sauce / JoMomma at 650 Brakke Dr #101. Phone and email match seed and origin.."
@@ -6214,7 +6028,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "Exact minimum not published. The company states small-batch runs of roughly 45–540 pounds of finished product per flavor.",
+      "kind": "small-batch",
+      "evidence": "small-batch commercial production",
       "sourceUrls": [
         "https://curiosweets.com/",
         "https://www.pickyourown.org/copackers-Texas.php"
@@ -6408,14 +6223,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Blending; encapsulation; filling; packaging; labeling; product development; distribution."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "The company states that it offers lower minimum quantities but does not publish an exact number.",
-      "sourceUrls": [
-        "https://dakpaksolutions.com",
-        "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "das-jam-haus",
@@ -6457,7 +6265,7 @@ export const IMPORTED_PLANTS = [
       "Family open-kettle small-batch cannery at 529 Snapp Bridge Road, Limestone TN. Wholesale of catalog SKUs. Wholesale page offers private labeling of their jams with a custom label. Not described as custom-recipe co-pack of outsider formulas."
     ],
     "moqDisplay": "Full case (12 jars) per product for wholesale orders placed direct; Faire for partial cases. No custom-recipe production MOQ published.",
-    "publishedSmallMoq": false,
+    "publishedSmallMoq": true,
     "certs": [],
     "lastVerified": "2026-08-26",
     "listingStatus": "VERIFIED",
@@ -6484,15 +6292,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "evidence": "Full case (12 jars) per product for wholesale orders placed direct; Faire for partial cases. No custom-recipe production MOQ published.",
-      "sourceUrls": [
-        "https://www.dasjamhaus.com",
-        "https://dasjamhaus.com/about-us/",
-        "https://dasjamhaus.com/wholesale/",
-        "https://www.pickyourown.org/copackers-Tennessee.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Jams and jellies; fruit butters; syrups; honey; sorghum; canned fruit; pickles and relish; salsa; sauces (own catalog; some items from other Mennonite businesses).",
       "Public sources describe these capabilities: Family open-kettle small-batch cannery at 529 Snapp Bridge Road, Limestone TN. Wholesale of catalog SKUs. Wholesale page offers private labeling of their jams with a custom label. Not described as custom-recipe co-pack of outsider formulas.."
@@ -6565,15 +6364,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://day-lee.com/",
-        "https://day-lee.com/co-pack",
-        "https://day-lee.com/company-overview.html",
-        "https://ucfoodsafety.ucdavis.edu/sites/g/files/dgvnsk7366/files/inline-files/240926.pdf"
-      ]
-    },
     "overview": [
       "Public sources list these products: Asian-inspired frozen entrees, single-serve, and appetizers; Crazy Cuizine and Day-Lee Pride retail brands; foodservice; private label.",
       "Public sources describe these capabilities: Live day-lee.com homepage states co-packing and private label products at the Southern California facility plus own brands Crazy Cuizine and Day-Lee Pride. Co-Pack page: frozen food plant under USDA, FDA, and local health; SQF Level 2 audited; contact to see if they can meet co-pack or contract packaging needs. Company overview: HQ 10350 Heritage Park Dr Suite 111, Santa Fe Springs; phone 1 (562) 903-3020. Wholly owned subsidiary of NH Foods Group, Japan. Large branded frozen house, not a first-run kitchen. Seed 562-802-6800 unused (not on retrieved origin pages). No public email on origin.."
@@ -7244,7 +7034,7 @@ export const IMPORTED_PLANTS = [
       "Live organic snack co-manufacturer and co-packer. Co-manufacturing page: Midwest SQF facility, peanut-free, in-house R&D or private-label catalog. Footer address N173W21170 Northwest Passage, Jackson, WI 53037. Hours Mon-Fri 8am-4pm."
     ],
     "moqDisplay": "Typical 10,000-20,000 units depending on product; contact form states MOQ is 20,000 units; FAQ expects MOQ at least quarterly",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "SQF",
       "Organic",
@@ -7278,15 +7068,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Typical 10,000-20,000 units depending on product; contact form states MOQ is 20,000 units; FAQ expects MOQ at least quarterly",
-      "sourceUrls": [
-        "https://earthranch.com/",
-        "https://earthranch.com/pages/co-manufacturing",
-        "https://earthranch.com/pages/contact",
-        "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
-      ]
-    },
     "overview": [
       "Public sources list these products: Organic dehydrated snacks; sprouted nuts and seeds; clusters and bites; granolas; trail mixes; crackers; dehydrated fruit bars and functional fruit-based bars.",
       "Public sources describe these capabilities: Live organic snack co-manufacturer and co-packer. Co-manufacturing page: Midwest SQF facility, peanut-free, in-house R&D or private-label catalog. Footer address N173W21170 Northwest Passage, Jackson, WI 53037. Hours Mon-Fri 8am-4pm.."
@@ -7342,6 +7123,15 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "shared-kitchen-incubator",
     "operationTypePublished": "shared kitchen/incubator",
+    "smallRunSignal": {
+      "kind": "pilot",
+      "evidence": "Named projects include pilot batches for other cider brands (Slightly Furry, St Lo, and others)",
+      "sourceUrls": [
+        "https://republicofcider.com/incubator",
+        "https://republicofcider.com/home",
+        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
+      ]
+    },
     "overview": [
       "Public sources list these products: Hard cider and other craft beverages; house brands, collaborations, and incubated cider projects.",
       "Public sources describe these capabilities: Seattle SODO production cidery with a Craft Business Incubator. Official incubator page: business coaching, branding, and in some cases hands-on production. Named projects include pilot batches for other cider brands (Slightly Furry, St Lo, and others). Not a conventional juice/sauce copacker. Alcohol-adjacent.."
@@ -7670,16 +7460,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "hello@feralfungi.com",
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "evidence": "No order minimum claimed on wholesale FAQ (free shipping over $150 is a wholesale floor, not a production MOQ)",
-      "sourceUrls": [
-        "https://www.feralfungi.com",
-        "https://feralfungi.com/pages/wholesale-inquiries",
-        "https://feralfungi.com/pages/about-us",
-        "https://feralfungi.com/pages/faq",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Mushroom tinctures; dual extracts; concentrates; herbal extracts; gummies; mushroom coffee; maple syrup.",
       "Public sources describe these capabilities: In-house extraction and bottling in Estacada OR. Wholesale, white label, bulk tinctures, and custom formulation offered on wholesale-inquiries page. Fruit-body extracts; spagyric process claimed.."
@@ -7755,14 +7535,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Dry ingredient co-packing; co-branding; private label; ingredient/packaging sourcing; recipe development and cost analysis; blending; branding/package design."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "The company lists 400 units or more on its co-packing and private-label page.",
-      "sourceUrls": [
-        "https://fishskiprovisions.com/",
-        "https://fishskiprovisions.com/pages/co-packing-and-private-label"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "food-for-thought",
@@ -7842,7 +7615,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "1,200 units per product. Private-label option also 1,200 or more units.",
+      "kind": "small-batch",
+      "evidence": "Small-batch (story page says 240 jars or less per batch for their brand)",
       "sourceUrls": [
         "https://foodforthought.net",
         "https://foodforthought.net/pages/our-story",
@@ -7999,15 +7773,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
-      "sourceUrls": [
-        "https://www.forchettapasta.com/",
-        "https://www.forchettapasta.com/pages/5-custom-pasta",
-        "https://www.forchettapasta.com/contact",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Fresh pasta; dried pasta; stuffed pasta; gnocchi; gluten-free pasta; sauces.",
       "Public sources describe these capabilities: Custom pasta manufacturer for chefs, restaurants, and retailers. Fresh or dried, made to order, bronze-die. Packaging consulting and private-label pasta consulting. Small-batch specialty through wholesale runs. Typical turnaround claimed 2-3 weeks.."
@@ -8080,7 +7845,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "A Colorado co-packer directory lists batch sizes of 500 pounds for raw processing, 300 pounds for bulk fermentation, and 50 pounds for dehydration.",
+      "kind": "small-batch",
+      "evidence": "Small-batch fermentation co-packing",
       "sourceUrls": [
         "https://www.picaflor.co/",
         "https://www.pickyourown.org/copackers-Colorado.php",
@@ -8162,7 +7928,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch.",
+      "kind": "small-batch",
+      "evidence": "About page: FoxCo is a 15000 sq ft FDA-registered contract packager, full-service cooking/processing/blending/packaging/labeling, NDA, quotes upfront, small-batch or large-batch",
       "sourceUrls": [
         "https://foxcopacking.com/",
         "https://tannerspecans.com/",
@@ -8269,7 +8036,7 @@ export const IMPORTED_PLANTS = [
       "Sunbury PA roast, grind, nitrogen-flush, and pack. Toll roasting, co-packing of customer-supplied roasted coffee/tea, and private-label from their 180+ coffees/teas. 115000 sq ft combined space claimed. Typical lead time 4-6 weeks after materials."
     ],
     "moqDisplay": "Classic/envipod/tea pods 12000 units; bagged coffee 1500 lb; espresso capsules 39000; sachets/pour-over/fracs 6000; bagged loose-leaf tea 1400 units; tea bags 2520 x 20ct boxes. FAQ also says MOQ starts at a pallet of finished product.",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "SQF claimed",
       "USDA Organic claimed",
@@ -8301,15 +8068,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Classic/envipod/tea pods 12000 units; bagged coffee 1500 lb; espresso capsules 39000; sachets/pour-over/fracs 6000; bagged loose-leaf tea 1400 units; tea bags 2520 x 20ct boxes. FAQ also says MOQ starts at a pallet of finished product.",
-      "sourceUrls": [
-        "https://www.freshroastedcoffee.com/",
-        "https://www.freshroastedcoffee.com/pages/services/co-packing-and-private-label",
-        "https://www.freshroastedcoffee.com/pages/contact",
-        "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Coffee (bagged, pods, compostable pods, espresso capsules, sachets, pour-over, fractional packs, cold brew filter packs); tea (loose-leaf, tea bags, tea pods); botanicals under own brand.",
       "Public sources describe these capabilities: Sunbury PA roast, grind, nitrogen-flush, and pack. Toll roasting, co-packing of customer-supplied roasted coffee/tea, and private-label from their 180+ coffees/teas. 115000 sq ft combined space claimed. Typical lead time 4-6 weeks after materials.."
@@ -8671,7 +8429,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "shared-kitchen-incubator",
     "operationTypePublished": "shared kitchen/incubator",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch contract manufacturing",
       "sourceUrls": [
         "https://www.genuinelocal.org/",
         "https://www.genuinelocal.org/contract-manufacturing",
@@ -8740,14 +8499,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "350 pounds; larger runs of 100,000+ pounds also offered",
-      "sourceUrls": [
-        "https://gfblends.com/",
-        "https://gfblends.com/services/",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Gluten-free dry baking mixes; flours and flour blends; cake, bread, waffle, muffin, cookie, pancake, crepe, vegan, keto, and egg-replacement mixes.",
       "Public sources describe these capabilities: Dedicated gluten-free dry-product co-packer since 2009. Blending, packaging, labeling, ingredient sourcing, recipe refinement (not full recipe creation), white/private label, GlutenTox testing, ship to 3PL or distributor. Two dedicated gluten-free lines (Red Line and White Line allergen profiles). First-run and entrepreneur friendly.."
@@ -9242,7 +8993,7 @@ export const IMPORTED_PLANTS = [
       "about 2 million gallons/year claimed"
     ],
     "moqDisplay": "500 to 2500 gallon batches published; site says MOQ is lower than most copackers but gives no separate unit number",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "SQF Level 2 (certification #639532 claimed)",
       "GFSI-recognized",
@@ -9284,17 +9035,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@hhproductscompany.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "500 to 2500 gallon batches published; site says MOQ is lower than most copackers but gives no separate unit number",
-      "sourceUrls": [
-        "https://hhproductscompany.com/copacking/",
-        "https://hhproductscompany.com/capabilities/",
-        "https://hhproductscompany.com/private-label/",
-        "https://hhproductscompany.com/certifications/",
-        "https://hhproductscompany.com/contact/",
-        "https://edis.ifas.ufl.edu/publication/FS380"
-      ]
-    },
     "overview": [
       "Public sources list these products: Ambient liquid co-pack: beverage mixes; pancake and waffle syrups; juice concentrates; recipe ingredients; soft-serve mix (own and custom). Does not pack hot liquids, dry goods, or glass..",
       "Public sources describe these capabilities: Co-packing of customer formulas; private-label development via Innovation Center; blending, QC, bottling, labeling; 7 production lines; on-site lab; 41000+ sq ft SQF facility; about 2 million gallons/year claimed."
@@ -9475,7 +9215,7 @@ export const IMPORTED_PLANTS = [
       "trailer-load lots (40000 lbs) offered nationwide with freight. Live site is a 2004-era HTML page still copyrighted through 2026."
     ],
     "moqDisplay": "250 piece minimum",
-    "publishedSmallMoq": false,
+    "publishedSmallMoq": true,
     "certs": [],
     "lastVerified": "2026-08-26",
     "listingStatus": "VERIFIED",
@@ -9498,14 +9238,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "evidence": "250 piece minimum",
-      "sourceUrls": [
-        "http://harrisonpacking.com/",
-        "http://harrisonpacking.com/contact.php",
-        "https://www.michfpa.org/processors/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Pickle and pepper products; brine stock (2s, 3s, and relish stock).",
       "Public sources describe these capabilities: Institutional pickle packer since 1939. House label plus private labeling. Tank space available for lease / contract tanking. Second plant listed in Edmore, MI (394 Deaner Rd, 989-427-5535). Delivers mainly Chicago and Detroit; trailer-load lots (40000 lbs) offered nationwide with freight. Live site is a 2004-era HTML page still copyrighted through 2026.."
@@ -10034,12 +9766,8 @@ export const IMPORTED_PLANTS = [
       }
     ],
     "locationDisplay": "Fordyce, AR",
-    "processes": [
-      "acidified"
-    ],
-    "finderProcesses": [
-      "acidified"
-    ],
+    "processes": [],
+    "finderProcesses": [],
     "finderProducts": [
       "sauce"
     ],
@@ -10132,7 +9860,7 @@ export const IMPORTED_PLANTS = [
       "Hongar bottles under the customer's brand. Cold-fill infused oils. Own retail brands (Hongar Farms, Benissimo, Lesley Elizabeth, and others) plus private label. SQF facility inspected by Georgia Department of Agriculture (private-label FAQ)."
     ],
     "moqDisplay": "96 bottles (16 six-pack cases) of any one flavor",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "SQF (private-label and contact claims)"
     ],
@@ -10165,16 +9893,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@hongarfarms.com",
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "evidence": "96 bottles (16 six-pack cases) of any one flavor",
-      "sourceUrls": [
-        "https://hongarfarms.com/",
-        "https://hongarfarms.com/pages/private-label",
-        "https://hongarfarms.com/pages/contact",
-        "https://hongarfarms.com/pages/about-us",
-        "https://www.pickyourown.org/copackers-Georgia.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Herb-infused extra virgin olive oils, avocado oils, and EVOO blends; balsamic vinegars; private-label cooking oils, seasonings, and flavored sugars.",
       "Public sources describe these capabilities: Tucker plant private-label program: customer chooses oil, bottle, and infusion; Hongar bottles under the customer's brand. Cold-fill infused oils. Own retail brands (Hongar Farms, Benissimo, Lesley Elizabeth, and others) plus private label. SQF facility inspected by Georgia Department of Agriculture (private-label FAQ).."
@@ -10452,7 +10170,7 @@ export const IMPORTED_PLANTS = [
       "Dedicated contract distilling, contract brewing, and contract RTD / co-pack pages. 6000 liter automated column still with botanicals basket and barrel-aging warehouse (distilling). Flash pasteurization and aseptic filling claimed for RTD. Own brands: Islamorada Beer Company, Islamorada Distilling, Crooked Palm. Plants in Islamorada and Fort Pierce."
     ],
     "moqDisplay": "RTD: 40 bbls or 500 cases of 12 oz cans. Contract brewing: 90 bbls into a maximum of 2 package types.",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [],
     "lastVerified": "2026-08-26",
     "listingStatus": "VERIFIED",
@@ -10483,16 +10201,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@islamoradabeverages.com",
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "RTD: 40 bbls or 500 cases of 12 oz cans. Contract brewing: 90 bbls into a maximum of 2 package types.",
-      "sourceUrls": [
-        "https://www.islamoradabeverages.com/",
-        "https://www.islamoradabeverages.com/contract-ready-to-drink/",
-        "https://www.islamoradabeverages.com/contract-brewing/",
-        "https://www.islamoradabeverages.com/contract-distilling/",
-        "https://edis.ifas.ufl.edu/publication/FS380"
-      ]
-    },
     "overview": [
       "Public sources list these products: Beer; liquor; ready-to-drink beverages; seltzer; canned cocktails.",
       "Public sources describe these capabilities: Dedicated contract distilling, contract brewing, and contract RTD / co-pack pages. 6000 liter automated column still with botanicals basket and barrel-aging warehouse (distilling). Flash pasteurization and aseptic filling claimed for RTD. Own brands: Islamorada Beer Company, Islamorada Distilling, Crooked Palm. Plants in Islamorada and Fort Pierce.."
@@ -10701,16 +10409,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "12000 lbs equivalent",
-      "sourceUrls": [
-        "https://kagomeusa.com/",
-        "https://kagomeusa.com/co-manufacturing/",
-        "https://kagomeusa.com/packaging/",
-        "https://kagomeusa.com/facilities-locations/",
-        "https://ucfoodsafety.ucdavis.edu/sites/g/files/dgvnsk7366/files/inline-files/240926.pdf"
-      ]
-    },
     "overview": [
       "Public sources list these products: Foodservice sauces and dressings; margarines and spreads; specialty oil blends; plant-based products; private-label sauces.",
       "Public sources describe these capabilities: Live kagomeusa.com Co-Manufacturing page states full-service formulas plus manufacturer of private label brands. Custom formulations; SQF; cannot produce products with more than 2% animal protein; peanut-free; organic manufacturing at one plant. Typical minimum pack 12000 lbs equivalent. Facilities page: HQ 333 Johnson Road, Los Banos, CA 93635; also Kagome Foods Osceola AR and a San Carlos innovation center. Large industrial tomato/sauce house, not a first-jar plant. Seed 209-826-8850 and luis.deoliveira@kagomeusa.com unused (not on retrieved origin pages).."
@@ -10861,15 +10559,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "Billy@KayeFamilyFoods.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Public sources list a small-batch production option.",
-      "sourceUrls": [
-        "https://www.kayefamilyfoods.com/",
-        "https://www.kayefamilyfoods.com/process",
-        "https://www.kayefamilyfoods.com/contact",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: BBQ sauce, hot sauce, Bloody Mary mix, and other acidified products.",
       "Public sources describe these capabilities: Live kayefamilyfoods.com is a dedicated copack site (Kaye Food Services) for acidified products, with a six-step NDA/recipe/sample process. Contact: 265 Mound View Rd Suite 7, River Falls; Billy@KayeFamilyFoods.com. Seed 612-441-9222 not on retrieved pages. MDA 'no minimums' unused.."
@@ -11059,7 +10748,7 @@ export const IMPORTED_PLANTS = [
       "Private-label dessert sauces since 1990. Custom flavors, jar size/style options, claimed 60-day ideation-to-production. Legal entity West Fork Creations, Inc. dba King's Cupboard (2021 sale announcement). Plant at 15 Pepsi Drive, Red Lodge, MT 59068."
     ],
     "moqDisplay": "500 jars per flavor",
-    "publishedSmallMoq": false,
+    "publishedSmallMoq": true,
     "certs": [
       "BRC / GFSI facility (annual BRC audits by AIB, three consecutive Grade AA claimed)",
       "HACCP",
@@ -11101,17 +10790,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@kingscupboard.com",
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "evidence": "500 jars per flavor",
-      "sourceUrls": [
-        "https://www.kingscupboard.com/",
-        "https://www.kingscupboard.com/pages/private-label",
-        "https://www.kingscupboard.com/pages/about-us",
-        "https://www.kingscupboard.com/pages/food-safety",
-        "https://www.kingscupboard.com/pages/contact-us",
-        "https://www.pickyourown.org/copackers-Montana.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Chocolate and caramel dessert sauces; organic caramel and hot fudge; own brand plus private label.",
       "Public sources describe these capabilities: Private-label dessert sauces since 1990. Custom flavors, jar size/style options, claimed 60-day ideation-to-production. Legal entity West Fork Creations, Inc. dba King's Cupboard (2021 sale announcement). Plant at 15 Pepsi Drive, Red Lodge, MT 59068.."
@@ -11184,16 +10862,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@mycopacker.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "40 cases for 8.4 oz PET bottles. About most first orders 100-1000 lbs.",
-      "sourceUrls": [
-        "https://www.mycopacker.com/",
-        "https://www.mycopacker.com/about-us/",
-        "https://www.mycopacker.com/food-co-packing/",
-        "https://www.mycopacker.com/contact/",
-        "https://edis.ifas.ufl.edu/publication/FS380"
-      ]
-    },
     "overview": [
       "Public sources list these products: Dry blends only: dips, sauces (dry), spices, herbal seasonings, dessert mixes, bread mixes, batters.",
       "Public sources describe these capabilities: Family dry-blending co-packer (roots as Jodie's Kitchen, 1974). First production runs from cases to pallets. Private label and farmers-market starter program. Homepage banner: at capacity and not taking on new projects. Not a listing site. Distinct from IPAC / copack.com.."
@@ -11721,11 +11389,9 @@ export const IMPORTED_PLANTS = [
     ],
     "locationDisplay": "Endicott, NY",
     "processes": [
-      "hot-fill",
       "cold-fill"
     ],
     "finderProcesses": [
-      "hot-fill",
       "cold-fill"
     ],
     "finderProducts": [
@@ -11848,7 +11514,16 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Co-packing; private label; recipe scale-up; test batches; acidified foods (pH under 4.6); product development."
     ],
     "appearedOn": [],
-    "guideRows": {}
+    "guideRows": {},
+    "smallRunSignal": {
+      "kind": "pilot",
+      "evidence": "test batches",
+      "sourceUrls": [
+        "https://www.madwills.com",
+        "https://www.madwills.com/co-packing",
+        "https://www.pickyourown.org/copackers-California.php"
+      ]
+    }
   },
   {
     "slug": "mainline-foods",
@@ -12355,14 +12030,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@flyingcolors.coffee",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "20 lb smallest run",
-      "sourceUrls": [
-        "https://flyingcolors.coffee/",
-        "https://flyingcolors.coffee/contact/",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: Contract roasted whole bean and ground coffee (specialty and commercial; robusta available). No flavored coffee..",
       "Public sources describe these capabilities: Live flyingcolors.coffee: contract roasting, packaging, and fulfillment for other coffee brands; will never put out a coffee of their own. One roof at 4290 Park Glen Rd (schema; St. Louis Park / 55416). Smallest run 20 lb; typical green-to-shipped about 1 week. Packaging: retail and wholesale bagging, frac packs, nitrogen flush, super sacks. Fulfillment: ShipStation, DTC, freight. USDA Organic and Kosher marks on homepage. Contact email info@flyingcolors.coffee; no public phone on origin (placeholder 000 number on contact page unused). Brett Struwe LinkedIn: CEO of Flying Colors Coffeeworks - MBH, LLC. sustenancecoffee.com is a consultancy with seed phone/email; those contacts unused. Seed brett.struwe@sustenancecoffee.com unused.."
@@ -12497,15 +12164,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://michiganfreezepack.com/",
-        "https://michiganfreezepack.com/about-us/",
-        "https://michiganfreezepack.com/quality/",
-        "https://www.michfpa.org/processors/"
-      ]
-    },
     "overview": [
       "Public sources list these products: IQF vegetables for the ingredient industry.",
       "Public sources describe these capabilities: About page: 100,000 sq ft grower-owned Hart plant since 1988. Customers may supply their own raw material for custom processing and packaging, or Michigan Freeze Pack manufactures to customer packaging and product specs. Quality page (retrieved via site fetch): USDA-inspected facilities; storing, blending, and packing including totes. Industrial ingredient copack, not a first-run kitchen.."
@@ -12579,16 +12237,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@mickelberrygardens.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "1500-2000 units per SKU",
-      "sourceUrls": [
-        "https://mickelberrygardens.com/",
-        "https://mickelberrygardens.com/pages/co-packers-portland-or-contract-manufacturing",
-        "https://mickelberrygardens.com/pages/contact-mickelberry-gardens",
-        "https://mickelberrygardens.com/pages/our-story-natural-remedies",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Tinctures and extracts; honey; herbal honey tonics; balms and salves; cold-fill liquids (own brand plus contract).",
       "Public sources describe these capabilities: Own GMP dietary supplement facility in Portland. Contract manufacturing for established supplement/wellness brands: herb pressing and bottling, honey, balms/salves, automated cold-fill liquid bottling, automated labeling. In-house lab claimed. Not start-up recipe development; no pasteurization or refrigerated products.."
@@ -12729,16 +12377,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://actus.com/",
-        "https://actus.com/about/",
-        "https://actus.com/private-label/private-label-ready-to-mix/",
-        "https://actus.com/contact/",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: Whey and milk proteins, caseins/caseinates, functional fats and carbohydrates; private-label ready-to-mix protein and sports-nutrition powders; extruded protein snacks/cereal at other plants.",
       "Public sources describe these capabilities: Live actus.com About FAQ: in October 2024 Milk Specialties Global changed its name to Actus Nutrition. Eden Prairie is corporate headquarters, not a listed manufacturing plant. Private-label RTM page: custom and private-label protein powder from concept and formulation through manufacturing and packaging (proteins, creatine, pre-workouts, amino acids, collagen, keto shakes, gainers). About: Wautoma WI is the private-label manufacturing facility for sports nutrition and powder bottling; Clara City MN is private-label extrusion. 14 US plants. Contact page is a form only; seed 952-942-7310 and cbaughman@milkspecialties.com unused. Seed 10000 pounds unused. Large industrial nutrition house, not a first-run plant.."
@@ -12949,7 +12587,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch",
       "sourceUrls": [
         "https://miloswholeworld.com/",
         "https://miloswholeworld.com/copacking/",
@@ -13029,16 +12668,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "spice@mincing.com",
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://www.mincing.com/",
-        "https://www.mincing.com/what-we-do/",
-        "https://www.mincing.com/about-us/",
-        "https://www.mincing.com/contact-us/",
-        "https://www.specialtyfoodresource.com/find-a-business-resource/copackers/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Whole, re-cleaned, and ground spices; aromatic seeds and herbs; custom spice blends for industrial users.",
       "Public sources describe these capabilities: Live mincing.com: industrial spice processor (cleaning, grinding, blending, packaging to customer needs) at 10 Tower Road, Dayton, NJ. About page: dedicated to industrial users of spices; 80,000 sq ft process plus warehouse. Custom blending is on What We Do. Not a first-run kitchen. Daily-merge row 2026-08-22; not in Batches 01-17 cleaned.."
@@ -13123,7 +12752,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch.",
+      "kind": "private-label",
+      "evidence": "Live manufacturing page on mixlybeverageco.com (same copy on mixlycocktailco.com) confirms women-owned New Hope beverage co-manufacturing and private label, with in-house R&D, small-batch/pilot, and full-scale hot-fill style shelf-stable production",
       "sourceUrls": [
         "https://www.mixlybeverageco.com/",
         "https://www.mixlybeverageco.com/pages/manufacturing",
@@ -13175,7 +12805,7 @@ export const IMPORTED_PLANTS = [
       "partner-brand scaling support. 2024 Colorado Companies to Watch and 2021 Colorado Food Manufacturer of the Year claimed."
     ],
     "moqDisplay": "Typical first plant trial 400 gallons; reorders average 800-3200 gallons per run",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "FDA/HACCP/SQF approved (claimed)",
       "SQF Level II (claimed on FAQ)",
@@ -13203,14 +12833,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Typical first plant trial 400 gallons; reorders average 800-3200 gallons per run",
-      "sourceUrls": [
-        "https://motherlodecopacking.com/",
-        "https://motherlodecopacking.com/faq",
-        "https://www.pickyourown.org/copackers-Colorado.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Sauces; syrups; dressings; condiments. FAQ says they do not do peanut products, jams/jellies, hand-packed items like pickles, or powder/spice blends..",
       "Public sources describe these capabilities: Co-packing for foodservice and retail sizes; plant trials; partner-brand scaling support. 2024 Colorado Companies to Watch and 2021 Colorado Food Manufacturer of the Year claimed.."
@@ -13628,7 +13250,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch custom spice blending",
       "sourceUrls": [
         "https://neuspice.com/",
         "https://neuspice.com/about/",
@@ -14394,7 +14017,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch.",
+      "kind": "small-batch",
+      "evidence": "small-batch to bulk",
       "sourceUrls": [
         "https://www.oregonhill.com/",
         "https://www.oregonhill.com/co-packing"
@@ -14564,7 +14188,7 @@ export const IMPORTED_PLANTS = [
       "no filtering claimed. Site copyright: a division of TST/Impreso, Inc."
     ],
     "moqDisplay": "No minimum",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [],
     "lastVerified": "2026-08-26",
     "listingStatus": "VERIFIED",
@@ -14614,15 +14238,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Bottles spring water at the source; in-house art department for custom labels; ozonated to meet FDA standards; no filtering claimed. Site copyright: a division of TST/Impreso, Inc.."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "No minimum",
-      "sourceUrls": [
-        "https://oregontrailmountainspringwater.com/",
-        "https://oregontrailmountainspringwater.com/labels/labels2.htm",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "pacific-choice-brands",
@@ -14681,6 +14297,14 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "sales@pacificchoice.com",
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
+    "smallRunSignal": {
+      "kind": "private-label",
+      "evidence": "Contract manufacturing, co-packing, private label, recipe development, packaging design, labeling, pilot plant, custom formulation, recipe matching",
+      "sourceUrls": [
+        "https://pcbrands.com/",
+        "https://ucfoodsafety.ucdavis.edu/sites/g/files/dgvnsk7366/files/inline-files/240926.pdf"
+      ]
+    },
     "overview": [
       "Public sources list these products: Contract specialty foods for national brands (sauces/condiments implied by packing range; SKU list not enumerated on homepage).",
       "Public sources describe these capabilities: Contract manufacturing, co-packing, private label, recipe development, packaging design, labeling, pilot plant, custom formulation, recipe matching. ~300,000 sq ft; 7 million cases/year claimed. Seed pacificchoicebrands.com DNS NXDOMAIN; canonical pcbrands.com.."
@@ -14698,12 +14322,8 @@ export const IMPORTED_PLANTS = [
       }
     ],
     "locationDisplay": "Grand Prairie, TX",
-    "processes": [
-      "acidified"
-    ],
-    "finderProcesses": [
-      "acidified"
-    ],
+    "processes": [],
+    "finderProcesses": [],
     "finderProducts": [],
     "categories": [],
     "packaging": "Standup pouches; pillow pouches; stick packs; boxes; cans; jars; paper or plastic cups; gusseted pouches; 3-4 side seal bags",
@@ -14799,7 +14419,7 @@ export const IMPORTED_PLANTS = [
       "Specialty food co-packing and contract manufacturing in Reading since 1988. Bring-your-recipe. Hot fill, cold fill, pasteurization, ghee. FDA-registered for acidified foods and low-acid canned foods. Low-volume and high-volume runs claimed. Own brands (Royal Cuisine, Chef Shaikh, Sambar Kitchen, Buena Fiesta) also packed here."
     ],
     "moqDisplay": "500 jars published as the low end of their range (500 jars or 500000)",
-    "publishedSmallMoq": false,
+    "publishedSmallMoq": true,
     "certs": [
       "FDA Acidified Foods (AF) claimed",
       "FDA Low-Acid Canned Foods (LACF) claimed",
@@ -14835,7 +14455,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "500 jars published as the low end of their range (500 jars or 500000)",
+      "kind": "small-batch",
+      "evidence": "Low-volume and high-volume runs claimed",
       "sourceUrls": [
         "https://palacefoodsinc.com/",
         "https://palacefoodsinc.com/about-us/",
@@ -14960,7 +14581,7 @@ export const IMPORTED_PLANTS = [
       "they point startups to an Other Packers page. Family plant on US 41, Palmetto."
     ],
     "moqDisplay": "Plant capacity described as in excess of 50,000 units annually on average; some synergistic items may run lower (inquire)",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "Kosher (Flame K and Orthodox Union, claimed on About)"
     ],
@@ -14997,17 +14618,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "Orders@PalmettoCanning.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Plant capacity described as in excess of 50,000 units annually on average; some synergistic items may run lower (inquire)",
-      "sourceUrls": [
-        "https://palmettocanning.com/",
-        "https://palmettocanning.com/about-us/",
-        "https://palmettocanning.com/contract-bottled-food-manufacturing/",
-        "https://palmettocanning.com/contact-us/",
-        "https://palmettocanning.com/faq/",
-        "https://edis.ifas.ufl.edu/publication/FS380"
-      ]
-    },
     "overview": [
       "Public sources list these products: Pasta sauces; steak sauces; BBQ; ketchups; marinades; soy; cooking wines; vinegars; Worcestershire; teriyaki; buffalo wing sauce; lemon juice; historic jelly brand Palmalito (guava jelly discontinued).",
       "Public sources describe these capabilities: Private label and co-pack of bottled and jarred foods since 1927. Turnkey, toll, or hybrid packing. Product development. In-house cooking-wine winery (De Vinco subsidiary) and bulk cooking-wine sales. Canning services retired after 99 years; they point startups to an Other Packers page. Family plant on US 41, Palmetto.."
@@ -15076,15 +14686,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@panogold.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Dependent on the item",
-      "sourceUrls": [
-        "https://www.panogold.com/",
-        "https://www.panogold.com/Capabilities/Private-label",
-        "https://www.panogold.com/contact/",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: Fresh breads, buns, English muffins, bagels, tortillas and wraps, 51 percent whole grain, individually wrapped bakery.",
       "Public sources describe these capabilities: Live panogold.com capabilities include baking, co-packing, R&D, private label, package design, and DSD. Private Label page: large volume or custom small orders; your recipe or ours; package design available. FAQ: co-pack fresh only, not frozen; gluten-free not offered; peanuts and tree nuts not used as ingredients; vegan not certified (honey in select products); minimum units dependent on the item. Contact: 800-444-7005; info@panogold.com; St. Cloud bakery 444 East Saint Germain. Seed 320-251-9361 is listed as Greater MN and Canada sales (Jason Revenig), unused as the main number. Seed mubl@panogold.com unused. Also bakeries in Sun Prairie WI and Fargo ND.."
@@ -15313,7 +14914,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "private-label",
+      "evidence": "Small-batch co-packing and start-to-finish private label",
       "sourceUrls": [
         "https://www.pembertonsgourmetfoods.com/",
         "https://www.pembertonsgourmetfoods.com/small-batch-co-packing",
@@ -15587,7 +15189,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch and high-volume runs",
       "sourceUrls": [
         "https://www.pnwcreamery.com/",
         "https://www.crystalcreekusa.com/",
@@ -15660,7 +15263,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "250 gallon minimum co-pack; 100 case minimum limited private label of existing products",
+      "kind": "small-batch",
+      "evidence": "Slow-simmer small batches claimed",
       "sourceUrls": [
         "https://porkysgourmet.com/",
         "https://www.porkysgourmetstore.com/aboutus.php",
@@ -15802,7 +15406,7 @@ export const IMPORTED_PLANTS = [
       "shear pump blending"
     ],
     "moqDisplay": "Focus on growth-stage brands at 50,000 lb per quarter or more",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "Non-GMO",
       "Gluten Free",
@@ -15848,15 +15452,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Private label and contract manufacturing; hot fill / quick chill refrigerated; acidified shelf-stable; kettle and skillet cook; shear pump blending."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "Focus on growth-stage brands at 50,000 lb per quarter or more",
-      "sourceUrls": [
-        "https://www.betterbeanco.com/private-label-services/",
-        "https://www.betterbeanco.com/",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "powers-inc",
@@ -16689,6 +16285,17 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "Info@qic.us",
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
+    "smallRunSignal": {
+      "kind": "pilot",
+      "evidence": "Three Tall Form / cone-bottom towers plus a Niro Mobile Minor pilot unit for proof of concept and scale-up",
+      "sourceUrls": [
+        "https://www.qic.us/",
+        "https://www.qic.us/snapshot-today",
+        "https://www.qic.us/custom-spray-drying",
+        "https://www.qic.us/contact",
+        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
+      ]
+    },
     "overview": [
       "Public sources list these products: Contract spray-dried specialty powders: colors, flavors, cheese and dairy powders, juice and vegetable powders, oils, vitamins, minerals; food, functional food, nutraceutical, supplement, and medical-food uses.",
       "Public sources describe these capabilities: Live qic.us: vast majority of work is contract manufacturing; powders produced to a customer's specification, under their direction, and bearing the customer's label. Three Tall Form / cone-bottom towers plus a Niro Mobile Minor pilot unit for proof of concept and scale-up. Snapshot: customers range from entrepreneurial start-ups to Fortune 500; all work out of owned Burnsville building (14300 Rosemount Drive) 24/7. Contact: main 952-898-4002; Info@qic.us; HR@qic.us is HR only. Certifications heading on the custom-spray-drying page had no named certs in retrieved HTML. Seed 500 pounds typically unused. Seed sales@qic.us unused (origin uses Info@qic.us). Industrial spray-dry toller that will talk to start-ups.."
@@ -17430,7 +17037,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch and large-batch claimed",
       "sourceUrls": [
         "https://ronsfoods.com/",
         "https://ronsfoods.com/co-packing/",
@@ -17511,6 +17119,16 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@saltroadfoodhub.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
+    "smallRunSignal": {
+      "kind": "pilot",
+      "evidence": "Pilot runs billed $40/hour per person, then per-piece pricing",
+      "sourceUrls": [
+        "http://www.saltroadfoodhub.com",
+        "https://saltroadfoodhub.com/",
+        "https://saltroadfoodhub.com/copacking",
+        "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
+      ]
+    },
     "overview": [
       "Public sources list these products: Gluten-free and vegetarian baked goods; frozen meals; dehydrated snacks (kale chips, vegetable crackers); sauces and condiments; shelf-stable pasteurized goods.",
       "Public sources describe these capabilities: 10,000 sq ft strictly gluten-free, vegetarian shared manufacturing facility that also co-packs/co-manufactures. Pilot runs billed $40/hour per person, then per-piece pricing. Client supplies ingredients and packaging. USDA Organic certification support. Shared kitchen rental, distribution, and Amazon FBA add-ons. Equipment: double rack oven, Hobart mixers, tilt skillets, steam kettle, Robot Coupes, piston and bottle fillers, vibratory filler, dehydrator, walk-in cooler/freezer.."
@@ -17750,7 +17368,7 @@ export const IMPORTED_PLANTS = [
       "manufacturing readiness"
     ],
     "moqDisplay": "The company says pilot and small-scale runs start at $3,500.",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "FDA-certified facility (claimed on site)"
     ],
@@ -17782,7 +17400,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "The company says pilot and small-scale runs start at $3,500.",
+      "kind": "pilot",
+      "evidence": "pilot and small-scale manufacturing",
       "sourceUrls": [
         "https://www.scalefoodlabs.com",
         "https://www.scalefoodlabs.com/contact",
@@ -17912,14 +17531,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://www.schwanscompany.com/",
-        "https://www.schwanscompany.com/schwans-strategic-partner-solutions/",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: Frozen pizza; ice cream; pies; Asian snacks/appetizers/meals; beverages; shelf-stable sauces and rice; aluminum packaging.",
       "Public sources describe these capabilities: Live schwanscompany.com Strategic Partner Solutions page invites business partners to produce and package those categories. This is Schwan's industrial private-label/contract-pack unit, not a first-run kettle. Marshall is a historic manufacturing city; corporate pages also reference Bloomington. Seed 507-537-8189 and MaryJo.Martinson@ unused. Wendy.Koerper@ appeared in a snippet but was not on the retrieved SPS page this check, so email left blank.."
@@ -18031,7 +17642,7 @@ export const IMPORTED_PLANTS = [
       "Proprietary manufacturer and private-label / contract manufacturing. Culinary R&D, custom formulations, small-batch test runs, shelf-stable development. 60,000 sq ft plant claimed. Foodservice, retail, club, brand licensing. signaturesauces.com redirects here."
     ],
     "moqDisplay": "Annual minimum 25,000 lb (2,400 gallons) per SKU retail or 40,000 lb (3,600 gallons) foodservice",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "SQF Level 2 (claimed on capabilities)"
     ],
@@ -18065,7 +17676,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
-      "evidence": "Annual minimum 25,000 lb (2,400 gallons) per SKU retail or 40,000 lb (3,600 gallons) foodservice",
+      "kind": "pilot",
+      "evidence": "Culinary R&D, custom formulations, small-batch test runs, shelf-stable development",
       "sourceUrls": [
         "https://signaturesauces.com/",
         "https://signaturekettlecrafted.com/",
@@ -18195,14 +17807,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "shared-kitchen-incubator",
     "operationTypePublished": "shared kitchen/incubator",
-    "smallRunSignal": {
-      "evidence": "Warehouse/cold storage listed from 4 pallets (space rental, not copack MOQ)",
-      "sourceUrls": [
-        "https://skywayfood.com/",
-        "https://skywayfood.com/facilities",
-        "https://skywayfood.com/contact"
-      ]
-    },
     "overview": [
       "Public sources describe these capabilities: Owns/operates three adjacent buildings, 110,000+ sq ft, as dedicated food manufacturing suites for tenant companies (independent operations). Shared docks, utilities, wash-down, pest control. 15,000+ sq ft frozen/refrigerated storage. Not a recipe co-packer. Seed gluten-free baking unused.."
     ],
@@ -18479,15 +18083,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "200 gallon minimum",
-      "sourceUrls": [
-        "https://sonbeverage.com/",
-        "https://sonbeverage.com/capabilities-copacking-privatelabel/",
-        "https://sonbeverage.com/son-beverage-company/",
-        "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Ambient/cold-fill concentrates and RTD beverages; coffee flavorings; snow cone syrups; slush/granita; aguas frescas; lemonades; cocktail mixes; mocktails. Own Jell-Craft brand since 1945..",
       "Public sources describe these capabilities: Private label and co-pack for ambient fill beverages. 14700 sq ft and 2 high-speed lines claimed. Allergen-free facility claimed. In-house B&W 4x6 labels. Texas A&M notes cold-filled beverages only.."
@@ -18896,7 +18491,7 @@ export const IMPORTED_PLANTS = [
       "labeling compliance support"
     ],
     "moqDisplay": "Four batches per flavor; examples include about 1,000 10 oz beverages per batch, 650 16 oz beverages per batch, or 880 12 oz pasta-sauce jars per batch",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [
       "USDA",
       "FDA",
@@ -18965,18 +18560,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Co-packing and private label; in-house R&D; quality control; labeling compliance support."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "Public sources state that the company offers a low minimum; no number is published.",
-      "sourceUrls": [
-        "https://www.stcousair-oregon.com/",
-        "https://www.stcousair-oregon.com/capabilities",
-        "https://www.stcousair-oregon.com/certifications",
-        "https://www.stcousair-oregon.com/faq",
-        "https://www.stcousair-oregon.com/contact",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "stage-coach-sauces",
@@ -19186,16 +18770,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Public sources list Pilot run.",
-      "sourceUrls": [
-        "https://www.stittsworthmeats.com/",
-        "https://www.stittsworthmeats.com/pages/wholesale-co-packing",
-        "https://www.stittsworthmeats.com/pages/contact",
-        "https://www.stittsworthmeats.com/about",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
-    },
     "overview": [
       "Public sources list these products: Brats; summer sausage; snack sticks; beef jerky and strips; emulsified hot dogs and wieners; smoked bacon; ground beef patties; wild game (origin copack page).",
       "Public sources describe these capabilities: Live stittsworthmeats.com has dedicated co-pack and private-label pages. Turtle River smokehouse at 7972 Farley Dr NE (no retail). Bemidji butcher shop at 722 Paul Bunyan Dr NW. Origin names Force of Nature, 1000 Hills, Big Fork, and Protein Outfitters as copack brands. D2C startups scaling past their kitchen named as a fit. Pilot run then MOQs in a signed agreement (no public number). About page: 100,000 lb/month, 28 team members. Seed 218-586-4201 and mychals@stittsworthmeats.com unused. Copack inquiry also lists Bemidji 218-751-1320.."
@@ -19595,15 +19169,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@sunbeltpackagingco.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "200 gal sauces/dressings/marinades/salsa (~1600-2000 units). 500 lbs custom spice blends. 1000 lbs custom baking or dry powder blends. Consultation form also starts beverage volume at 500 gal.",
-      "sourceUrls": [
-        "https://sunbeltpackagingco.com/",
-        "https://sunbeltpackagingco.com/about/",
-        "https://sunbeltpackagingco.com/request-consultation/",
-        "https://edis.ifas.ufl.edu/publication/FS380"
-      ]
-    },
     "overview": [
       "Public sources list these products: Sauces; marinades; dressings; condiments; salsas; beverages and cocktail mixes; seasonings and dry rubs; baking mixes.",
       "Public sources describe these capabilities: Family-owned Atlanta specialty food co-packer for shelf-stable wet and dry CPG. Sample batches, scheduled process, FDA submission, pH and water-activity testing, nutrition facts, ingredient deck, private labeling, warehousing. Curl hit SiteGround captcha HTTP 202; official pages confirmed via WebFetch.."
@@ -19692,7 +19257,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list Small-batch.",
+      "kind": "small-batch",
+      "evidence": "Small-batch copy",
       "sourceUrls": [
         "https://www.sunnydellspecialty.com/",
         "https://www.sunnydellspecialty.com/about",
@@ -19850,15 +19416,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Beverage co-packing at Portland production facility; questionnaire and paid quote process."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "930 gallons (30 barrels); about 400 cases of 12oz cans or 300 cases of 16oz cans",
-      "sourceUrls": [
-        "https://www.swiftcider.com/copacking",
-        "https://www.swiftcider.com/",
-        "https://www.pickyourown.org/copackers-Oregon.php"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "tall-hat-foods",
@@ -19933,14 +19491,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://www.tallhatfoods.com",
-        "https://www.tallhatfoods.com/our-story",
-        "https://www.pickyourown.org/copackers-Utah.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Sauces; soups; dressings; ready-to-use foodservice/retail/industrial products; meat processing and blending claimed.",
       "Public sources describe these capabilities: Chef-led copack/co-man. Custom recipe development; off-the-shelf solutions; batch/kettle; hot fill and cold fill; meat processing and blending; lab testing; regulatory. Serves retail deli, foodservice, and industrial/CPG. Site says larger-scale foodservice/industrial more than first-run.."
@@ -20086,17 +19636,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "evidence": "Public sources list small-batch.",
-      "sourceUrls": [
-        "https://teasdalelatinfoods.com/",
-        "https://teasdalelatinfoods.com/aboutUs/our-heritage/",
-        "https://teasdalelatinfoods.com/facilities/",
-        "https://teasdalelatinfoods.com/jardine/",
-        "https://teasdalelatinfoods.com/partners/",
-        "https://www.pickyourown.org/copackers-Texas.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Beans; hominy; salsas; sauces; dips; seasonings; peppers; tortillas, taco shells, and flatbreads (conventional and organic lines).",
       "Public sources describe these capabilities: Company heritage and facilities pages offer private label, co-manufacturing, or branded options. Jardines page is the Buda salsa heritage (kettle-cooked small-batch salsa story). Partners page is retail/foodservice sales, not a small-run founder form.."
@@ -20225,15 +19764,7 @@ export const IMPORTED_PLANTS = [
       "Public sources describe these capabilities: Private label / white label snack program; product development support."
     ],
     "appearedOn": [],
-    "guideRows": {},
-    "smallRunSignal": {
-      "evidence": "The company states that jerky has low minimums but does not publish exact units.",
-      "sourceUrls": [
-        "https://tenderheifersnackco.com/",
-        "https://tenderheifersnackco.com/services",
-        "https://www.pickyourown.org/copackers-California.php"
-      ]
-    }
+    "guideRows": {}
   },
   {
     "slug": "texafrance-inc",
@@ -20628,15 +20159,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "200 lb minimum cut weight per batch (about 400 cans)",
-      "sourceUrls": [
-        "https://tillamookbaycannery.com/",
-        "https://tillamookbaycannery.com/seafood-co-packing",
-        "https://tillamookbaycannery.com/our-cannery",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Tinned albacore tuna and coho/chinook salmon; custom seafood canning of customer-supplied catch.",
       "Public sources describe these capabilities: Family micro-cannery with published seafood co-packing: filleting, vacuum-packing, raw pack (no pre-cook), smoked pack, machine or manual labeling, boxing, and storage. Also sells its own retail tinned-fish line.."
@@ -20712,7 +20234,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list a small-batch production option.",
+      "kind": "pilot",
+      "evidence": "Small- or large-batch volumes, custom formulations, mixed package sizes, test batches before a full run",
       "sourceUrls": [
         "https://tillerfoods.com",
         "https://tillerfoods.com/about/",
@@ -20760,7 +20283,7 @@ export const IMPORTED_PLANTS = [
       "private labeling"
     ],
     "moqDisplay": "The company states that small-batch packet runs range from 15,000 to 500,000 packets.",
-    "publishedSmallMoq": true,
+    "publishedSmallMoq": false,
     "certs": [],
     "lastVerified": "2026-08-22",
     "listingStatus": "VERIFIED",
@@ -20786,7 +20309,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "evidence": "The company states that small-batch packet runs range from 15,000 to 500,000 packets.",
+      "kind": "small-batch",
+      "evidence": "Small-batch sauce production",
       "sourceUrls": [
         "https://to-gopacks.com",
         "https://www.pickyourown.org/copackers-Ohio.php"
@@ -21003,15 +20527,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://townsendfarms.com/",
-        "https://townsendfarms.com/packing_and_delivery/",
-        "https://townsendfarms.com/info/",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
-    },
     "overview": [
       "Public sources list these products: Fresh and IQF frozen berries and other fruit under Townsend Farms and private label (origin).",
       "Public sources describe these capabilities: Live townsendfarms.com is the Fairview grower-processor-distributor at 23400 NE Townsend Way, office 503-666-1780, fax 503-618-8257. Origin packing page: every package, whether Private Label or Townsend Farms, fresh or frozen, has produce traceability; IQF in owned plants; zippered polybags. Not a first-run kitchen. Seed email field was the website URL, unused as email. No public email on retrieved origin.."
@@ -21379,15 +20894,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Stand-up pouch 5,000; jars/tubs 5,000; stick packs/sachets 20,000; K-cup and Nespresso 10,000",
-      "sourceUrls": [
-        "https://truespicefoods.com/",
-        "https://truespicefoods.com/pages/about-us",
-        "https://truespicefoods.com/pages/co-packing",
-        "https://www.pickyourown.org/copackers-Georgia.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Spice blends; functional beverages; superfood blends; protein blends; coffee; tea; supplements.",
       "Public sources describe these capabilities: Turn-key co-packing, sourcing, manufacturing, formulation/testing, and in-house DTC fulfillment from Georgia facilities. Employee-owned. Also packs capsules/tablets (supplements) in addition to food/bev powders.."
@@ -21449,14 +20955,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@turaskymeats.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Typically 400 lbs per flavor for snack sticks",
-      "sourceUrls": [
-        "https://www.turaskymeats.com/",
-        "https://turaskymeats.com/wholesale-packaging",
-        "https://www.pickyourown.org/copackers-Illinois.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Snack sticks; sausage; beef, pork, chicken, and turkey products; smoked and cooked meats.",
       "Public sources describe these capabilities: USDA federally inspected plant. Snack-stick co-packing and private labeling. Steam cooking, cook-in-bag, natural smoke, grinding, linked sausage, slicing, injected products. Vacuum sealing, bagging, boxing. Also retail store and deer processing.."
@@ -21595,16 +21093,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://www.vandrunenfarms.com/",
-        "https://www.vandrunenfarms.com/custom-solutions",
-        "https://www.vandrunenfarms.com/contact",
-        "https://www.vandrunenfarms.com/facilities",
-        "https://www.pickyourown.org/copackers-Illinois.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Freeze-dried, drum-dried, and IQF fruit, vegetable, herb, and grain ingredients; freeze-dried snack solutions.",
       "Public sources describe these capabilities: B2B ingredient manufacturer with published custom contract drying (customer supplies raw material), blending, NPD, and packaging including retail pouches. Snack-to-Pack freeze-dried snack program is on the custom-solutions page. Industrial Heartland grower-processor (1,750 acres stated), not a first-run kitchen copacker.."
@@ -21757,16 +21245,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
-    "smallRunSignal": {
-      "evidence": "Generally 300 to 600 cases minimum per SKU; 12500 boxes per SKU; 12500 printed film impressions per SKU",
-      "sourceUrls": [
-        "https://www.venuswafers.com/",
-        "https://www.venuswafers.com/capabilities/",
-        "https://www.venuswafers.com/who-we-are/",
-        "https://www.venuswafers.com/get-in-touch/",
-        "https://www.pickyourown.org/copackers-Massachusetts.php"
-      ]
-    },
     "overview": [
       "Public sources list these products: Crackers; flatbreads; private-label and co-packed wholesome crackers (Mariner, Capeachio's, South Shore house brands plus customer brands).",
       "Public sources describe these capabilities: Capabilities page: turnkey co-packing (make, bake, box, ship in-house), private labeling, and recipe R&D. 100-foot oven; hand-packed flatbreads; small or large batches. Published minimums: generally 300 to 600 cases per SKU; 12500 boxes per SKU; 12500 printed-film impressions per SKU.."
@@ -21891,7 +21369,8 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "evidence": "Public sources list small-batch.",
+      "kind": "private-label",
+      "evidence": "Indexed official pages describe a small-batch co-packer and private-label manufacturer with production in Albany NY (5 oz bottles to jugs",
       "sourceUrls": [
         "https://www.vitaleats.com/",
         "https://www.vitaleats.com/co-packing-faq",
@@ -22199,16 +21678,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
-    "smallRunSignal": {
-      "evidence": "Public sources list first-run.",
-      "sourceUrls": [
-        "https://sandridge.com/",
-        "https://sandridge.com/capabilities/",
-        "https://sandridge.com/contact-us/",
-        "https://www.prweb.com/releases/sandridge-crafted-foods-acquires-new-production-site-in-new-oxford-pa-301974582.html",
-        "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Refrigerated soups, salads, sides, dips, and entrees; private label and co-pack (Sandridge origin).",
       "Public sources describe these capabilities: wintergardens.com redirects to sandridge.com. Sandridge acquired Winter Gardens Quality Foods Oct 2023. Origin contact lists the New Oxford processing facility at 304 Commerce St with main line 717-624-4911. Capabilities page: private label and co-pack manufacturing, bench-to-box culinary, HPP, kettle and sous vide. All facilities HACCP; USDA/FDA oversight; GFSI via SQFI. Seed info@wintergardens.com unused. wintergardensqualityfoods.godaddysites.com TLS fail this check. Large prepared-foods co-man, not first-run.."

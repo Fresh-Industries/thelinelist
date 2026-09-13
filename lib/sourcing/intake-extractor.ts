@@ -33,14 +33,14 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
   ].filter((match) => !isNegatedAt(idea, match)).sort(bySourcePosition);
   const productCandidates = [
     ...allMatches(idea, /\bbaked\s+chickpea\s+crisp(?:\s+with\s+[a-z][a-z\s-]*?(?=[.?!]|\s+\d+(?:\.\d+)?\s*(?:oz|ounces?|g|grams?)\b))?/gi),
-    ...allMatches(idea, /\b(?:tomato[-\s]free\s+|smoky\s+carrot\s+)?hot\s+sauce\b/gi),
+    ...allMatches(idea, /\b(?:tomato[-\s]free\s+|smoky\s+carrot\s+)?hot[\s-]+sauces?\b/gi),
     ...allMatches(idea, /\b(?:roasted\s+)?(?:chickpea|fava[-\s]bean|bean|nut|seed|granola|popcorn)\s+snack\b/gi),
     ...allMatches(idea, /\b(?:packaged\s+)?(?:(?:sparkling\s+)?(?:drink|beverage)|seltzer|sparkling water)\b/gi),
     ...spreadCandidates,
   ].sort(bySourceEndThenSpecificity);
   const product = productCandidates.at(-1);
   if (product) {
-    if (/hot\s+sauce/i.test(product[0])) {
+    if (/hot[\s-]+sauces?/i.test(product[0])) {
       put("product_type", "Hot sauce", product, "The founder explicitly described the product as hot sauce.");
       put("product_category", "Sauce / condiment", product, "The founder explicitly named a sauce or condiment product.");
     } else if (/\bspread\b/i.test(product[0])) {
@@ -88,12 +88,13 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
   }
 
   const packageIndexes = new Set(sizedPackages.map((match) => match.index));
-  const quantities = allMatches(idea, /\b(?:(?:first\s+(?:run|pilot)|pilot|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\s*[:=-]?\s*)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b/gi)
-    .filter((match) => !packageIndexes.has(match.index) && Number(match[1].replace(/,/g, "")) >= 10);
+  const quantities = allMatches(idea, /\b(?:(?:first\s+(?:run|pilot)|pilot|private[- ]label|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\s*[:=-]?\s*)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?(?:\s*(?:-|–|to)\s*\d[\d,]*(?:\.\d+)?)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b(\s+(?:per|each)\s+(?:SKU|flavo[u]?r|product|run|batch|order)|\s+(?:across|split between)\s+\d+\s+(?:SKUs?|flavo[u]?rs?|products?))?/gi)
+    .filter((match) => !packageIndexes.has(match.index) && Number.parseFloat(match[1].replace(/,/g, "")) >= 10);
   const quantity = canonicalFirstRunQuantity(idea, quantities);
   if (quantity) {
     const approximate = /\b(?:about|around|approximately|roughly)\b/i.test(quantity[0]);
-    put("production_volume", `${approximate ? "About " : ""}${quantity[1]} ${quantity[2].toLowerCase()}`, quantity, "The canonical first-run quantity is kept separate from later forecasts; explicit corrections to that first run supersede its earlier value.");
+    const offer = /\bpilot\b/i.test(quantity[0]) ? "Pilot: " : /private[- ]label/i.test(quantity[0]) ? "Private label: " : "";
+    put("production_volume", `${offer}${approximate ? "About " : ""}${quantity[1]} ${quantity[2].toLowerCase()}${quantity[3] ?? ""}`, quantity, "The canonical first-run quantity is kept separate from later forecasts; explicit corrections to that first run supersede its earlier value.");
   }
 
   const geography = lastMatch(idea, /\b(?:near(?:by)?\s+)?(?:Texas|California|Florida|New York|Illinois|Ohio|Georgia|Pennsylvania|Colorado|Arizona)(?:\s+(?:or|and)\s+nearby)?\b|\b(?:Midwest|Northeast|Southeast|Southwest|West Coast|West)\b/gi);
@@ -187,7 +188,7 @@ function bySourceEndThenSpecificity(left: RegExpMatchArray, right: RegExpMatchAr
 function sourceSpan(source: string, match: RegExpMatchArray): FounderSourceSpan { const start = match.index ?? source.indexOf(match[0]); return { start, end: start + match[0].length, text: match[0] }; }
 function uniqueSpans(spans: FounderSourceSpan[]): FounderSourceSpan[] { return spans.filter((span, index) => spans.findIndex((candidate) => candidate.start === span.start && candidate.end === span.end) === index); }
 function isNegatedAt(source: string, match: RegExpMatchArray): boolean { const start = match.index ?? 0; return /(?:\bnot|\bno)\s*$/i.test(source.slice(Math.max(0, start - 18), start)); }
-function normalizeUnit(value: string): string { const normalized = value.toLowerCase().replace(/\./g, "").replace(/\s+/g, " "); if (/^(?:ounce|ounces|oz|fl oz|fluid ounce|fluid ounces)$/.test(normalized)) return "oz"; if (/^(?:milliliter|milliliters|ml)$/.test(normalized)) return "ml"; return "g"; }
+function normalizeUnit(value: string): string { const normalized = value.toLowerCase().replace(/\./g, "").replace(/\s+/g, " "); if (/^(?:fl oz|fluid ounce|fluid ounces)$/.test(normalized)) return "fl oz"; if (/^(?:ounce|ounces|oz)$/.test(normalized)) return "oz"; if (/^(?:milliliter|milliliters|ml)$/.test(normalized)) return "ml"; return "g"; }
 function singular(value: string): string { return value.replace(/pouches$/i, "pouch").replace(/boxes$/i, "box").replace(/s$/i, ""); }
 function titleCase(value: string): string { return value.trim().replace(/\b\w/g, (letter) => letter.toUpperCase()).replace(/\s+/g, " "); }
 function sentenceCase(value: string): string { const trimmed = value.trim(); return trimmed ? `${trimmed[0].toUpperCase()}${trimmed.slice(1)}` : trimmed; }

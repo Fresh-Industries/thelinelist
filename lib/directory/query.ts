@@ -1,4 +1,6 @@
 import "./assert";
+import { hasPublishedMinimum } from "./minimum-disclosure.mjs";
+import { publishedSmallRunOption } from "./small-runs.mjs";
 import { OPERATION_TYPE_LABELS, STATE_NAMES } from "./labels";
 import { DIRECTORY_PLANTS } from "./plants";
 import { PRODUCT_CATEGORIES, isProductCategorySlug, plantMatchesCategory } from "./categories";
@@ -171,7 +173,7 @@ export function matchesQuery(plant: Plant, query: DirectoryQuery): boolean {
   if (query.process && !matchesFinderProcess(plant, query.process)) {
     return false;
   }
-  if (query.moqDisclosed && !plant.publishedSmallMoq) {
+  if (query.moqDisclosed && !hasPublishedMinimum(plant.moqDisplay)) {
     return false;
   }
   if ((query.smallRunSignal || query.smallMoq) && !smallRunSignalForPlant(plant)) {
@@ -300,12 +302,11 @@ export function queryToSearchParams(query: DirectoryQuery): URLSearchParams {
 }
 
 export function smallRunSignalForPlant(plant: Plant): Plant["smallRunSignal"] {
-  if (plant.smallRunSignal) return plant.smallRunSignal;
-  if (!plant.publishedSmallMoq || !plant.moqDisplay) return undefined;
-  return {
-    evidence: plant.moqDisplay,
-    sourceUrls: plant.fieldSourceUrls?.minimums ?? [plant.website.href],
-  };
+  return publishedSmallRunOption(
+    plant.manufacturingCapabilitiesPublished,
+    plant.moqDisplay,
+    plant.smallRunSignal?.sourceUrls ?? plant.fieldSourceUrls?.processes ?? plant.fieldSourceUrls?.minimums ?? [],
+  );
 }
 
 function readVerificationDate(value: string | undefined): VerificationDateFilter | undefined {

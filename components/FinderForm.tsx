@@ -246,7 +246,7 @@ export function FinderForm({
             }}
           >
             <option value="">Any</option>
-            <option value="1">Published small MOQ only</option>
+            <option value="1">Published small-batch or pilot options</option>
           </select>
         </div>
       </div>

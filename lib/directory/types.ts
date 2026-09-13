@@ -87,8 +87,9 @@ export interface Plant {
   moqDisplay: string | null;
   /** True when the plant’s own site printed a numeric or stated MOQ. Not the small-MOQ guide membership. */
   publishedSmallMoq: boolean;
-  /** A public source explicitly states an MOQ, first-run, test-run, pilot-run, or small-run signal. */
+  /** A public production option, not a confirmed MOQ or project fit. */
   smallRunSignal?: {
+    kind?: "small-batch" | "pilot" | "private-label";
     evidence: string;
     sourceUrls: string[];
   };
@@ -105,6 +106,9 @@ export interface Plant {
   publicEmail?: string | null;
   operationType?: OperationType;
   operationTypePublished?: string | null;
+  /** Dates apply only to the specifically reviewed public fields. */
+  fieldReviewDates?: Partial<Record<EvidenceField, string>>;
+  contactReview?: { reviewedAt: string; status: "publicly-listed" | "needs-verification"; sourceUrls: string[]; note: string };
   /** URLs recorded as evidence for a specific published field. */
   fieldSourceUrls?: Partial<Record<EvidenceField, string[]>>;
   /** A current ownership or operating-entity change makes the profile unsuitable for indexing. */

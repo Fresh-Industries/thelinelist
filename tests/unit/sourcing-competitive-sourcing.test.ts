@@ -111,7 +111,7 @@ describe("competitive sparkling-beverage sourcing regressions", () => {
     expect(ambiguousMatch.unknowns).toContain("A public minimum is listed, but its units cannot be responsibly compared with 25,000 cans.");
   });
 
-  it("compares Create-A-Pack's package-scoped lowest unit band with requested bottles", () => {
+  it("compares Create-A-Pack's explicitly verified package minimum with requested bottles", () => {
     const workspace = bottledSauceWorkspace();
     const createAPack = getPlantBySlug("create-a-pack-foods-inc")!;
     const preferred = matchManufacturerRecords(workspace, [createAPack], {
@@ -135,7 +135,7 @@ describe("competitive sparkling-beverage sourcing regressions", () => {
     const workspace = bottledSauceWorkspace();
     const base = getPlantBySlug("create-a-pack-foods-inc")!;
     const fixtures: Plant[] = [
-      { ...base, slug: "unit-band-pouches-only", name: "Unit Band Pouches Only", moqDisplay: "Lowest band is 50000 units for pouches." },
+      { ...base, slug: "unit-band-pouches-only", name: "Unit Band Pouches Only", moqDisplay: "Minimum 50000 units for pouches." },
       { ...base, slug: "unlabeled-facility-number", name: "Unlabeled Facility Number", moqDisplay: "Facility is 50000 sq ft; minimum is not published." },
     ];
 
@@ -180,9 +180,9 @@ describe("competitive sparkling-beverage sourcing regressions", () => {
     const readiness = getSourcingReadiness(workspace);
     const agentState = buildSourcingAgentState(workspace);
 
-    expect(workspace.fields.product_format).toMatchObject({ value: "12 oz slim can", status: "confirmed", explicitlyStated: true });
+    expect(workspace.fields.product_format).toMatchObject({ value: "12 fl oz slim can", status: "confirmed", explicitlyStated: true });
     expect(workspace.fields.packaging_format).toMatchObject({ value: "Slim Can", status: "confirmed", explicitlyStated: true });
-    expect(workspace.fields.packaging_size).toMatchObject({ value: "12 oz", status: "confirmed", explicitlyStated: true });
+    expect(workspace.fields.packaging_size).toMatchObject({ value: "12 fl oz", status: "confirmed", explicitlyStated: true });
     expect(readiness.missingRequirements).not.toEqual(expect.arrayContaining(["product_format", "packaging_format"]));
     expect(agentState.requirements.open.map((field) => field.key)).not.toEqual(expect.arrayContaining(["product_format", "packaging_format"]));
     expect(agentState.packaging.saved).toBe(false);

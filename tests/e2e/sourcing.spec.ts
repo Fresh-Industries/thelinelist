@@ -618,7 +618,7 @@ test("artwork generation preserves an explicitly staged slim can, honors motifs,
       { key: "product_category", value: "Beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       { key: "product_type", value: "Carbonated citrus drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       { key: "product_format", value: "Ready-to-drink liquid", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
-      { key: "packaging_format", value: "12 oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "12 fl oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       { key: "packaging_size", value: "12 oz", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       { key: "carbonation", value: "Carbonated", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
     ],
@@ -1039,7 +1039,7 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
   expect(preferred.manufacturerCandidates.map((candidate) => candidate.manufacturerSlug)).toEqual([
     "heritage-family-specialty-foods",
     "the-spice-guy",
-    "creative-foodworks",
+    "texafrance-inc",
   ]);
   await page.getByRole("button", { name: "View details for Heritage Family Specialty Foods" }).click();
   const heritageSupported = page.getByRole("heading", { name: "Supported by sources" }).locator("..");
@@ -1067,9 +1067,9 @@ test("manual hot-sauce intake preserves stated facts and shows granular real-rec
   ]);
   await page.getByRole("button", { name: "View details for Creative Foodworks" }).click();
   const conflicts = page.getByRole("heading", { name: "Possible conflicts" }).locator("..");
-  await expect(conflicts.getByRole("listitem")).toHaveCount(2);
+  await expect(conflicts.getByRole("listitem")).toHaveCount(1);
   await expect(conflicts).toContainText("5 oz is outside the published 8–32 oz range");
-  await expect(conflicts).toContainText("below the published 1,000-gallon minimum");
+  await expect(page.getByRole("heading", { name: "Not publicly confirmed" }).locator("..")).toContainText("units cannot be responsibly compared");
   await page.locator("details.manufacturer-source-review > summary").click();
   await expect(page.locator(".manufacturer-source-line").filter({ hasText: /Reviewed Aug 25, 2026/ }).first()).toBeVisible();
 
@@ -1384,7 +1384,7 @@ test("two WebMCP journeys keep staged founder state, research, and stale handles
       { key: "brand_name", value: "Daybreak", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       { key: "product_type", value: "Sparkling citrus beverage", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       { key: "product_format", value: "Ready-to-drink liquid", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
-      { key: "packaging_format", value: "12 oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+      { key: "packaging_format", value: "12 fl oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
       { key: "carbonation", value: "Carbonated", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
     ],
   });
@@ -1636,7 +1636,7 @@ test("multiple manufacturers receive separate reviewable drafts", async ({ page 
         { key: "product_type", value: "Sparkling energy drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "product_description", value: "A shelf-stable sparkling energy drink in a single-serve 12 oz slim can; final commercial formulation and production validation remain with qualified partners.", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "product_format", value: "12 oz drink", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
-        { key: "packaging_format", value: "12 oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
+        { key: "packaging_format", value: "12 fl oz slim can", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "packaging_size", value: "12 oz", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "storage_distribution", value: "Shelf stable", status: "confirmed", explicitlyStated: true, suggestedSharing: true },
         { key: "production_volume", value: "1,000 to 5,000 units", status: "confirmed", explicitlyStated: true, suggestedSharing: true },

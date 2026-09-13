@@ -1,9 +1,13 @@
 import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { publishedCapabilityStatus } from "../lib/directory/capability-evidence.mjs";
+import { HOT_SAUCE_PATTERN, hasHotSauceClaim } from "../lib/directory/hot-sauce.mjs";
+import { hasPublishedMinimum } from "../lib/directory/minimum-disclosure.mjs";
+import { publishedSmallRunOption } from "../lib/directory/small-runs.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const INPUT_DIRECTORY = join(ROOT, "data/manufacturer-imports");
@@ -48,7 +52,7 @@ const categoryRules = [
   ["juice", /\b(juices?|lemonades?|smoothies?|juice shots?)\b/i],
   ["rtd-coffee-tea", /\b(RTD|ready[- ]to[- ]drink|cold[- ]brew)\b.*\b(coffee|tea)\b|\b(coffee|tea)\b.*\b(RTD|ready[- ]to[- ]drink|beverages?)\b/i],
   ["water", /\b(?:bottled|packaged|sparkling|still|spring|mineral) waters?\b|^waters?$/i],
-  ["hot-sauce", /\bhot sauces?\b/i],
+  ["hot-sauce", HOT_SAUCE_PATTERN],
   ["sauce", /\b(sauces?|condiments?|BBQ|barbecue|mustards?|ketchup|syrups?)\b/i],
   ["salsa", /\bsalsas?\b/i],
   ["dressings-marinades", /\b(dressings?|marinades?|vinaigrettes?)\b/i],
@@ -98,7 +102,7 @@ const finderProductByCategory = {
   "soups-broths-entrees": "prepared-rte",
 };
 
-function parseCsv(value) {
+export function parseCsv(value) {
   const rows = [];
   let row = [];
   let field = "";
@@ -209,7 +213,7 @@ function sourceLabel(url, index, websiteDomain) {
   return `Public source ${index + 1}`;
 }
 
-function mapCategories(row) {
+export function mapCategories(row) {
   const disclosedProducts = splitList(row.product_types);
   return categoryRules
     .filter(([category, pattern]) => {
@@ -217,16 +221,19 @@ function mapCategories(row) {
       return disclosedProducts.some((product) => {
       if (category === "soups-broths-entrees" && /\b(dry|powder(?:ed)?|mix(?:es)?|bases?)\b/i.test(product)) return false;
       if (category === "dairy" && /\b(?:fruit|nut|seed|peanut|almond|cashew|sunflower|apple|pumpkin) butters?\b/i.test(product)) return false;
-      return pattern.test(product);
+      return category === "hot-sauce" ? hasHotSauceClaim(product) : pattern.test(product);
       });
     })
     .map(([category]) => category);
 }
 
-function mapProcesses(row) {
+export function mapProcesses(row) {
   const disclosedCapabilities = row.manufacturing_capabilities;
   return processRules
-    .filter(([, pattern]) => pattern.test(disclosedCapabilities))
+    .filter(([, pattern]) => {
+      const matches = disclosedCapabilities.match(new RegExp(pattern.source, "gi")) ?? [];
+      return matches.length > 0 && publishedCapabilityStatus(disclosedCapabilities, matches) === "supported";
+    })
     .map(([process]) => process);
 }
 
@@ -489,35 +496,7 @@ function toPlant(row, usedSlugs) {
 }
 
 function getSmallRunSignal(row, sourceUrls, moqDisplay) {
-  if (sourceUrls.length === 0) return undefined;
-  const moq = row.moq.trim();
-  if (moq && !/^(?:unknown|not stated|none stated|n\/a)$/i.test(moq)) {
-    return { evidence: moqDisplay || moq, sourceUrls };
-  }
-  const segment = splitList(row.manufacturing_capabilities).find((value) => (
-    /\b(?:small[- ]batch|test[- ]run|pilot[- ]run|pilot production|first[- ]run|trial[- ]batch|short[- ]run|low[- ]volume)\b/i.test(value)
-  ));
-  const phrase = segment?.match(
-    /\b(?:small[- ]batch(?: production runs? for test items(?: as well as large volume)?| or long[- ]run options?)?|test[- ]runs?|pilot[- ]runs?|pilot production|first[- ]runs?|trial[- ]batches?|short[- ]runs?|low[- ]volume(?: production)?)\b/i,
-  )?.[0];
-  if (phrase) return { evidence: `Public sources list ${phrase}.`, sourceUrls };
-  const flags = splitList(row.flags);
-  if (flags.some((flag) => /low_moq_claimed_no_number/i.test(flag))) {
-    return { evidence: "Public sources state that the company offers a low minimum; no number is published.", sourceUrls };
-  }
-  if (flags.some((flag) => /small_batch/i.test(flag))) {
-    return { evidence: "Public sources list a small-batch production option.", sourceUrls };
-  }
-  if (flags.some((flag) => /test_run/i.test(flag))) {
-    return { evidence: "Public sources list a test-run production option.", sourceUrls };
-  }
-  if (flags.some((flag) => /pilot/i.test(flag))) {
-    return { evidence: "Public sources list a pilot-run production option.", sourceUrls };
-  }
-  // Research fit flags (including not_first_run, first_run_unknown and
-  // first_run_possible) are not statements of a public small-run capability.
-  // Explicit first-run language in the published capabilities is handled above.
-  return undefined;
+  return publishedSmallRunOption(row.manufacturing_capabilities, moqDisplay, sourceUrls);
 }
 
 const MOQ_DISPLAY_COPY = new Map([
@@ -547,12 +526,7 @@ function polishMoqDisplay(value) {
 }
 
 function hasPublishedSmallMoq(value) {
-  if (!value) return false;
-  if (/\b(?:company )?(?:states?|lists?|publishes?|offers?) no minimum order\b/i.test(value)) return true;
-  if (/\b(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+) batches? per (?:flavor|SKU)\b/i.test(value)) return true;
-  if (/\bunpublished\b|\bnot (?:published|stated)\b|\bno (?:per-SKU unit MOQ|minimums?|numeric)\b|exact (?:units?|MOQ)|minimums? vary/i.test(value)) return false;
-  if (/\$\s*\d/i.test(value) && /\b(?:projects?|runs?|MOQ|minimum|start|starting|from)\b/i.test(value)) return true;
-  return /\d[\d,.]*\s*(?:K\s*)?[-–]?\s*(?:units?|bottles?|gallons?|gal|lit(?:er|re)s?|pounds?|lbs?|pallets?|cases?|pouches?|packets?|pods?)\b/i.test(value);
+  return hasPublishedMinimum(value);
 }
 
 function readExistingGeneratedPlants() {
@@ -640,7 +614,7 @@ function mergeStrongerPlant(previous, next) {
     productTypesPublished: next.productTypesPublished || previous.productTypesPublished || null,
     manufacturingCapabilitiesPublished: next.manufacturingCapabilitiesPublished || previous.manufacturingCapabilitiesPublished || null,
     moqDisplay: next.moqDisplay || previous.moqDisplay || null,
-    publishedSmallMoq: Boolean(previous.publishedSmallMoq || next.publishedSmallMoq),
+    publishedSmallMoq: next.publishedSmallMoq,
     listingStatus: previous.listingStatus === "VERIFIED" || next.listingStatus === "VERIFIED" ? "VERIFIED" : "LISTABLE",
     claimSource: previous.claimSource === "mixed-public-sources" || next.claimSource === "mixed-public-sources"
       ? "mixed-public-sources"
@@ -739,6 +713,9 @@ function generate() {
       usedSlugs.add(plant.slug);
     }
     plant = mergeStrongerPlant(findBaselinePlant(row, baselineRecords), plant);
+    const currentProcesses = mapProcesses(row);
+    plant.processes = plant.processes.filter((process) => currentProcesses.includes(process));
+    plant.finderProcesses = plant.finderProcesses.filter((process) => currentProcesses.includes(process));
     return plant;
   });
   assert.equal(new Set(plants.map((plant) => plant.slug)).size, plants.length, "Imported slugs must be unique.");
@@ -886,4 +863,4 @@ function generate() {
   }, null, 2));
 }
 
-generate();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) generate();

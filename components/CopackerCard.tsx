@@ -1,3 +1,4 @@
+import { smallRunOptionLabel } from "@/lib/directory/small-runs.mjs";
 import {
   OPERATION_TYPE_LABELS,
   PRODUCT_CATEGORIES,
@@ -108,8 +109,8 @@ export function CopackerCard({ plant, prioritizedCategory }: { plant: Plant; pri
 
         {smallRunSignal ? (
           <p className="small-run-signal" title="Public source signal only. Confirm current minimums directly with the manufacturer.">
-            <strong>Small-run signal listed</strong>
-            <span>Confirm current minimums directly.</span>
+            <strong>{smallRunOptionLabel(smallRunSignal.kind)}</strong>
+            <span>Minimum and product fit need confirmation.</span>
           </p>
         ) : null}
 

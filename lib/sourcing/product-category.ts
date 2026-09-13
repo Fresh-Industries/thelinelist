@@ -43,7 +43,7 @@ function normalizeCategoryLabel(value: string): string {
 }
 
 export function resolveProductCategoryFromText(value: string): ProductCategory | null {
-  const normalized = value.toLowerCase();
+  const normalized = value.toLowerCase().replace(/hot-sauces?/g, "hot sauce");
   return CATEGORY_PATTERNS.find(([, pattern]) => pattern.test(normalized))?.[0] ?? null;
 }
 

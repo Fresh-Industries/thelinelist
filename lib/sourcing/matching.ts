@@ -1,7 +1,10 @@
 import { getDirectoryPlants, type Plant } from "@/lib/directory";
 import type { EvidenceField } from "@/lib/directory/types";
+import { publishedCapabilityStatus } from "@/lib/directory/capability-evidence.mjs";
+import { HOT_SAUCE_PATTERN, hasHotSauceClaim } from "@/lib/directory/hot-sauce.mjs";
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { interpretGeographyPreference } from "./geography";
+import { selectProductionMinimum, requestHasMinimumScope } from "./minimum-scope";
 import { MATCHABLE_REQUIREMENT_KEYS } from "./matching-requirements";
 import { resolveProductCategoryFromText } from "./product-category";
 import { hasMinimumMatchingInfo } from "./readiness";
@@ -110,9 +113,22 @@ function productRequirement(plant: Plant, value: string): RequirementResult[] {
   const publishedProducts = [plant.productTypesPublished, ...plant.rawProductTags ?? []].filter(Boolean).join(" ").toLowerCase();
   const hasProductSource = Boolean(plant.fieldSourceUrls?.products?.length);
   let supported = false;
-  if (/\bhot\s+sauce\b/.test(normalized)) {
+  if (HOT_SAUCE_PATTERN.test(normalized)) {
     const broadSauceSupport = plant.finderProducts.includes("sauce") && /\b(?:sauces?|salsas?|condiments?)\b/.test(publishedProducts);
-    const exactHotSauceSupport = hasProductSource && /\bhot\s+sauces?\b/.test(publishedProducts);
+    const exactHotSauceSupport = hasProductSource && hasHotSauceClaim(publishedProducts);
+    const explicitHotSauceStatus = publishedCapabilityStatus(publishedProducts, ["hot sauce", "hot sauces", "hot-sauce", "hot-sauces"]);
+    if (hasProductSource && (explicitHotSauceStatus === "mismatch" || explicitHotSauceStatus === "conflicting")) {
+      return [{
+        key: "product_type",
+        label: FIELD_DEFINITION_BY_KEY.product_type.label,
+        outcome: explicitHotSauceStatus,
+        claim: explicitHotSauceStatus === "mismatch"
+          ? "Published product information explicitly excludes hot sauce."
+          : "Published hot sauce claims conflict and need supplier clarification.",
+        sourceField: "products",
+        granularity: "exact",
+      }];
+    }
     if (exactHotSauceSupport) {
       return [{
         key: "product_type",
@@ -286,7 +302,27 @@ function publishedOunceRanges(value: string, preferredMaterial: string | null): 
   return materialMatches.length ? materialMatches : ranges;
 }
 
-function compareProductionVolume(
+export function compareProductionVolume(
+  requestedValue: string,
+  packageSize: string | null,
+  requestedPackageFormat: string | null,
+  publishedMinimum: string | null,
+): { compatible: boolean | null; claim: string } | null {
+  const selected = selectProductionMinimum(requestedValue, publishedMinimum);
+  if (!selected.text) return selected.reason ? { compatible: null, claim: selected.reason } : null;
+  if (/\b(?:\d[\d,]*\s*(?:-|–|to)\s*\d[\d,]*|annual|year|quarter|month)\b/i.test(requestedValue)) {
+    return { compatible: null, claim: "Confirm a first-run quantity with units and the amount per SKU or flavor before comparing minimums." };
+  }
+  const comparison = compareProductionVolumeUnscoped(requestedValue, packageSize, requestedPackageFormat, selected.text);
+  if (!comparison) return null;
+  const requestHasDifferentBasis = /\b(?:per|each)\s+(?:SKU|flavo[u]?r|product|run|batch|order)\b/i.test(requestedValue);
+  if (selected.scope && !requestHasMinimumScope(requestedValue, selected.scope) && (comparison.compatible || requestHasDifferentBasis)) {
+    return { compatible: null, claim: `The published minimum applies per ${selected.scope}. Confirm the quantity per ${selected.scope} before treating this as a fit.` };
+  }
+  return { ...comparison, claim: selected.scope ? `${comparison.claim} This minimum applies per ${selected.scope}.` : comparison.claim };
+}
+
+function compareProductionVolumeUnscoped(
   requestedValue: string,
   packageSize: string | null,
   requestedPackageFormat: string | null,
@@ -301,7 +337,7 @@ function compareProductionVolume(
   if (requestedUnit === "unit" && caseComparison) return caseComparison;
 
   const minimum = publishedMinimum.match(/\b(?:minimum(?:\s+(?:batch|runs?))?|floor|starts?\s+(?:as\s+low\s+as|at)|starting\s+at|(?:contact\s+form\s+)?lowest\s+band\s+is)\s*:?\s*(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
-  if (!minimum) return null;
+  if (!minimum || /[\d,.]\s*(?:-|–|to)\s*$/.test(publishedMinimum.slice(0, minimum.index))) return null;
   const minimumAmount = Number(minimum[1].replaceAll(",", ""));
   const minimumUnit = unitFamily(minimum[2]);
 
@@ -327,6 +363,8 @@ function compareProductionVolume(
     };
   }
 
+  if (requestedUnit === "unit" && minimumUnit === "unit" && requestedContainer !== minimumContainer) return null;
+
   if (requestedUnit === minimumUnit) {
     const compatible = requestedAmount >= minimumAmount;
     return {
@@ -337,7 +375,8 @@ function compareProductionVolume(
     };
   }
 
-  const packageOunces = parseOunces(packageSize);
+  const fluidSize = [packageSize, requestedPackageFormat].find((size) => size && /\b(?:fl\.?\s*oz|fluid\s+ounces?)\b/i.test(size));
+  const packageOunces = fluidSize ? parseOunces(fluidSize) : null;
   if (minimumUnit === "volume" && requestedUnit === "unit" && packageOunces !== null && /gallons?|gal/i.test(minimum[2])) {
     const requestedGallons = requestedAmount * packageOunces / 128;
     const compatible = requestedGallons >= minimumAmount;
@@ -360,7 +399,7 @@ function compareCasePackMinimum(
   const requestedContainer = containerFamily(requestedUnitLabel);
   if (!requestedContainer) return null;
   const requestedOunces = parseOunces(packageSize);
-  const segments = publishedMinimum.split(/[;\n]+/);
+  const segments = publishedMinimum.split(/[;\n]+/).filter((segment) => !/\b(?:maximum|capacity|up to|per year)\b/i.test(segment));
   for (const segment of segments) {
     const cases = segment.match(/\b(approximately|approx\.?|about|around|roughly|~)?\s*(\d[\d,]*(?:\.\d+)?)\s*x?\s*cases?\b/i);
     if (!cases) continue;
@@ -783,12 +822,13 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       const recognized = mappings.filter(([pattern]) => pattern.test(value));
       if (!recognized.length) return null;
       return recognized.map((mapping) => {
-        const supported = includesAny(text, mapping[1]);
+        const outcome = publishedCapabilityStatus(text, mapping[1]);
+        const supported = outcome === "supported";
         return {
           key,
           label: `${label}: ${mapping[2]}`,
-          outcome: supported ? "supported" as const : "unknown" as const,
-          claim: supported ? `${mapping[2]} is publicly listed.` : `${mapping[2]} is not publicly listed.`,
+          outcome,
+          claim: supported ? `${mapping[2]} is publicly listed.` : outcome === "mismatch" ? `Published information explicitly excludes ${mapping[2]}.` : outcome === "conflicting" ? `Published statements about ${mapping[2]} conflict; confirm the exact line.` : `${mapping[2]} is not publicly listed.`,
           sourceField: "processes" as const,
           granularity: "exact" as const,
         };
@@ -863,13 +903,13 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       return results.length ? results : null;
     }
     case "production_volume": {
-      const comparison = compareProductionVolume(value, workspace.fields.packaging_size.value, workspace.fields.packaging_format.value, plant.moqDisplay);
-      const hasPublishedMinimumEvidence = Boolean(plant.fieldSourceUrls?.minimums?.length || plant.smallRunSignal?.sourceUrls.length);
+      const comparison = compareProductionVolume(value, fieldValue(workspace, "packaging_size"), fieldValue(workspace, "packaging_format"), plant.moqDisplay);
+      const hasPublishedMinimumEvidence = Boolean(plant.fieldSourceUrls?.minimums?.length);
       if (comparison && hasPublishedMinimumEvidence) {
         return {
           key,
           label,
-          outcome: comparison.compatible ? "supported" : "mismatch",
+          outcome: comparison.compatible === null ? "unknown" : comparison.compatible ? "supported" : "mismatch",
           claim: comparison.claim,
           sourceField: "minimums",
           notes: plant.moqDisplay ?? undefined,
@@ -890,11 +930,11 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
         : /refrigerat|chilled|cold/.test(wanted) ? ["refrigerated", "chilled", "cold storage", "cold chain"]
         : /frozen|freezer/.test(wanted) ? ["frozen", "freezer"] : [];
       if (!terms.length) return null;
-      const supported = includesAny(text, terms);
+      const outcome = publishedCapabilityStatus(text, terms);
       return {
         key, label,
-        outcome: supported ? "supported" : "unknown",
-        claim: supported ? `Published information supports ${value}.` : `${value} storage or distribution capability is not publicly established.`,
+        outcome,
+        claim: outcome === "supported" ? `Published information supports ${value}.` : outcome === "mismatch" ? `Published information explicitly excludes ${value} storage or distribution.` : outcome === "conflicting" ? `Published storage statements conflict for ${value}; confirm the exact product and line.` : `${value} storage or distribution capability is not publicly established.`,
         sourceField: "processes",
       };
     }
@@ -925,7 +965,7 @@ function evidenceFor(plant: Plant, result: RequirementResult): MatchEvidence {
     sourceType,
     sourceUrl,
     sourceLabel,
-    lastReviewed: plant.lastVerified,
+    lastReviewed: result.sourceField ? plant.fieldReviewDates?.[result.sourceField] ?? plant.lastVerified : plant.lastVerified,
     confidence: plant.confidence ?? null,
     notes: result.notes ?? (!hasFieldSpecificSource && plant.listingStatus !== undefined ? "Record-level public source; a field-specific URL is not stored." : null),
   };
@@ -992,7 +1032,7 @@ export function matchManufacturerRecords(
     const productCandidate = product ? isProductCandidate(plant, product, allowBroadProduct) : false;
     const geographySupport = supported.some((result) => result.key === "preferred_geography");
     const evidenceCaveat = [
-      conflicts.length ? `${conflicts.length} possible conflict${conflicts.length === 1 ? " needs" : "s need"} review.` : null,
+      conflicts.length ? `${conflicts.length} incompatibilit${conflicts.length === 1 ? "y or conflicting claim needs" : "ies or conflicting claims need"} review.` : null,
       unknowns.length ? `${unknowns.length} important detail${unknowns.length === 1 ? " remains" : "s remain"} to confirm.` : null,
     ].filter(Boolean).join(" ") || "Within the requirements evaluated here, no conflict or unknown was recorded.";
     const match: ManufacturerMatch = {
@@ -1031,6 +1071,7 @@ export function matchManufacturerRecords(
       requiredGaps: requiredGapCount(results, required, priorityFor),
       preferredSupport: activeResults.filter((result) => priorityFor(result) === "preferred" && result.outcome === "supported").length,
       preferredConflicts: activeResults.filter((result) => priorityFor(result) === "preferred" && (result.outcome === "mismatch" || result.outcome === "conflicting")).length,
+      hardConflicts: activeResults.filter((result) => ["packaging_format", "packaging_size", "production_volume", "manufacturing_process", "storage_distribution"].includes(result.key) && (result.outcome === "mismatch" || result.outcome === "conflicting")).length,
       hardPreferredConflicts: activeResults.filter((result) => priorityFor(result) === "preferred"
         && (result.key === "packaging_format" || result.key === "packaging_size" || result.key === "production_volume")
         && (result.outcome === "mismatch" || result.outcome === "conflicting")).length,
@@ -1040,6 +1081,7 @@ export function matchManufacturerRecords(
 
   return ranked
     .sort((left, right) => left.requiredGaps - right.requiredGaps
+      || left.hardConflicts - right.hardConflicts
       || Number(right.productSupport) - Number(left.productSupport)
       || left.hardPreferredConflicts - right.hardPreferredConflicts
       || right.preferredSupport - left.preferredSupport

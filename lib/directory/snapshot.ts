@@ -34,6 +34,7 @@ function topValues(values: string[], limit = 3): string[] {
 export function comparableMoq(value: string | null): { amount: number; unit: string } | null {
   if (
     !value
+    || /\b(?:pilot|private[- ]label|wholesale|annual|capacity|standard batch|lowest band)\b/i.test(value)
     || /\bunpublished\b|\bnot (?:published|stated)\b|\bno (?:per-SKU unit MOQ|minimums?|numeric)\b|exact (?:units?|MOQ)|minimums? vary|run range|projects? start at \$/i.test(value)
   ) return null;
   const hasMinimumIntent = /\b(?:minimum|MOQ|as low as|as small as|starting at|starts? at|per (?:run|SKU|flavor)|runs?|batch)\b|\d\s*\+/i.test(value);
@@ -58,10 +59,10 @@ export function comparableMoq(value: string | null): { amount: number; unit: str
 export function categorySnapshot(plants: Plant[]): CategorySnapshot {
   const comparable = plants.flatMap((plant) => {
     const parsed = comparableMoq(plant.moqDisplay);
-    return parsed ? [parsed] : [];
+    return parsed ? [{ ...parsed, scope: plant.moqDisplay?.match(/\bper[- ](SKU|flavo[u]?r|product|run|batch|order)\b/i)?.[1].toLowerCase() ?? "unspecified basis" }] : [];
   });
   const byUnit = new Map<string, number[]>();
-  for (const item of comparable) byUnit.set(item.unit, [...(byUnit.get(item.unit) ?? []), item.amount]);
+  for (const item of comparable) byUnit.set(`${item.unit} / ${item.scope}`, [...(byUnit.get(`${item.unit} / ${item.scope}`) ?? []), item.amount]);
   const comparableGroup = [...byUnit]
     .filter(([, amounts]) => amounts.length >= 2)
     .sort((left, right) => right[1].length - left[1].length || left[0].localeCompare(right[0]))[0];

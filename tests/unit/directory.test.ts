@@ -299,14 +299,14 @@ describe("directory trust and pagination", () => {
   it("reports the complete Hot Sauce snapshot without mixing MOQ units", () => {
     const plants = filterPlants({ category: "hot-sauce" });
 
-    expect(plants).toHaveLength(20);
+    expect(plants).toHaveLength(21);
     expect(plants.map((plant) => plant.slug)).toContain("creative-foodworks");
     expect(plants.map((plant) => plant.slug)).not.toContain("acecopack");
     expect(categorySnapshot(plants)).toMatchObject({
-      matchingManufacturers: 20,
-      publishingMinimums: 2,
-      comparableMoqRange: "50–1,000 gallons across 2 published minimums",
-      commonProcesses: ["Acidified", "Hot fill", "Cold fill"],
+      matchingManufacturers: 21,
+      publishingMinimums: 0,
+      comparableMoqRange: null,
+      commonProcesses: ["Acidified", "Hot fill", "Kettle"],
       commonPackaging: ["bottles", "jars", "pouches"],
       states: ["CO", "DE", "FL", "GA", "IN", "MI", "NH", "NJ", "NY", "PA", "TX", "VA", "WI"],
     });
@@ -338,9 +338,9 @@ describe("directory trust and pagination", () => {
     expect(disclosed).not.toContain("craft-cannery");
   });
 
-  it("keeps standard batch disclosures in the minimum filter after copy normalization", () => {
+  it("keeps standard batch sizes separate from disclosed minimums", () => {
     const disclosed = filterPlants({ moqDisclosed: true }).map((plant) => plant.slug);
-    expect(disclosed).toContain("bevpro-solutions-formerly-beer-dudes-canning");
+    expect(disclosed).not.toContain("bevpro-solutions-formerly-beer-dudes-canning");
     expect(disclosed).toContain("st-cousair");
     expect(disclosed).toContain("oregon-trail-mountain-spring-water");
   });

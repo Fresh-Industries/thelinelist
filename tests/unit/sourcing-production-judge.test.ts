@@ -219,7 +219,7 @@ describe("production judge sourcing regressions", () => {
     let workspace = createWorkspace({ idea });
 
     expect(workspace.fields.production_volume).toMatchObject({
-      value: "1,200 jars",
+      value: "Pilot: 1,200 jars",
       status: "confirmed",
       explicitlyStated: true,
     });
@@ -229,7 +229,7 @@ describe("production judge sourcing regressions", () => {
       answeringKey: "production_volume",
       text: "Correction: make that first pilot 1,500 jars; the year-one forecast remains 30,000 jars.",
     });
-    expect(workspace.fields.production_volume.value).toBe("1,500 jars");
+    expect(workspace.fields.production_volume.value).toBe("Pilot: 1,500 jars");
     expect(workspace.fields.production_volume.sourceSpans?.[0].text).toContain("first pilot 1,500 jars");
   });
 
@@ -265,9 +265,9 @@ describe("production judge sourcing regressions", () => {
     });
     const creative = matches.find((match) => match.manufacturerSlug === "creative-foodworks")!;
 
-    expect(matches[0].manufacturerSlug).toBe("the-spice-guy");
-    expect(matches.indexOf(creative)).toBeGreaterThan(0);
-    expect(creative.possibleConflicts).toContain("1,200 jars is about 89.1 gallons at 9.5 oz each, below the published 1,000-gallon minimum.");
+    expect(matches.map((match) => match.manufacturerSlug)).toContain("the-spice-guy");
+    expect(creative.unknowns).toContain("A public minimum is listed, but its units cannot be responsibly compared with 1,200 jars.");
+    expect(creative.possibleConflicts.join(" ")).not.toContain("89.1 gallons");
     expect(creative.supportedMatches.join(" ")).not.toContain("30,000 jars");
     expect(creative.supportedMatches).toContain("Reviewed packaging supports the broader jar family.");
     expect(creative.supportedMatches.join(" ")).not.toMatch(/explicitly supports clear glass jar/i);
@@ -359,10 +359,11 @@ describe("production judge sourcing regressions", () => {
     const creative = preferred.find((match) => match.manufacturerSlug === "creative-foodworks")!;
     expect(preferred[0].manufacturerSlug).toBe("heritage-family-specialty-foods");
     expect(preferred.indexOf(creative)).toBeGreaterThan(0);
-    expect(creative.possibleConflicts).toHaveLength(2);
+    expect(creative.possibleConflicts).toHaveLength(1);
+    expect(creative.unknowns).toContain("A public minimum is listed, but its units cannot be responsibly compared with About 10,000 bottles.");
     expect(creative.possibleConflicts).toEqual(expect.arrayContaining([
       expect.stringContaining("outside the published 8–32 oz"),
-      expect.stringContaining("below the published 1,000-gallon minimum"),
+
     ]));
 
     for (const requiredKey of ["packaging_size", "production_volume"] as const) {

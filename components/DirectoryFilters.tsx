@@ -612,7 +612,7 @@ export function DirectoryFilters({
                 />
                 Publicly lists a small-run signal ({facetCounts.smallRunSignal})
               </label>
-              <small>Based only on a sourced MOQ, first-run, test-run, pilot-run, or small-run statement. Confirm current minimums directly.</small>
+              <small>Explicit small-batch, pilot, or private-label options only. Each offer has its own terms; an unknown minimum is not confirmed fit.</small>
             </div>
             <div className="field">
               <label htmlFor={`${id}-operation-type`}>Operating model</label>

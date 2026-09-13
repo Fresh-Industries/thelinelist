@@ -188,6 +188,7 @@ export default async function ManufacturerPage({
             <div><dt>Manufacturing capabilities</dt><dd>{plant.manufacturingCapabilitiesPublished ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.processes} sourceNumbers={sourceNumbers} /></dd></div>
             <div><dt>Packaging</dt><dd>{plant.packaging ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.packaging} sourceNumbers={sourceNumbers} /></dd></div>
             <div><dt>Published minimum</dt><dd>{plant.moqDisplay ?? <Unpublished />}<FieldCitations urls={plant.fieldSourceUrls?.minimums} sourceNumbers={sourceNumbers} /></dd></div>
+            {plant.contactReview ? <div><dt>Contact review</dt><dd>{plant.contactReview.note} Public sources checked {formatLastVerified(plant.contactReview.reviewedAt)}; no supplier confirmation.<FieldCitations urls={plant.contactReview.sourceUrls} sourceNumbers={sourceNumbers} /></dd></div> : null}
             <div><dt>Source basis</dt><dd>{claimSourceLabel(plant)}</dd></div>
             <div><dt>Operating model</dt><dd>{plant.operationType ? OPERATION_TYPE_LABELS[plant.operationType] : (plant.operationTypePublished ?? <Unpublished />)}</dd></div>
             <div><dt>Website</dt><dd><a href={plant.website.href} rel="noreferrer">Visit official website</a></dd></div>

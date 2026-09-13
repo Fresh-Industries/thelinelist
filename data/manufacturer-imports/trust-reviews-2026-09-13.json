@@ -1,0 +1,170 @@
+{
+  "create-a-pack-foods-inc": {
+    "reviewedAt": "2026-09-13",
+    "data": {
+      "moqDisplay": "Minimum 50,000 units for glass bottles, plastic bottles, or pouches; the contact form labels its first quantity option as 50,000 minimum to 100,000.",
+      "publishedSmallMoq": true
+    },
+    "fields": {
+      "minimums": [
+        "https://www.capfoodinc.com/contact/"
+      ]
+    },
+    "contact": {
+      "status": "publicly-listed",
+      "sourceUrls": [
+        "https://www.capfoodinc.com/contact/"
+      ],
+      "note": "Official page lists 262-567-6069 and an inquiry form. No public email was found; keep email unknown."
+    },
+    "basis": "Official form HTML explicitly says 50,000 minimum to 100,000 for glass bottles, plastic bottles and pouches. The older import only retained lowest band, losing the minimum qualifier. Public-source review, not supplier confirmation."
+  },
+  "creative-foodworks": {
+    "reviewedAt": "2026-09-13",
+    "data": {
+      "publicEmail": "info@creativefw.com",
+      "phone": "(210) 212-4761"
+    },
+    "fields": {
+      "minimums": [
+        "https://creativefw.com/products/hot-sauces"
+      ],
+      "products": [
+        "https://creativefw.com/products/hot-sauces"
+      ]
+    },
+    "contact": {
+      "status": "publicly-listed",
+      "sourceUrls": [
+        "https://creativefw.com/products/hot-sauces"
+      ],
+      "note": "Official footer lists the company inbox and main phone. No named recipient is inferred."
+    },
+    "basis": "Official product page reconfirms hot sauces and 1,000 gallons with quarterly orders. It does not establish a separate pilot minimum."
+  },
+  "palace-foods-inc": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {},
+    "contact": {
+      "status": "publicly-listed",
+      "sourceUrls": [
+        "https://palacefoodsinc.com/"
+      ],
+      "note": "The current official footer reconfirms thepalacefoods@yahoo.com and 610-939-0631. The prior audit's older inbox is already absent from the current record."
+    },
+    "basis": "Company-published contact information, not a reply or supplier-confirmed project fit. The 500-jar example is not an explicit guaranteed MOQ."
+  },
+  "byler-canning-co-byler-s-relish-house": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {
+      "minimums": [
+        "https://bylercanningco.com/private-label/"
+      ]
+    },
+    "contact": {
+      "status": "publicly-listed",
+      "sourceUrls": [
+        "https://bylercanningco.com/",
+        "https://bylercanningco.com/contact-us/"
+      ],
+      "note": "Official HTML contains Sales@BylerCanningCo.com (case-equivalent to the current sales@ inbox); keep the company inbox without assigning a named person. The page text extractor omits it. Phone not independently rechecked."
+    },
+    "basis": "Private-label catalog products: 20 cases per product. Unlabeled products: $750 per order. Label design is a separate fee. None establishes a custom-recipe production minimum."
+  },
+  "the-spice-guy": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {
+      "minimums": [
+        "https://saucecopackers.com/faq"
+      ],
+      "products": [
+        "https://saucecopackers.com/"
+      ]
+    },
+    "contact": {
+      "status": "needs-verification",
+      "sourceUrls": [
+        "https://saucecopackers.com/"
+      ],
+      "note": "Official sauce division offers a contact form. No public email or phone was found on that page; keep both unknown."
+    },
+    "basis": "50 gallons per flavor remains publicly stated. Startup assistance does not confirm a founder's total quantity fits each flavor."
+  },
+  "heritage-family-specialty-foods": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {
+      "products": [
+        "https://heritagefamilyfoods.com/capabilities/"
+      ]
+    },
+    "contact": {
+      "status": "needs-verification",
+      "sourceUrls": [
+        "https://heritagefamilyfoods.com/capabilities/"
+      ],
+      "note": "Product source reconfirmed; dedicated contact-page retrieval was unsuccessful. Existing phone remains an older public claim; email remains unknown."
+    },
+    "basis": "Capabilities explicitly lists Hot Sauce. Existing reviewed product text already contains it; the directory's frozen category array was ignoring the correction. Processing, storage and packaging still require separate matching."
+  },
+  "croix-valley-foods": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {
+      "processes": [
+        "https://www.croixvalleyfoods.com/pages/copacking"
+      ]
+    },
+    "contact": {
+      "status": "needs-verification",
+      "sourceUrls": [
+        "https://www.croixvalleyfoods.com/pages/contact-us",
+        "https://www.croixvalleyfoods.com/pages/copacking"
+      ],
+      "note": "The official site lists 715-800-6328 in its header and 612-756-4985 in the contact body. Keep the existing sourced number; confirm the preferred production contact. Company inbox info@croixvalleyfoods.com is reconfirmed."
+    },
+    "basis": "The official co-packing page explicitly excludes cold-fill products. The previous imported cold-fill tag contradicted its own source summary."
+  },
+  "hno-blending-solutions": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {},
+    "contact": {
+      "status": "needs-verification",
+      "sourceUrls": [
+        "https://www.hnoblendingsolutions.com/Contact"
+      ],
+      "note": "Official contact-page retrieval was unsuccessful. Existing phone and email remain older public claims, not freshly verified contacts."
+    },
+    "basis": "Source snapshot says old acidified-canning/hot-pack seed claims were not found on the official site. Remove the acidified search tag; keep the raw source note."
+  },
+  "lupo-s-bottling-llc": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {},
+    "contact": {
+      "status": "needs-verification",
+      "sourceUrls": [
+        "https://www.spiedies.com/"
+      ],
+      "note": "The retail official site lists 1-800-388-5352. It does not reconfirm the directory-published bottling contact 607-765-7639 or lupostephen@gmail.com. Keep those as older directory claims pending confirmation; do not substitute the retail contact for a production contact."
+    },
+    "basis": "Source snapshot explicitly says no cook/hot-fill. Remove the contradictory hot-fill filter tag. Cold-fill remains the directory-sourced statement, not a new official verification."
+  },
+  "pack-n-fresh": {
+    "reviewedAt": "2026-09-13",
+    "data": {},
+    "fields": {},
+    "contact": {
+      "status": "publicly-listed",
+      "sourceUrls": [
+        "https://packnfresh.com/contact/"
+      ],
+      "note": "Official page reconfirms info@packnfresh.com and the 888.70.FRESH toll-free number; it also lists 847-727-0386. No named recipient is inferred."
+    },
+    "basis": "Official page describes packaging, mixing and fulfillment. The source snapshot rejected the old acidified co-packer claim; remove that unsupported tag."
+  }
+}

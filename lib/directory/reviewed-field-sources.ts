@@ -1,3 +1,5 @@
+import trustReviews from "@/data/manufacturer-imports/trust-reviews-2026-09-13.json";
+import { hasHotSauceClaim } from "./hot-sauce.mjs";
 import type { EvidenceField, Plant, SourceLink } from "./types";
 
 interface ReviewedSourceOverride {
@@ -140,16 +142,29 @@ function mergeLinks(current: SourceLink[], additions: SourceLink[]): SourceLink[
   return [...new Map([...current, ...additions].map((link) => [link.href, link])).values()];
 }
 
+type TrustReview = { reviewedAt: string; data: Partial<Plant>; fields: Partial<Record<EvidenceField, string[]>>; contact: Omit<NonNullable<Plant["contactReview"]>, "reviewedAt"> };
+
 export function applyReviewedFieldSources(plant: Plant): Plant {
   const override = REVIEWED_SOURCE_OVERRIDES[plant.slug];
-  if (!override) return plant;
-  return {
+  const review = (trustReviews as Record<string, TrustReview>)[plant.slug];
+  const result: Plant = {
     ...plant,
-    ...override.data,
-    extraLinks: mergeLinks(plant.extraLinks ?? [], override.links),
-    fieldSourceUrls: {
-      ...plant.fieldSourceUrls,
-      ...override.fields,
-    },
+    ...override?.data,
+    ...review?.data,
+    extraLinks: mergeLinks(plant.extraLinks ?? [], [
+      ...override?.links ?? [],
+      ...review?.contact.sourceUrls.filter((href) => href !== plant.website.href && !plant.extraLinks?.some((link) => link.href === href)).map((href, index) => ({ label: `Contact review ${index + 1}`, href })) ?? [],
+    ]),
+    fieldSourceUrls: plant.fieldSourceUrls || override?.fields || review?.fields ? { ...plant.fieldSourceUrls, ...override?.fields, ...review?.fields } : undefined,
+    ...(review ? {
+      contactReview: { ...review.contact, reviewedAt: review.reviewedAt },
+      fieldReviewDates: Object.fromEntries(Object.keys(review.fields).map((key) => [key, review.reviewedAt])),
+    } : {}),
   };
+  // Reviewed product corrections must reach profile chips as well as search.
+  if (result.categories) {
+    result.categories = result.categories.filter((category) => category !== "hot-sauce");
+    if (hasHotSauceClaim([result.productTypesPublished, ...result.rawProductTags ?? []].filter(Boolean).join("; "))) result.categories.push("hot-sauce");
+  }
+  return result;
 }

@@ -1,3 +1,4 @@
+import { hasHotSauceClaim } from "./hot-sauce.mjs";
 import type { Plant } from "./types";
 
 export type ProductMacroSlug =
@@ -120,6 +121,7 @@ export function isProductCategorySlug(value: string): value is ProductCategorySl
 }
 
 export function plantMatchesCategory(plant: Plant, category: ProductCategorySlug): boolean {
+  if (category === "hot-sauce") return hasHotSauceClaim([plant.productTypesPublished, ...(plant.rawProductTags ?? [])].filter(Boolean).join("; "));
   if (plant.categories) return plant.categories.includes(category);
 
   const disclosedText = [

@@ -186,7 +186,7 @@ function approvedWorkspace(): SourcingWorkspace {
     deliveryError: null,
     humanSendTokenHash: null,
     humanSendTokenExpiresAt: null,
-    createdAt: now,
+    createdAt: researched.manufacturerResearch!.ranAt,
     updatedAt: now,
   };
   return { ...researched, outreachDrafts: [draft] };
