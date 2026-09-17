@@ -1,0 +1,6 @@
+Current browser validation: 11 distinct targeted checks passed.
+Initial run: 10 passed, 1 failed (1.3m). See browser-checks-first-pass.log.
+Failure: new test expected the directory label in the profile heading. The profile uses a generic heading and correctly displays the private-label evidence.
+Changed only that new test assertion to check the private-label evidence; the directory label assertion remains.
+Targeted rerun: 1 passed (8.9s), exit 0. See browser-checks-consolidated-mills.log.
+All runs used the local development server at http://127.0.0.1:3037 with database/blob/Vercel credentials removed from the process environment.

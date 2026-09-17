@@ -1,0 +1,390 @@
+
+ RUN  v4.1.11 /Users/nikolasmanuel/thelinelist-evidence-parsing
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts (100 tests | 27 failed) 236ms
+     × preserves quantity context total across 4 runs through source spans, storage and matching 45ms
+     × preserves quantity context across 4 production runs through source spans, storage and matching 9ms
+     × preserves quantity context across seven runs through source spans, storage and matching 4ms
+     × preserves quantity context in total across twelve batches through source spans, storage and matching 5ms
+     × preserves quantity context total across 4 orders through source spans, storage and matching 4ms
+     × preserves quantity context total across 4 SKUs through source spans, storage and matching 3ms
+     × preserves quantity context total across 4 products through source spans, storage and matching 3ms
+     × preserves quantity context total across 4 flavors through source spans, storage and matching 5ms
+     × preserves quantity context split among seven production runs through source spans, storage and matching 5ms
+     × preserves quantity context across an undecided number of production runs through source spans, storage and matching 3ms
+     × preserves quantity context split according to demand through source spans, storage and matching 3ms
+     × keeps an explicit per production run quantity comparable after reload 3ms
+     × keeps an explicit for each production run quantity comparable after reload 2ms
+     × does not use an unbound quantity from Minimum 500 bottles and 2000 bottles 1ms
+     × does not use an unbound quantity from Minimum 500 bottles or 2000 bottles 0ms
+     × does not use an unbound quantity from Minimum 500 bottles plus 2000 bottles 0ms
+     × does not use an unbound quantity from Minimum 500 bottles and 2000 jars 0ms
+     × retains published case-pack and equivalent-yield context 2ms
+     × We do not yet offer hot-fill. => mismatch 2ms
+     × Hot-fill is not yet offered. => mismatch 1ms
+     × Hot-fill is not yet confirmed. => unknown 0ms
+     × We have not yet confirmed hot-fill. => unknown 0ms
+     × Hot-fill isn't yet available. => mismatch 0ms
+     × does not publish a small-run label for We do not yet offer small-batch co-packing. 6ms
+     × does not publish a small-run label for Small-batch co-packing is not yet offered. 1ms
+     × does not publish a small-run label for Small-batch co-packing is not yet confirmed. 1ms
+     × keeps Consolidated Mills limited to its reviewed private-label catalog recipes 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 27 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context total across 4 runs through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles total across 4 runs' // Object.is equality
+
+Expected: "1000 bottles total across 4 runs"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context across 4 production runs through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles across 4 production runs' // Object.is equality
+
+Expected: "1000 bottles across 4 production runs"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context across seven runs through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles across seven runs' // Object.is equality
+
+Expected: "1000 bottles across seven runs"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context in total across twelve batches through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles in total across twelve b…' // Object.is equality
+
+Expected: "1000 bottles in total across twelve batches"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context total across 4 orders through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles total across 4 orders' // Object.is equality
+
+Expected: "1000 bottles total across 4 orders"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context total across 4 SKUs through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles total across 4 SKUs' // Object.is equality
+
+Expected: "1000 bottles total across 4 SKUs"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context total across 4 products through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles total across 4 products' // Object.is equality
+
+Expected: "1000 bottles total across 4 products"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context total across 4 flavors through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles total across 4 flavors' // Object.is equality
+
+Expected: "1000 bottles total across 4 flavors"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context split among seven production runs through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles split among seven produc…' // Object.is equality
+
+Expected: "1000 bottles split among seven production runs"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context across an undecided number of production runs through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles across an undecided numb…' // Object.is equality
+
+Expected: "1000 bottles across an undecided number of production runs"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves quantity context split according to demand through source spans, storage and matching
+AssertionError: expected '1000 bottles' to be '1000 bottles split according to demand' // Object.is equality
+
+Expected: "1000 bottles split according to demand"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:52:25
+     50|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     51|     const field = saved.fields.production_volume;
+     52|     expect(field.value).toBe(quantity);
+       |                         ^
+     53|     expect(field.sourceSpans?.[0].text).toContain(quantity);
+     54|     for (const span of field.sourceSpans ?? []) expect(idea.slice(span…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > keeps an explicit per production run quantity comparable after reload
+AssertionError: expected '1000 bottles' to be '1000 bottles per production run' // Object.is equality
+
+Expected: "1000 bottles per production run"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:64:50
+     62|     await saveSourcingWorkspace(workspace, null);
+     63|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     64|     expect(saved.fields.production_volume.value).toBe(`1000 bottles ${…
+       |                                                  ^
+     65|     expect(compare(saved.fields.production_volume.value!, `Minimum 500…
+     66|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > keeps an explicit for each production run quantity comparable after reload
+AssertionError: expected '1000 bottles' to be '1000 bottles for each production run' // Object.is equality
+
+Expected: "1000 bottles for each production run"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:64:50
+     62|     await saveSourcingWorkspace(workspace, null);
+     63|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     64|     expect(saved.fields.production_volume.value).toBe(`1000 bottles ${…
+       |                                                  ^
+     65|     expect(compare(saved.fields.production_volume.value!, `Minimum 500…
+     66|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > does not use an unbound quantity from Minimum 500 bottles and 2000 bottles
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > does not use an unbound quantity from Minimum 500 bottles or 2000 bottles
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > does not use an unbound quantity from Minimum 500 bottles plus 2000 bottles
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > does not use an unbound quantity from Minimum 500 bottles and 2000 jars
+AssertionError: expected true to be null
+
+- Expected:
+null
+
++ Received:
+true
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:92:46
+     90|     "Minimum 500 bottles and 2000 jars",
+     91|   ])("does not use an unbound quantity from %s", (minimum) => {
+     92|     expect(compare("1000 bottles", minimum)).toBeNull();
+       |                                              ^
+     93|     expect(compare("3000 bottles", minimum)).toBeNull();
+     94|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > retains published case-pack and equivalent-yield context
+AssertionError: expected null to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:106:79
+    104|     expect(compare("1200 bottles", "Minimum 100 cases of 12 bottles"))…
+    105|     expect(compare("1000 bottles", "Minimum 100 cases of 12 bottles"))…
+    106|     expect(compare("1200 bottles", "Minimum 100 cases, 12 bottles per …
+       |                                                                               ^
+    107|     expect(compareProductionVolume("4000 bottles", "5 fl oz", "Glass b…
+    108|     expect(compareProductionVolume("1000 bottles", "5 fl oz", "Glass b…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > We do not yet offer hot-fill. => mismatch
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill is not yet offered. => mismatch
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill isn't yet available. => mismatch
+AssertionError: expected 'supported' to be 'mismatch' // Object.is equality
+
+Expected: "mismatch"
+Received: "supported"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:161:72
+    159|     ["Hot-fill and cold-fill are available.", "supported"],
+    160|   ] as const)("%s => %s", (claim, status) => {
+    161|     expect(publishedCapabilityStatus(claim, ["hot-fill", "hot fill"]))…
+       |                                                                        ^
+    162|     const record = plant(claim);
+    163|     expect(record.finderProcesses.includes("hot-fill")).toBe(status ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill is not yet confirmed. => unknown
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > We have not yet confirmed hot-fill. => unknown
+AssertionError: expected 'supported' to be 'unknown' // Object.is equality
+
+Expected: "unknown"
+Received: "supported"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:161:72
+    159|     ["Hot-fill and cold-fill are available.", "supported"],
+    160|   ] as const)("%s => %s", (claim, status) => {
+    161|     expect(publishedCapabilityStatus(claim, ["hot-fill", "hot fill"]))…
+       |                                                                        ^
+    162|     const record = plant(claim);
+    163|     expect(record.finderProcesses.includes("hot-fill")).toBe(status ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > does not publish a small-run label for We do not yet offer small-batch co-packing.
+AssertionError: expected { kind: 'small-batch', …(2) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "evidence": "offer small-batch co-packing",
+  "kind": "small-batch",
+  "sourceUrls": [
+    "https://example.com/copacking",
+  ],
+}
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:180:56
+    178|     "Small-batch co-packing is not yet confirmed.",
+    179|   ])("does not publish a small-run label for %s", (claim) => {
+    180|     expect(publishedSmallRunOption(claim, null, urls)).toBeUndefined();
+       |                                                        ^
+    181|     const record = { ...plant(claim), slug: "temporal-negation", small…
+    182|     expect(smallRunSignalForPlant(record)).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > does not publish a small-run label for Small-batch co-packing is not yet offered.
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > does not publish a small-run label for Small-batch co-packing is not yet confirmed.
+AssertionError: expected { kind: 'small-batch', …(2) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "evidence": "Small-batch co-packing is not",
+  "kind": "small-batch",
+  "sourceUrls": [
+    "https://example.com/copacking",
+  ],
+}
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:180:56
+    178|     "Small-batch co-packing is not yet confirmed.",
+    179|   ])("does not publish a small-run label for %s", (claim) => {
+    180|     expect(publishedSmallRunOption(claim, null, urls)).toBeUndefined();
+       |                                                        ^
+    181|     const record = { ...plant(claim), slug: "temporal-negation", small…
+    182|     expect(smallRunSignalForPlant(record)).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/27]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > keeps Consolidated Mills limited to its reviewed private-label catalog recipes
+AssertionError: expected 'small-batch' to be 'private-label' // Object.is equality
+
+Expected: "private-label"
+Received: "small-batch"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:191:28
+    189|     const record = getPlantBySlug("consolidated-mills-inc")!;
+    190|     for (const signal of [record.smallRunSignal, smallRunSignalForPlan…
+    191|       expect(signal?.kind).toBe("private-label");
+       |                            ^
+    192|       expect(signal?.evidence).toMatch(/private[- ]label/i);
+    193|       expect(signal?.evidence).toMatch(/library of proven recipes unde…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/27]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  27 failed | 73 passed (100)
+   Start at  09:52:55
+   Duration  1.71s (transform 867ms, setup 0ms, import 1.22s, tests 236ms, environment 0ms)

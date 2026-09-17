@@ -1,0 +1,3 @@
+
+> the-line-list@0.1.0 typecheck
+> tsc --noEmit

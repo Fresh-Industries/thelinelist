@@ -5,6 +5,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { decodePDFRawStream, PDFArray, PDFDocument, PDFRawStream } from "pdf-lib";
 import { packageDesignHash } from "../../lib/sourcing/workspace";
+import type { SourcingWorkspace } from "../../lib/sourcing/types";
 
 async function visualVariationRatio(image: Buffer) {
   const rendered = await sharp(image).removeAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -1001,6 +1002,40 @@ test("zero-result research requires a visible founder-approved criteria diff and
   expect(persisted.outreach).toMatchObject({ selectedManufacturerSlugs: [], drafts: [] });
   await expect(page.getByText(/Broadened search approved/)).toBeVisible();
 });
+
+test("manual quantity intake excludes adjacent private budget wording", async ({ page }) => {
+  const idea = "Hot sauce in glass bottles. Initial order 1,000 bottles total across seven runs, and my budget is $10,000.";
+  const workspaceId = await startProduct(page, idea);
+  await page.reload();
+  const stored = await page.request.get(workspaceApiPath(workspaceId)).then((response) => response.json()) as { workspace: SourcingWorkspace };
+  const field = stored.workspace.fields.production_volume;
+  expect(field.value).toBe("1,000 bottles total across seven runs");
+  expect(field.sourceSpans?.[0].text).not.toMatch(/budget|10,000/);
+  expect(stored.workspace.fields.budget.shareWithManufacturer).toBe(false);
+});
+
+for (const quantity of ["1,000 bottles across 4 runs", "1,000 bottles total across 4 runs", "1,000 bottles across 4 production runs", "1,000 bottles across seven runs"]) {
+  test(`manual intake keeps run allocation through reload and manufacturer research: ${quantity}`, async ({ page }) => {
+    await installWebMcpHarness(page);
+    const idea = `Fictional hot sauce in glass bottles. Initial order ${quantity}.`;
+    const workspaceId = await startProduct(page, idea);
+    await page.reload();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(13);
+    const stored = await page.request.get(workspaceApiPath(workspaceId)).then((response) => response.json());
+    expect(stored.workspace.fields.production_volume).toMatchObject({ value: quantity, status: "confirmed", updatedBy: "founder" });
+    expect(stored.workspace.fields.production_volume.sourceSpans[0].text).toContain(quantity);
+    for (const span of stored.workspace.fields.production_volume.sourceSpans) expect(idea.slice(span.start, span.end)).toBe(span.text);
+    const result = await invokeWebMcp<{ manufacturerCandidates: Array<{ unknowns: string[] }> }>(page, "match_manufacturers", {
+      requiredRequirements: ["product_type"], preferredRequirements: ["production_volume"], resultLimit: 3,
+    });
+    expect(result.manufacturerCandidates.length).toBeGreaterThan(0);
+    await page.reload();
+    const researched = await page.request.get(workspaceApiPath(workspaceId)).then((response) => response.json()) as { workspace: SourcingWorkspace };
+    expect(researched.workspace.fields.production_volume.value).toBe(quantity);
+    expect(researched.workspace.matches).toHaveLength(result.manufacturerCandidates.length);
+    expect(researched.workspace).toMatchObject({ selectedManufacturerSlugs: [], outreachDrafts: [], inquiries: [] });
+  });
+}
 
 test("manual hot-sauce intake preserves stated facts and shows granular real-record evidence", async ({ page }) => {
   await installWebMcpHarness(page);

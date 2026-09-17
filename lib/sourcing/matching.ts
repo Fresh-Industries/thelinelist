@@ -4,7 +4,8 @@ import { publishedCapabilityStatus } from "@/lib/directory/capability-evidence.m
 import { HOT_SAUCE_PATTERN, hasHotSauceClaim } from "@/lib/directory/hot-sauce.mjs";
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { interpretGeographyPreference } from "./geography";
-import { selectProductionMinimum, requestHasMinimumScope } from "./minimum-scope";
+import { selectProductionMinimum, requestHasMinimumScope, hasDifferentQuantityBasis } from "./minimum-scope";
+import { quantityAllocation } from "@/lib/directory/evidence-text.mjs";
 import { MATCHABLE_REQUIREMENT_KEYS } from "./matching-requirements";
 import { resolveProductCategoryFromText } from "./product-category";
 import { hasMinimumMatchingInfo } from "./readiness";
@@ -97,7 +98,8 @@ function includesAny(text: string, terms: string[]): boolean {
 
 function hasPublishedManufacturingCapability(plant: Plant): boolean {
   const capabilities = plant.manufacturingCapabilitiesPublished?.toLowerCase() ?? "";
-  return /co-?pack|co-manufact|contract manufactur|private label|wholesale production|bakery manufacturing/.test(capabilities);
+  const terms = capabilities.match(/\b(?:co[- ]?pack(?:ing|er)?|co[- ]?manufactur\w*|contract (?:manufactur\w*|packag\w*)|private[- ]label(?:ing)?|wholesale production|bakery manufacturing)\b/gi) ?? [];
+  return publishedCapabilityStatus(capabilities, terms) === "supported";
 }
 
 function fieldValue(workspace: SourcingWorkspace, key: SourcingFieldKey): string | null {
@@ -309,17 +311,36 @@ export function compareProductionVolume(
   publishedMinimum: string | null,
 ): { compatible: boolean | null; claim: string } | null {
   const selected = selectProductionMinimum(requestedValue, publishedMinimum);
-  if (!selected.text) return selected.reason ? { compatible: null, claim: selected.reason } : null;
+  if (selected.reason) return { compatible: null, claim: selected.reason };
+  if (!selected.constraints.length) return null;
+  if (quantityAllocation(requestedValue).unresolved) {
+    return { compatible: null, claim: "The production quantity includes allocation terms that need clarification. Confirm how much applies to each run, order, or product before comparing minimums." };
+  }
+  if ([...requestedValue.matchAll(/\b\d[\d,]*(?:\.\d+)?\s*(?:bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/gi)].length > 1) {
+    return { compatible: null, claim: "More than one production quantity is stated. Confirm the quantity and allocation that apply to each minimum." };
+  }
   if (/\b(?:\d[\d,]*\s*(?:-|–|to)\s*\d[\d,]*|annual|year|quarter|month)\b/i.test(requestedValue)) {
     return { compatible: null, claim: "Confirm a first-run quantity with units and the amount per SKU or flavor before comparing minimums." };
   }
-  const comparison = compareProductionVolumeUnscoped(requestedValue, packageSize, requestedPackageFormat, selected.text);
-  if (!comparison) return null;
-  const requestHasDifferentBasis = /\b(?:per|each)\s+(?:SKU|flavo[u]?r|product|run|batch|order)\b/i.test(requestedValue);
-  if (selected.scope && !requestHasMinimumScope(requestedValue, selected.scope) && (comparison.compatible || requestHasDifferentBasis)) {
-    return { compatible: null, claim: `The published minimum applies per ${selected.scope}. Confirm the quantity per ${selected.scope} before treating this as a fit.` };
-  }
-  return { ...comparison, claim: selected.scope ? `${comparison.claim} This minimum applies per ${selected.scope}.` : comparison.claim };
+  const comparisons = selected.constraints.map(({ text, scopes, reason }) => {
+    if (reason) return { compatible: null, claim: reason };
+    if (/\b(?:unknown|not published|not stated|unpublished|not a (?:production )?minimum)\b/i.test(text)) return null;
+    const normalizedFloor = text.replace(/\b(\d[\d,]*(?:\.\d+)?\s*(?:bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?))\s+minimum\b/i, "Minimum $1");
+    const comparison = compareProductionVolumeUnscoped(requestedValue, packageSize, requestedPackageFormat, normalizedFloor);
+    if (!comparison) return null;
+    const unaligned = scopes.find((scope) => !requestHasMinimumScope(requestedValue, scope)
+      && (comparison.compatible || hasDifferentQuantityBasis(requestedValue, scope)));
+    if (unaligned) return { compatible: null, claim: `The published minimum applies per ${unaligned}. Confirm the quantity per ${unaligned} before treating this as a fit.` };
+    return { ...comparison, claim: scopes.length ? `${comparison.claim} This minimum applies per ${scopes.join(" and per ")}.` : comparison.claim };
+  });
+  // One failed applicable constraint disproves fit. Otherwise every constraint
+  // must be comparable and supported; a missing comparison stays unknown.
+  const mismatch = comparisons.find((comparison) => comparison?.compatible === false);
+  if (mismatch) return mismatch;
+  const unknown = comparisons.find((comparison) => comparison?.compatible === null);
+  if (unknown) return unknown;
+  if (comparisons.some((comparison) => !comparison)) return null;
+  return { compatible: true, claim: [...new Set(comparisons.map((comparison) => comparison!.claim))].join(" ") };
 }
 
 function compareProductionVolumeUnscoped(
@@ -336,7 +357,7 @@ function compareProductionVolumeUnscoped(
   const caseComparison = compareCasePackMinimum(requestedAmount, requested[2], packageSize, publishedMinimum);
   if (requestedUnit === "unit" && caseComparison) return caseComparison;
 
-  const minimum = publishedMinimum.match(/\b(?:minimum(?:\s+(?:batch|runs?))?|floor|starts?\s+(?:as\s+low\s+as|at)|starting\s+at|(?:contact\s+form\s+)?lowest\s+band\s+is)\s*:?\s*(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
+  const minimum = publishedMinimum.match(/\b(?:minimum(?:\s+(?:batch|runs?))?|MOQ|floor|starts?\s+(?:as\s+low\s+as|at)|starting\s+at|(?:contact\s+form\s+)?lowest\s+band\s+is)\s*:?\s*(\d[\d,]*(?:\.\d+)?)\s*(bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/i);
   if (!minimum || /[\d,.]\s*(?:-|–|to)\s*$/.test(publishedMinimum.slice(0, minimum.index))) return null;
   const minimumAmount = Number(minimum[1].replaceAll(",", ""));
   const minimumUnit = unitFamily(minimum[2]);

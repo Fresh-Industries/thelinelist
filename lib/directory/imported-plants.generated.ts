@@ -417,7 +417,7 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "private-label",
+      "kind": "small-batch",
       "evidence": "Small-batch manufacturer plus co-pack/private label of sauces, dressings, and marinades",
       "sourceUrls": [
         "https://www.allseasonskitchen.com/",
@@ -779,7 +779,7 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "private-label",
+      "kind": "small-batch",
       "evidence": "Origin About states manufacturing and packaging food to the order and specification of others, matching existing formulas or commercializing new products, small-batch or long-run options, and private label and/or Amigos Brand programs",
       "sourceUrls": [
         "https://amigosfoods.com/",
@@ -2071,7 +2071,7 @@ export const IMPORTED_PLANTS = [
     "guideRows": {},
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "small-batch pilot and pre-launch runs",
+      "evidence": "Co-manufacturing since 2018 as a Humm Kombucha division. small-batch pilot and pre-launch runs",
       "sourceUrls": [
         "https://betterbeveragecompany.com/",
         "https://betterbeveragecompany.com/capabilities/",
@@ -2338,13 +2338,12 @@ export const IMPORTED_PLANTS = [
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
     "smallRunSignal": {
-      "kind": "small-batch",
-      "evidence": "Handmade small-batch fruit-forward goods",
+      "kind": "private-label",
+      "evidence": "Private-label program supplies handmade small-batch products from the company's own formulas with custom labels. The custom-label minimum is 10 cases.",
       "sourceUrls": [
-        "https://www.blackberrypatch.com/",
-        "https://www.blackberrypatch.com/pages/wholesale",
-        "https://www.pickyourown.org/copackers-Georgia.php"
-      ]
+        "https://www.blackberrypatch.com/pages/wholesale"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Fruit syrups, preserves, jams, jellies, fruit salsas, cheese-pairing preserves (their formulas).",
@@ -2701,16 +2700,11 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "Small-batch through 250 metric tons/year claimed",
+      "evidence": "Contract manufacturing and private-label services offer small-batch tea products and blends to customer specifications. Annual plant capacity is a separate claim.",
       "sourceUrls": [
-        "https://blueoceantea.com/",
-        "https://blueoceantea.com/private-label-manufacturing/",
-        "https://blueoceantea.com/our-services/",
-        "https://blueoceantea.com/manufacturing-infrastructure/",
-        "https://blueoceantea.com/quality-assurance/",
-        "https://blueoceantea.com/contact-us/",
-        "https://www.oregon.gov/odaroadmap/operations/pages/pnw-co-packer-locator.aspx"
-      ]
+        "https://blueoceantea.com/private-label-manufacturing/"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Specialty teas, botanicals, iced teas, nutrition/wellness, functional blends; pyramid sachets; RTD CBD products listed on the private-label page.",
@@ -2845,14 +2839,6 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@bouldersausage.com",
     "operationType": "private-label-producer",
     "operationTypePublished": "private-label producer",
-    "smallRunSignal": {
-      "kind": "small-batch",
-      "evidence": "Small-batch sausage manufacturing",
-      "sourceUrls": [
-        "https://www.bouldersausage.com/",
-        "https://bouldersausage.com/food-service/"
-      ]
-    },
     "overview": [
       "Public sources list these products: Fresh and frozen sausage; breakfast links/patties; bratwurst; Italian; chorizo; specialty sausages.",
       "Public sources describe these capabilities: Small-batch sausage manufacturing; foodservice supply; custom formulations and private-label programs (claimed on food-service page)."
@@ -3459,7 +3445,7 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "private-label",
+      "kind": "small-batch",
       "evidence": "Licensed food processing plant with small-batch co-packing and private label from idea through fulfillment",
       "sourceUrls": [
         "https://www.bushelandpecks.com/",
@@ -4749,7 +4735,7 @@ export const IMPORTED_PLANTS = [
     "guideRows": {},
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "test batches",
+      "evidence": "Co-packing. test batches",
       "sourceUrls": [
         "https://coloradocopacker.com/",
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
@@ -5157,15 +5143,15 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "small-batch",
-      "evidence": "small-batch production runs for test items as well as large volume",
+      "kind": "private-label",
+      "evidence": "Private label manufacturing of salsas and sauces; small-batch production runs for test items as well as large volume; library of proven recipes under customer label.",
       "sourceUrls": [
         "https://consolidatedmills.com/",
-        "https://consolidatedmills.com/contact-us/",
         "https://consolidatedmills.com/about-us/",
         "https://consolidatedmills.com/facility/",
         "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-      ]
+      ],
+      "reviewedAt": "2026-09-17"
     },
     "overview": [
       "Public sources list these products: Dry herbs and spices; salsas and sauces; jalapeno peppers; beverage concentrates, snow-cone syrups, bar mixers, aguas frescas; food colors and flavor emulsions (origin).",
@@ -5228,7 +5214,7 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "Copy says small batch to major brand and retail prep",
+      "evidence": "Live contractcomestibles.com: full-service co packer, formulation to full production, processing, development, packaging. Copy says small batch to major brand and retail prep",
       "sourceUrls": [
         "https://contractcomestibles.com/",
         "https://www.pickyourown.org/copackers-Wisconsin.php"
@@ -5511,7 +5497,7 @@ export const IMPORTED_PLANTS = [
     "guideRows": {},
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "pilot/prototype",
+      "evidence": "Contract manufacturing. pilot/prototype",
       "sourceUrls": [
         "https://www.craftcannery.com/",
         "https://cals.cornell.edu/cornell-agritech/partners-institutes/cornell-food-venture-center/kitchensco-packers"
@@ -6692,6 +6678,14 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "inquiries@drayhorse.co",
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
+    "smallRunSignal": {
+      "kind": "pilot",
+      "evidence": "Beverage co-manufacturing offers pilot programs for client brands. No numeric minimum is stated for those programs.",
+      "sourceUrls": [
+        "https://www.drayhorse.co/"
+      ],
+      "reviewedAt": "2026-09-13"
+    },
     "overview": [
       "Public sources list these products: RTD cocktails; juices; energy drinks; other blended beverages.",
       "Public sources describe these capabilities: Philadelphia beverage co-manufacturing. Mixing/blending in glycol-cooled jacketed sterile tanks. TTB formula filing and COLA claimed. Pilot programs and lower MOQs claimed (no number). Procurement, warehousing, pallet wrap, Poly-Pak variety packs. TH!RST company with tequila supply-chain offer. Facility copy cites Port Richmond / 2150 E. Butler St, Philadelphia PA 19137.."
@@ -7616,14 +7610,12 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "Small-batch (story page says 240 jars or less per batch for their brand)",
+      "evidence": "Small-batch co-packing of client recipes is offered in the official co-pack program. Minimum 1,200 units per product; private-label catalog products are a separate program.",
       "sourceUrls": [
-        "https://foodforthought.net",
-        "https://foodforthought.net/pages/our-story",
         "https://foodforthought.net/pages/build-your-brand-with-us",
-        "https://foodforthought.net/pages/contact-us",
-        "https://www.pickyourown.org/copackers-Michigan.php"
-      ]
+        "https://foodforthought.net/pages/our-story"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Fruit preserves, jams, jellies; salsas; pasta sauces; BBQ; ketchups; salad dressings; Bloody Mary mix; dessert toppings; caramel; syrups; hot sauces; mustards (high-acid hot pack). Cannot do mayo, cheese, fresh herbs, pickled vegetables, ferment, soups, dry spices, nut butters..",
@@ -7773,6 +7765,14 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
+    "smallRunSignal": {
+      "kind": "small-batch",
+      "evidence": "Manufacturing services supply custom small-batch pasta orders for chefs, restaurants and retailers, fresh or dried and made to order. Private-label packaging consulting is also available.",
+      "sourceUrls": [
+        "https://www.forchettapasta.com/pages/5-custom-pasta"
+      ],
+      "reviewedAt": "2026-09-13"
+    },
     "overview": [
       "Public sources list these products: Fresh pasta; dried pasta; stuffed pasta; gnocchi; gluten-free pasta; sauces.",
       "Public sources describe these capabilities: Custom pasta manufacturer for chefs, restaurants, and retailers. Fresh or dried, made to order, bronze-die. Packaging consulting and private-label pasta consulting. Small-batch specialty through wholesale runs. Typical turnaround claimed 2-3 weeks.."
@@ -11517,7 +11517,7 @@ export const IMPORTED_PLANTS = [
     "guideRows": {},
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "test batches",
+      "evidence": "Co-packing. test batches",
       "sourceUrls": [
         "https://www.madwills.com",
         "https://www.madwills.com/co-packing",
@@ -12588,7 +12588,7 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "Small-batch",
+      "evidence": "Boutique co-packer. Small-batch",
       "sourceUrls": [
         "https://miloswholeworld.com/",
         "https://miloswholeworld.com/copacking/",
@@ -12752,7 +12752,7 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
-      "kind": "private-label",
+      "kind": "pilot",
       "evidence": "Live manufacturing page on mixlybeverageco.com (same copy on mixlycocktailco.com) confirms women-owned New Hope beverage co-manufacturing and private label, with in-house R&D, small-batch/pilot, and full-scale hot-fill style shelf-stable production",
       "sourceUrls": [
         "https://www.mixlybeverageco.com/",
@@ -13114,6 +13114,14 @@ export const IMPORTED_PLANTS = [
     "publicEmail": "info@nashvillekitchenandcannery.com",
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
+    "smallRunSignal": {
+      "kind": "small-batch",
+      "evidence": "Co-packing offers small and large batch production of customer recipes. Private-label services and recipe testing are separate offerings; no numerical minimum is stated.",
+      "sourceUrls": [
+        "https://nashvillekitchenandcannery.com/services"
+      ],
+      "reviewedAt": "2026-09-13"
+    },
     "overview": [
       "Public sources list these products: Condiments; jams, jellies, and preserves; salsas; sauces; cocktail mixers; syrups.",
       "Public sources describe these capabilities: Full-service co-packer: recipe refinement, hot fill and cold fill, small and large batch, private labeling, nutrition panels, packaging/design, distribution. NDA on every partnership. Plant 208 Dragon Dr., Dickson, TN 37055.."
@@ -14018,7 +14026,7 @@ export const IMPORTED_PLANTS = [
     "guideRows": {},
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "small-batch to bulk",
+      "evidence": "Co-packing. small-batch to bulk",
       "sourceUrls": [
         "https://www.oregonhill.com/",
         "https://www.oregonhill.com/co-packing"
@@ -14298,12 +14306,12 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-manufacturer",
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
-      "kind": "private-label",
-      "evidence": "Contract manufacturing, co-packing, private label, recipe development, packaging design, labeling, pilot plant, custom formulation, recipe matching",
+      "kind": "pilot",
+      "evidence": "Contract manufacturing R&D lists pilot plant operation for customer product development and custom formulation. This describes a pilot development option, not a commercial production minimum.",
       "sourceUrls": [
-        "https://pcbrands.com/",
-        "https://ucfoodsafety.ucdavis.edu/sites/g/files/dgvnsk7366/files/inline-files/240926.pdf"
-      ]
+        "https://pcbrands.com/"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Contract specialty foods for national brands (sauces/condiments implied by packing range; SKU list not enumerated on homepage).",
@@ -14456,7 +14464,7 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "Low-volume and high-volume runs claimed",
+      "evidence": "Specialty food co-packing and contract manufacturing in Reading since 1988. Low-volume and high-volume runs claimed",
       "sourceUrls": [
         "https://palacefoodsinc.com/",
         "https://palacefoodsinc.com/about-us/",
@@ -14914,7 +14922,7 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "private-label",
+      "kind": "small-batch",
       "evidence": "Small-batch co-packing and start-to-finish private label",
       "sourceUrls": [
         "https://www.pembertonsgourmetfoods.com/",
@@ -15190,7 +15198,7 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "Small-batch and high-volume runs",
+      "evidence": "Full-service dairy co-packing and private label. Small-batch and high-volume runs",
       "sourceUrls": [
         "https://www.pnwcreamery.com/",
         "https://www.crystalcreekusa.com/",
@@ -15263,13 +15271,12 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "small-batch",
-      "evidence": "Slow-simmer small batches claimed",
+      "kind": "private-label",
+      "evidence": "Private-label program is limited to existing products made from the company's own recipes in small batches. Minimum 100 cases for that private-label offer; custom co-packing has a separate 250-gallon minimum.",
       "sourceUrls": [
-        "https://porkysgourmet.com/",
-        "https://www.porkysgourmetstore.com/aboutus.php",
-        "https://www.pickyourown.org/copackers-Tennessee.php"
-      ]
+        "https://www.porkysgourmetstore.com/aboutus.php"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Gourmet barbecue sauces, hot pepper sauces, seasonings and rubs, salsas, relishes, jellies, jams, mustards; Lynchburg Tennessee Whiskey Brand line.",
@@ -16287,14 +16294,12 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "Three Tall Form / cone-bottom towers plus a Niro Mobile Minor pilot unit for proof of concept and scale-up",
+      "evidence": "Contract manufacturing customers can request pilot proof-of-concept and formulation-validation services for food powders. Commercial spray drying is a separate production stage; no pilot quantity minimum is stated.",
       "sourceUrls": [
-        "https://www.qic.us/",
-        "https://www.qic.us/snapshot-today",
         "https://www.qic.us/custom-spray-drying",
-        "https://www.qic.us/contact",
-        "https://www.mda.state.mn.us/minnesota-co-packer-directory"
-      ]
+        "https://www.qic.us/snapshot-today"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Contract spray-dried specialty powders: colors, flavors, cheese and dairy powders, juice and vegetable powders, oils, vitamins, minerals; food, functional food, nutraceutical, supplement, and medical-food uses.",
@@ -17037,15 +17042,12 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "small-batch",
-      "evidence": "Small-batch and large-batch claimed",
+      "kind": "private-label",
+      "evidence": "Private-label program offers small and large batch production of its refrigerated salads, dressings and desserts. No numeric order minimum is stated for this offer.",
       "sourceUrls": [
-        "https://ronsfoods.com/",
-        "https://ronsfoods.com/co-packing/",
-        "https://ronsfoods.com/contact/",
-        "https://ronsfoods.com/policies/",
-        "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-      ]
+        "https://ronsfoods.com/co-packing/"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Refrigerated deli salads, dips and spreads, dessert dressings, burger kits, frozen sides and entrees.",
@@ -17121,7 +17123,7 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "Pilot runs billed $40/hour per person, then per-piece pricing",
+      "evidence": "10,000 sq ft strictly gluten-free, vegetarian shared manufacturing facility that also co-packs/co-manufactures. Pilot runs billed $40/hour per person, then per-piece pricing",
       "sourceUrls": [
         "http://www.saltroadfoodhub.com",
         "https://saltroadfoodhub.com/",
@@ -17401,12 +17403,11 @@ export const IMPORTED_PLANTS = [
     "guideRows": {},
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "pilot and small-scale manufacturing",
+      "evidence": "Manufacturing services offer pilot and small-scale production for customer formulas. The advertised starting budget is a price, not a production quantity.",
       "sourceUrls": [
-        "https://www.scalefoodlabs.com",
-        "https://www.scalefoodlabs.com/contact",
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vTA82aZVxeliPx-7GKPe7UKKzNEvBS9jN1dqVN-U1jqUXflespT9AdkVYHek7RlyVZT68pBUrjIycL3/pub?gid=560248172&single=true&output=csv"
-      ]
+        "https://www.scalefoodlabs.com/"
+      ],
+      "reviewedAt": "2026-09-13"
     }
   },
   {
@@ -17677,7 +17678,7 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-manufacturer",
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "Culinary R&D, custom formulations, small-batch test runs, shelf-stable development",
+      "evidence": "Proprietary manufacturer and private-label / contract manufacturing. Culinary R&D, custom formulations, small-batch test runs, shelf-stable development",
       "sourceUrls": [
         "https://signaturesauces.com/",
         "https://signaturekettlecrafted.com/",
@@ -18770,6 +18771,14 @@ export const IMPORTED_PLANTS = [
     "publicEmail": null,
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
+    "smallRunSignal": {
+      "kind": "pilot",
+      "evidence": "Co-packing offers a pilot run for customer recipes, sampling, package approval and shelf-life testing. Commercial minimums are set in a subsequent production agreement.",
+      "sourceUrls": [
+        "https://www.stittsworthmeats.com/pages/wholesale-co-packing"
+      ],
+      "reviewedAt": "2026-09-13"
+    },
     "overview": [
       "Public sources list these products: Brats; summer sausage; snack sticks; beef jerky and strips; emulsified hot dogs and wieners; smoked bacon; ground beef patties; wild game (origin copack page).",
       "Public sources describe these capabilities: Live stittsworthmeats.com has dedicated co-pack and private-label pages. Turtle River smokehouse at 7972 Farley Dr NE (no retail). Bemidji butcher shop at 722 Paul Bunyan Dr NW. Origin names Force of Nature, 1000 Hills, Big Fork, and Protein Outfitters as copack brands. D2C startups scaling past their kitchen named as a fit. Pilot run then MOQs in a signed agreement (no public number). About page: 100,000 lb/month, 28 team members. Seed 218-586-4201 and mychals@stittsworthmeats.com unused. Copack inquiry also lists Bemidji 218-751-1320.."
@@ -19258,15 +19267,13 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "small-batch",
-      "evidence": "Small-batch copy",
+      "evidence": "The co-packing and private-label manufacturer describes small-batch production serving brands and retailers. No numerical order minimum is published in the reviewed program pages.",
       "sourceUrls": [
         "https://www.sunnydellspecialty.com/",
         "https://www.sunnydellspecialty.com/about",
-        "https://www.sunnydellspecialty.com/capabilities-offerings",
-        "https://www.sunnydellspecialty.com/contact",
-        "http://www.sunnydell.com/",
-        "https://extension.psu.edu/list-of-co-packers-in-pennsylvania-and-beyond/"
-      ]
+        "https://www.sunnydellspecialty.com/capabilities-offerings"
+      ],
+      "reviewedAt": "2026-09-13"
     },
     "overview": [
       "Public sources list these products: Broths, soups, sauces, gravies, specialty spreads; marinated mushrooms, asparagus, peppers, pickled red onions; acidified and non-acidified glass-pack goods.",
@@ -20235,7 +20242,7 @@ export const IMPORTED_PLANTS = [
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
       "kind": "pilot",
-      "evidence": "Small- or large-batch volumes, custom formulations, mixed package sizes, test batches before a full run",
+      "evidence": "Family dairy co-packer and private-label producer since 1936. Small- or large-batch volumes, custom formulations, mixed package sizes, test batches before a full run",
       "sourceUrls": [
         "https://tillerfoods.com",
         "https://tillerfoods.com/about/",
@@ -20309,8 +20316,8 @@ export const IMPORTED_PLANTS = [
     "appearedOn": [],
     "guideRows": {},
     "smallRunSignal": {
-      "kind": "small-batch",
-      "evidence": "Small-batch sauce production",
+      "kind": "private-label",
+      "evidence": "private labeling. Small-batch sauce production",
       "sourceUrls": [
         "https://to-gopacks.com",
         "https://www.pickyourown.org/copackers-Ohio.php"
@@ -21369,7 +21376,7 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "private-label",
+      "kind": "small-batch",
       "evidence": "Indexed official pages describe a small-batch co-packer and private-label manufacturer with production in Albany NY (5 oz bottles to jugs",
       "sourceUrls": [
         "https://www.vitaleats.com/",

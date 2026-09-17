@@ -1,0 +1,450 @@
+RUN  v4.1.11 /Users/nikolasmanuel/thelinelist-evidence-parsing
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts (58 tests | 43 failed) 186ms
+     × retains the total across runs without assuming equal allocation 40ms
+     × retains the total across orders without assuming equal allocation 9ms
+     × retains the total across batches without assuming equal allocation 5ms
+     × preserves intake allocation for each SKU 2ms
+     × preserves intake allocation per-SKU 2ms
+     × preserves intake allocation for every product 2ms
+     × preserves intake allocation per-run 1ms
+     × Pilot 1000 bottles against Commercial minimum 100 bottles, pilot minimum 5000 bottles => false 3ms
+     × 1000 bottles against Minimum 500 bottles; pilot minimum 100 bottles => true 1ms
+     × 100 bottles against Minimum 500 bottles; pilot minimum 100 bottles => false 1ms
+     × Pilot 1000 bottles against Minimum 500 bottles for commercial production and minimum 5000 bottles for pilot runs => false 1ms
+     × 1000 bottles per flavor against Commercial minimum 500 bottles per flavor and minimum 2000 bottles per order => null 1ms
+     × 1000 bottles per flavor against Commercial minimum 500 bottles per flavor and minimum 2000 bottles per flavor => false 1ms
+     × 1000 bottles against Commercial minimum 500 bottles and minimum 2000 jars => null 1ms
+     × Pilot 1000 bottles against Pilot or commercial minimum 500 bottles => null 1ms
+     × 1000 bottles per flavor against Minimum 500 bottles per flavor, 2000 bottles per flavor => false 1ms
+     × 1000 bottles per flavor against Minimum 500 bottles per flavor, 2000 bottles per order => null 1ms
+     × Pilot 1000 bottles against Pilot minimum 500 bottles per run, 2000 bottles per run => false 1ms
+     × 1000 bottles against 500 bottles minimum => true 1ms
+     × 1000 bottles against MOQ 500 bottles => true 1ms
+     × 1000 bottles per flavor and 2000 bottles per order against Minimum 1500 bottles per order => null 1ms
+     × 1000 bottles against Minimum 500 bottles, 2000 bottles => null 1ms
+     × normalizes each flavor without discarding allocation 1ms
+     × normalizes for each SKU without discarding allocation 5ms
+     × normalizes per-SKU without discarding allocation 1ms
+     × normalizes every product without discarding allocation 0ms
+     × normalizes each run without discarding allocation 0ms
+     × normalizes for every batch without discarding allocation 0ms
+     × normalizes per-order without discarding allocation 1ms
+     × Hot-fill is not offered. => mismatch 2ms
+     × We do not offer cold-fill, but hot-fill is available. => supported 1ms
+     × Hot-fill is unavailable; cold-fill is available. => mismatch 1ms
+     × Hot-fill is available. Hot-fill is not offered. => conflicting 1ms
+     × Cold-fill is not offered, hot-fill is available. => supported 1ms
+     × Hot-fill and cold-fill are not offered. => mismatch 0ms
+     × Hot-fill, cold-fill and aseptic processing are not offered. => mismatch 0ms
+     × We do not offer cold-fill and hot-fill is available. => supported 0ms
+     × ranks actual support then unknown ahead of an explicit exclusion 5ms
+     × keeps every reviewed program consistent between generated catalog and directory filtering 4ms
+     × does not transfer own-brand batch sizes to a separate client program 2ms
+     × keeps Blackberry Patch's own-formula/custom-label restriction across sentences 1ms
+     × uses Food for Thought's actual external program without replacing the old source date 1ms
+     × keeps own-formula restrictions even when the paragraph also says co-packing 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 43 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > retains the total across runs without assuming equal allocation
+AssertionError: expected '1,000 bottles' to be '1,000 bottles across 4 runs' // Object.is equality
+
+Expected: "1,000 bottles across 4 runs"
+Received: "1,000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:36:50
+     34|     await saveSourcingWorkspace(workspace, null);
+     35|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     36|     expect(saved.fields.production_volume.value).toBe(`1,000 bottles a…
+       |                                                  ^
+     37|     const match = matchManufacturerRecords(saved, [plant("Hot-fill is …
+     38|     expect(match.reasonTrace?.find((r) => r.requirementKey === "produc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > retains the total across orders without assuming equal allocation
+AssertionError: expected '1,000 bottles' to be '1,000 bottles across 4 orders' // Object.is equality
+
+Expected: "1,000 bottles across 4 orders"
+Received: "1,000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:36:50
+     34|     await saveSourcingWorkspace(workspace, null);
+     35|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     36|     expect(saved.fields.production_volume.value).toBe(`1,000 bottles a…
+       |                                                  ^
+     37|     const match = matchManufacturerRecords(saved, [plant("Hot-fill is …
+     38|     expect(match.reasonTrace?.find((r) => r.requirementKey === "produc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > retains the total across batches without assuming equal allocation
+AssertionError: expected '1,000 bottles' to be '1,000 bottles across 4 batches' // Object.is equality
+
+Expected: "1,000 bottles across 4 batches"
+Received: "1,000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:36:50
+     34|     await saveSourcingWorkspace(workspace, null);
+     35|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     36|     expect(saved.fields.production_volume.value).toBe(`1,000 bottles a…
+       |                                                  ^
+     37|     const match = matchManufacturerRecords(saved, [plant("Hot-fill is …
+     38|     expect(match.reasonTrace?.find((r) => r.requirementKey === "produc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves intake allocation for each SKU
+AssertionError: expected '1000 bottles' to be '1000 bottles for each SKU' // Object.is equality
+
+Expected: "1000 bottles for each SKU"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:44:54
+     42|   it.each(["each flavor", "for each SKU", "per-SKU", "for every produc…
+     43|     const workspace = founder(`Hot sauce. Initial order 1000 bottles $…
+     44|     expect(workspace.fields.production_volume.value).toBe(`1000 bottle…
+       |                                                      ^
+     45|   });
+     46| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves intake allocation per-SKU
+AssertionError: expected '1000 bottles' to be '1000 bottles per-SKU' // Object.is equality
+
+Expected: "1000 bottles per-SKU"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:44:54
+     42|   it.each(["each flavor", "for each SKU", "per-SKU", "for every produc…
+     43|     const workspace = founder(`Hot sauce. Initial order 1000 bottles $…
+     44|     expect(workspace.fields.production_volume.value).toBe(`1000 bottle…
+       |                                                      ^
+     45|   });
+     46| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves intake allocation for every product
+AssertionError: expected '1000 bottles' to be '1000 bottles for every product' // Object.is equality
+
+Expected: "1000 bottles for every product"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:44:54
+     42|   it.each(["each flavor", "for each SKU", "per-SKU", "for every produc…
+     43|     const workspace = founder(`Hot sauce. Initial order 1000 bottles $…
+     44|     expect(workspace.fields.production_volume.value).toBe(`1000 bottle…
+       |                                                      ^
+     45|   });
+     46| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > preserves intake allocation per-run
+AssertionError: expected '1000 bottles' to be '1000 bottles per-run' // Object.is equality
+
+Expected: "1000 bottles per-run"
+Received: "1000 bottles"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:44:54
+     42|   it.each(["each flavor", "for each SKU", "per-SKU", "for every produc…
+     43|     const workspace = founder(`Hot sauce. Initial order 1000 bottles $…
+     44|     expect(workspace.fields.production_volume.value).toBe(`1000 bottle…
+       |                                                      ^
+     45|   });
+     46| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > Pilot 1000 bottles against Commercial minimum 100 bottles, pilot minimum 5000 bottles => false
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > Pilot 1000 bottles against Minimum 500 bottles for commercial production and minimum 5000 bottles for pilot runs => false
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles per flavor against Commercial minimum 500 bottles per flavor and minimum 2000 bottles per flavor => false
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles per flavor against Minimum 500 bottles per flavor, 2000 bottles per flavor => false
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > Pilot 1000 bottles against Pilot minimum 500 bottles per run, 2000 bottles per run => false
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:67:104
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles against Minimum 500 bottles; pilot minimum 100 bottles => true
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles against 500 bottles minimum => true
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles against MOQ 500 bottles => true
+AssertionError: expected null to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:67:104
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 100 bottles against Minimum 500 bottles; pilot minimum 100 bottles => false
+AssertionError: expected null to be false // Object.is equality
+
+- Expected:
+false
+
++ Received:
+null
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:67:104
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles per flavor against Commercial minimum 500 bottles per flavor and minimum 2000 bottles per order => null
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles against Commercial minimum 500 bottles and minimum 2000 jars => null
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > Pilot 1000 bottles against Pilot or commercial minimum 500 bottles => null
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles per flavor against Minimum 500 bottles per flavor, 2000 bottles per order => null
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles against Minimum 500 bottles, 2000 bottles => null
+AssertionError: expected true to be null // Object.is equality
+
+- Expected:
+null
+
++ Received:
+true
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:67:104
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > 1000 bottles per flavor and 2000 bottles per order against Minimum 1500 bottles per order => null
+AssertionError: expected false to be null // Object.is equality
+
+- Expected:
+null
+
++ Received:
+false
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:67:104
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > normalizes each flavor without discarding allocation
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > normalizes for each SKU without discarding allocation
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > normalizes every product without discarding allocation
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > normalizes each run without discarding allocation
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > normalizes for every batch without discarding allocation
+AssertionError: expected true to be null
+
+- Expected:
+null
+
++ Received:
+true
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:69:88
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > normalizes per-SKU without discarding allocation
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > normalizes per-order without discarding allocation
+AssertionError: expected null to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:70:78
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill is not offered. => mismatch
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill is unavailable; cold-fill is available. => mismatch
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill and cold-fill are not offered. => mismatch
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill, cold-fill and aseptic processing are not offered. => mismatch
+AssertionError: expected 'supported' to be 'mismatch' // Object.is equality
+
+Expected: "mismatch"
+Received: "supported"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:91:72
+     89|     ["Hot-fill and cold-fill are available.", "supported"],
+     90|   ] as const)("%s => %s", (claim, status) => {
+     91|     expect(publishedCapabilityStatus(claim, ["hot-fill", "hot fill"]))…
+       |                                                                        ^
+     92|     const record = plant(claim);
+     93|     expect(record.finderProcesses.includes("hot-fill")).toBe(status ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > We do not offer cold-fill, but hot-fill is available. => supported
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Cold-fill is not offered, hot-fill is available. => supported
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > We do not offer cold-fill and hot-fill is available. => supported
+AssertionError: expected 'mismatch' to be 'supported' // Object.is equality
+
+Expected: "supported"
+Received: "mismatch"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:91:72
+     89|     ["Hot-fill and cold-fill are available.", "supported"],
+     90|   ] as const)("%s => %s", (claim, status) => {
+     91|     expect(publishedCapabilityStatus(claim, ["hot-fill", "hot fill"]))…
+       |                                                                        ^
+     92|     const record = plant(claim);
+     93|     expect(record.finderProcesses.includes("hot-fill")).toBe(status ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > Hot-fill is available. Hot-fill is not offered. => conflicting
+AssertionError: expected 'supported' to be 'conflicting' // Object.is equality
+
+Expected: "conflicting"
+Received: "supported"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:91:72
+     89|     ["Hot-fill and cold-fill are available.", "supported"],
+     90|   ] as const)("%s => %s", (claim, status) => {
+     91|     expect(publishedCapabilityStatus(claim, ["hot-fill", "hot fill"]))…
+       |                                                                        ^
+     92|     const record = plant(claim);
+     93|     expect(record.finderProcesses.includes("hot-fill")).toBe(status ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > ranks actual support then unknown ahead of an explicit exclusion
+AssertionError: expected [ 'polarity-0', 'polarity-1', …(1) ] to deeply equal [ 'polarity-2', 'polarity-1', …(1) ]
+
+- Expected
++ Received
+
+  [
+-   "polarity-2",
+-   "polarity-1",
+    "polarity-0",
++   "polarity-1",
++   "polarity-2",
+  ]
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:100:89
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > keeps every reviewed program consistent between generated catalog and directory filtering
+AssertionError: boulder-sausage: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:111:37
+    109|       const signal = smallRunSignalForPlant(record);
+    110|       expect(record.smallRunSignal, slug).toEqual(signal);
+    111|       expect(Boolean(signal), slug).toBe(review.decision !== "needs-ve…
+       |                                     ^
+    112|       expect(matchesQuery(record, { smallRunSignal: true }), slug).toB…
+    113|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > does not transfer own-brand batch sizes to a separate client program
+AssertionError: expected { kind: 'small-batch', …(2) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "evidence": "Small-batch (story page says 240 jars or less per batch for their brand)",
+  "kind": "small-batch",
+  "sourceUrls": [
+    "https://foodforthought.net",
+    "https://foodforthought.net/pages/our-story",
+    "https://foodforthought.net/pages/build-your-brand-with-us",
+    "https://foodforthought.net/pages/contact-us",
+    "https://www.pickyourown.org/copackers-Michigan.php",
+  ],
+}
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:117:136
+    115|   it("does not transfer own-brand batch sizes to a separate client pro…
+    116|     const food = getPlantBySlug("food-for-thought")!;
+    117|     expect(publishedSmallRunOption(food.manufacturingCapabilitiesPubli…
+       |                                                                                                                                        ^
+    118|     expect(publishedSmallRunOption("Our brand makes jam in small batch…
+    119|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > keeps Blackberry Patch's own-formula/custom-label restriction across sentences
+AssertionError: expected 'small-batch' to be 'private-label' // Object.is equality
+
+Expected: "private-label"
+Received: "small-batch"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:122:26
+    120|   it("keeps Blackberry Patch's own-formula/custom-label restriction ac…
+    121|     const option = smallRunSignalForPlant(getPlantBySlug("blackberry-p…
+    122|     expect(option?.kind).toBe("private-label");
+       |                          ^
+    123|     expect(option?.evidence).toMatch(/custom labels|their.*products/i);
+    124|     expect(option?.evidence).toContain("10 cases");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > uses Food for Thought's actual external program without replacing the old source date
+AssertionError: expected 'Small-batch (story page says 240 jars…' to match /1,200 units per product/
+
+- Expected:
+/1,200 units per product/
+
++ Received:
+"Small-batch (story page says 240 jars or less per batch for their brand)"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:130:30
+    128|     const option = smallRunSignalForPlant(food);
+    129|     expect(option?.kind).toBe("small-batch");
+    130|     expect(option?.evidence).toMatch(/1,200 units per product/);
+       |                              ^
+    131|     expect(option?.evidence).not.toContain("240");
+    132|     expect(option?.sourceUrls).toContain("https://foodforthought.net/p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/43]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > keeps own-formula restrictions even when the paragraph also says co-packing
+AssertionError: expected 'small-batch' to be 'private-label' // Object.is equality
+
+Expected: "private-label"
+Received: "small-batch"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:143:150
+    141|   });
+    142|   it("keeps own-formula restrictions even when the paragraph also says…
+    143|     expect(publishedSmallRunOption("Small-batch co-packing of our own …
+       |                                                                                                                                                      ^
+    144|     expect(publishedSmallRunOption("Our own recipes are made in small …
+    145|     expect(publishedSmallRunOption("Private-label products use our own…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/43]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  43 failed | 15 passed (58)
+   Start at  14:46:52
+   Duration  2.19s (transform 951ms, setup 0ms, import 1.55s, tests 186ms, environment 0ms)

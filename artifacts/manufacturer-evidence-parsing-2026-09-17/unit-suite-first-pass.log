@@ -1,0 +1,29 @@
+
+> the-line-list@0.1.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /Users/nikolasmanuel/thelinelist-evidence-parsing
+
+ ❯ tests/unit/sourcing-competitive-sourcing.test.ts (8 tests | 1 failed) 469ms
+     × uses explicit approximate case-pack arithmetic but never invents a missing pack count 41ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/sourcing-competitive-sourcing.test.ts > competitive sparkling-beverage sourcing regressions > uses explicit approximate case-pack arithmetic but never invents a missing pack count
+AssertionError: expected [ …(4) ] to include '25,000 cans meets the published appro…'
+ ❯ tests/unit/sourcing-competitive-sourcing.test.ts:96:39
+     94|     })[0];
+     95|
+     96|     expect(compared.supportedMatches).toContain("25,000 cans meets the…
+       |                                       ^
+     97|     expect(compared.evidence.find((item) => item.requirementKey === "p…
+     98|       .toBe("https://www.swiftcider.com/copacking");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 22 passed (23)
+      Tests  1 failed | 368 passed (369)
+   Start at  09:56:41
+   Duration  10.41s (transform 14.88s, setup 0ms, import 35.91s, tests 10.65s, environment 10ms)

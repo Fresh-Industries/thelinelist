@@ -10,7 +10,11 @@ import { parseCsv } from "./import-manufacturers.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const baseline = process.argv.find((value) => value.startsWith("--baseline="))?.slice(11) ?? "dde5d4d";
+const reviewedAt = process.argv.find((value) => value.startsWith("--reviewed-at="))?.slice(14) ?? "2026-09-13";
 assert.match(baseline, /^[a-f\d]{7,40}$/i, "Baseline must be a commit SHA.");
+assert.match(reviewedAt, /^\d{4}-\d{2}-\d{2}$/, "Review date must use YYYY-MM-DD.");
+const reviewDate = new Date(`${reviewedAt}T00:00:00.000Z`);
+assert.ok(!Number.isNaN(reviewDate.getTime()) && reviewDate.toISOString().slice(0, 10) === reviewedAt, "Review date must be a real calendar date.");
 const fromGit = (file) => execFileSync("git", ["show", `${baseline}:${file}`], { cwd: root, encoding: "utf8", maxBuffer: 10_000_000 });
 const parseCatalog = (source) => JSON.parse(source.match(/export const IMPORTED_PLANTS = ([\s\S]+) satisfies Plant\[\];/)[1]);
 const before = parseCatalog(fromGit("lib/directory/imported-plants.generated.ts"));
@@ -18,12 +22,19 @@ const after = parseCatalog(readFileSync(join(root, "lib/directory/imported-plant
 const oldReport = JSON.parse(fromGit("data/manufacturer-imports/import-report.generated.json"));
 const report = JSON.parse(readFileSync(join(root, "data/manufacturer-imports/import-report.generated.json"), "utf8"));
 const reviews = JSON.parse(readFileSync(join(root, "data/manufacturer-imports/trust-reviews-2026-09-13.json"), "utf8"));
+const programReviews = JSON.parse(readFileSync(join(root, "data/manufacturer-imports/small-run-program-reviews-2026-09-13.json"), "utf8"));
 const newBySlug = new Map(after.map((plant) => [plant.slug, plant]));
 const oldBySlug = new Map(before.map((plant) => [plant.slug, plant]));
 const recordsBySlug = new Map(report.catalogRecords.map((record) => [record.slug, record]));
 const sourceRows = new Map(report.sourceFiles.flatMap((file) => parseCsv(readFileSync(join(root, "data/manufacturer-imports", file), "utf8")).map((row, index) => [`${file}:${index + 2}`, row])));
 const audited = before.filter((plant) => plant.smallRunSignal);
 assert.equal(audited.length, oldReport.smallRunSignals);
+assert.equal(after.length, before.length, "Preserve every imported listing.");
+assert.deepEqual(after.map((plant) => plant.slug).sort(), before.map((plant) => plant.slug).sort());
+assert.equal(report.finalCatalogCount, 345, "Preserve all 345 listings.");
+if (baseline.startsWith(programReviews.baseline)) {
+  for (const plant of audited) assert.ok(programReviews.records[plant.slug], `Missing external-program review: ${plant.slug}`);
+}
 const meaningfulFields = ["smallRunSignal", "publishedSmallMoq", "categories", "processes", "finderProcesses", "moqDisplay", "publicEmail", "phone"];
 const changes = after.flatMap((plant) => {
   const previous = oldBySlug.get(plant.slug);
@@ -56,10 +67,11 @@ const signalAudit = audited.map((plant) => {
     supplierConfirmed: false,
     beforeSignal: plant.smallRunSignal,
     proposedSignal: proposed?.smallRunSignal ?? null,
-    disposition: proposed?.smallRunSignal ? "Scoped public option; quantity and project fit still need confirmation."
+    disposition: programReviews.records[plant.slug]?.reason ?? (proposed?.smallRunSignal ? "Scoped public option; quantity and project fit still need confirmation."
       : negated ? "Remove false positive extracted from a negated/comparative first-run statement."
         : !plant.moqDisplay ? "Remove flag-only or unsupported production signal."
-          : "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option.",
+          : "Remove: a minimum, estimate, nonproduction offer or unknown value alone is not a small-run option."),
+    programReview: programReviews.records[plant.slug] ?? null,
     importSourceRecord: sourceRows.get(recordsBySlug.get(plant.slug)?.source),
     minimumAsPublished: plant.moqDisplay,
     capabilitiesAsRecorded: plant.manufacturingCapabilitiesPublished,
@@ -68,9 +80,9 @@ const signalAudit = audited.map((plant) => {
   };
 });
 const payload = {
-  mode: "dry-run-review", reviewedAt: "2026-09-13", baseline,
+  mode: "dry-run-review", reviewedAt, baseline,
   productionWrites: false, deployed: false,
-  coverage: "All 98 prior signals checked against stored source claims and extraction rules; priority official-source reviews are separately listed. This is not a live re-verification of every supplier.",
+  coverage: `All ${audited.length} baseline signals checked against stored source claims and extraction rules. External-program reviews cover all 38 options from 8e48f14 and separately identify newly recovered options. Live official-source program reviews are explicitly dated; other records retain their original source dates. This is not a live re-verification of every supplier.`,
   counts: {
     sourceFiles: report.sourceFiles.length, sourceRows: report.sourceRows, imported: after.length,
     total: report.finalCatalogCount, originalSignals: audited.length,
@@ -85,6 +97,7 @@ const payload = {
   signalAudit,
   proposedGeneratedFieldChanges: changes,
   priorityPublicSourceReviews: reviews,
+  externalProgramReviews: programReviews,
   excludedDuplicates: report.duplicateRecords,
   invalidRows: report.invalidRecords,
   unresolved: [

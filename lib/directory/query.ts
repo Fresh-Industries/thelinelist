@@ -1,3 +1,4 @@
+import programReviews from "@/data/manufacturer-imports/small-run-program-reviews-2026-09-13.json";
 import "./assert";
 import { hasPublishedMinimum } from "./minimum-disclosure.mjs";
 import { publishedSmallRunOption } from "./small-runs.mjs";
@@ -306,6 +307,7 @@ export function smallRunSignalForPlant(plant: Plant): Plant["smallRunSignal"] {
     plant.manufacturingCapabilitiesPublished,
     plant.moqDisplay,
     plant.smallRunSignal?.sourceUrls ?? plant.fieldSourceUrls?.processes ?? plant.fieldSourceUrls?.minimums ?? [],
+    (programReviews.records as Record<string, Parameters<typeof publishedSmallRunOption>[3]>)[plant.slug],
   );
 }
 

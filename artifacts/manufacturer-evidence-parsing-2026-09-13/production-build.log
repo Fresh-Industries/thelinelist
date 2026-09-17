@@ -1,0 +1,94 @@
+> the-line-list@0.1.0 build
+> next build
+
+▲ Next.js 16.3.2 (Turbopack)
+✓ Running next.config.ts took 124ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.4s
+  Running TypeScript ...
+  Finished TypeScript in 24.3s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/444) ...
+  Generating static pages using 7 workers (111/444)
+  Generating static pages using 7 workers (222/444)
+  Generating static pages using 7 workers (333/444)
+✓ Generating static pages using 7 workers (444/444) in 8.1s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about
+├ ƒ /api/auth/[...all]
+├ ƒ /api/sourcing
+├ ƒ /api/sourcing/[workspaceId]
+├ ƒ /api/sourcing/[workspaceId]/artwork
+├ ƒ /api/sourcing/[workspaceId]/artwork/[artworkId]
+├ ƒ /api/sourcing/[workspaceId]/claim
+├ ƒ /api/sourcing/[workspaceId]/export
+├ ƒ /api/sourcing/[workspaceId]/match
+├ ƒ /api/sourcing/[workspaceId]/outreach
+├ ƒ /api/sourcing/[workspaceId]/outreach/[draftId]
+├ ƒ /api/sourcing/[workspaceId]/outreach/[draftId]/send
+├ ƒ /api/sourcing/[workspaceId]/package-preview
+├ ƒ /api/sourcing/[workspaceId]/send
+├ ○ /apple-icon.png
+├ ƒ /auth
+├ ƒ /claim-submit
+├ ○ /find-manufacturers
+├   /find-manufacturers/[category]
+│ ├ ● /find-manufacturers/soda
+│ ├ ● /find-manufacturers/energy-drink
+│ ├ ● /find-manufacturers/sports-hydration
+│ └ ● [+22 more paths]
+├ ƒ /find-manufacturers/compare
+├   /find-manufacturers/page/[page]
+│ ├ ● /find-manufacturers/page/2
+│ ├ ● /find-manufacturers/page/3
+│ ├ ● /find-manufacturers/page/4
+│ └ ● [+16 more paths]
+├ ƒ /find-manufacturers/request-intro
+├ ƒ /find-manufacturers/results
+├ ƒ /find-manufacturers/wizard
+├ ○ /for-manufacturers
+├ ○ /glossary
+├ ○ /guides
+├   /guides/[slug]
+│ ├ ● /guides/start-hot-sauce
+│ ├ ● /guides/energy-drink
+│ ├ ● /guides/cold-pressed-juice
+│ └ ● [+18 more paths]
+├ ○ /guides/first-run-costs
+├ ○ /guides/hot-fill
+├ ○ /guides/hpp
+├ ○ /guides/retort
+├ ○ /guides/sauce
+├ ○ /guides/small-moq
+├ ○ /how-we-verify
+├ ○ /icon1.png
+├ ○ /icon2.png
+├ ○ /labs/package-mockup
+├ ○ /learn
+├ ○ /manifest.webmanifest
+├   /manufacturers/[slug]
+│ ├ ● /manufacturers/universal-pure
+│ ├ ● /manufacturers/maryland-packaging
+│ ├ ● /manufacturers/hpp-food-services
+│ └ ● [+342 more paths]
+├ ○ /newsletter
+├ ○ /opengraph-image
+├ ƒ /packet/[token]
+├ ○ /privacy
+├ ƒ /products
+├ ○ /robots.txt
+├ ○ /sitemap.xml
+├ ƒ /sourcing
+├ ƒ /sourcing/[workspaceId]
+├ ƒ /sourcing/[workspaceId]/manufacturers
+└ ○ /terms
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand

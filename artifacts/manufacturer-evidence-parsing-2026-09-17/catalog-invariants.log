@@ -1,0 +1,5 @@
+Compared with 115226299993bd313cb3626e491d694634ba242d.
+PASS: all 309 imported records retain every field except the single reviewed smallRunSignal change.
+PASS: curated catalog source is byte-identical; all 345 listings preserved.
+PASS: listing order, identity, names, sites, source dates, contacts, minimums, process tags, and unrelated fields unchanged.
+PASS: 41 imported small-run options retained; only Consolidated Mills changes from small-batch to private-label with complete program context.

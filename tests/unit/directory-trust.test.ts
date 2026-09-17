@@ -29,8 +29,9 @@ describe("directory trust regressions", () => {
     expect(publishedSmallRunOption("Contract manufacturing", minimum, urls)).toBeUndefined();
   });
   it("preserves explicit options as qualified leads, with offer types", () => {
-    expect(publishedSmallRunOption("Small-batch production", null, urls)?.kind).toBe("small-batch");
-    expect(publishedSmallRunOption("Pilot batches as small as 50 pounds", null, urls)?.kind).toBe("pilot");
+    expect(publishedSmallRunOption("Small-batch co-packing of customer recipes", null, urls)?.kind).toBe("small-batch");
+    expect(publishedSmallRunOption("Pilot batches of customer recipes as small as 50 pounds", null, urls)?.kind).toBe("pilot");
+    expect(publishedSmallRunOption("Small-batch production", null, urls)).toBeUndefined();
     expect(publishedSmallRunOption("Small-batch private-label products", null, urls)?.kind).toBe("private-label");
     expect(publishedSmallRunOption("Small-batch production", null, [])).toBeUndefined();
   });

@@ -1,0 +1,28 @@
+
+> the-line-list@0.1.0 manufacturers:dry-run
+> node scripts/import-manufacturers.mjs --dry-run
+
+{
+  "mode": "dry-run",
+  "sourceRows": 648,
+  "sourceStatusCounts": {
+    "VERIFIED": 314,
+    "LISTABLE": 26,
+    "NEEDS_REVIEW": 104,
+    "EXCLUDE": 202
+  },
+  "safeRows": 340,
+  "imported": 309,
+  "finalCatalogCount": 345,
+  "changes": {
+    "new": 0,
+    "updated": 1,
+    "unchanged": 308
+  },
+  "duplicates": 31,
+  "skipped": 339,
+  "invalid": 2,
+  "smallRunSignals": 41,
+  "flaggedSignalCandidates": 150,
+  "flaggedWithoutPublishableEvidence": 119
+}
