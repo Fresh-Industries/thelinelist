@@ -5,6 +5,7 @@ import { HOT_SAUCE_PATTERN, hasHotSauceClaim } from "@/lib/directory/hot-sauce.m
 import { FIELD_DEFINITION_BY_KEY } from "./fields";
 import { interpretGeographyPreference } from "./geography";
 import { selectProductionMinimum, requestHasMinimumScope, hasDifferentQuantityBasis } from "./minimum-scope";
+import { quantityAllocation } from "@/lib/directory/evidence-text.mjs";
 import { MATCHABLE_REQUIREMENT_KEYS } from "./matching-requirements";
 import { resolveProductCategoryFromText } from "./product-category";
 import { hasMinimumMatchingInfo } from "./readiness";
@@ -312,6 +313,9 @@ export function compareProductionVolume(
   const selected = selectProductionMinimum(requestedValue, publishedMinimum);
   if (selected.reason) return { compatible: null, claim: selected.reason };
   if (!selected.constraints.length) return null;
+  if (quantityAllocation(requestedValue).unresolved) {
+    return { compatible: null, claim: "The production quantity includes allocation terms that need clarification. Confirm how much applies to each run, order, or product before comparing minimums." };
+  }
   if ([...requestedValue.matchAll(/\b\d[\d,]*(?:\.\d+)?\s*(?:bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/gi)].length > 1) {
     return { compatible: null, claim: "More than one production quantity is stated. Confirm the quantity and allocation that apply to each minimum." };
   }

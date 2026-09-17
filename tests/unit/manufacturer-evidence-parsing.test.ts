@@ -28,6 +28,42 @@ function plant(capabilities = "Hot-fill is available.", minimum: string | null =
 }
 
 describe("allocation survives intake, storage and matching", () => {
+  it.each([
+    ["total across 4 runs", "run"],
+    ["across 4 production runs", "run"],
+    ["across seven runs", "run"],
+    ["in total across twelve batches", "batch"],
+    ["total across 4 orders", "order"],
+    ["total across 4 SKUs", "SKU"],
+    ["total across 4 products", "product"],
+    ["total across 4 flavors", "flavor"],
+    ["split among seven production runs", "run"],
+    ["distributed across several batches", "batch"],
+    ["across an undecided number of production runs", "run"],
+    ["split according to demand", "run"],
+  ])("preserves quantity context %s through source spans, storage and matching", async (suffix, scope) => {
+    vi.stubEnv("NODE_ENV", "development");
+    const quantity = `1000 bottles ${suffix}`;
+    const idea = `Hot sauce. Initial order ${quantity}.`;
+    const workspace = founder(idea);
+    await saveSourcingWorkspace(workspace, null);
+    const saved = (await getSourcingWorkspace(workspace.id))!;
+    const field = saved.fields.production_volume;
+    expect(field.value).toBe(quantity);
+    expect(field.sourceSpans?.[0].text).toContain(quantity);
+    for (const span of field.sourceSpans ?? []) expect(idea.slice(span.start, span.end)).toBe(span.text);
+    expect(compare(field.value!, `Minimum 500 bottles per ${scope}`)).toBeNull();
+    const match = matchManufacturerRecords(saved, [plant("Hot-fill is available.", `Minimum 500 bottles per ${scope}`)])[0];
+    expect(match.reasonTrace?.find((r) => r.requirementKey === "production_volume")?.outcome).toBe("unknown");
+  });
+  it.each(["per run", "per production run", "for each production run", "every batch"])("keeps an explicit %s quantity comparable after reload", async (suffix) => {
+    vi.stubEnv("NODE_ENV", "development");
+    const workspace = founder(`Hot sauce. Initial order 1000 bottles ${suffix}.`);
+    await saveSourcingWorkspace(workspace, null);
+    const saved = (await getSourcingWorkspace(workspace.id))!;
+    expect(saved.fields.production_volume.value).toBe(`1000 bottles ${suffix}`);
+    expect(compare(saved.fields.production_volume.value!, `Minimum 500 bottles ${suffix}`)).toBe(true);
+  });
   it.each([["runs", "run"], ["orders", "order"], ["batches", "batch"], ["SKUs", "SKU"], ["products", "product"], ["flavors", "flavor"]])("retains the total across %s without assuming equal allocation", async (plural, scope) => {
     vi.stubEnv("NODE_ENV", "development");
     const workspace = founder(`Hot sauce in glass bottles. Initial order 1,000 bottles across 4 ${plural}.`);
@@ -46,6 +82,31 @@ describe("allocation survives intake, storage and matching", () => {
 });
 
 describe("offer and scope bound minimum constraints", () => {
+  it.each([
+    "Minimum 500 bottles and 2000 bottles",
+    "Minimum 500 bottles, 2000 bottles",
+    "Minimum 500 bottles or 2000 bottles",
+    "Minimum 500 bottles plus 2000 bottles",
+    "Minimum 500 bottles and 2000 jars",
+  ])("does not use an unbound quantity from %s", (minimum) => {
+    expect(compare("1000 bottles", minimum)).toBeNull();
+    expect(compare("3000 bottles", minimum)).toBeNull();
+  });
+  it.each([
+    ["1000 bottles per run", "Minimum 500 bottles per run and 2000 bottles per run", false],
+    ["3000 bottles per run", "Minimum 500 bottles per run and 2000 bottles per run", true],
+    ["1000 bottles", "Minimum 500 bottles and minimum 2000 bottles", false],
+    ["3000 bottles", "Minimum 500 bottles and minimum 2000 bottles", true],
+    ["Private-label 1000 bottles", "Private-label minimum 500 bottles and commercial minimum 2000 bottles", true],
+    ["1000 bottles", "Private-label minimum 500 bottles and commercial minimum 2000 bottles", false],
+  ] as const)("preserves bound constraints: %s against %s", (request, minimum, expected) => expect(compare(request, minimum)).toBe(expected));
+  it("retains published case-pack and equivalent-yield context", () => {
+    expect(compare("1200 bottles", "Minimum 100 cases of 12 bottles")).toBe(true);
+    expect(compare("1000 bottles", "Minimum 100 cases of 12 bottles")).toBe(false);
+    expect(compare("1200 bottles", "Minimum 100 cases, 12 bottles per case")).toBe(true);
+    expect(compareProductionVolume("4000 bottles", "5 fl oz", "Glass bottle", "Minimum 150 gallons (approximately 1,100 bottles at 16 fl oz)")?.compatible).toBe(true);
+    expect(compareProductionVolume("1000 bottles", "5 fl oz", "Glass bottle", "Minimum 150 gallons (approximately 1,100 bottles at 16 fl oz)")?.compatible).toBe(false);
+  });
   it.each([
     ["Pilot 1000 bottles", "Commercial minimum 100 bottles, pilot minimum 5000 bottles", false],
     ["Pilot 6000 bottles", "Commercial minimum 100 bottles, pilot minimum 5000 bottles", true],
@@ -74,6 +135,15 @@ describe("offer and scope bound minimum constraints", () => {
 
 describe("capability clause polarity across import, filters and sourcing", () => {
   it.each([
+    ["We do not yet offer hot-fill.", "mismatch"],
+    ["Hot-fill is not yet offered.", "mismatch"],
+    ["Hot-fill is not yet confirmed.", "unknown"],
+    ["We have not yet confirmed hot-fill.", "unknown"],
+    ["Hot-fill isn't yet available.", "mismatch"],
+    ["We do not yet offer cold-fill, but hot-fill is available.", "supported"],
+    ["Cold-fill is not yet offered. Hot-fill is available.", "supported"],
+    ["Cold-fill is not offered, yet hot-fill is available.", "supported"],
+    ["Hot-fill is available, yet cold-fill is not offered.", "supported"],
     ["Hot-fill is not offered.", "mismatch"],
     ["We do not offer cold-fill, but hot-fill is available.", "supported"],
     ["Hot-fill is unavailable; cold-fill is available.", "mismatch"],
@@ -102,6 +172,31 @@ describe("capability clause polarity across import, filters and sourcing", () =>
 });
 
 describe("external production programs", () => {
+  it.each([
+    "We do not yet offer small-batch co-packing.",
+    "Small-batch co-packing is not yet offered.",
+    "Small-batch co-packing is not yet confirmed.",
+  ])("does not publish a small-run label for %s", (claim) => {
+    expect(publishedSmallRunOption(claim, null, urls)).toBeUndefined();
+    const record = { ...plant(claim), slug: "temporal-negation", smallRunSignal: undefined };
+    expect(smallRunSignalForPlant(record)).toBeUndefined();
+    expect(matchesQuery(record, { smallRunSignal: true })).toBe(false);
+  });
+  it("keeps genuine contrasts between external production programs", () => {
+    expect(publishedSmallRunOption("We do not offer pilot runs, yet small-batch co-packing is available.", null, urls)?.kind).toBe("small-batch");
+  });
+  it("keeps Consolidated Mills limited to its reviewed private-label catalog recipes", () => {
+    const record = getPlantBySlug("consolidated-mills-inc")!;
+    for (const signal of [record.smallRunSignal, smallRunSignalForPlant(record)]) {
+      expect(signal?.kind).toBe("private-label");
+      expect(signal?.evidence).toMatch(/private[- ]label/i);
+      expect(signal?.evidence).toMatch(/library of proven recipes under customer label/i);
+      expect(signal?.evidence).toMatch(/small-batch production runs for test items/i);
+      expect(signal?.evidence).not.toMatch(/food contract packaging/i);
+    }
+    expect(record.lastVerified).toBe("2026-08-26");
+    expect(record.moqDisplay).toBeNull();
+  });
   it("keeps every reviewed program consistent between generated catalog and directory filtering", () => {
     for (const [slug, review] of Object.entries(programReviews.records)) {
       const record = getPlantBySlug(slug)!;

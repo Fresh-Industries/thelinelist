@@ -17,6 +17,30 @@ function offersIn(value: string): Offer[] {
   return OFFER_PATTERNS.filter(([, pattern]) => pattern.test(value)).map(([offer]) => offer);
 }
 
+/** Each bound constraint has one floor. Other quantities must explicitly
+ * describe that floor's case pack or equivalent yield, not another possible
+ * minimum hidden behind a comma, conjunction, or arbitrary prose.
+ */
+function hasUnboundQuantities(text: string): boolean {
+  const quantities = [...text.matchAll(new RegExp(`\\b${NUMBER_UNIT}\\b`, "gi"))];
+  return quantities.slice(1).some((quantity, index) => {
+    const before = text.slice(0, quantity.index);
+    const between = text.slice(quantities[index].index! + quantities[index][0].length, quantity.index);
+    const after = text.slice(quantity.index! + quantity[0].length);
+    const casePack = /\bcases?\s+of\s*$/i.test(before) || /^\s*(?:\/|per\s+)case\b/i.test(after);
+    // A volume floor can publish several package-size-specific case yields.
+    // Keep those alternatives for the existing size-aware pack comparison.
+    const sizedCaseYield = /\bgallons?$/i.test(quantities[0][0]) && /\bcases?$/i.test(quantity[0])
+      && /[;(]\s*(?:approximately|about|equivalent to)\s*$/i.test(before)
+      && /^\s+of\s+\d+\s+\d+(?:\.\d+)?\s*(?:fl\.?\s*)?oz\s+(?:bottles?|jars?|cans?|pouches?|bags?|units?)\b/i.test(after);
+    const equivalentYield = /\b(?:gallons?|pounds?|lbs?)$/i.test(quantities[index][0])
+      && /\b(?:bottles?|jars?|cans?|pouches?|bags?|units?)$/i.test(quantity[0])
+      && /^\s*(?:[,;(]\s*)?(?:(?:equivalent to|yields?|yielding)\s+(?:approximately\s+)?|approximately\s+)$/i.test(between)
+      && /^\s+(?:at|of)\s+\d+(?:\.\d+)?\s*(?:fl\.?\s*oz|fluid ounces?|oz|ounces?)\b/i.test(after);
+    return !casePack && !sizedCaseYield && !equivalentYield;
+  });
+}
+
 interface MinimumConstraint { text: string; scopes: string[]; reason?: string }
 interface BoundClause { text: string; offer: Offer | null; ambiguous: boolean }
 
@@ -69,7 +93,7 @@ export function selectProductionMinimum(request: string, published: string | nul
   return { constraints: selected.map((clause) => {
     const text = clause.text.replace(/,?\s*with orders placed at least quarterly/i, "").trim();
     const scopes = [...new Set<string>(quantityAllocation(text).each)];
-    const quantityList = new RegExp(`${NUMBER_UNIT}\\s*,\\s*${NUMBER_UNIT}`, "i").test(text);
+    const quantityList = hasUnboundQuantities(text);
     const qualified = /\b(?:annual|quarter|quarterly|per (?:year|month|week|day|hour)|capacity|warehouse|storage rental|lowest band|inquiry form|typical|average|standard batch|range|batch sizes)\b/i.test(text) || /\$|\b(?:dollars?|USD)\b/i.test(text);
     if (quantityList) return { text, scopes, reason: "Several quantities are listed without separate minimum terms. Confirm which quantity, offer, and allocation apply." };
     return { text, scopes, ...(qualified ? { reason: "Published quantities describe an estimate, capacity, time commitment, price, or inquiry band. The production minimum needs confirmation." } : {}) };

@@ -29,6 +29,19 @@ test("directory separates a published minimum from small-run suitability", async
   await expect(page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: /Croix Valley/ }) })).toHaveCount(0);
 });
 
+test("Consolidated Mills displays the private-label restriction in its profile and directory", async ({ page }) => {
+  await page.goto("/manufacturers/consolidated-mills-inc");
+  const signal = page.locator(".profile-small-run-signal");
+  await expect(signal).toContainText("Private label manufacturing of salsas and sauces");
+  await expect(signal).toContainText("library of proven recipes under customer label");
+  await expect(signal).toContainText("small-batch production runs for test items");
+  await expect(signal).not.toContainText("food contract packaging");
+  await expect(signal.getByRole("link", { name: /^See source/ }).first()).toBeVisible();
+  await page.goto("/find-manufacturers?state=TX&smallRun=1");
+  const record = page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: "Consolidated Mills Inc." }) });
+  await expect(record.locator(".small-run-signal")).toContainText("Small-batch private label listed");
+});
+
 test("hot-sauce discovery and profiles retain reviewed evidence and contact uncertainty", async ({ page }) => {
   await page.goto("/find-manufacturers?state=TX&category=hot-sauce");
   const heritage = page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: "Heritage Family Specialty Foods" }) });

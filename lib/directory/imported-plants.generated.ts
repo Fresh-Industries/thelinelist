@@ -5143,15 +5143,15 @@ export const IMPORTED_PLANTS = [
     "operationType": "co-packer",
     "operationTypePublished": "co-packer",
     "smallRunSignal": {
-      "kind": "small-batch",
-      "evidence": "Live consolidatedmills.com states food contract packaging and product solutions for institutional and retail. small-batch production runs for test items as well as large volume",
+      "kind": "private-label",
+      "evidence": "Private label manufacturing of salsas and sauces; small-batch production runs for test items as well as large volume; library of proven recipes under customer label.",
       "sourceUrls": [
         "https://consolidatedmills.com/",
-        "https://consolidatedmills.com/contact-us/",
         "https://consolidatedmills.com/about-us/",
         "https://consolidatedmills.com/facility/",
         "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-      ]
+      ],
+      "reviewedAt": "2026-09-17"
     },
     "overview": [
       "Public sources list these products: Dry herbs and spices; salsas and sauces; jalapeno peppers; beverage concentrates, snow-cone syrups, bar mixers, aguas frescas; food colors and flavor emulsions (origin).",

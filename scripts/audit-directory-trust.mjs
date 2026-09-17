@@ -10,7 +10,9 @@ import { parseCsv } from "./import-manufacturers.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const baseline = process.argv.find((value) => value.startsWith("--baseline="))?.slice(11) ?? "dde5d4d";
+const reviewedAt = process.argv.find((value) => value.startsWith("--reviewed-at="))?.slice(14) ?? "2026-09-13";
 assert.match(baseline, /^[a-f\d]{7,40}$/i, "Baseline must be a commit SHA.");
+assert.match(reviewedAt, /^\d{4}-\d{2}-\d{2}$/, "Review date must use YYYY-MM-DD.");
 const fromGit = (file) => execFileSync("git", ["show", `${baseline}:${file}`], { cwd: root, encoding: "utf8", maxBuffer: 10_000_000 });
 const parseCatalog = (source) => JSON.parse(source.match(/export const IMPORTED_PLANTS = ([\s\S]+) satisfies Plant\[\];/)[1]);
 const before = parseCatalog(fromGit("lib/directory/imported-plants.generated.ts"));
@@ -76,7 +78,7 @@ const signalAudit = audited.map((plant) => {
   };
 });
 const payload = {
-  mode: "dry-run-review", reviewedAt: "2026-09-13", baseline,
+  mode: "dry-run-review", reviewedAt, baseline,
   productionWrites: false, deployed: false,
   coverage: `All ${audited.length} baseline signals checked against stored source claims and extraction rules. External-program reviews cover all 38 options from 8e48f14 and separately identify newly recovered options. Live official-source program reviews are explicitly dated; other records retain their original source dates. This is not a live re-verification of every supplier.`,
   counts: {

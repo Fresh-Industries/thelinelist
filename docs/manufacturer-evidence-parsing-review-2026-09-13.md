@@ -1,4 +1,80 @@
-# Manufacturer evidence parsing follow-up — September 13, 2026
+# Manufacturer evidence parsing repair review
+
+## Independent-review corrections — September 17, 2026
+
+Continued from clean commit `115226299993bd313cb3626e491d694634ba242d` on `fix/manufacturer-evidence-parsing` in `/Users/nikolasmanuel/thelinelist-evidence-parsing`. The original review base remains `8e48f1436996b467331d36f135814d3bd5286935`. The earlier repair was retained. Only task changes are included in the new local commit and the complete v2 patch against the original base. Nothing was pushed, merged, deployed, or sent to a supplier; no production data was accessed.
+
+### Four findings and resulting behavior
+
+1. **Temporal negation:** the shared clause splitter treated every `yet` as a contrast, separating `not` from its predicate. It now preserves `not yet` and negative contractions while still splitting genuine contrasts. Capability interpretation handles trailing `not yet offered` as mismatch and `not yet confirmed` as unknown. Regression cases cover process import tags, directory filters, sourcing evidence, and suppression of small-run labels.
+2. **Allocation capture:** intake depended on the same narrow pattern used to interpret allocation. `total`, modifiers such as `production`, and number words beyond six caused the entire suffix to disappear. Capture now retains the complete quantity-context suffix through its sentence boundary independently of interpretation. Interpretation accepts production scopes and count wording without calculating shares; unrecognized allocation terms produce an explicit unknown comparison. The saved value and exact source span survive local storage/reload and manufacturer research. Explicit per-run amounts remain comparable, and existing order/batch/SKU/product/flavor assertions remain intact.
+3. **Unbound minimum quantities:** the guard only recognized comma-separated pairs, so the first number in a conjunction could establish support. Each bound constraint now checks all quantities and requires additional quantities to be explicitly related as case-pack data or equivalent yield; otherwise the comparison remains unknown. Existing offer/scope splitting still evaluates separately bound floors. Private-label, pilot, and commercial offers remain separate. Published package-size-specific case yields remain available to the existing size-aware conversion, and container, weight, volume, and missing-pack boundaries remain enforced.
+4. **Consolidated Mills:** the stored review narrative correctly limited the option, but generic paragraph parsing joined the test-item statement to a separate general contract-packaging statement. The existing `publicProgram` reviewed-evidence mechanism now supplies the relevant stored-source excerpt as one scoped program. Generated and runtime output both classify it as `private-label` and retain the library-of-proven-recipes/customer-label context. The original review reason is unchanged; no supplier names were added to generic parsing and no custom-recipe minimum was inferred.
+
+| Input / evidence | At reviewed repair `1152262` | Current result |
+| --- | --- | --- |
+| `We do not yet offer hot-fill.` | Supported | Mismatch; no process/filter support |
+| `Hot-fill is not yet offered.` | Supported | Mismatch |
+| `Hot-fill is not yet confirmed.` | Supported | Unknown |
+| `We do not yet offer small-batch co-packing.` | Small-batch label | No label |
+| `Initial order 1000 bottles total across 4 runs` | Saved `1000 bottles`; supported against 500/run | Complete quantity/source span saved; comparison unknown |
+| `1000 bottles across 4 production runs` / `across seven runs` | Allocation omitted | Complete allocation saved; comparison unknown |
+| `1000 bottles split according to demand` | Allocation omitted | Evidence retained; unresolved allocation is unknown |
+| `1000 bottles per production run` vs. `Minimum 500 bottles per production run` | Intake dropped scope | Scope preserved; compatible |
+| `1000 bottles` vs. `Minimum 500 bottles and 2000 bottles` | Supported using 500 | Unknown, including when the total exceeds both numbers |
+| `1000 bottles per run` vs. `Minimum 500 bottles per run and 2000 bottles per run` | Incompatible | Still incompatible; 3000/run is compatible |
+| Consolidated Mills test-item program | Generic small-batch label; restriction omitted | Private-label label with catalog-recipe evidence |
+
+### Catalog and review artifacts
+
+All **345 listings** remain (309 imported, 36 curated), with 41 imported small-run options. Compared with `1152262`, the sole generated record change is Consolidated Mills' `smallRunSignal`: kind, full evidence, program-source links, and separate review date. Its contact-page link remains in the listing but is excluded from the program evidence links. Its source snapshot and `lastVerified` remain **2026-08-26**; **2026-09-17** dates this stored-evidence interpretation, not a new website check or supplier confirmation.
+
+A full-object comparison, excluding only `smallRunSignal`, passed for every imported record. The curated catalog source is byte-identical to `1152262`. Identity, order, names, locations, minimums, raw capabilities, process tags, contacts, and original source dates are unchanged. The import report changes one record fingerprint. The two prior data audits were regenerated through their existing script; the new [incremental audit](../artifacts/manufacturer-evidence-parsing-2026-09-17/data-repair-dry-run.json) compares with `1152262`. The audit accepts an explicit review date so the new run is distinguishable from historical snapshots.
+
+Current logs are in [`artifacts/manufacturer-evidence-parsing-2026-09-17`](../artifacts/manufacturer-evidence-parsing-2026-09-17). September 13 logs below are historical and are not evidence of current validation.
+
+### Current validation
+
+- Added **42 regression cases before fixing implementation**: 27 failed and 15 passed on unchanged `1152262`; all 58 prior cases still passed. The before-fixes log records 27 failures / 73 passes across 100 cases.
+- Focused manufacturer-evidence and directory-trust checks: **145 passed**.
+- Full unit suite on the final implementation: **369 passed across 23 files**. Existing assertions and positive controls were retained. The first full pass caught a Swift Cider case-pack regression (1 failed / 368 passed); that log is retained, the binding guard was corrected, and all 369 then passed.
+- Production build: **passed**, including TypeScript and **444 generated pages**, with database/blob/Vercel credentials removed from the process environment.
+- Catalog freshness and full catalog invariants: **passed**.
+- Final standalone typecheck and relevant ESLint: **passed** (exit 0).
+- **11 distinct targeted browser checks passed**: 10 in the initial 11-test run (1.3 minutes), then the corrected Consolidated Mills test passed on its targeted rerun (8.9 seconds). The new test originally expected the directory label as the profile heading; the profile correctly uses a generic heading with full private-label evidence. Only that new assertion was corrected. Both run logs are retained; trailing whitespace is normalized for the patch. Allocation wording (including total, production-run modifiers, and word counts) survives manual intake, source spans, reload, and research; directory/profile restrictions and existing sourcing/pack-conversion/founder-control checks passed. No application change was needed for the browser assertion.
+- **No required checks blocked or omitted.**
+
+Commands run in the repair checkout:
+
+```sh
+# Failing proof was run with tests added and implementation still at 1152262.
+env -u DATABASE_URL -u DIRECT_URL -u BLOB_READ_WRITE_TOKEN -u BLOB_STORE_ID -u VERCEL_OIDC_TOKEN -u VERCEL npx vitest run tests/unit/manufacturer-evidence-parsing.test.ts
+npm run manufacturers:dry-run
+npm run manufacturers:import
+node scripts/audit-directory-trust.mjs --baseline=8e48f14 --output=artifacts/manufacturer-evidence-parsing-2026-09-13/data-repair-dry-run.json
+node scripts/audit-directory-trust.mjs --output=artifacts/directory-trust-2026-09-13/data-repair-dry-run.json
+node scripts/audit-directory-trust.mjs --baseline=1152262 --reviewed-at=2026-09-17 --output=artifacts/manufacturer-evidence-parsing-2026-09-17/data-repair-dry-run.json
+npm run manufacturers:check
+env -u DATABASE_URL -u DIRECT_URL -u BLOB_READ_WRITE_TOKEN -u BLOB_STORE_ID -u VERCEL_OIDC_TOKEN -u VERCEL npm run test:unit
+npm run typecheck
+npx eslint lib/directory/evidence-text.mjs lib/directory/capability-evidence.mjs lib/sourcing/intake-extractor.ts lib/sourcing/matching.ts lib/sourcing/minimum-scope.ts scripts/audit-directory-trust.mjs tests/unit/manufacturer-evidence-parsing.test.ts tests/e2e/directory-trust.spec.ts tests/e2e/sourcing.spec.ts
+env -u DATABASE_URL -u DIRECT_URL -u BLOB_READ_WRITE_TOKEN -u BLOB_STORE_ID -u VERCEL_OIDC_TOKEN -u VERCEL npm run build
+env -u DATABASE_URL -u DIRECT_URL -u BLOB_READ_WRITE_TOKEN -u BLOB_STORE_ID -u VERCEL_OIDC_TOKEN -u VERCEL PLAYWRIGHT_PORT=3037 npx playwright test tests/e2e/directory-trust.spec.ts tests/e2e/sourcing.spec.ts --grep 'directory separates|hot-sauce discovery|small-run program labels|Consolidated Mills displays|manual intake keeps run allocation|manual hot-sauce intake|realistic acidified hot-sauce|competitive beverage sourcing' --workers=1 --timeout=120000
+# Rerun only the corrected new profile assertion; the other ten checks passed.
+env -u DATABASE_URL -u DIRECT_URL -u BLOB_READ_WRITE_TOKEN -u BLOB_STORE_ID -u VERCEL_OIDC_TOKEN -u VERCEL PLAYWRIGHT_PORT=3037 npx playwright test tests/e2e/directory-trust.spec.ts --grep 'Consolidated Mills displays' --workers=1 --timeout=120000
+```
+
+### Remaining limitations and review boundary
+
+This remains a conservative lexical interpreter, not a general natural-language parser. Unknown allocation, unresolved applicable minimums, unsupported unit conversions, and conflicting source claims need clarification. Multiple founder quantities are retained when part of captured quantity context but are not automatically aligned or divided. The broader capture may retain adjacent same-sentence context; it must not turn uninterpreted wording into positive fit. Existing first-run versus later-forecast controls still pass. Published case-pack and yield notes do not establish a recipe, process, or package capability.
+
+No public pages were re-fetched and no supplier facts were newly verified in this follow-up. Browser checks use the local development server and local guest storage; production build validation is separate. The full browser suite, production browser, production persistence, and live send were not run. No required check is intentionally omitted.
+
+The deliverable is `/Users/nikolasmanuel/thelinelist-matching-review-v2.patch`, exported with `git diff --binary 8e48f1436996b467331d36f135814d3bd5286935 HEAD` after committing all task code, tests, data, this report, and the new artifacts. It includes the earlier repair plus these corrections.
+
+---
+
+## Initial repair — September 13, 2026 (historical)
 
 Implemented locally on `fix/manufacturer-evidence-parsing`, based on current main `8e48f1436996b467331d36f135814d3bd5286935`, in `/Users/nikolasmanuel/thelinelist-evidence-parsing`. Main and its README/ProductMockup work remain unchanged. This follow-up is awaiting review; it has not been pushed, merged, or deployed. No production database, production storage, or outreach delivery was used.
 

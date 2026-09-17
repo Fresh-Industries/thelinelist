@@ -1,0 +1,8 @@
+
+ RUN  v4.1.11 /Users/nikolasmanuel/thelinelist-evidence-parsing
+
+
+ Test Files  2 passed (2)
+      Tests  145 passed (145)
+   Start at  09:55:02
+   Duration  1.56s (transform 1.53s, setup 0ms, import 2.19s, tests 395ms, environment 0ms)

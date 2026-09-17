@@ -89,6 +89,8 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
   }
 
   const packageIndexes = new Set(sizedPackages.map((match) => match.index));
+  // Capture quantity context even when its allocation cannot be interpreted.
+  // The saved value and source span must not turn a total into a single run.
   const quantities = allMatches(idea, new RegExp(String.raw`\b(?:(?:first\s+(?:run|pilot)|pilot|private[- ]label|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\s*[:=-]?\s*)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?(?:\s*(?:-|–|to)\s*\d[\d,]*(?:\.\d+)?)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b(${ALLOCATION_SUFFIX})?`, "gi"))
     .filter((match) => !packageIndexes.has(match.index) && Number.parseFloat(match[1].replace(/,/g, "")) >= 10);
   const quantity = canonicalFirstRunQuantity(idea, quantities);

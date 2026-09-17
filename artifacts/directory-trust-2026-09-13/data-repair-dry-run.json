@@ -1863,15 +1863,15 @@
         ]
       },
       "proposedSignal": {
-        "kind": "small-batch",
-        "evidence": "Live consolidatedmills.com states food contract packaging and product solutions for institutional and retail. small-batch production runs for test items as well as large volume",
+        "kind": "private-label",
+        "evidence": "Private label manufacturing of salsas and sauces; small-batch production runs for test items as well as large volume; library of proven recipes under customer label.",
         "sourceUrls": [
           "https://consolidatedmills.com/",
-          "https://consolidatedmills.com/contact-us/",
           "https://consolidatedmills.com/about-us/",
           "https://consolidatedmills.com/facility/",
           "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-        ]
+        ],
+        "reviewedAt": "2026-09-17"
       },
       "disposition": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred.",
       "programReview": {
@@ -1885,7 +1885,17 @@
           "https://consolidatedmills.com/facility/",
           "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
         ],
-        "reason": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred."
+        "reason": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred.",
+        "publicProgram": {
+          "evidence": "Private label manufacturing of salsas and sauces; small-batch production runs for test items as well as large volume; library of proven recipes under customer label.",
+          "sourceUrls": [
+            "https://consolidatedmills.com/",
+            "https://consolidatedmills.com/about-us/",
+            "https://consolidatedmills.com/facility/",
+            "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
+          ],
+          "reviewedAt": "2026-09-17"
+        }
       },
       "importSourceRecord": {
         "": "4",
@@ -6922,15 +6932,15 @@
         ]
       },
       "proposed": {
-        "kind": "small-batch",
-        "evidence": "Live consolidatedmills.com states food contract packaging and product solutions for institutional and retail. small-batch production runs for test items as well as large volume",
+        "kind": "private-label",
+        "evidence": "Private label manufacturing of salsas and sauces; small-batch production runs for test items as well as large volume; library of proven recipes under customer label.",
         "sourceUrls": [
           "https://consolidatedmills.com/",
-          "https://consolidatedmills.com/contact-us/",
           "https://consolidatedmills.com/about-us/",
           "https://consolidatedmills.com/facility/",
           "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
-        ]
+        ],
+        "reviewedAt": "2026-09-17"
       }
     },
     {
@@ -8797,7 +8807,17 @@
           "https://consolidatedmills.com/facility/",
           "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
         ],
-        "reason": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred."
+        "reason": "Test-item small runs are scoped to the private-label production context and catalog recipes; no custom recipe floor inferred.",
+        "publicProgram": {
+          "evidence": "Private label manufacturing of salsas and sauces; small-batch production runs for test items as well as large volume; library of proven recipes under customer label.",
+          "sourceUrls": [
+            "https://consolidatedmills.com/",
+            "https://consolidatedmills.com/about-us/",
+            "https://consolidatedmills.com/facility/",
+            "https://aggie-horticulture.tamu.edu/food-technology/food-processing-entrepreneurs/getting-started/co-packers-in-texas/"
+          ],
+          "reviewedAt": "2026-09-17"
+        }
       },
       "contract-comestibles": {
         "decision": "retain-scoped",
