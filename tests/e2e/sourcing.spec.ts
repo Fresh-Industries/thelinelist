@@ -1003,6 +1003,17 @@ test("zero-result research requires a visible founder-approved criteria diff and
   await expect(page.getByText(/Broadened search approved/)).toBeVisible();
 });
 
+test("manual quantity intake excludes adjacent private budget wording", async ({ page }) => {
+  const idea = "Hot sauce in glass bottles. Initial order 1,000 bottles total across seven runs, and my budget is $10,000.";
+  const workspaceId = await startProduct(page, idea);
+  await page.reload();
+  const stored = await page.request.get(workspaceApiPath(workspaceId)).then((response) => response.json()) as { workspace: SourcingWorkspace };
+  const field = stored.workspace.fields.production_volume;
+  expect(field.value).toBe("1,000 bottles total across seven runs");
+  expect(field.sourceSpans?.[0].text).not.toMatch(/budget|10,000/);
+  expect(stored.workspace.fields.budget.shareWithManufacturer).toBe(false);
+});
+
 for (const quantity of ["1,000 bottles across 4 runs", "1,000 bottles total across 4 runs", "1,000 bottles across 4 production runs", "1,000 bottles across seven runs"]) {
   test(`manual intake keeps run allocation through reload and manufacturer research: ${quantity}`, async ({ page }) => {
     await installWebMcpHarness(page);

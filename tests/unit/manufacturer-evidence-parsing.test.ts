@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { spawnSync } from "node:child_process";
 import { createWorkspace, applyFounderFieldUpdate } from "@/lib/sourcing/workspace";
 import { getSourcingWorkspace, saveSourcingWorkspace } from "@/lib/sourcing/store";
 import { compareProductionVolume, matchManufacturerRecords } from "@/lib/sourcing/matching";
@@ -6,6 +7,7 @@ import { getPlantBySlug, matchesQuery, smallRunSignalForPlant } from "@/lib/dire
 import { mapProcesses } from "@/scripts/import-manufacturers.mjs";
 import { publishedCapabilityStatus } from "@/lib/directory/capability-evidence.mjs";
 import { publishedSmallRunOption } from "@/lib/directory/small-runs.mjs";
+import { prepareOutreachDrafts } from "@/lib/sourcing/outreach";
 import programReviews from "@/data/manufacturer-imports/small-run-program-reviews-2026-09-13.json";
 import type { Plant } from "@/lib/directory/types";
 import type { SourcingFieldKey } from "@/lib/sourcing/types";
@@ -28,6 +30,27 @@ function plant(capabilities = "Hot-fill is available.", minimum: string | null =
 }
 
 describe("allocation survives intake, storage and matching", () => {
+  it.each([
+    ["total, and my budget is $10,000", "total"],
+    ["total and my budget is $10,000", "total"],
+    ["total across seven runs, and my budget is $10,000", "total across seven runs"],
+    ["per run and my internal target is $10,000", "per run"],
+    ["split according to demand, and my budget is $10,000", "split according to demand"],
+  ])("keeps unrelated private facts out of quantity evidence and packets: %s", async (context, allocation) => {
+    vi.stubEnv("NODE_ENV", "development");
+    const workspace = founder(`Hot sauce. Initial order 1000 bottles ${context}.`);
+    await saveSourcingWorkspace(workspace, null);
+    const saved = (await getSourcingWorkspace(workspace.id))!;
+    expect(saved.fields.production_volume.value).toBe(`1000 bottles ${allocation}`);
+    expect(saved.fields.production_volume.sourceSpans?.[0].text).not.toMatch(/budget|internal|10,000/);
+    saved.matches = matchManufacturerRecords(saved, [plant()]);
+    const [draft] = prepareOutreachDrafts(saved, { selectedManufacturerIds: [saved.matches[0].manufacturerSlug] });
+    expect(JSON.stringify(draft.packet.fieldValues)).not.toMatch(/budget|internal|10,000/);
+    if (allocation === "split according to demand") {
+      expect(saved.fields.production_volume.shareWithManufacturer).toBe(false);
+      expect(draft.includedFieldKeys).not.toContain("production_volume");
+    }
+  });
   it.each([
     ["total across 4 runs", "run"],
     ["across 4 production runs", "run"],
@@ -82,6 +105,20 @@ describe("allocation survives intake, storage and matching", () => {
 });
 
 describe("offer and scope bound minimum constraints", () => {
+  it.each(["SKU", "run", "batch", "order", "product", "flavor"])("preserves a published single %s minimum", (scope) => {
+    const minimum = `Minimum 500 bottles for one ${scope}`;
+    expect(compare(`1000 bottles across 4 ${scope === "batch" ? "batches" : `${scope}s`}`, minimum)).toBeNull();
+    expect(compare(`1000 bottles for one ${scope}`, minimum)).toBe(true);
+    expect(compare(`100 bottles for one ${scope}`, minimum)).toBe(false);
+  });
+  it.each(["no order minimum", "no minimum per order", "no minimum order required"])("does not turn %s into an unknown numeric floor", (absence) => {
+    expect(compare("1000 bottles per flavor", `Minimum 500 bottles per flavor; ${absence}`)).toBe(true);
+    expect(compare("100 bottles per flavor", `Minimum 500 bottles per flavor; ${absence}`)).toBe(false);
+  });
+  it("keeps unpublished order minimums distinct from explicit no-minimum terms", () => {
+    expect(compare("1000 bottles per flavor", "Minimum 500 bottles per flavor; no order minimum is published")).toBeNull();
+    expect(compare("1000 bottles per flavor", "Minimum 500 bottles per flavor; order minimum unknown")).toBeNull();
+  });
   it.each([
     "Minimum 500 bottles and 2000 bottles",
     "Minimum 500 bottles, 2000 bottles",
@@ -135,6 +172,10 @@ describe("offer and scope bound minimum constraints", () => {
 
 describe("capability clause polarity across import, filters and sourcing", () => {
   it.each([
+    ["We don't use preservatives, hot-fill is available.", "supported"],
+    ["We do not use preservatives and hot-fill is available.", "supported"],
+    ["We use no preservatives, hot-fill is available.", "supported"],
+    ["We don't offer hot-fill, cold-fill is available.", "mismatch"],
     ["We do not yet offer hot-fill.", "mismatch"],
     ["Hot-fill is not yet offered.", "mismatch"],
     ["Hot-fill is not yet confirmed.", "unknown"],
@@ -172,6 +213,14 @@ describe("capability clause polarity across import, filters and sourcing", () =>
 });
 
 describe("external production programs", () => {
+  it("does not mistake literal seed products for unresolved source metadata", () => {
+    expect(publishedSmallRunOption("Small-batch co-packing for seed products", null, urls)?.kind).toBe("small-batch");
+  });
+  it("keeps unsupported historical source claims unknown without suppressing seed products", () => {
+    const claim = getPlantBySlug("hno-blending-solutions")!.manufacturingCapabilitiesPublished!;
+    expect(publishedCapabilityStatus(claim, ["acidified"])).toBe("unknown");
+    expect(mapProcesses({ manufacturing_capabilities: claim })).not.toContain("acidified");
+  });
   it.each([
     "We do not yet offer small-batch co-packing.",
     "Small-batch co-packing is not yet offered.",
@@ -239,4 +288,10 @@ describe("external production programs", () => {
     expect(publishedSmallRunOption("Our own recipes are made in small batches. Contract manufacturing is also available.", null, urls)).toBeUndefined();
     expect(publishedSmallRunOption("Private-label products use our own formulas. We separately offer small-batch co-packing of customer recipes.", null, urls)?.kind).toBe("small-batch");
   });
+});
+
+it("rejects impossible review dates before writing an audit", () => {
+  const result = spawnSync(process.execPath, ["scripts/audit-directory-trust.mjs", "--reviewed-at=2026-02-31"], { encoding: "utf8" });
+  expect(result.status).not.toBe(0);
+  expect(result.stderr).toContain("Review date must be a real calendar date");
 });

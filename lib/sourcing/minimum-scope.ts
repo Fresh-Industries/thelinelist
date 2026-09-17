@@ -1,4 +1,4 @@
-import { EACH_SCOPE, evidenceClauses, quantityAllocation } from "@/lib/directory/evidence-text.mjs";
+import { EACH_SCOPE, SCOPE_NOUN, evidenceClauses, quantityAllocation } from "@/lib/directory/evidence-text.mjs";
 
 type Offer = "pilot" | "private-label" | "wholesale" | "custom";
 const OFFER_PATTERNS: Array<[Offer, RegExp]> = [
@@ -57,6 +57,9 @@ function bindMinimumClauses(published: string): BoundClause[] {
     for (let index = 0; index < parts.length; index += 2) {
       let text = parts[index].trim();
       if (!text) continue;
+      // An explicit absence is not an unknown numeric floor. Keep qualifiers
+      // such as "not published" out of this rule: absence of evidence is unknown.
+      if (new RegExp(`^no\\s+(?:${SCOPE_NOUN}\\s+)?minimum(?:\\s+(?:per\\s+)?${SCOPE_NOUN})?(?:\\s+required)?$`, "i").test(text)) continue;
       const offers = offersIn(text);
       const hasQuantity = /\d|\b(?:unknown|unpublished|not published|not stated)\b/i.test(text);
       if (!hasQuantity && offers.length === 1 && /:\s*$/.test(text)) { headingOffer = offers[0]; previousOffer = headingOffer; continue; }
@@ -92,7 +95,8 @@ export function selectProductionMinimum(request: string, published: string | nul
   if (!selected.length) return { constraints: [], reason: "The published minimum describes a different offer. Confirm separate pilot, private-label, and custom-production terms." };
   return { constraints: selected.map((clause) => {
     const text = clause.text.replace(/,?\s*with orders placed at least quarterly/i, "").trim();
-    const scopes = [...new Set<string>(quantityAllocation(text).each)];
+    const allocation = quantityAllocation(text);
+    const scopes = [...new Set<string>([...allocation.each, ...allocation.single])];
     const quantityList = hasUnboundQuantities(text);
     const qualified = /\b(?:annual|quarter|quarterly|per (?:year|month|week|day|hour)|capacity|warehouse|storage rental|lowest band|inquiry form|typical|average|standard batch|range|batch sizes)\b/i.test(text) || /\$|\b(?:dollars?|USD)\b/i.test(text);
     if (quantityList) return { text, scopes, reason: "Several quantities are listed without separate minimum terms. Confirm which quantity, offer, and allocation apply." };

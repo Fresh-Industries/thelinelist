@@ -13,6 +13,8 @@ const baseline = process.argv.find((value) => value.startsWith("--baseline="))?.
 const reviewedAt = process.argv.find((value) => value.startsWith("--reviewed-at="))?.slice(14) ?? "2026-09-13";
 assert.match(baseline, /^[a-f\d]{7,40}$/i, "Baseline must be a commit SHA.");
 assert.match(reviewedAt, /^\d{4}-\d{2}-\d{2}$/, "Review date must use YYYY-MM-DD.");
+const reviewDate = new Date(`${reviewedAt}T00:00:00.000Z`);
+assert.ok(!Number.isNaN(reviewDate.getTime()) && reviewDate.toISOString().slice(0, 10) === reviewedAt, "Review date must be a real calendar date.");
 const fromGit = (file) => execFileSync("git", ["show", `${baseline}:${file}`], { cwd: root, encoding: "utf8", maxBuffer: 10_000_000 });
 const parseCatalog = (source) => JSON.parse(source.match(/export const IMPORTED_PLANTS = ([\s\S]+) satisfies Plant\[\];/)[1]);
 const before = parseCatalog(fromGit("lib/directory/imported-plants.generated.ts"));

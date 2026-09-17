@@ -1,0 +1,12 @@
+
+> the-line-list@0.1.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /Users/nikolasmanuel/thelinelist-evidence-parsing
+
+
+ Test Files  23 passed (23)
+      Tests  391 passed (391)
+   Start at  10:39:28
+   Duration  8.38s (transform 11.25s, setup 0ms, import 28.90s, tests 8.73s, environment 6ms)

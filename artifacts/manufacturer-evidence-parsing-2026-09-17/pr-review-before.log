@@ -1,0 +1,142 @@
+
+ RUN  v4.1.11 /Users/nikolasmanuel/thelinelist-evidence-parsing
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts (113 tests | 11 failed) 245ms
+     × keeps unrelated private facts out of quantity evidence and packets: total, and my budget is $10,000 39ms
+     × keeps unrelated private facts out of quantity evidence and packets: total and my budget is $10,000 8ms
+     × keeps unrelated private facts out of quantity evidence and packets: total across seven runs, and my budget is $10,000 3ms
+     × keeps unrelated private facts out of quantity evidence and packets: per run and my internal target is $10,000 3ms
+     × keeps unrelated private facts out of quantity evidence and packets: split according to demand, and my budget is $10,000 4ms
+     × does not turn no order minimum into an unknown numeric floor 2ms
+     × does not turn no minimum per order into an unknown numeric floor 1ms
+     × does not turn no minimum order required into an unknown numeric floor 1ms
+     × We don't use preservatives, hot-fill is available. => supported 2ms
+     × We do not use preservatives and hot-fill is available. => supported 1ms
+     × We use no preservatives, hot-fill is available. => supported 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > keeps unrelated private facts out of quantity evidence and packets: total, and my budget is $10,000
+AssertionError: expected '1000 bottles total, and my budget is …' to be '1000 bottles total' // Object.is equality
+
+Expected: "1000 bottles total"
+Received: "1000 bottles total, and my budget is $10,000"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:43:50
+     41|     await saveSourcingWorkspace(workspace, null);
+     42|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     43|     expect(saved.fields.production_volume.value).toBe(`1000 bottles ${…
+       |                                                  ^
+     44|     expect(saved.fields.production_volume.sourceSpans?.[0].text).not.t…
+     45|     saved.matches = matchManufacturerRecords(saved, [plant()]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > keeps unrelated private facts out of quantity evidence and packets: total and my budget is $10,000
+AssertionError: expected '1000 bottles total and my budget is $…' to be '1000 bottles total' // Object.is equality
+
+Expected: "1000 bottles total"
+Received: "1000 bottles total and my budget is $10,000"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:43:50
+     41|     await saveSourcingWorkspace(workspace, null);
+     42|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     43|     expect(saved.fields.production_volume.value).toBe(`1000 bottles ${…
+       |                                                  ^
+     44|     expect(saved.fields.production_volume.sourceSpans?.[0].text).not.t…
+     45|     saved.matches = matchManufacturerRecords(saved, [plant()]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > keeps unrelated private facts out of quantity evidence and packets: total across seven runs, and my budget is $10,000
+AssertionError: expected '1000 bottles total across seven runs,…' to be '1000 bottles total across seven runs' // Object.is equality
+
+Expected: "1000 bottles total across seven runs"
+Received: "1000 bottles total across seven runs, and my budget is $10,000"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:43:50
+     41|     await saveSourcingWorkspace(workspace, null);
+     42|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     43|     expect(saved.fields.production_volume.value).toBe(`1000 bottles ${…
+       |                                                  ^
+     44|     expect(saved.fields.production_volume.sourceSpans?.[0].text).not.t…
+     45|     saved.matches = matchManufacturerRecords(saved, [plant()]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > keeps unrelated private facts out of quantity evidence and packets: per run and my internal target is $10,000
+AssertionError: expected '1000 bottles per run and my internal …' to be '1000 bottles per run' // Object.is equality
+
+Expected: "1000 bottles per run"
+Received: "1000 bottles per run and my internal target is $10,000"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:43:50
+     41|     await saveSourcingWorkspace(workspace, null);
+     42|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     43|     expect(saved.fields.production_volume.value).toBe(`1000 bottles ${…
+       |                                                  ^
+     44|     expect(saved.fields.production_volume.sourceSpans?.[0].text).not.t…
+     45|     saved.matches = matchManufacturerRecords(saved, [plant()]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > allocation survives intake, storage and matching > keeps unrelated private facts out of quantity evidence and packets: split according to demand, and my budget is $10,000
+AssertionError: expected '1000 bottles split according to deman…' to be '1000 bottles split according to demand' // Object.is equality
+
+Expected: "1000 bottles split according to demand"
+Received: "1000 bottles split according to demand, and my budget is $10,000"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:43:50
+     41|     await saveSourcingWorkspace(workspace, null);
+     42|     const saved = (await getSourcingWorkspace(workspace.id))!;
+     43|     expect(saved.fields.production_volume.value).toBe(`1000 bottles ${…
+       |                                                  ^
+     44|     expect(saved.fields.production_volume.sourceSpans?.[0].text).not.t…
+     45|     saved.matches = matchManufacturerRecords(saved, [plant()]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > does not turn no order minimum into an unknown numeric floor
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > does not turn no minimum per order into an unknown numeric floor
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > does not turn no minimum order required into an unknown numeric floor
+AssertionError: expected null to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:108:94
+    106| describe("offer and scope bound minimum constraints", () => {
+    107|   it.each(["no order minimum", "no minimum per order", "no minimum ord…
+    108|     expect(compare("1000 bottles per flavor", `Minimum 500 bottles per…
+       |                                                                                              ^
+    109|     expect(compare("100 bottles per flavor", `Minimum 500 bottles per …
+    110|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > We don't use preservatives, hot-fill is available. => supported
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > We do not use preservatives and hot-fill is available. => supported
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > capability clause polarity across import, filters and sourcing > We use no preservatives, hot-fill is available. => supported
+AssertionError: expected 'mismatch' to be 'supported' // Object.is equality
+
+Expected: "supported"
+Received: "mismatch"
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:195:72
+    193|     ["Hot-fill and cold-fill are available.", "supported"],
+    194|   ] as const)("%s => %s", (claim, status) => {
+    195|     expect(publishedCapabilityStatus(claim, ["hot-fill", "hot fill"]))…
+       |                                                                        ^
+    196|     const record = plant(claim);
+    197|     expect(record.finderProcesses.includes("hot-fill")).toBe(status ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 102 passed (113)
+   Start at  10:34:42
+   Duration  1.67s (transform 857ms, setup 0ms, import 1.22s, tests 245ms, environment 0ms)

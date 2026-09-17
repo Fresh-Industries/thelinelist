@@ -1,6 +1,21 @@
 # Manufacturer evidence parsing repair review
 
-## Independent-review corrections — September 17, 2026
+## PR #9 review follow-up — September 17, 2026
+
+The v2 export below records `90e100d`. Before merging [PR #9](https://github.com/Fresh-Industries/thelinelist/pull/9), six additional automated-review findings were verified and corrected:
+
+- Allocation capture ends known phrases at their scope, excluding same-sentence budget and internal-note continuations from the shareable production-volume field. Uninterpreted allocation wording is preserved through its clause and stays private until founder review. Storage and manufacturer-packet regressions cover both comma-separated and conjunction-separated continuations.
+- Independent predicates such as `We don't use preservatives, hot-fill is available` are separated before applying negation; the hot-fill claim remains supported across import, filtering, and sourcing.
+- Explicit `no order minimum` wording does not add an unknown numeric floor to an otherwise supported per-flavor comparison. `No order minimum is published` remains unknown.
+- Published `for one SKU` and other single-scope minimums participate in allocation alignment, so a total across several SKUs cannot satisfy them.
+- Literal seed products no longer become unknown solely because of the word `seed`. Explicit research wording such as HNO's `claims are not on the live site` remains unknown. Regeneration confirmed no catalog or source-date changes from v2.
+- Audit dates require a real UTC calendar date, rejecting values such as `2026-02-31`.
+
+Added 22 unit cases. The first three findings produced 11 failing cases before corrections; the next review regressions produced seven failing cases before corrections. An additional catalog-backed HNO control preserves the existing research boundary. Final validation results and logs use the `pr-` prefix in `artifacts/manufacturer-evidence-parsing-2026-09-17`; earlier logs retain their original historical results.
+
+Final PR validation: **391 unit tests across 23 files passed**, **all 12 targeted browser checks passed together (1.1 minutes)**, standalone typecheck and focused lint passed, catalog freshness passed, and the production build generated all **444 pages**. Catalog regeneration and the dated audit produce exactly the v2 data files. No production data or live supplier contact was used.
+
+## Independent-review corrections — September 17, 2026 (v2 export)
 
 Continued from clean commit `115226299993bd313cb3626e491d694634ba242d` on `fix/manufacturer-evidence-parsing` in `/Users/nikolasmanuel/thelinelist-evidence-parsing`. The original review base remains `8e48f1436996b467331d36f135814d3bd5286935`. The earlier repair was retained. Only task changes are included in the new local commit and the complete v2 patch against the original base. Nothing was pushed, merged, deployed, or sent to a supplier; no production data was accessed.
 

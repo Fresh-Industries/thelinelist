@@ -1,4 +1,4 @@
-import { ALLOCATION_SUFFIX } from "@/lib/directory/evidence-text.mjs";
+import { ALLOCATION_SUFFIX, quantityAllocation } from "@/lib/directory/evidence-text.mjs";
 import { certificationEvidenceSpans, normalizeCertificationRequirements } from "./certification-requirements";
 import type { AgentFieldUpdate, FounderSourceSpan, SourcingFieldKey, SourcingFieldStatus } from "./types";
 
@@ -176,7 +176,8 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
 
   return [...facts.values()].map((fact) => {
     const certificationIntent = fact.key === "certifications" ? normalizeCertificationRequirements(fact.value) : null;
-    return { key: fact.key, value: fact.value, status: fact.status, explicitlyStated: true, source, sourceSpans: uniqueSpans(fact.spans), reason: fact.reason, suggestedSharing: !certificationIntent || Boolean(certificationIntent.required.length || certificationIntent.preferred.length) };
+    const unresolvedQuantity = fact.key === "production_volume" && quantityAllocation(fact.value ?? "").unresolved;
+    return { key: fact.key, value: fact.value, status: fact.status, explicitlyStated: true, source, sourceSpans: uniqueSpans(fact.spans), reason: fact.reason, suggestedSharing: !unresolvedQuantity && (!certificationIntent || Boolean(certificationIntent.required.length || certificationIntent.preferred.length)) };
   });
 }
 

@@ -1,0 +1,73 @@
+
+ RUN  v4.1.11 /Users/nikolasmanuel/thelinelist-evidence-parsing
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts (121 tests | 7 failed) 560ms
+     × preserves a published single SKU minimum 7ms
+     × preserves a published single run minimum 1ms
+     × preserves a published single order minimum 1ms
+     × preserves a published single product minimum 1ms
+     × preserves a published single flavor minimum 1ms
+     × does not mistake literal seed products for unresolved source metadata 3ms
+   × rejects impossible review dates before writing an audit 322ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > preserves a published single SKU minimum
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > preserves a published single run minimum
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > preserves a published single order minimum
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > preserves a published single product minimum
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > offer and scope bound minimum constraints > preserves a published single flavor minimum
+AssertionError: expected true to be null
+
+- Expected:
+null
+
++ Received:
+true
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:110:65
+    108|   it.each(["SKU", "run", "batch", "order", "product", "flavor"])("pres…
+    109|     const minimum = `Minimum 500 bottles for one ${scope}`;
+    110|     expect(compare(`1000 bottles across 4 ${scope}s`, minimum)).toBeNu…
+       |                                                                 ^
+    111|     expect(compare(`1000 bottles for one ${scope}`, minimum)).toBe(tru…
+    112|     expect(compare(`100 bottles for one ${scope}`, minimum)).toBe(fals…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > external production programs > does not mistake literal seed products for unresolved source metadata
+AssertionError: expected undefined to be 'small-batch' // Object.is equality
+
+- Expected:
+"small-batch"
+
++ Received:
+undefined
+
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:217:99
+    215| describe("external production programs", () => {
+    216|   it("does not mistake literal seed products for unresolved source met…
+    217|     expect(publishedSmallRunOption("Small-batch co-packing for seed pr…
+       |                                                                                                   ^
+    218|   });
+    219|   it.each([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/unit/manufacturer-evidence-parsing.test.ts > rejects impossible review dates before writing an audit
+AssertionError: expected +0 not to be +0 // Object.is equality
+ ❯ tests/unit/manufacturer-evidence-parsing.test.ts:290:29
+    288| it("rejects impossible review dates before writing an audit", () => {
+    289|   const result = spawnSync(process.execPath, ["scripts/audit-directory…
+    290|   expect(result.status).not.toBe(0);
+       |                             ^
+    291|   expect(result.stderr).toContain("Review date must be a real calendar…
+    292| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 114 passed (121)
+   Start at  10:36:27
+   Duration  1.86s (transform 825ms, setup 0ms, import 1.11s, tests 560ms, environment 0ms)
