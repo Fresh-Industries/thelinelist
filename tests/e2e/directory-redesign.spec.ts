@@ -7,7 +7,7 @@ test.describe("manufacturer directory discovery redesign", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Find a manufacturer for your product" })).toBeVisible();
     await expect(page.getByText("Quick picks:")).toBeVisible();
     await expect(page.getByRole("link", { name: "Energy drinks" })).toHaveAttribute("href", /category=energy-drink/);
-    await expect(page.getByRole("link", { name: /Try the 4-step matcher/ })).toHaveAttribute("href", "/find-manufacturers/wizard");
+    await expect(page.getByRole("link", { name: /Try the 3-step matcher/ })).toHaveAttribute("href", "/find-manufacturers/wizard");
     await expect(page.locator(".sponsored-slot")).toHaveCount(0);
 
     const artyCard = page.locator(".plant-card").filter({ has: page.getByRole("heading", { name: "Arty's Premium Beverages / FLOOID" }) });
@@ -48,6 +48,16 @@ test.describe("manufacturer directory discovery redesign", () => {
     await expect(page).toHaveURL(/verified=30-days/);
     await expect(page.getByRole("link", { name: /Remove Reviewed in latest 30 days filter/ })).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  });
+
+  test("recovers an empty search without losing the product choice", async ({ page }) => {
+    await page.goto("/find-manufacturers?category=bakery&process=hpp");
+    await expect(page.getByRole("heading", { name: "No manufacturers match these filters yet" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "How to find a co-packer", exact: true })).toHaveAttribute("href", "/guides/how-to-find-a-co-packer");
+    await page.getByRole("link", { name: "Keep product, clear other filters", exact: true }).click();
+    await expect(page).toHaveURL(/\/find-manufacturers\?category=bakery$/);
+    await expect(page.getByRole("link", { name: "Remove Bakery filter" })).toBeVisible();
+    await expect(page.locator(".plant-card").first()).toBeVisible();
   });
 
   test("applies quick product filters across navigation, reload, and browser history", async ({ page }) => {

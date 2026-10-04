@@ -32,6 +32,7 @@ export function SourcingWorkspace({ guides }: { guides: { slug: string; title: s
   const router = useRouter();
   const [answer, setAnswer] = useState("");
   const [editingKey, setEditingKey] = useState<SourcingFieldKey | null>(null);
+  const [editingInDetails, setEditingInDetails] = useState(false);
   const readiness = useMemo(() => getSourcingReadiness(workspace), [workspace]);
   const agentState = useMemo(() => buildSourcingAgentState(workspace), [workspace]);
   const relevantPackageLabels = useMemo(() => getPackagingOptions(workspace).slice(0, 3).map((option) => option.label), [workspace]);
@@ -44,6 +45,16 @@ export function SourcingWorkspace({ guides }: { guides: { slug: string; title: s
   const packagePresentation = workspace.packageDesign
     ? getPackageDesignPresentation(workspace.packageDesign, workspace.artwork)
     : null;
+  const visibleBriefGroups = BRIEF_GROUPS.map((group) => ({
+    ...group,
+    keys: group.keys.filter((key) => key === editingKey
+      ? !editingInDetails
+      : Boolean(workspace.fields[key].value) || key === nextKey),
+  })).filter((group) => group.keys.length > 0);
+  const openDetailKeys = BRIEF_GROUPS.flatMap((group) => group.keys)
+    .filter((key) => key === editingKey
+      ? editingInDetails
+      : !workspace.fields[key].value && key !== nextKey);
 
   async function answerNext(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,7 +63,6 @@ export function SourcingWorkspace({ guides }: { guides: { slug: string; title: s
     const brandStillOpen = nextKey === "brand_name" && isOpenBrandAnswer(value);
     setBusy("answer");
     setError("");
-    const uncertain = brandStillOpen || /^(?:(?:i(?:'|’)m)\s+)?(?:not\s+)?sure(?:\s+yet)?[.!]?$/i.test(value);
     const response = await workspaceApi(`/api/sourcing/${workspace.id}`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -68,6 +78,7 @@ export function SourcingWorkspace({ guides }: { guides: { slug: string; title: s
       setAnswer("");
       const next = getSourcingReadiness(response.workspace);
       const nextAgentState = buildSourcingAgentState(response.workspace);
+      const uncertain = response.workspace.fields[nextKey].status === "needs_decision";
       const changedLabels = Object.keys(workspace.fields)
         .filter((key) => {
           const fieldKey = key as SourcingFieldKey;
@@ -82,14 +93,16 @@ export function SourcingWorkspace({ guides }: { guides: { slug: string; title: s
       const nextQuestionKey = nextAgentState.recommendedAction.type === "ask_founder"
         ? nextAgentState.recommendedAction.questions[0]?.key ?? null
         : null;
-      const nextPrompt = nextQuestionKey ? ` Next: ${getSourcingQuestion(response.workspace, nextQuestionKey)}` : "";
+      const nextPrompt = nextQuestionKey && (!uncertain || nextQuestionKey !== nextKey)
+        ? ` Next: ${getSourcingQuestion(response.workspace, nextQuestionKey)}`
+        : "";
       const changeCopy = changedLabels.length === 1
         ? `I added ${changedLabels[0]} to the brief.`
         : `I updated ${formatLabels(changedLabels)} in the brief.`;
       setAgentNote(brandStillOpen
         ? `That’s completely fine—the brand name can stay open.${nextPrompt || " We can keep shaping the product without it."}`
         : uncertain
-          ? `That can stay open. I won’t treat it as decided.${nextPrompt || " We can continue without guessing."}`
+          ? `That can stay open. I won’t treat it as decided.${nextPrompt || (next.searchReady ? " You can research manufacturers now and return to this decision later." : " You can edit the other details in your brief and return to this decision later.")}`
           : nextKey === "brand_name"
             ? `Got it—${value} is now the brand on this product brief.${nextPrompt || " We can continue shaping the manufacturing plan."}`
             : `Got it—${changeCopy} ${next.matchingReady ? "You now have enough confirmed information for a useful manufacturer search." : nextPrompt.trim()}`);
@@ -160,26 +173,9 @@ export function SourcingWorkspace({ guides }: { guides: { slug: string; title: s
           {editingKey === "brand_name" ? <BrandNameEditor initialValue={workspace.fields.brand_name.value || ""} onSave={saveInline} onCancel={() => setEditingKey(null)} /> : null}
           {editingKey === "product_type" ? <IdentityProductEditor initialValue={workspace.fields.product_type.value || ""} onSave={saveInline} onCancel={() => setEditingKey(null)} /> : null}
         </div>
-
-        <section className="readiness-card" aria-labelledby="readiness-heading"><div><p className="document-kicker">Honest readiness</p><h2 id="readiness-heading">{readiness.stageLabel}</h2><p>{readiness.stageSummary}</p></div><ol><li className={readiness.searchReady ? "is-done" : "is-current"}><span>{readiness.searchReady ? <Check aria-hidden="true" /> : "1"}</span>Research</li><li className={readiness.manufacturerReady ? "is-done" : readiness.searchReady ? "is-current" : ""}><span>{readiness.manufacturerReady ? <Check aria-hidden="true" /> : "2"}</span>Manufacturer brief</li><li className={readiness.launchReady ? "is-done" : readiness.manufacturerReady ? "is-current" : ""}><span>{readiness.launchReady ? <Check aria-hidden="true" /> : "3"}</span>Launch planning</li></ol></section>
-
         {workspace.lastAgentChange ? <details className="agent-change-review" open><summary><Sparkle aria-hidden="true" weight="fill" /> Latest agent update · {workspace.lastAgentChange.changedKeys.length} change{workspace.lastAgentChange.changedKeys.length === 1 ? "" : "s"}</summary><div><ul>{workspace.lastAgentChange.changedKeys.map((key) => <li key={key}><strong>{FIELD_DEFINITION_BY_KEY[key].label}</strong><span>{workspace.fields[key].value || "Left open"}</span></li>)}</ul><button type="button" onClick={undoAgentChange} disabled={busy !== null}><TrashSimple aria-hidden="true" /> {busy === "undo" ? "Undoing…" : "Undo latest agent update"}</button></div></details> : null}
 
-        {BRIEF_GROUPS.map((group) => (
-          <section className="brief-section" key={group.title}>
-            <div className="section-heading"><h2>{group.title}</h2></div>
-            <dl className="field-grid">
-              {group.keys.map((key) => <EditableField key={key} fieldKey={key} workspace={workspace} agentChanged={agentChangedKeys.has(key)} editing={editingKey === key} onEdit={() => setEditingKey(key)} onCancel={() => setEditingKey(null)} onSave={saveInline} />)}
-            </dl>
-          </section>
-        ))}
-
-        <section className={`brief-section packaging-section${agentChangedKeys.has("packaging_format") ? " agent-authored-section" : ""}`}>
-          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => openPackageWorkbench()}><Cube aria-hidden="true" /> {workspace.packageDesign || workspace.fields.packaging_format.status === "confirmed" ? "Refine in 3D" : "Open 3D workbench"}</button></div>
-          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => openPackageWorkbench()} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "proposed" ? "Agent proposal · needs your review" : workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>{workspace.fields.packaging_format.reason || (workspace.fields.packaging_format.status === "confirmed" ? "3D refinement is still needed for the manufacturer-ready brief." : "Open the workbench when a visual comparison would help.")}</small></div></div> : <p className="open-value">No package direction is locked yet. Start with {formatChoiceList(relevantPackageLabels)}, or open the other supported 3D models when you need them.</p>}
-        </section>
-
-        <aside className="agent-exchange" aria-live="polite"><Sparkle aria-hidden="true" weight="fill" /><div><span>Product collaborator</span><p>{agentNote}</p></div></aside>
+        {agentNote ? <aside className="agent-exchange" aria-live="polite"><Sparkle aria-hidden="true" weight="fill" /><div><span>Product collaborator</span><p>{agentNote}</p></div></aside> : null}
 
         <section className="agent-prompt" aria-labelledby="next-question-heading">
           <div className="prompt-line"><div><span>{readiness.searchReady ? "Research is available" : "Next useful decision"}</span><h2 id="next-question-heading">{packageDesignPending ? "Review and save your packaging direction in 3D." : nextKey ? getSourcingQuestion(workspace, nextKey) : "Your brief has enough confirmed detail for a focused manufacturer search."}</h2>{readiness.whyItMatters && nextKey ? <p>{readiness.whyItMatters}</p> : null}</div>{nextKey === "packaging_format" && !packageDesignPending ? <button className="text-action" type="button" onClick={() => openPackageWorkbench()}>Compare packages in 3D</button> : null}</div>
@@ -188,6 +184,24 @@ export function SourcingWorkspace({ guides }: { guides: { slug: string; title: s
         </section>
 
         {error ? <p className="sourcing-error" role="alert">{error}</p> : null}
+
+        <section className="readiness-card" aria-labelledby="readiness-heading"><div><p className="document-kicker">Honest readiness</p><h2 id="readiness-heading">{readiness.stageLabel}</h2><p>{readiness.stageSummary}</p></div><ol><li className={readiness.searchReady ? "is-done" : "is-current"}><span>{readiness.searchReady ? <Check aria-hidden="true" /> : "1"}</span>Research</li><li className={readiness.manufacturerReady ? "is-done" : readiness.searchReady ? "is-current" : ""}><span>{readiness.manufacturerReady ? <Check aria-hidden="true" /> : "2"}</span>Manufacturer brief</li><li className={readiness.launchReady ? "is-done" : readiness.manufacturerReady ? "is-current" : ""}><span>{readiness.launchReady ? <Check aria-hidden="true" /> : "3"}</span>Launch planning</li></ol></section>
+
+        {visibleBriefGroups.map((group) => (
+          <section className="brief-section" key={group.title}>
+            <div className="section-heading"><h2>{group.title}</h2></div>
+            <dl className="field-grid">
+              {group.keys.map((key) => <EditableField key={key} fieldKey={key} workspace={workspace} agentChanged={agentChangedKeys.has(key)} editing={editingKey === key} onEdit={() => { setEditingInDetails(false); setEditingKey(key); }} onCancel={() => setEditingKey(null)} onSave={saveInline} />)}
+            </dl>
+          </section>
+        ))}
+
+        {openDetailKeys.length ? <details className="brief-open-details"><summary>Add more product details</summary><dl className="field-grid">{openDetailKeys.map((key) => <EditableField key={key} fieldKey={key} workspace={workspace} agentChanged={agentChangedKeys.has(key)} editing={editingKey === key} onEdit={() => { setEditingInDetails(true); setEditingKey(key); }} onCancel={() => setEditingKey(null)} onSave={saveInline} />)}</dl></details> : null}
+
+        <section className={`brief-section packaging-section${agentChangedKeys.has("packaging_format") ? " agent-authored-section" : ""}`}>
+          <div className="section-heading"><h2>Packaging direction</h2><button type="button" className="section-action" onClick={() => openPackageWorkbench()}><Cube aria-hidden="true" /> {workspace.packageDesign || workspace.fields.packaging_format.status === "confirmed" ? "Refine in 3D" : "Open 3D workbench"}</button></div>
+          {workspace.packageDesign && packagePresentation ? <div className="package-writeback"><PackagePreview workspaceId={workspace.id} design={workspace.packageDesign} artwork={workspace.artwork} onOpen={() => openPackageWorkbench()} /><div><strong>{packagePresentation.direction}</strong><span>{packagePresentation.appearance}</span><small>{packagePresentation.validation}</small></div></div> : workspace.fields.packaging_format.value ? <div className="package-writeback"><div><strong>{workspace.fields.packaging_format.value}</strong><span>{workspace.fields.packaging_format.status === "proposed" ? "Agent proposal · needs your review" : workspace.fields.packaging_format.status === "needs_decision" ? "Intentionally left open" : "Working package direction"}</span><small>{workspace.fields.packaging_format.reason || (workspace.fields.packaging_format.status === "confirmed" ? "3D refinement is still needed for the manufacturer-ready brief." : "Open the workbench when a visual comparison would help.")}</small></div></div> : <p className="open-value">No package direction is locked yet. Start with {formatChoiceList(relevantPackageLabels)}, or open the other supported 3D models when you need them.</p>}
+        </section>
 
         {workspace.matchesUpdatedAt ? <section className="brief-section manufacturing-writeback" aria-labelledby="manufacturing-summary-heading"><div><p className="document-kicker">Manufacturer research</p><h2 id="manufacturing-summary-heading">{workspace.matches.length ? `${workspace.matches.length} possibilit${workspace.matches.length === 1 ? "y" : "ies"} ready to review` : "No current possibilities"}</h2><p>{workspace.selectedManufacturerSlugs.length ? `${workspace.selectedManufacturerSlugs.length} selected. Review evidence and next steps in the focused manufacturer workspace.` : "Review the evidence, unknowns, and possible conflicts away from the product brief."}</p></div><Link href={`/sourcing/${workspace.id}/manufacturers`} prefetch={false}>Review manufacturers <ArrowRight aria-hidden="true" /></Link></section> : null}
         <FounderLearning guides={guides} />
@@ -212,7 +226,7 @@ function EditableField({ fieldKey, workspace, agentChanged, editing, onEdit, onC
 }) {
   const field = workspace.fields[fieldKey];
   if (editing) return <FieldEditor fieldKey={fieldKey} initialValue={field.value || ""} onSave={onSave} onCancel={onCancel} />;
-  const attribution = field.evidence?.length ? "Source verified" : field.status === "proposed" ? "Agent suggested · needs your review" : field.status === "needs_decision" || !field.value ? "Still open" : field.updatedBy === "agent" ? "Agent captured your answer" : field.updatedBy === "founder" ? "You confirmed" : null;
+  const attribution = !field.value ? null : field.evidence?.length ? "Source verified" : field.status === "proposed" ? "Agent suggested · needs your review" : field.status === "needs_decision" ? "Still open" : field.updatedBy === "agent" ? "Agent captured your answer" : field.updatedBy === "founder" ? "You confirmed" : null;
   const validationReason = field.reason && /validat|commercial|shelf[- ]life|line compatibility|qualified/i.test(field.reason);
   const reasonLabel = validationReason ? "Needs validation" : field.status === "proposed" ? "Why suggested" : "Captured from your idea";
   return <div className={`brief-field${field.value ? "" : " field-muted"}${agentChanged ? " agent-changed" : ""}`}><dt>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</dt><dd>{field.value || "Still open"}</dd>{attribution ? <p>{attribution}</p> : null}{field.reason ? <small><strong>{reasonLabel}</strong> · {field.reason}</small> : null}{field.status === "proposed" && field.value ? <button className="accept-proposal" type="button" onClick={() => void onSave(fieldKey, field.value!)}><Check aria-hidden="true" /> Accept suggestion</button> : null}<button className="field-edit" type="button" aria-label={`Edit ${FIELD_DEFINITION_BY_KEY[fieldKey].label}`} onClick={onEdit}><PencilSimple aria-hidden="true" /></button></div>;
@@ -226,7 +240,7 @@ function FieldEditor({ fieldKey, initialValue, onSave, onCancel }: {
 }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const inputId = `edit-${fieldKey}`;
-  return <div className="brief-field field-editor"><dt><label htmlFor={inputId}>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</label></dt><dd><textarea id={inputId} ref={inputRef} defaultValue={initialValue} rows={3} /><span><button type="button" onClick={() => void onSave(fieldKey, inputRef.current?.value ?? "")}>Save</button><button type="button" onClick={onCancel}>Cancel</button></span></dd></div>;
+  return <div className="brief-field field-editor"><dt><label htmlFor={inputId}>{FIELD_DEFINITION_BY_KEY[fieldKey].label}</label></dt><dd><textarea id={inputId} ref={inputRef} defaultValue={initialValue} autoFocus rows={3} /><span><button type="button" onClick={() => void onSave(fieldKey, inputRef.current?.value ?? "")}>Save</button><button type="button" onClick={onCancel}>Cancel</button></span></dd></div>;
 }
 
 async function workspaceApi(url: string, init: RequestInit): Promise<{ workspace?: Workspace; error?: string }> {

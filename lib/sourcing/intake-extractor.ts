@@ -38,7 +38,7 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
     ...allMatches(idea, /\b(?:roasted\s+)?(?:chickpea|fava[-\s]bean|bean|nut|seed|granola|popcorn)\s+snack\b/gi),
     ...allMatches(idea, /\b(?:packaged\s+)?(?:(?:sparkling\s+)?(?:drink|beverage)|seltzer|sparkling water)\b/gi),
     ...spreadCandidates,
-  ].sort(bySourceEndThenSpecificity);
+  ].filter((match) => !isNegatedAt(idea, match)).sort(bySourceEndThenSpecificity);
   const product = productCandidates.at(-1);
   if (product) {
     if (/hot[\s-]+sauces?/i.test(product[0])) {
@@ -63,8 +63,10 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
     }
   }
 
-  const sizedPackages = allMatches(idea, /\b(\d+(?:\.\d+)?)\s*(oz|ounces?|fl\.?\s*oz|fluid\s+ounces?|ml|milliliters?|g|grams?)\s+(?:(single[-\s]serve)\s+)?(?:(glass|plastic|aluminum|aluminium|compostable|recyclable)\s+)?(?:(woozy|boston round|mason|slim|sleek|standard|pillow|snack|stand[-\s]up)\s+)?(bottles?|jars?|cans?|pouch(?:es)?|bags?|cartons?|box(?:es)?)\b/gi);
-  const unsizedPackages = allMatches(idea, /\b(?:use\s+(?:an?\s+)?)?(glass|plastic|aluminum|aluminium|compostable|recyclable)\s+(?:(woozy|boston round|mason|slim|sleek|standard|pillow|snack|stand[-\s]up)\s+)?(bottles?|jars?|cans?|pouch(?:es)?|bags?|cartons?|box(?:es)?)\b/gi);
+  const sizedPackages = allMatches(idea, /\b(\d+(?:\.\d+)?)\s*(oz|ounces?|fl\.?\s*oz|fluid\s+ounces?|ml|milliliters?|g|grams?)\s+(?:(single[-\s]serve)\s+)?(?:(glass|plastic|aluminum|aluminium|compostable|recyclable)\s+)?(?:(woozy|boston round|mason|slim|sleek|standard|pillow|snack|stand[-\s]up)\s+)?(bottles?|jars?|cans?|pouch(?:es)?|bags?|cartons?|box(?:es)?)\b/gi)
+    .filter((match) => !isNegatedAt(idea, match));
+  const unsizedPackages = allMatches(idea, /\b(?:use\s+(?:an?\s+)?)?(glass|plastic|aluminum|aluminium|compostable|recyclable)\s+(?:(woozy|boston round|mason|slim|sleek|standard|pillow|snack|stand[-\s]up)\s+)?(bottles?|jars?|cans?|pouch(?:es)?|bags?|cartons?|box(?:es)?)\b/gi)
+    .filter((match) => !isNegatedAt(idea, match));
   const sizedPackage = sizedPackages.at(-1);
   const packageChoice = [...sizedPackages, ...unsizedPackages].sort(bySourcePosition).at(-1);
   if (sizedPackage) {
@@ -92,12 +94,12 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
   // Capture quantity context even when its allocation cannot be interpreted.
   // The saved value and source span must not turn a total into a single run.
   const quantities = allMatches(idea, new RegExp(String.raw`\b(?:(?:first\s+(?:run|pilot)|pilot|private[- ]label|initial\s+(?:run|order|batch)|launch\s+(?:run|order|batch))\s*[:=-]?\s*)?(?:about|around|approximately|roughly)?\s*(\d[\d,]*(?:\.\d+)?(?:\s*(?:-|–|to)\s*\d[\d,]*(?:\.\d+)?)?)\s+(bottles?|jars?|cans?|pouch(?:es)?|bags?|units?|cases?|gallons?|pounds?|lbs?)\b(${ALLOCATION_SUFFIX})?`, "gi"))
-    .filter((match) => !packageIndexes.has(match.index) && Number.parseFloat(match[1].replace(/,/g, "")) >= 10);
+    .filter((match) => !packageIndexes.has(match.index) && !isNegatedAt(idea, match) && Number.parseFloat(match[1].replace(/,/g, "")) >= 10);
   const quantity = canonicalFirstRunQuantity(idea, quantities);
   if (quantity) {
     const approximate = /\b(?:about|around|approximately|roughly)\b/i.test(quantity[0]);
     const offer = /\bpilot\b/i.test(quantity[0]) ? "Pilot: " : /private[- ]label/i.test(quantity[0]) ? "Private label: " : "";
-    put("production_volume", `${offer}${approximate ? "About " : ""}${quantity[1]} ${quantity[2].toLowerCase()}${quantity[3] ?? ""}`, quantity, "The canonical first-run quantity is kept separate from later forecasts; explicit corrections to that first run supersede its earlier value.");
+    put("production_volume", `${offer}${approximate ? "About " : ""}${quantity[1]} ${quantity[2].toLowerCase()}${quantity[3] ?? ""}`, quantity, "The canonical first-run quantity or range keeps offer and allocation context separate from later forecasts; explicit corrections to that first run supersede its earlier value.");
   }
 
   const geography = lastMatch(idea, /\b(?:near(?:by)?\s+)?(?:Texas|California|Florida|New York|Illinois|Ohio|Georgia|Pennsylvania|Colorado|Arizona)(?:\s+(?:or|and)\s+nearby)?\b|\b(?:Midwest|Northeast|Southeast|Southwest|West Coast|West)\b/gi);
@@ -112,14 +114,16 @@ export function extractExplicitFounderFacts(idea: string, source = STARTING_IDEA
   const storageContext = storage ? idea.slice(Math.max(0, (storage.index ?? 0) - 24), (storage.index ?? 0) + storage[0].length + 24) : "";
   if (storage && !/\b(?:goal|possible|maybe|might|could)\b/i.test(storageContext)) put("storage_distribution", normalizeStorage(storage[0]), storage, "The founder explicitly stated the intended storage condition.");
 
-  const formula = lastMatch(idea, /\b(?:finished|complete|tested)\s+(?:home|kitchen)?\s*recipe\b|\b(?:bench\s+formula\s+exists|draft\s+kitchen\s+recipe[^.?!]*not\s+tested[^.?!]*(?:not\s+)?(?:scale[-\s]ready|ready\s+to\s+scale)|(?:home|kitchen)\s+recipe\s+(?:that\s+is\s+)?not\s+(?:scaled|commercialized)|recipe\s+(?:is\s+)?(?:at\s+)?(?:the\s+)?idea\s+stage|(?:still\s+|(?:the\s+recipe|it)\s+(?:is|'s|’s)\s+)?(?:a\s+)?home\s+prototype[^.?!;]*(?:not\s+tested|untested)[^.?!;]*(?:not\s+)?scale[-\s]ready|(?:it\s+(?:is|'s|’s)\s+)?(?:a\s+)?prototype\s+(?:made\s+)?at\s+home[^.?!;]*(?:not\s+tested|untested)[^.?!;]*not\s+ready\s+to\s+scale)\b/gi);
+  const formula = allMatches(idea, /\b(?:finished|complete|tested)\s+(?:home|kitchen)?\s*recipe\b|\b(?:bench\s+formula\s+exists|draft\s+kitchen\s+recipe[^.?!]*not\s+tested[^.?!]*(?:not\s+)?(?:scale[-\s]ready|ready\s+to\s+scale)|(?:home|kitchen)\s+recipe\s+(?:that\s+is\s+)?not\s+(?:scaled|commercialized)|recipe\s+(?:is\s+)?(?:at\s+)?(?:the\s+)?idea\s+stage|(?:still\s+|(?:the\s+recipe|it)\s+(?:is|'s|’s)\s+)?(?:a\s+)?home\s+prototype[^.?!;]*(?:not\s+tested|untested)[^.?!;]*(?:not\s+)?scale[-\s]ready|(?:it\s+(?:is|'s|’s)\s+)?(?:a\s+)?prototype\s+(?:made\s+)?at\s+home[^.?!;]*(?:not\s+tested|untested)[^.?!;]*not\s+ready\s+to\s+scale)\b/gi)
+    .filter((match) => !isNegatedAt(idea, match)).at(-1);
   if (formula) put("formula_status", normalizeFormulaStatus(formula[0]), formula, "The founder explicitly described the current recipe status; commercial validation is not implied.");
 
   const validationMatches = [
     lastMatch(idea, /\bprocess[-\s]?authority\s+(?:and\s+)?(?:review|validation)\b/gi),
     lastMatch(idea, /\bshelf[-\s]?life\s+(?:testing|test|review|validation)\b/gi),
   ].filter((match): match is RegExpMatchArray => Boolean(match));
-  const assistance = lastMatch(idea, /\b(?:need|needs|needed|require|requires|required|yes,?\s*i\s+need)\s+(?:help\s+(?:(?:creating|finishing|finalizing|scaling)(?:\s+the)?\s+(?:recipe|formula)|with\s+formulation)|formulation\s+(?:assistance|help))\b/gi);
+  const assistance = allMatches(idea, /\b(?:need|needs|needed|require|requires|required|yes,?\s*i\s+need)\s+(?:help\s+(?:(?:creating|developing|finishing|finalizing|scaling)(?:\s+(?:the|my|our))?\s+(?:recipe|formula)|with\s+formulation)|formulation\s+(?:assistance|help))\b/gi)
+    .filter((match) => !isNegatedAt(idea, match)).at(-1);
   if (validationMatches.length) {
     const needs = [validationMatches.some((match) => /process/i.test(match[0])) ? "process-authority review" : null, validationMatches.some((match) => /shelf/i.test(match[0])) ? "shelf-life review" : null].filter((value): value is string => Boolean(value));
     put("formulation_assistance", `${formatList(needs)} needed`, validationMatches, "The founder explicitly identified qualified validation work that remains open.");
@@ -191,7 +195,12 @@ function bySourceEndThenSpecificity(left: RegExpMatchArray, right: RegExpMatchAr
 }
 function sourceSpan(source: string, match: RegExpMatchArray): FounderSourceSpan { const start = match.index ?? source.indexOf(match[0]); return { start, end: start + match[0].length, text: match[0] }; }
 function uniqueSpans(spans: FounderSourceSpan[]): FounderSourceSpan[] { return spans.filter((span, index) => spans.findIndex((candidate) => candidate.start === span.start && candidate.end === span.end) === index); }
-function isNegatedAt(source: string, match: RegExpMatchArray): boolean { const start = match.index ?? 0; return /(?:\bnot|\bno)\s*$/i.test(source.slice(Math.max(0, start - 18), start)); }
+function isNegatedAt(source: string, match: RegExpMatchArray): boolean {
+  const start = match.index ?? 0;
+  const preceding = source.slice(Math.max(0, start - 90), start);
+  return /\b(?:not|no|never|without|don't|don’t)\s+(?:(?:want|need|have|use|choose|a|an|the|any|currently|yet|is|be|to)\s+)*(?:\d+(?:\.\d+)?\s*(?:oz|ounces?|fl\.?\s*oz|ml|g)\s+)?$/i.test(preceding)
+    || /(?:\bnot|\bno)\s*$/i.test(preceding);
+}
 function normalizeUnit(value: string): string { const normalized = value.toLowerCase().replace(/\./g, "").replace(/\s+/g, " "); if (/^(?:fl oz|fluid ounce|fluid ounces)$/.test(normalized)) return "fl oz"; if (/^(?:ounce|ounces|oz)$/.test(normalized)) return "oz"; if (/^(?:milliliter|milliliters|ml)$/.test(normalized)) return "ml"; return "g"; }
 function singular(value: string): string { return value.replace(/pouches$/i, "pouch").replace(/boxes$/i, "box").replace(/s$/i, ""); }
 function titleCase(value: string): string { return value.trim().replace(/\b\w/g, (letter) => letter.toUpperCase()).replace(/\s+/g, " "); }

@@ -6,8 +6,8 @@ import { getCornerstoneGuide } from "@/lib/guides/cornerstones";
 
 export const metadata = {
   ...pageMetadata({
-    title: "Start your food or drink brand | Your product plan",
-    description: "Turn a food idea into a clear product plan, evidence-backed manufacturer matches, and an approved introduction.",
+    title: "Build your product plan",
+    description: "Turn a food or beverage idea into a clear product brief, explore sourced manufacturer possibilities, and review introductions before anything is sent.",
     path: "/sourcing",
   }),
   robots: { index: false, follow: false },

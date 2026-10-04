@@ -16,6 +16,7 @@ import { ManufacturerExamples } from "./ManufacturerExamples";
 
 export function GuideLayout({ guide }: { guide: CornerstoneGuide }) {
   const path = `/guides/${guide.slug}`;
+  const checklistText = [guide.title, "", "Manufacturer conversation checklist", "", ...guide.checklist.map((item) => `[ ] ${item}`), "", `From The Line List: https://www.thelinelist.com${path}`, `Reviewed ${guide.reviewedLabel}`].join("\n");
   return (
     <>
       <SiteHeader current="/guides" />
@@ -51,7 +52,7 @@ export function GuideLayout({ guide }: { guide: CornerstoneGuide }) {
               {guide.slug === "manufacturer-inquiry-examples" ? <ManufacturerExamples /> : null}
 
               <section id="steps"><p className="section-number">01 / Start here</p><h2>What should you do first?</h2><ol className="guide-steps">{guide.steps.map((step) => <li key={step.title}><h3>{step.title}</h3><p>{step.text}</p></li>)}</ol></section>
-              <section id="checklist" className="guide-checklist-section"><p className="section-number">02 / Get ready</p><h2>What should you have ready?</h2><p>Keep track of what you have worked through. “I’m not sure yet” is still a useful answer.</p><GuidePlanChecklist slug={guide.slug} items={guide.checklist} /></section>
+              <section id="checklist" className="guide-checklist-section"><p className="section-number">02 / Get ready</p><h2>What should you have ready?</h2><p>Keep track of what you have worked through. “I’m not sure yet” is still a useful answer.</p><GuidePlanChecklist slug={guide.slug} items={guide.checklist} /><a className="btn btn-ghost" href={`data:text/plain;charset=utf-8,${encodeURIComponent(checklistText)}`} download={`${guide.slug}-checklist.txt`}>Download blank checklist <span className="sr-only">as a text file</span></a></section>
               <section id="decisions"><p className="section-number">03 / Choose your path</p><h2>Which choices shape the project?</h2><table className="decision-table" aria-label="Important manufacturing decisions"><tbody>{guide.decisions.map((item) => <tr key={item.decision}><th scope="row">{item.decision}</th><td>{item.why}</td></tr>)}</tbody></table></section>
               <section id="terms"><p className="section-number">04 / Understand the words</p><h2>Which words should you know?</h2><dl className="term-list">{guide.definitions.map((item) => <div key={item.term}><dt>{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
               <section id="questions" className="guide-questions"><p className="section-number">05 / Reach out</p><h2>What should you ask a manufacturer?</h2><p>You can copy these into your first email.</p><ol>{guide.questions.map((item) => <li key={item}>{item}</li>)}</ol></section>

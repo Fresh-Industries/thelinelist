@@ -28,18 +28,52 @@ export function normalizeCertificationRequirements(
   const result: NormalizedCertificationRequirements = { required: [], preferred: [], negated: [], unknown: [] };
   if (!value?.trim()) return result;
 
-  for (const definition of CERTIFICATIONS) {
-    definition.pattern.lastIndex = 0;
-    for (const match of value.matchAll(definition.pattern)) {
-      const index = match.index ?? 0;
-      const clause = surroundingClause(value, index, match[0].length);
-      const priority = certificationPriority(clause, match[0], defaultPriority);
-      if (!priority) continue;
-      const list = result[priority];
-      if (!list.includes(definition.label)) list.push(definition.label);
+  const latest = new Map<string, CertificationPriority>();
+  for (const clause of value.split(/[;.\n]+/)) {
+    let groupPriority: CertificationPriority | null = null;
+    let pending: string[] = [];
+    const flushPending = (priority: CertificationPriority | null) => {
+      if (priority) for (const label of pending) latest.set(label, priority);
+      pending = [];
+    };
+    for (const segment of certificationSegments(clause)) {
+      if (segment.contrast) {
+        flushPending(defaultPriority);
+        groupPriority = null;
+      }
+      const mentioned = CERTIFICATIONS.flatMap((definition) => {
+        definition.pattern.lastIndex = 0;
+        const match = definition.pattern.exec(segment.text);
+        return match ? [{ label: definition.label, matchedText: match[0], index: match.index }] : [];
+      });
+      if (!mentioned.length) continue;
+      const firstMention = [...mentioned].sort((left, right) => left.index - right.index)[0];
+      const prefix = segment.text.slice(0, firstMention.index);
+      const leadingPriority = certificationPriority(`${prefix}${firstMention.matchedText}`, firstMention.matchedText, null);
+      const explicit = certificationPriority(segment.text, mentioned[0].matchedText, null);
+      if (explicit) {
+        // "SQF and Organic required" shares a trailing priority. A new negative
+        // subject such as "SQF and no Organic requirement" does not negate SQF.
+        const sharedNegation: boolean = groupPriority === "negated" && segment.joiner === "and"
+          && explicit === "required" && !leadingPriority
+          && !/\b(?:is|are|was|were)\b/i.test(segment.text);
+        const effective: CertificationPriority = sharedNegation ? "negated" : explicit;
+        flushPending(/^(?:no|without|not required)\b/i.test(segment.text.trim()) ? defaultPriority : effective);
+        for (const definition of mentioned) latest.set(definition.label, effective);
+        groupPriority = leadingPriority ? effective : sharedNegation ? "negated" : null;
+      } else if (groupPriority) {
+        for (const definition of mentioned) latest.set(definition.label, groupPriority);
+      } else {
+        pending.push(...mentioned.map((definition) => definition.label));
+      }
     }
+    flushPending(defaultPriority);
   }
 
+  for (const definition of CERTIFICATIONS) {
+    const priority = latest.get(definition.label);
+    if (priority) result[priority].push(definition.label);
+  }
   for (const rawClause of value.split(/[;.\n]+/)) {
     const clause = rawClause.trim();
     if (!clause || !/\bcertif(?:ication|ied)\b/i.test(clause)) continue;
@@ -57,16 +91,22 @@ export function normalizeCertificationRequirements(
     if (priority && !result[priority].includes(label)) result[priority].push(label);
   }
 
-  for (const negated of result.negated) {
-    result.required = result.required.filter((item) => item !== negated);
-    result.preferred = result.preferred.filter((item) => item !== negated);
-    result.unknown = result.unknown.filter((item) => item !== negated);
-  }
-  for (const unknown of result.unknown) {
-    result.required = result.required.filter((item) => item !== unknown);
-    result.preferred = result.preferred.filter((item) => item !== unknown);
-  }
   return result;
+}
+
+function certificationSegments(clause: string): Array<{ text: string; contrast: boolean; joiner: string }> {
+  const segments: Array<{ text: string; contrast: boolean; joiner: string }> = [];
+  let start = 0;
+  let contrast = false;
+  let joiner = "";
+  for (const separator of clause.matchAll(/,|\b(?:and|but|while)\b/gi)) {
+    segments.push({ text: clause.slice(start, separator.index), contrast, joiner });
+    contrast = /but|while/i.test(separator[0]);
+    joiner = separator[0].toLowerCase();
+    start = (separator.index ?? 0) + separator[0].length;
+  }
+  segments.push({ text: clause.slice(start), contrast, joiner });
+  return segments;
 }
 
 export function certificationEvidenceSpans(value: string): Array<{ start: number; end: number; text: string }> {
@@ -97,6 +137,7 @@ function certificationPriority(
     || new RegExp(`\\bnot\\s+required\\b[^.;]{0,35}${escaped}`, "i").test(localClause)
     || new RegExp(`${escaped}[^.;]{0,35}\\b(?:not|required\\s+no)\\s+(?:currently\\s+)?required\\b`, "i").test(localClause)
     || new RegExp(`${escaped}[^.;]{0,35}\\bnot\\s+needed\\b`, "i").test(localClause)
+    || new RegExp(`\\b(?:do\\s+not|don't|don’t)\\s+need\\b[^.;]{0,35}${escaped}`, "i").test(localClause)
     || new RegExp(`\\bno\\b[^.;]{0,20}${escaped}[^.;]{0,20}\\brequirement\\b`, "i").test(localClause)
   ) return "negated";
   if (/\b(?:preferred|preference|nice to have|would be nice|optional)\b/i.test(localClause)) return "preferred";
@@ -115,11 +156,6 @@ function contrastSegment(clause: string, matchedText: string): string {
   const start = previousContrast ? (previousContrast.index ?? 0) + previousContrast[0].length : 0;
   const end = nextContrastOffsets.length ? matchIndex + matchedText.length + Math.min(...nextContrastOffsets) : clause.length;
   return clause.slice(start, end);
-}
-
-function surroundingClause(value: string, index: number, length: number): string {
-  const bounds = surroundingClauseBounds(value, index, length);
-  return value.slice(bounds.start, bounds.end);
 }
 
 function surroundingClauseBounds(value: string, index: number, length: number): { start: number; end: number } {

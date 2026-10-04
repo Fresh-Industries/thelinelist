@@ -4,6 +4,8 @@ import { ArrowLeft, ArrowRight, Bread, Check, FileText, Info, PaperPlaneTilt } f
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { comparisonHref } from "@/components/compare/CompareButton";
+import { track } from "@/lib/analytics/client";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { FIELD_DEFINITION_BY_KEY } from "@/lib/sourcing/fields";
 import { getPackageDesignPresentation } from "@/lib/sourcing/package-presentation";
 import { getProductIdentity } from "@/lib/sourcing/product-identity";
@@ -15,6 +17,20 @@ import type { ManufacturerResearchRequest, OutreachDraft, SourcingWorkspace as W
 import { routeFocusKey, useSourcingWorkspace } from "./SourcingWorkspaceContext";
 
 const SELECTION_LIMIT = 3;
+const REQUIREMENT_PRIORITY_LABELS = {
+  required: "Required",
+  preferred: "Preferred",
+  evaluated: "Considered",
+  not_required: "Not required",
+  unconfirmed: "Still open",
+} as const;
+const REQUIREMENT_OUTCOME_LABELS = {
+  supported: "Source supported",
+  broad_support: "Broader category supported",
+  conflict: "Possible conflict",
+  unknown: "Not publicly confirmed",
+  not_applicable: "Does not affect this search",
+} as const;
 
 export function SourcingManufacturers() {
   const { workspace, busy, setBusy, error, setError, setAgentNote, acceptWorkspace } = useSourcingWorkspace();
@@ -38,6 +54,16 @@ export function SourcingManufacturers() {
   const briefActionLabel = readiness.manufacturerMissing.length ? "Finish product brief" : "Review product brief";
   const currentResearch = workspace.manufacturerResearch?.status === "current" ? workspace.manufacturerResearch : null;
   const broaderRequest = currentResearch?.candidateCount === 0 ? broadenResearchRequest(currentResearch.request) : null;
+  const viewedResearchRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!currentResearch || viewedResearchRef.current === currentResearch.ranAt) return;
+    viewedResearchRef.current = currentResearch.ranAt;
+    track(ANALYTICS_EVENTS.sourcing_matches_viewed, {
+      candidate_count: currentResearch.candidateCount,
+      outcome: currentResearch.candidateCount > 0 ? "candidates" : "no_results",
+    });
+  }, [currentResearch]);
 
   useEffect(() => {
     const focusKey = routeFocusKey(workspace.id);
@@ -218,7 +244,7 @@ export function SourcingManufacturers() {
                     {activeMatch.reasonTrace.map((item, index) => (
                       <li key={`${item.requirementKey}-${index}`}>
                         <span>{item.requirementLabel}</span>
-                        <small>{item.priority} · {item.outcome.replaceAll("_", " ")}</small>
+                        <small>{REQUIREMENT_PRIORITY_LABELS[item.priority]} · {REQUIREMENT_OUTCOME_LABELS[item.outcome]}</small>
                       </li>
                     ))}
                   </ul>

@@ -25,6 +25,7 @@ export function SiteFooter() {
           <li>Food and beverage only</li>
         </ul>
         <nav className="footer-nav" aria-label="Footer">
+          <Link href="/sourcing">Your product plan</Link>
           <Link href="/about">About</Link>
           <Link href="/how-we-verify">How we verify</Link>
           <Link href="/guides">Guides</Link>

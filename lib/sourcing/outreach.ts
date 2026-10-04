@@ -57,10 +57,13 @@ function questionsFor(workspace: SourcingWorkspace, match: ManufacturerMatch | u
 function questionForUnknown(workspace: SourcingWorkspace, key: SourcingFieldKey): string {
   const value = workspace.fields[key].value;
   switch (key) {
+    case "product_type": return "Can your team make this type of product on the relevant line?";
     case "formulation_assistance": return "Can your team provide formulation or product-development help for this project?";
     case "packaging_format": return `Can the current line run the requested ${value?.toLowerCase() || "package format"}?`;
     case "packaging_size": return `Can the current line run the requested ${value || "package size"}?`;
-    case "carbonation": return "Can the relevant line produce carbonated beverages?";
+    case "carbonation": return /\b(?:non[-\s]?carbonated|not\s+carbonated|no\s+carbonation|still|uncarbonated)\b/i.test(value ?? "")
+      ? "Can the relevant line produce still, non-carbonated beverages?"
+      : "Can the relevant line produce carbonated beverages?";
     case "certifications": return `Which current facility and line certifications cover the requested ${value || "requirements"}?`;
     case "production_volume": return `Would ${value || "the proposed first run"} meet the current minimum for this line?`;
     default: return `Can you confirm the current ${FIELD_DEFINITION_BY_KEY[key].label.toLowerCase()} for this product and line?`;

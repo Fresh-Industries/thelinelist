@@ -11,8 +11,8 @@ async function startPlan(page: Page, idea: string) {
 
 test("a founder can begin on home, save a guide checklist, and apply an honest decision to the same plan", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Start my food or drink brand" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Start your food or drink brand.");
+  await page.getByRole("link", { name: "Start my product plan" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Start with your food or drink idea.");
   await startPlan(page, "A roasted pepper hot sauce for local specialty shops");
   await expect(page).toHaveURL(/\/sourcing\/[A-Za-z0-9_-]+$/);
   const id = new URL(page.url()).pathname.split("/")[2];

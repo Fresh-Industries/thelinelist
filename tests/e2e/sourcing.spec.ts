@@ -154,7 +154,7 @@ test("keeps the sourcing entry usable when WebMCP registers synchronously", asyn
 
   await page.goto("/sourcing");
 
-  await expect(page.getByRole("heading", { name: "Start your food or drink brand." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with your food or drink idea." })).toBeVisible();
   await expect(page.getByText("Agent connected", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { __webMcpTools: Map<string, unknown> }).__webMcpTools.size)).toBe(1);
   expect(pageErrors).toEqual([]);
@@ -222,7 +222,7 @@ test("workspace creation returns an authoritative idempotent receipt and guest w
 
 test("single sourcing entry creates the agent-led living document", async ({ page }) => {
   await page.goto("/sourcing");
-  await expect(page.getByRole("heading", { name: "Start your food or drink brand." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with your food or drink idea." })).toBeVisible();
   const entryInput = page.getByLabel("What do you want to make?", { exact: true });
   await expect(entryInput).toBeAttached();
   if (!await entryInput.isVisible()) await page.locator("details.manual-start > summary").click();

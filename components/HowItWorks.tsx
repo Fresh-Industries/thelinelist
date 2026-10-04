@@ -1,28 +1,28 @@
-import Link from "next/link";
+import { ProductPlanCta } from "@/components/ProductPlanCta";
 
 const STEPS = [
   {
     n: "1",
-    title: "Describe your idea",
-    body: "A food or drink idea is enough. Save what you know and leave the rest open.",
+    title: "Start with your idea",
+    body: "Describe the food or drink you want to make. You do not need a finished recipe to start your plan.",
     icon: "bottle",
   },
   {
     n: "2",
-    title: "Make the next decision",
-    body: "Use short guides and examples to work through recipe, packaging, and first-run questions.",
+    title: "Shape your product plan",
+    body: "Use short guides and examples to work through recipe readiness, packaging, and how much to make first. “I’m not sure” keeps a decision open.",
     icon: "notes",
   },
   {
     n: "3",
-    title: "Review possible matches",
-    body: "See why each manufacturer may fit, what is sourced, and what you still need to ask.",
+    title: "Explore possible manufacturers",
+    body: "Compare public evidence, minimums, and unknowns. A possible fit still needs the manufacturer’s confirmation.",
     icon: "matches",
   },
   {
     n: "4",
-    title: "Decide who to contact",
-    body: "Prepare a useful introduction, review what you will share, and choose when to send it.",
+    title: "Prepare your introduction",
+    body: "Choose who to approach, review your draft and shared product brief, and decide when to contact them.",
     icon: "contact",
   },
 ] as const;
@@ -48,12 +48,12 @@ export function HowItWorks() {
     <section id="how-it-works" className="how" aria-labelledby="how-heading">
       <div className="how-heading">
         <div>
-          <p className="kicker">From idea to outreach</p>
-          <h2 id="how-heading">Four clear steps. No manufacturing degree required.</h2>
+          <p className="kicker">From idea to first conversation</p>
+          <h2 id="how-heading">Make the next decision, one step at a time.</h2>
         </div>
         <p>
-          Start with the decision in front of you. We explain process terms only when they help
-          you compare plants or prepare a useful question.
+          Start with what you know. Learn the manufacturing terms when they help you make a
+          decision, and keep the details you have not figured out visible.
         </p>
       </div>
       <ol className="how-steps">
@@ -67,11 +67,11 @@ export function HowItWorks() {
         ))}
       </ol>
       <div className="how-action">
-        <Link href="/sourcing" className="btn btn-gold how-button">
+        <ProductPlanCta className="btn btn-gold how-button" source="home_how_it_works">
           Start my product plan
           <span aria-hidden="true"> →</span>
-        </Link>
-        <p>No manufacturing experience needed. Your plan stays useful as you learn.</p>
+        </ProductPlanCta>
+        <p>A plain-language idea is enough to begin. You control what gets shared and who gets contacted.</p>
       </div>
     </section>
   );

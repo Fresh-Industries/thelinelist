@@ -319,7 +319,7 @@ export function compareProductionVolume(
   if ([...requestedValue.matchAll(/\b\d[\d,]*(?:\.\d+)?\s*(?:bottles?|jars?|cans?|pouches?|bags?|units?|cases?|gallons?|gal|pounds?|lbs?)\b/gi)].length > 1) {
     return { compatible: null, claim: "More than one production quantity is stated. Confirm the quantity and allocation that apply to each minimum." };
   }
-  if (/\b(?:\d[\d,]*\s*(?:-|–|to)\s*\d[\d,]*|annual|year|quarter|month)\b/i.test(requestedValue)) {
+  if (/\b(?:\d[\d,]*(?:\.\d+)?\s*(?:[-–—]|to)\s*\d[\d,]*(?:\.\d+)?|annual|year|quarter|month)\b/i.test(requestedValue)) {
     return { compatible: null, claim: "Confirm a first-run quantity with units and the amount per SKU or flavor before comparing minimums." };
   }
   const comparisons = selected.constraints.map(({ text, scopes, reason }) => {
@@ -809,15 +809,26 @@ function evaluateRequirement(plant: Plant, workspace: SourcingWorkspace, key: So
       };
     }
     case "carbonation": {
-      const wantsCarbonated = /carbonated|carbonation|sparkling/i.test(value);
-      const supported = wantsCarbonated && includesAny(text, ["carbonation", "carbonated", "carbonated beverage"]);
-      const conflict = wantsCarbonated && includesAny(text, ["non-carbonated", "non carbonated", "still beverages only"]);
+      const wantsStill = /\b(?:non[-\s]?carbonated|not\s+carbonated|no\s+carbonation|still|uncarbonated)\b/i.test(value);
+      const wantsCarbonated = !wantsStill && /\b(?:carbonated|carbonation|sparkling)\b/i.test(value);
+      if (!wantsStill && !wantsCarbonated) return null;
+      const carbonatedText = text.replace(/\b(?:non[-\s]?carbonated|not\s+carbonated|no\s+carbonation|uncarbonated)\b/gi, "");
+      const stillStatus = publishedCapabilityStatus(text, ["non-carbonated", "non carbonated", "still beverages", "still drinks", "still products", "uncarbonated", "no carbonation"]);
+      const carbonatedStatus = publishedCapabilityStatus(carbonatedText, ["carbonation", "carbonated", "sparkling"]);
+      const onlyStill = /\b(?:non[-\s]?carbonated|still\s+beverages?)\b[^.;\n]{0,30}\bonly\b|\bonly\b[^.;\n]{0,30}\b(?:non[-\s]?carbonated|still\s+beverages?)\b/i.test(text);
+      const onlyCarbonated = /\b(?:carbonated|sparkling)\b[^.;\n]{0,30}\bonly\b|\bonly\b[^.;\n]{0,30}\b(?:carbonated|sparkling)\b/i.test(carbonatedText);
+      const capabilityStatus = wantsStill ? stillStatus : carbonatedStatus;
+      const oppositeOnly = wantsStill ? onlyCarbonated && carbonatedStatus === "supported" : onlyStill && stillStatus === "supported";
+      const outcome = capabilityStatus === "supported" && oppositeOnly ? "conflicting"
+        : capabilityStatus === "unknown" && oppositeOnly ? "mismatch" : capabilityStatus;
+      const supported = outcome === "supported";
       return {
         key, label,
-        outcome: conflict ? "mismatch" : supported ? "supported" : "unknown",
-        claim: conflict ? "Published information limits the relevant line to non-carbonated products."
-          : supported ? "Carbonation is publicly listed as a capability."
-          : "Carbonation capability is not publicly listed.",
+        outcome,
+        claim: outcome === "conflicting" ? `Published statements about ${wantsStill ? "still, non-carbonated" : "carbonated"} production conflict; confirm the exact line.`
+          : outcome === "mismatch" ? oppositeOnly ? `Published information limits the relevant line to ${wantsStill ? "carbonated" : "non-carbonated"} products.` : `Published information explicitly excludes ${wantsStill ? "still, non-carbonated" : "carbonated"} production.`
+          : supported ? wantsStill ? "Still, non-carbonated production is publicly listed as a capability." : "Carbonation is publicly listed as a capability."
+          : wantsStill ? "Still, non-carbonated production capability is not publicly listed." : "Carbonation capability is not publicly listed.",
         sourceField: "processes",
       };
     }

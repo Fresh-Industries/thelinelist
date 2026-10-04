@@ -35,16 +35,16 @@ export function ProductSelector({ visibleCategories }: { visibleCategories: Prod
   });
 
   return (
-    <section className="product-selector wrap" aria-labelledby="product-selector-heading">
+    <section id="product-selector" className="product-selector wrap" aria-labelledby="product-selector-heading">
       <div className="product-selector-head">
-        <p className="kicker">Start here</p>
+        <p className="kicker">Explore the directory</p>
         <h2 id="product-selector-heading">What do you want to make?</h2>
-        <p>Choose the closest option. You can always change it later.</p>
+        <p>Already know your product type? Choose a category to browse manufacturers and their public capabilities.</p>
       </div>
       <div className="product-selector-subhead">
         <div>
-          <h3>Popular starting points</h3>
-          <p>Swipe or scroll through the products people ask about most.</p>
+          <h3>Drinks, sauces, and more</h3>
+          <p>Swipe or scroll to explore a product category.</p>
         </div>
         <span aria-hidden="true">Scroll to browse →</span>
       </div>
@@ -76,7 +76,7 @@ export function ProductSelector({ visibleCategories }: { visibleCategories: Prod
           <Link
             href="/find-manufacturers/wizard"
             className="product-choice product-choice-unsure"
-            aria-label="Take the 60-second product matching quiz"
+            aria-label="Answer a few questions to find possible manufacturers"
             onClick={() => track(ANALYTICS_EVENTS.product_selected, { product: "unsure", source: "home" })}
           >
             <span className="product-choice-corner" aria-hidden="true">↗</span>
@@ -125,7 +125,7 @@ export function ProductSelector({ visibleCategories }: { visibleCategories: Prod
           <Link
             href="/find-manufacturers/wizard"
             className="macro-unsure-link"
-            aria-label="Take the 60-second product matching quiz"
+            aria-label="Answer a few questions to find possible manufacturers"
             onClick={() => track(ANALYTICS_EVENTS.product_selected, { product: "unsure", source: "home" })}
           >
             <span className="macro-unsure-mark" aria-hidden="true">?</span>

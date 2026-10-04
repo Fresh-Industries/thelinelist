@@ -4,6 +4,7 @@ import { deriveProductDescriptorFromIdea, isOpenBrandAnswer } from "./product-id
 import { extractExplicitFounderFacts } from "./intake-extractor";
 import { normalizeCertificationRequirements } from "./certification-requirements";
 import { emptyPreparation, type FounderStage, type PreparationUpdate } from "./preparation";
+import { isUncertainFounderAnswer } from "./uncertainty";
 import type { AgentFieldUpdate, ManufacturerMatch, ManufacturerResearchBroadeningApproval, ManufacturerResearchRequest, OutreachDraft, PackageDesign, SourcingField, SourcingFieldKey, SourcingFieldStatus, SourcingValidationStatus, SourcingWorkspace, WorkspaceActivity } from "./types";
 
 function now(): string {
@@ -275,6 +276,7 @@ function applyFounderFacts(
   return touch({
     ...workspace,
     fields,
+    lastAgentChange: remainingAgentChange(workspace, fields),
     activity: addActivity(workspace.activity, activity("founder_updated", activityMessage)),
   }, timestamp);
 }
@@ -285,10 +287,13 @@ export function applyFounderConversationAnswer(
 ): SourcingWorkspace {
   const text = input.text.trim();
   const brandStillOpen = input.answeringKey === "brand_name" && isOpenBrandAnswer(text);
-  const uncertain = brandStillOpen || /^(?:(?:i(?:'|’)m)\s+)?(?:not\s+)?sure(?:\s+yet)?[.!]?$/i.test(text);
+  const uncertain = brandStillOpen || isUncertainFounderAnswer(text);
   const extracted = uncertain ? [] : extractExplicitFounderFacts(text, "Founder conversation answer");
   const updates = [...extracted];
-  if (updates.length === 0) {
+  const hasCurrentAnswer = updates.some((update) => update.key === input.answeringKey);
+  const acceptsFreeTextAnswer = ["product_description", "company_introduction", "manufacturer_information", "internal_notes", "confirmed_decisions", "proposed_assumptions", "missing_information"].includes(input.answeringKey)
+    || (input.answeringKey === "formula_status" && /\b(?:recipe|formula|prototype)\b/i.test(text));
+  if (!hasCurrentAnswer && (updates.length === 0 || acceptsFreeTextAnswer)) {
     updates.push({
       key: input.answeringKey,
       value: brandStillOpen ? null : text,
@@ -296,13 +301,19 @@ export function applyFounderConversationAnswer(
       explicitlyStated: true,
       source: "Founder conversation answer",
       sourceSpans: uncertain ? [] : [{ start: 0, end: text.length, text }],
-      reason: uncertain ? "The founder explicitly kept this decision open." : "The founder answered this product decision in the workspace.",
-      suggestedSharing: !uncertain,
+      reason: uncertain ? "The founder explicitly kept this decision open." : containsPrivateFounderContext(text)
+        ? "The founder's answer was preserved privately because it includes financial details or explicit privacy instructions. Review a manufacturer-safe version before sharing it."
+        : "The founder answered this product decision in the workspace.",
+      suggestedSharing: !uncertain && !containsPrivateFounderContext(text),
     });
   }
   return applyFounderFacts(workspace, updates, "workspace_ui", updates.length === 1
     ? `${FIELD_DEFINITION_BY_KEY[input.answeringKey].label} updated by founder.`
     : `${updates.length} explicit details from the founder's answer were added to the plan.`);
+}
+
+function containsPrivateFounderContext(text: string): boolean {
+  return /\b(?:budget|internal notes?|target (?:retail|unit) (?:price|cost)|(?:retail|shelf) price|cost (?:target|per unit)|confidential|proprietary)\b|[$€£]|\bprivate\b(?![-\s]+label\b)|\b(?:do not|don't|don’t|never)\s+share\b|\b(?:keep|remain|stay)\b[^.;!?]{0,40}\b(?:private|to myself|between us)\b/i.test(text);
 }
 
 export function applyAgentUpdates(workspace: SourcingWorkspace, updates: AgentFieldUpdate[]): SourcingWorkspace {
@@ -381,7 +392,8 @@ export function undoLastAgentChange(workspace: SourcingWorkspace, changeId: stri
   const fields = { ...workspace.fields };
   for (const key of snapshot.changedKeys) {
     const previous = snapshot.previousFields[key];
-    if (previous) fields[key] = previous;
+    const current = fields[key];
+    if (previous && current.updatedBy === "agent" && current.updatedAt === snapshot.at) fields[key] = previous;
   }
   return touch({
     ...workspace,
@@ -444,8 +456,9 @@ export function applyFounderFieldUpdate(
   const timestamp = now();
   const definition = FIELD_DEFINITION_BY_KEY[input.key];
   const brandStillOpen = input.key === "brand_name" && isOpenBrandAnswer(input.value);
+  const uncertain = isUncertainFounderAnswer(input.value);
   const value = brandStillOpen ? null : input.value?.trim() || null;
-  const requestedStatus = brandStillOpen ? "needs_decision" : input.status;
+  const requestedStatus = brandStillOpen || uncertain ? "needs_decision" : input.status;
   const status = value ? requestedStatus : requestedStatus === "rejected" || requestedStatus === "needs_decision" ? requestedStatus : "unknown";
   const field: SourcingField = {
     ...workspace.fields[input.key],
@@ -465,8 +478,21 @@ export function applyFounderFieldUpdate(
   return touch({
     ...workspace,
     fields,
+    lastAgentChange: remainingAgentChange(workspace, fields),
     activity: addActivity(workspace.activity, activity("founder_updated", `${definition.label} updated by founder.`)),
   }, timestamp);
+}
+
+function remainingAgentChange(workspace: SourcingWorkspace, fields: Record<SourcingFieldKey, SourcingField>): SourcingWorkspace["lastAgentChange"] {
+  const snapshot = workspace.lastAgentChange;
+  if (!snapshot) return null;
+  const changedKeys = snapshot.changedKeys.filter((key) => fields[key] === workspace.fields[key]);
+  if (changedKeys.length === 0 && !snapshot.packageDesignChanged) return null;
+  return {
+    ...snapshot,
+    changedKeys,
+    previousFields: Object.fromEntries(changedKeys.map((key) => [key, snapshot.previousFields[key]])),
+  };
 }
 
 function refreshStarterProductDescription(

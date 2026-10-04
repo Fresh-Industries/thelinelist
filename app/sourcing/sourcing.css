@@ -96,6 +96,10 @@
 .section-action:hover { color: #b64d2c; border-color: #b64d2c; }
 .section-action svg { width: 17px; height: 17px; }
 .field-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 28px; margin: 23px 0 0; }
+.brief-open-details { padding: 20px 0; border-top: 1px solid #c9c1b4; }
+.brief-open-details > summary { width: fit-content; padding: 8px 0; color: #173f35; font-size: 13px; font-weight: 700; cursor: pointer; }
+.brief-open-details .field-edit { opacity: 1; }
+.agent-prompt + .brief-section { margin-top: 28px; }
 .brief-field { position: relative; min-width: 0; padding-right: 18px; }
 .brief-field dt { margin-bottom: 6px; color: #65645e; font-size: 10px; font-weight: 800; }
 .brief-field dd { margin: 0; font-size: 13px; font-weight: 650; line-height: 1.5; overflow-wrap: anywhere; }
@@ -108,6 +112,10 @@
 .brief-field.agent-changed { margin: -8px; padding: 8px 26px 8px 8px; background: #fbede1; box-shadow: inset 2px 0 #b64d2c; }
 .field-edit { position: absolute; top: -2px; right: 0; width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; color: #8f887d; opacity: 0; cursor: pointer; }
 .brief-field:hover .field-edit, .field-edit:focus-visible { opacity: 1; }
+@media (hover: none) {
+  .field-edit { width: 44px; height: 44px; opacity: 1; }
+  .brief-field { padding-right: 44px; }
+}
 .field-edit svg { width: 13px; height: 13px; }
 .field-editor { grid-column: span 2; }
 .field-editor textarea { width: 100%; padding: 9px; border: 1px solid #8f887d; background: #fffaf2; font: inherit; font-size: 12px; }

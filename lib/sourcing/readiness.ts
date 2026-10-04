@@ -3,6 +3,7 @@ import { getSourcingCategory } from "./questions";
 import { getCurrentManufacturerResearch, hasValidFounderPackageCommit } from "./workspace";
 import type { SourcingFieldKey, SourcingWorkspace } from "./types";
 import { normalizeCertificationRequirements } from "./certification-requirements";
+import { isUncertainFounderAnswer } from "./uncertainty";
 
 export const MATCH_SHAPING_FIELDS: SourcingFieldKey[] = [
   "product_format",
@@ -58,7 +59,7 @@ const WHY_IT_MATTERS: Partial<Record<SourcingFieldKey, string>> = {
 function isUsefulConfirmedValue(workspace: SourcingWorkspace, key: SourcingFieldKey): boolean {
   const field = workspace.fields[key];
   if (!field || field.status !== "confirmed" || !field.value) return false;
-  return !/^(?:(?:i(?:'|’)m)\s+)?(?:not\s+)?sure(?:\s+yet)?[.!]?$/i.test(field.value.trim());
+  return !isUncertainFounderAnswer(field.value);
 }
 
 function isResolvedRequirement(workspace: SourcingWorkspace, key: SourcingFieldKey): boolean {

@@ -29,6 +29,7 @@ function navCurrent(match: NavMatch, current?: string): boolean {
 }
 
 export function SiteHeader({ current }: { current?: string }) {
+  const planCurrent = current === "/sourcing" || Boolean(current?.startsWith("/sourcing/")) || current === "/products";
   return (
     <header className="site-header">
       <div className="wrap header-bar">
@@ -45,7 +46,7 @@ export function SiteHeader({ current }: { current?: string }) {
         <details className="nav-menu">
           <summary>Menu</summary>
           <nav className="site-nav" aria-label="Primary mobile">
-            <ProductPlanLink current={current?.startsWith("/sourcing")} />
+            <ProductPlanLink current={planCurrent} />
             {BASE_NAV.map((item) => (
               <Link
                 key={item.href}
@@ -58,7 +59,7 @@ export function SiteHeader({ current }: { current?: string }) {
           </nav>
         </details>
         <nav className="site-nav site-nav-desktop" aria-label="Primary desktop">
-          <ProductPlanLink current={current?.startsWith("/sourcing")} />
+          <ProductPlanLink current={planCurrent} />
           {BASE_NAV.map((item) => (
             <Link
               key={item.href}

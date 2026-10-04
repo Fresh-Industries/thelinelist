@@ -8,13 +8,13 @@ test("capture production product workspace", async ({ page }) => {
   test.skip(process.env.UPDATE_SOURCING_SCREENSHOTS !== "1", "Set UPDATE_SOURCING_SCREENSHOTS=1 to refresh documentation screenshots.");
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/sourcing");
-  await expect(page.getByRole("heading", { name: "Start your food or drink brand." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with your food or drink idea." })).toBeVisible();
   await hideDevOverlay(page);
   await page.screenshot({ path: "docs/screenshots/sourcing-landing-desktop.png", fullPage: false });
 
-  await page.getByText("Or start here yourself").click();
+  if (!await page.getByLabel("What do you want to make?").isVisible()) await page.getByText("Start on this page").click();
   await page.getByLabel("What do you want to make?").fill("A packaged banana bread mini loaf for coffee shops");
-  await page.getByRole("button", { name: "Build with your agent" }).click();
+  await page.getByRole("button", { name: "Create my product plan" }).click();
   await expect(page).toHaveURL(/\/sourcing\/[A-Za-z0-9_-]+$/);
   const productBriefPath = new URL(page.url()).pathname;
   const manufacturersPath = `${productBriefPath}/manufacturers`;

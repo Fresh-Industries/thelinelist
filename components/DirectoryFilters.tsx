@@ -536,7 +536,7 @@ export function DirectoryFilters({
             <button type="button" onClick={() => document.getElementById(productInputId)?.focus()}>More +</button>
           </li>
         </ul>
-        <p>Not sure what you need? <Link href="/find-manufacturers/wizard">Try the 4-step matcher <span aria-hidden="true">→</span></Link></p>
+        <p>Not sure what you need? <Link href="/find-manufacturers/wizard">Try the 3-step matcher <span aria-hidden="true">→</span></Link></p>
       </div>
 
       <details className="advanced-filters" open={advancedOpen} onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}>

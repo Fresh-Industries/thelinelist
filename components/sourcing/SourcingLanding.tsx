@@ -4,11 +4,12 @@ import { ArrowRight, Sparkle } from "@phosphor-icons/react";
 import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { track } from "@/lib/analytics/client";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { buildSourcingAgentState } from "@/lib/sourcing/agent-state";
 import { SOURCING_FIELD_KEYS, type AgentFieldUpdate, type SourcingWorkspace } from "@/lib/sourcing/types";
 import { FOUNDER_STAGES, type FounderStage } from "@/lib/sourcing/preparation";
 import { rememberActivePlan } from "@/lib/sourcing/active-plan";
-import { track } from "@/lib/analytics/client";
 
 const PROMPT_STARTERS = [
   { label: "Drink", seed: "I want to make a packaged drink...", image: "/images/clay-v2/products/functional-beverages.webp" },
@@ -31,6 +32,7 @@ export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string;
   const creationAttemptRef = useRef<{ payloadKey: string; mutationId: string } | null>(null);
   const creationPayloadsRef = useRef(new Map<string, string>());
   const creationRequestsRef = useRef(new Map<string, Promise<CreationPayload>>());
+  const trackedCreationsRef = useRef(new Set<string>());
 
   function seedIdea(seed: string) {
     setIdea(seed);
@@ -42,7 +44,7 @@ export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string;
     });
   }
 
-  const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[], navigate = true, requestedMutationId?: string, startingStage?: FounderStage) => {
+  const createWorkspace = useCallback(async (rawIdea: string, initialUpdates?: AgentFieldUpdate[], navigate = true, requestedMutationId?: string, startingStage?: FounderStage, entry: "manual" | "agent" = "manual") => {
     const trimmed = rawIdea.trim();
     if (!trimmed) return;
     const payloadKey = stableJsonStringify({ idea: trimmed, initialUpdates: initialUpdates ?? [], ...(startingStage ? { startingStage } : {}) });
@@ -65,10 +67,13 @@ export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string;
     }
     try {
       const payload = await request;
+      if (payload.receipt.outcome === "created" && !trackedCreationsRef.current.has(mutationId)) {
+        trackedCreationsRef.current.add(mutationId);
+        track(ANALYTICS_EVENTS.product_plan_created, { entry });
+      }
       if (creationRequestsRef.current.get(mutationId) === request) creationRequestsRef.current.delete(mutationId);
       setPending(false);
       rememberActivePlan(payload.workspace.id);
-      if (payload.receipt.outcome === "created") track("product_plan_created");
       if (navigate) router.push(payload.receipt.workspaceUrl);
       return payload;
     } catch (caught) {
@@ -135,7 +140,7 @@ export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string;
         if (typeof args.mutationId !== "string" || !/^[A-Za-z0-9_-]{20,128}$/.test(args.mutationId)) {
           throw new Error("Create one opaque mutationId and reuse it if this exact workspace creation is retried.");
         }
-        const payload = await createWorkspace(rawIdea, args.initialUpdates, false, args.mutationId);
+        const payload = await createWorkspace(rawIdea, args.initialUpdates, false, args.mutationId, undefined, "agent");
         if (!payload?.workspace || !payload.receipt) throw new Error("The product workspace could not be created.");
         const result = {
           ...buildSourcingAgentState(payload.workspace),
@@ -173,13 +178,13 @@ export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string;
   return (
     <section className="sourcing-entry" aria-labelledby="sourcing-entry-heading">
       <div className="sourcing-entry-copy">
-        <p className="document-kicker"><Sparkle aria-hidden="true" weight="fill" /> From idea to first conversation</p>
-        <h1 id="sourcing-entry-heading">Start your food or drink brand.</h1>
-        <p>Start with what you know. Keep your decisions, useful lessons, and first-run estimates in one private product plan. You can edit it yourself or work with your connected agent.</p>
+        <p className="document-kicker"><Sparkle aria-hidden="true" weight="fill" /> Your product plan</p>
+        <h1 id="sourcing-entry-heading">Start with your food or drink idea.</h1>
+        <p>Build a product brief from what you already know, work through the open decisions, and find manufacturers worth a conversation. You review every introduction before anything is sent.</p>
       </div>
-      {agentConnected ? <div className="agent-start-state is-connected"><span aria-hidden="true" /><div><strong>Agent connected</strong><p>Describe your idea in chat. Your agent can create your product plan now.</p></div></div> : null}
+      <div className={`agent-start-state${agentConnected ? " is-connected" : ""}`}><span aria-hidden="true" /><div><strong>{agentConnected ? "Agent connected" : "One idea is enough to start"}</strong><p>{agentConnected ? "Describe your idea in chat. Your agent can create this product plan now." : "Tell us what you want to make below. You can edit your plan as you learn more."}</p></div></div>
       <details className="manual-start" open={manualOpen ?? (!agentConnected || Boolean(returnGuide))}>
-        <summary onClick={(event) => { event.preventDefault(); setManualOpen(!(manualOpen ?? (!agentConnected || Boolean(returnGuide)))); }}>{agentConnected ? "Or start here yourself" : "Start with your idea"}</summary>
+        <summary onClick={(event) => { event.preventDefault(); setManualOpen(!(manualOpen ?? (!agentConnected || Boolean(returnGuide)))); }}>Start on this page</summary>
       <form className="idea-composer" onSubmit={start} onFocusCapture={() => setManualOpen(true)}>
         <label htmlFor="product-idea">What do you want to make?</label>
         <textarea
@@ -188,7 +193,7 @@ export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string;
           rows={4}
           value={idea}
           onChange={(event) => setIdea(event.target.value)}
-          placeholder="I make banana bread and want to sell it in stores…"
+          placeholder="I want to make a mango sparkling drink. I have a flavor idea but need help with the recipe…"
           maxLength={1_500}
           required
         />
@@ -207,7 +212,7 @@ export function SourcingLanding({ returnGuide }: { returnGuide?: { slug: string;
               </button>
             ))}
           </div>
-          <p>These are only starting points. You can change any part of your idea.</p>
+          <p>Pick a starting point, then make it your own.</p>
         </fieldset>
         <div>
           <span>No manufacturing experience needed. “I’m not sure” is always a valid answer.</span>

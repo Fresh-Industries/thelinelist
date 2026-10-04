@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, type Dispatch, type ReactNode, type SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { DownloadSimple } from "@phosphor-icons/react";
+import { track } from "@/lib/analytics/client";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { browserTimeZone, sourcingExportUrl } from "@/lib/sourcing/export-url";
 import { getProductIdentity } from "@/lib/sourcing/product-identity";
 import { mergePackagePreview } from "@/lib/sourcing/package-preview";
@@ -54,7 +56,7 @@ export function SourcingWorkspaceProvider({
   const [workspace, setWorkspace] = useState(initialWorkspace);
   const [busy, setBusy] = useState<SourcingBusyState>(null);
   const [error, setError] = useState("");
-  const [agentNote, setAgentNote] = useState("I’ve turned what you told me into a first-pass brief. Confirmed facts, suggestions, and open decisions stay visibly separate.");
+  const [agentNote, setAgentNote] = useState("");
   const [workbenchOpen, setWorkbenchOpen] = useState(false);
   const [workbenchSession, setWorkbenchSession] = useState(0);
   const [packagePreview, setPackagePreview] = useState<PackageDesign | null>(initialWorkspace.stagedPackageDesign?.design ?? null);
@@ -68,6 +70,9 @@ export function SourcingWorkspaceProvider({
   const acceptWorkspace = useCallback((next: SourcingWorkspace) => {
     const current = workspaceRef.current;
     if (next.id !== current.id || next.revision < current.revision) return;
+    const existingDraftIds = new Set(current.outreachDrafts.map((draft) => draft.id));
+    const preparedDraftCount = next.outreachDrafts.filter((draft) => !existingDraftIds.has(draft.id)).length;
+    if (preparedDraftCount > 0) track(ANALYTICS_EVENTS.sourcing_drafts_prepared, { draft_count: preparedDraftCount });
     workspaceRef.current = next;
     setWorkspace(next);
     setPackagePreview(next.stagedPackageDesign?.design ?? null);

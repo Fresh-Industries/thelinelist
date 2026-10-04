@@ -1,6 +1,7 @@
 import { HowItWorks } from "@/components/HowItWorks";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { ProductSelector } from "@/components/ProductSelector";
+import { ProductPlanCta } from "@/components/ProductPlanCta";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TrustStrip } from "@/components/TrustStrip";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -56,7 +57,7 @@ const HOME_GUIDES = [
 export const metadata: Metadata = pageMetadata({
   title: "The Line List | Food and Beverage Manufacturers",
   description:
-    "Learn what your food or drink product needs, find manufacturers that may fit, and prepare for your first conversation.",
+    "Turn your food or drink idea into a product plan. Explore sourced manufacturers and prepare for your first manufacturing conversation.",
   path: "/",
   absoluteTitle: true,
 });
@@ -70,18 +71,18 @@ export default function HomePage() {
         <section className="hero-immersive">
           <div className="wrap hero-grid">
             <div className="hero-copy">
-              <p className="kicker">From idea to first run</p>
-              <h1>Your food or drink idea starts here.</h1>
+              <p className="kicker">For your first food or drink brand</p>
+              <h1>Food or drink idea? Make a plan for your first run.</h1>
               <p className="sub">
-                Figure out your next step, build your product plan, and find manufacturers that may fit. A rough idea is enough to begin.
+                Get clear on your recipe stage, packaging, and first production amount. Explore manufacturers with public evidence behind their capabilities, then prepare your first conversation.
               </p>
               <div className="hero-actions">
-                <Link className="btn hero-primary" href="/sourcing">
-                  Start my food or drink brand
+                <ProductPlanCta className="btn hero-primary" source="home_hero">
+                  Start my product plan
                   <span aria-hidden="true">→</span>
-                </Link>
-                <Link className="btn hero-secondary" href="/find-manufacturers">
-                  Browse manufacturers
+                </ProductPlanCta>
+                <Link className="btn hero-secondary" href="#product-selector">
+                  Browse by product
                 </Link>
               </div>
             </div>
